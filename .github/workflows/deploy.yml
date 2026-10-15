@@ -26,7 +26,7 @@ jobs:
         run: |
           python tests/test_online_server.py
           python tests/test_release_stamp.py
-          python tests/test_vector_map_assets.py
+          python tests/test_map_sprite_assets.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done

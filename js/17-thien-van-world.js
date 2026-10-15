@@ -25,11 +25,11 @@
   const atlases=[]; // Legacy raster atlases retained on disk, never loaded by the vector renderer.
   const ready=img=>img.complete&&img.naturalWidth>0;
   const cleaned=new Map();
-  // SVG độc lập, trong suốt: không đọc pixel hay phóng lớn atlas raster cũ.
+  // PNG alpha đã tách riêng từ các atlas MAP gốc, không đọc pixel lúc chạy.
   function isolate(key){
     if(!definitions[key])return null;
     if(!cleaned.has(key)){
-      const img=new Image();img.src='MAP/vector/'+key+'.svg';
+      const img=new Image();img.src='MAP/sprites/'+key+'.png';
       img.onerror=()=>msg('Không tải được asset bản đồ '+key+'.');cleaned.set(key,img);
     }
     const img=cleaned.get(key);return ready(img)?img:null;

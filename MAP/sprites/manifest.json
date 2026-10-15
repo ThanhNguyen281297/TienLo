@@ -1,0 +1,272 @@
+{
+  "arena": {
+    "file": "MAP/sprites/arena.png",
+    "width": 485,
+    "height": 442,
+    "sha256": "8eaeb590b05b449fa668b1d4fac123cb0ef074611c3be705ee5488e52d7a21c4"
+  },
+  "board": {
+    "file": "MAP/sprites/board.png",
+    "width": 222,
+    "height": 307,
+    "sha256": "23b98edc35a527fbc32e3a564691d643e8a5729a6eca15bc6ee46e08cd7dfe6b"
+  },
+  "bridge": {
+    "file": "MAP/sprites/bridge.png",
+    "width": 345,
+    "height": 163,
+    "sha256": "ff2f83329c44bd048e667ceeb1406e443bcc4d72e31019b13926fa2a451539c2"
+  },
+  "bridgeRail": {
+    "file": "MAP/sprites/bridgeRail.png",
+    "width": 60,
+    "height": 13,
+    "sha256": "b7525c4046aae939cdf8ee890a36b075fd916734918e654fbef3d764405b91b8"
+  },
+  "cloud": {
+    "file": "MAP/sprites/cloud.png",
+    "width": 420,
+    "height": 156,
+    "sha256": "820ad75abbcd182ae339ffb9b6aa34a5dc75f516a9fee27a66f069626634a98c"
+  },
+  "cloudRock": {
+    "file": "MAP/sprites/cloudRock.png",
+    "width": 139,
+    "height": 90,
+    "sha256": "75019aa5e8e75b8e75c4c75cefc33d6043b2ef84d82c362c2d791b73ff8dbe73"
+  },
+  "crystalPillar": {
+    "file": "MAP/sprites/crystalPillar.png",
+    "width": 94,
+    "height": 252,
+    "sha256": "c311057793a968dd54f25b98b3a0ddd62e91f35795fbb0f2656bc290c539c481"
+  },
+  "forge": {
+    "file": "MAP/sprites/forge.png",
+    "width": 460,
+    "height": 319,
+    "sha256": "25af5ebd63b9f59198ad0f9f4cf42d5d2b6a5afc68b281f268d8003db96e46c0"
+  },
+  "garden": {
+    "file": "MAP/sprites/garden.png",
+    "width": 529,
+    "height": 361,
+    "sha256": "2c9874c17c51fe736b9309090f9152600644bda14f6f22300a23350dc3907862"
+  },
+  "gate": {
+    "file": "MAP/sprites/gate.png",
+    "width": 523,
+    "height": 465,
+    "sha256": "d3ce051a77110af29124f3a6d8bccafc8ef2559555bf04d28bc9bbc9e00b1726"
+  },
+  "greatIsland": {
+    "file": "MAP/sprites/greatIsland.png",
+    "width": 701,
+    "height": 528,
+    "sha256": "c5785c16458f09207e042f7e45eb3f20ca7d625af64d5aedecd76875ddde5746"
+  },
+  "guardianLion": {
+    "file": "MAP/sprites/guardianLion.png",
+    "width": 241,
+    "height": 240,
+    "sha256": "21fce56c5979109223d313951e2a1fd4df253f26c123592ae80d262d41282d37"
+  },
+  "hubBazaar": {
+    "file": "MAP/sprites/hubBazaar.png",
+    "width": 376,
+    "height": 270,
+    "sha256": "4095220eb757ebd493f1680f94b76820a276e124b978c59db00ecf9601eba5f9"
+  },
+  "hubWell": {
+    "file": "MAP/sprites/hubWell.png",
+    "width": 370,
+    "height": 322,
+    "sha256": "fae6f5b8dd1d615cf2079facde11b558b7393f42aaf4878ba2f4821e624a7ef3"
+  },
+  "island": {
+    "file": "MAP/sprites/island.png",
+    "width": 356,
+    "height": 346,
+    "sha256": "02273b5bdf1999a89748916f1058ecc0129050d7589d55380ea1409178b43a03"
+  },
+  "lantern": {
+    "file": "MAP/sprites/lantern.png",
+    "width": 101,
+    "height": 241,
+    "sha256": "2a23d861ad48e3a738ffc2e7e15d21efae91a87f5d79da68ea12dc00070e0b5c"
+  },
+  "lotusPond": {
+    "file": "MAP/sprites/lotusPond.png",
+    "width": 106,
+    "height": 72,
+    "sha256": "3182c4d9f14e0292431baa186d7e385213095bc59294c0550dfd1ff673b0d456"
+  },
+  "market": {
+    "file": "MAP/sprites/market.png",
+    "width": 466,
+    "height": 304,
+    "sha256": "d00c51699bb5b27837517dc97b22f55d01c7038fc0f0f1802bd1803d3b616e58"
+  },
+  "moonCourt": {
+    "file": "MAP/sprites/moonCourt.png",
+    "width": 375,
+    "height": 225,
+    "sha256": "edb0cd1b61730d11b6d8d241f25488de2cab188c77ffd8eb957c90cc735d5058"
+  },
+  "moonDais": {
+    "file": "MAP/sprites/moonDais.png",
+    "width": 270,
+    "height": 174,
+    "sha256": "ffd76608a42ace80dbb6e75769ce83810c1a4feffaef00ece8c2196eac7040da"
+  },
+  "moonFall": {
+    "file": "MAP/sprites/moonFall.png",
+    "width": 224,
+    "height": 262,
+    "sha256": "73f1caa9043d5e675fc71f4779465cd5de632317149475838e88d1eb8d3a6548"
+  },
+  "mysticArchive": {
+    "file": "MAP/sprites/mysticArchive.png",
+    "width": 391,
+    "height": 314,
+    "sha256": "833cf42521d0480bd2e8d7ad72a8b3aceae7d7f3e4f327549f8bb16bca994d1d"
+  },
+  "mysticDais": {
+    "file": "MAP/sprites/mysticDais.png",
+    "width": 136,
+    "height": 192,
+    "sha256": "24fb137477320c9bf5288f13438feedcef3f121596ee34eef6a3ffbf16f0c98c"
+  },
+  "mysticGarden": {
+    "file": "MAP/sprites/mysticGarden.png",
+    "width": 458,
+    "height": 359,
+    "sha256": "4ae2c4ed3b5a682ca17a23574c767c792b2a52a90f5ac0917c32e8d0aa15949a"
+  },
+  "mysticHall": {
+    "file": "MAP/sprites/mysticHall.png",
+    "width": 328,
+    "height": 292,
+    "sha256": "f433dd5f9219d932cb1e2648f79045ef3c8ffa40afcc1a38be853936c201ef44"
+  },
+  "palace": {
+    "file": "MAP/sprites/palace.png",
+    "width": 915,
+    "height": 506,
+    "sha256": "fe5b26a31c37b37542e6ccbdf08e73cfc37449dbe87cf7321db5a307a567e785"
+  },
+  "peak": {
+    "file": "MAP/sprites/peak.png",
+    "width": 88,
+    "height": 227,
+    "sha256": "f7302315f160afccf5b122205bd05db703dcbb2cbe7330c8b5b0ceccd79768f5"
+  },
+  "pineTree": {
+    "file": "MAP/sprites/pineTree.png",
+    "width": 129,
+    "height": 114,
+    "sha256": "578694741b9de9fbec6cb5bb0475b437edb59bf73b874bb04961ef6333c6ed95"
+  },
+  "platform": {
+    "file": "MAP/sprites/platform.png",
+    "width": 258,
+    "height": 174,
+    "sha256": "21f0c248bdc2051a0c5e0688ea7de0df3f40ac0466bba1ea5abee1906f38eb7d"
+  },
+  "pond": {
+    "file": "MAP/sprites/pond.png",
+    "width": 403,
+    "height": 167,
+    "sha256": "7327578407a634f1790ad102de08207ccefbbb112a437f2a51bf8b408ca040c2"
+  },
+  "portal": {
+    "file": "MAP/sprites/portal.png",
+    "width": 321,
+    "height": 353,
+    "sha256": "e76156dcbcdc9f71cb3aa9fa245dd414a8624a8d7c0025c23e933a346e7eb535"
+  },
+  "rock": {
+    "file": "MAP/sprites/rock.png",
+    "width": 152,
+    "height": 155,
+    "sha256": "81743edadbba70798fc065fc7eaeba9852748ba30e8a4e933b22a980348d56c5"
+  },
+  "sakura": {
+    "file": "MAP/sprites/sakura.png",
+    "width": 310,
+    "height": 241,
+    "sha256": "e0bfde6a6635451be1e00b8e3541da47239fb95614863d50ac98361a050700f9"
+  },
+  "school": {
+    "file": "MAP/sprites/school.png",
+    "width": 495,
+    "height": 303,
+    "sha256": "61bae6e6a8e7864eb4f055818c31d80c9de2d4279f9ce52fba4fff47b5ec59a7"
+  },
+  "stairs": {
+    "file": "MAP/sprites/stairs.png",
+    "width": 200,
+    "height": 236,
+    "sha256": "6be808cab9c787ec445b6d7038628d25affa902db714fd408ffb03184c5ba2c5"
+  },
+  "stall": {
+    "file": "MAP/sprites/stall.png",
+    "width": 162,
+    "height": 164,
+    "sha256": "03743d7bff9c1d0f2ec60ce15509b4b93169c9871f6377aca5ed0a80faddfafd"
+  },
+  "statue": {
+    "file": "MAP/sprites/statue.png",
+    "width": 180,
+    "height": 215,
+    "sha256": "76dc376759ef1dcf75208d512327f75c56f87ff834c721dbddf5e3060603e42f"
+  },
+  "thunderAltar": {
+    "file": "MAP/sprites/thunderAltar.png",
+    "width": 181,
+    "height": 232,
+    "sha256": "7d0c11c0cbddc2577198ee893c9a7ead8555484fd271c067eab3425754a15072"
+  },
+  "thunderHall": {
+    "file": "MAP/sprites/thunderHall.png",
+    "width": 601,
+    "height": 359,
+    "sha256": "f996510e19c9453939f0fb2e7fb35e2918f9fc18e6f33e04f6be4c044fb86716"
+  },
+  "tile": {
+    "file": "MAP/sprites/tile.png",
+    "width": 48,
+    "height": 24,
+    "sha256": "6b2da4c6c595884911494e60d689a614f47cca908892807beb582775c1e93071"
+  },
+  "tower": {
+    "file": "MAP/sprites/tower.png",
+    "width": 400,
+    "height": 361,
+    "sha256": "4dfe556e471f4f27ba0dbcf31b30b207be14d0aea4445e6b44e05a9a9b0303c0"
+  },
+  "tree": {
+    "file": "MAP/sprites/tree.png",
+    "width": 222,
+    "height": 229,
+    "sha256": "57aa946f1a8c1021ba921abb6cbe24dc78f7e29707c906791868307f471312bc"
+  },
+  "tree2": {
+    "file": "MAP/sprites/tree2.png",
+    "width": 185,
+    "height": 217,
+    "sha256": "ac1bde1e51c1a294604c98c5db36b99eef12931b763d8ae081c64ef8fffed9b4"
+  },
+  "waterfall": {
+    "file": "MAP/sprites/waterfall.png",
+    "width": 224,
+    "height": 258,
+    "sha256": "d9fe1c3a6aeab631ed0e2e371d99427476e9f13ed866d5933301fe994ee32aac"
+  },
+  "whiteBlossom": {
+    "file": "MAP/sprites/whiteBlossom.png",
+    "width": 129,
+    "height": 113,
+    "sha256": "a4a359f004eeddf935fa0f9676a2dd7c51f0da870719d8d7ec04aa8fae52ba4b"
+  }
+}
