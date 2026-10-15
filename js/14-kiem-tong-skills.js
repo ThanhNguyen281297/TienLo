@@ -13,7 +13,7 @@
     const image = new Image();
     image.onload = () => refreshUI(true);
     image.onerror = () => msg('Không tải được ảnh kỹ năng: ' + name + '.png');
-    image.src = 'CHARACTER/Kiem/Skill/' + name + '.png';
+    image.src = 'CHARACTER/SkillSprites/Kiem/' + name + '/01.png';
     return image;
   });
   const ringImage = new Image(); ringImage.src = 'CHARACTER/Kiem/Vong/vong.png';
@@ -24,13 +24,12 @@
   const live = e => !e.dead && e.hp > 0;
   function ready(img) { return img.complete && img.naturalWidth > 0; }
   function crop(ctx, image, rect, x, y, width, height, rotation = 0, alpha = 1) {
-    if (!ready(image)) return;
-    ctx.save(); ctx.translate(x,y); ctx.rotate(rotation); ctx.globalAlpha *= alpha;
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(image, rect[0]*image.naturalWidth, rect[1]*image.naturalHeight,
-      rect[2]*image.naturalWidth, rect[3]*image.naturalHeight, -width/2,-height/2,width,height);
-    ctx.restore();
+    const index=ART.indexOf(image);
+    if(index<0)return;
+    const frame=index===2?0:index===0?3:index===3?4:Math.max(0,DASH_FRAMES.indexOf(rect));
+    skillSprites.draw(ctx,0,index,frame,x,y,width,height,rotation,alpha);
   }
+
   function blade(ctx,x,y,length,rotation=0,alpha=1) {
     crop(ctx,ART[2],SWORD,x,y,length*54/185,length,rotation,alpha);
   }
@@ -194,9 +193,8 @@
   };
 
   function drawRing(ctx,center,radius,alpha=1) {
-    if(!ready(ringImage))return;
-    ctx.save();ctx.globalAlpha*=alpha;ctx.imageSmoothingEnabled=true;
-    ctx.drawImage(ringImage,center.x-radius,center.y-radius*.55,radius*2,radius*1.1);ctx.restore();
+    skillSprites.draw(ctx,0,2,center.duration&&center.age>center.duration-.45?5:Math.min(4,Math.floor((center.age||0)*4)+1),center.x,center.y,radius*2,radius*1.4,0,alpha);
+
   }
   function drawField(ctx,field) {
     const spawn=clamp(field.age/.35,0,1),fade=clamp((field.duration-field.age)/.35,0,1);

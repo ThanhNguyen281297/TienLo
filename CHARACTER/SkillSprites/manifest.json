@@ -1,0 +1,1866 @@
+{
+  "Kiem": {
+    "batquaikiemtran": [
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/batquaikiemtran/01.png",
+        "bounds": [
+          231,
+          81,
+          360,
+          506
+        ],
+        "size": [
+          510,
+          570
+        ],
+        "sourceBox": [
+          0,
+          0,
+          446,
+          506
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/batquaikiemtran/02.png",
+        "bounds": [
+          134,
+          277,
+          576,
+          502
+        ],
+        "size": [
+          632,
+          570
+        ],
+        "sourceBox": [
+          446,
+          0,
+          1014,
+          506
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/batquaikiemtran/03.png",
+        "bounds": [
+          81,
+          102,
+          518,
+          501
+        ],
+        "size": [
+          586,
+          570
+        ],
+        "sourceBox": [
+          1014,
+          0,
+          1536,
+          506
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/batquaikiemtran/04.png",
+        "bounds": [
+          69,
+          83,
+          518,
+          457
+        ],
+        "size": [
+          566,
+          582
+        ],
+        "sourceBox": [
+          0,
+          506,
+          502,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/batquaikiemtran/05.png",
+        "bounds": [
+          55,
+          59,
+          543,
+          498
+        ],
+        "size": [
+          600,
+          582
+        ],
+        "sourceBox": [
+          502,
+          506,
+          1038,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/batquaikiemtran/06.png",
+        "bounds": [
+          50,
+          109,
+          484,
+          471
+        ],
+        "size": [
+          562,
+          582
+        ],
+        "sourceBox": [
+          1038,
+          506,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "kiemanhbo": [
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/kiemanhbo/01.png",
+        "bounds": [
+          135,
+          261,
+          467,
+          385
+        ],
+        "size": [
+          578,
+          502
+        ],
+        "sourceBox": [
+          0,
+          0,
+          514,
+          438
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/kiemanhbo/02.png",
+        "bounds": [
+          71,
+          251,
+          495,
+          390
+        ],
+        "size": [
+          564,
+          502
+        ],
+        "sourceBox": [
+          514,
+          0,
+          1014,
+          438
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/kiemanhbo/03.png",
+        "bounds": [
+          76,
+          211,
+          502,
+          426
+        ],
+        "size": [
+          586,
+          502
+        ],
+        "sourceBox": [
+          1014,
+          0,
+          1536,
+          438
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/kiemanhbo/04.png",
+        "bounds": [
+          97,
+          218,
+          504,
+          480
+        ],
+        "size": [
+          566,
+          650
+        ],
+        "sourceBox": [
+          0,
+          438,
+          502,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/kiemanhbo/05.png",
+        "bounds": [
+          67,
+          252,
+          536,
+          448
+        ],
+        "size": [
+          608,
+          650
+        ],
+        "sourceBox": [
+          502,
+          438,
+          1046,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/kiemanhbo/06.png",
+        "bounds": [
+          67,
+          267,
+          459,
+          448
+        ],
+        "size": [
+          554,
+          650
+        ],
+        "sourceBox": [
+          1046,
+          438,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "phikiemquyet": [
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/phikiemquyet/01.png",
+        "bounds": [
+          58,
+          226,
+          538,
+          359
+        ],
+        "size": [
+          598,
+          542
+        ],
+        "sourceBox": [
+          0,
+          0,
+          534,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/phikiemquyet/02.png",
+        "bounds": [
+          56,
+          143,
+          503,
+          425
+        ],
+        "size": [
+          560,
+          542
+        ],
+        "sourceBox": [
+          534,
+          0,
+          1030,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/phikiemquyet/03.png",
+        "bounds": [
+          62,
+          137,
+          521,
+          443
+        ],
+        "size": [
+          570,
+          542
+        ],
+        "sourceBox": [
+          1030,
+          0,
+          1536,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/phikiemquyet/04.png",
+        "bounds": [
+          90,
+          105,
+          520,
+          510
+        ],
+        "size": [
+          580,
+          610
+        ],
+        "sourceBox": [
+          0,
+          478,
+          516,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/phikiemquyet/05.png",
+        "bounds": [
+          76,
+          123,
+          524,
+          499
+        ],
+        "size": [
+          594,
+          610
+        ],
+        "sourceBox": [
+          516,
+          478,
+          1046,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/phikiemquyet/06.png",
+        "bounds": [
+          56,
+          96,
+          496,
+          499
+        ],
+        "size": [
+          554,
+          610
+        ],
+        "sourceBox": [
+          1046,
+          478,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "vankiemquytong": [
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/vankiemquytong/01.png",
+        "bounds": [
+          178,
+          173,
+          421,
+          439
+        ],
+        "size": [
+          578,
+          542
+        ],
+        "sourceBox": [
+          0,
+          0,
+          514,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/vankiemquytong/02.png",
+        "bounds": [
+          172,
+          138,
+          396,
+          437
+        ],
+        "size": [
+          516,
+          542
+        ],
+        "sourceBox": [
+          514,
+          0,
+          966,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/vankiemquytong/03.png",
+        "bounds": [
+          233,
+          120,
+          452,
+          457
+        ],
+        "size": [
+          634,
+          542
+        ],
+        "sourceBox": [
+          966,
+          0,
+          1536,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/vankiemquytong/04.png",
+        "bounds": [
+          136,
+          136,
+          446,
+          488
+        ],
+        "size": [
+          598,
+          610
+        ],
+        "sourceBox": [
+          0,
+          478,
+          534,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/vankiemquytong/05.png",
+        "bounds": [
+          86,
+          116,
+          445,
+          500
+        ],
+        "size": [
+          572,
+          610
+        ],
+        "sourceBox": [
+          534,
+          478,
+          1042,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Kiem/vankiemquytong/06.png",
+        "bounds": [
+          123,
+          175,
+          416,
+          481
+        ],
+        "size": [
+          558,
+          610
+        ],
+        "sourceBox": [
+          1042,
+          478,
+          1536,
+          1024
+        ]
+      }
+    ]
+  },
+  "Liem": {
+    "minhnguyetgiangthe": [
+      {
+        "src": "CHARACTER/SkillSprites/Liem/minhnguyetgiangthe/01.png",
+        "bounds": [
+          77,
+          55,
+          518,
+          530
+        ],
+        "size": [
+          578,
+          582
+        ],
+        "sourceBox": [
+          0,
+          0,
+          514,
+          518
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/minhnguyetgiangthe/02.png",
+        "bounds": [
+          57,
+          61,
+          517,
+          527
+        ],
+        "size": [
+          620,
+          582
+        ],
+        "sourceBox": [
+          514,
+          0,
+          1070,
+          518
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/minhnguyetgiangthe/03.png",
+        "bounds": [
+          81,
+          49,
+          406,
+          541
+        ],
+        "size": [
+          530,
+          582
+        ],
+        "sourceBox": [
+          1070,
+          0,
+          1536,
+          518
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/minhnguyetgiangthe/04.png",
+        "bounds": [
+          65,
+          46,
+          524,
+          498
+        ],
+        "size": [
+          590,
+          570
+        ],
+        "sourceBox": [
+          0,
+          518,
+          526,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/minhnguyetgiangthe/05.png",
+        "bounds": [
+          47,
+          41,
+          511,
+          506
+        ],
+        "size": [
+          568,
+          570
+        ],
+        "sourceBox": [
+          526,
+          518,
+          1030,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/minhnguyetgiangthe/06.png",
+        "bounds": [
+          44,
+          100,
+          505,
+          488
+        ],
+        "size": [
+          570,
+          570
+        ],
+        "sourceBox": [
+          1030,
+          518,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "nguyetanhbo": [
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetanhbo/01.png",
+        "bounds": [
+          143,
+          146,
+          426,
+          486
+        ],
+        "size": [
+          562,
+          564
+        ],
+        "sourceBox": [
+          0,
+          0,
+          498,
+          500
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetanhbo/02.png",
+        "bounds": [
+          134,
+          109,
+          484,
+          486
+        ],
+        "size": [
+          540,
+          564
+        ],
+        "sourceBox": [
+          498,
+          0,
+          974,
+          500
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetanhbo/03.png",
+        "bounds": [
+          123,
+          93,
+          546,
+          498
+        ],
+        "size": [
+          626,
+          564
+        ],
+        "sourceBox": [
+          974,
+          0,
+          1536,
+          500
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetanhbo/04.png",
+        "bounds": [
+          92,
+          102,
+          508,
+          489
+        ],
+        "size": [
+          558,
+          588
+        ],
+        "sourceBox": [
+          0,
+          500,
+          494,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetanhbo/05.png",
+        "bounds": [
+          165,
+          149,
+          468,
+          463
+        ],
+        "size": [
+          520,
+          588
+        ],
+        "sourceBox": [
+          494,
+          500,
+          950,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetanhbo/06.png",
+        "bounds": [
+          176,
+          139,
+          532,
+          468
+        ],
+        "size": [
+          650,
+          588
+        ],
+        "sourceBox": [
+          950,
+          500,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "nguyetluantran": [
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetluantran/01.png",
+        "bounds": [
+          159,
+          165,
+          424,
+          442
+        ],
+        "size": [
+          590,
+          542
+        ],
+        "sourceBox": [
+          0,
+          0,
+          526,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetluantran/02.png",
+        "bounds": [
+          50,
+          109,
+          498,
+          473
+        ],
+        "size": [
+          552,
+          542
+        ],
+        "sourceBox": [
+          526,
+          0,
+          1014,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetluantran/03.png",
+        "bounds": [
+          52,
+          87,
+          526,
+          502
+        ],
+        "size": [
+          586,
+          542
+        ],
+        "sourceBox": [
+          1014,
+          0,
+          1536,
+          478
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetluantran/04.png",
+        "bounds": [
+          57,
+          111,
+          534,
+          504
+        ],
+        "size": [
+          570,
+          610
+        ],
+        "sourceBox": [
+          0,
+          478,
+          506,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetluantran/05.png",
+        "bounds": [
+          38,
+          80,
+          552,
+          537
+        ],
+        "size": [
+          596,
+          610
+        ],
+        "sourceBox": [
+          506,
+          478,
+          1038,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/nguyetluantran/06.png",
+        "bounds": [
+          40,
+          144,
+          498,
+          504
+        ],
+        "size": [
+          562,
+          610
+        ],
+        "sourceBox": [
+          1038,
+          478,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "tamnguyettram": [
+      {
+        "src": "CHARACTER/SkillSprites/Liem/tamnguyettram/01.png",
+        "bounds": [
+          129,
+          103,
+          467,
+          482
+        ],
+        "size": [
+          558,
+          552
+        ],
+        "sourceBox": [
+          0,
+          0,
+          494,
+          488
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/tamnguyettram/02.png",
+        "bounds": [
+          89,
+          130,
+          510,
+          461
+        ],
+        "size": [
+          576,
+          552
+        ],
+        "sourceBox": [
+          494,
+          0,
+          1006,
+          488
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/tamnguyettram/03.png",
+        "bounds": [
+          47,
+          82,
+          529,
+          510
+        ],
+        "size": [
+          594,
+          552
+        ],
+        "sourceBox": [
+          1006,
+          0,
+          1536,
+          488
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/tamnguyettram/04.png",
+        "bounds": [
+          57,
+          140,
+          528,
+          486
+        ],
+        "size": [
+          598,
+          600
+        ],
+        "sourceBox": [
+          0,
+          488,
+          534,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/tamnguyettram/05.png",
+        "bounds": [
+          43,
+          95,
+          520,
+          498
+        ],
+        "size": [
+          576,
+          600
+        ],
+        "sourceBox": [
+          534,
+          488,
+          1046,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Liem/tamnguyettram/06.png",
+        "bounds": [
+          59,
+          100,
+          480,
+          498
+        ],
+        "size": [
+          554,
+          600
+        ],
+        "sourceBox": [
+          1046,
+          488,
+          1536,
+          1024
+        ]
+      }
+    ]
+  },
+  "Quat": {
+    "philinhchu": [
+      {
+        "src": "CHARACTER/SkillSprites/Quat/philinhchu/01.png",
+        "bounds": [
+          134,
+          83,
+          465,
+          532
+        ],
+        "size": [
+          538,
+          590
+        ],
+        "sourceBox": [
+          0,
+          0,
+          474,
+          526
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/philinhchu/02.png",
+        "bounds": [
+          111,
+          177,
+          530,
+          458
+        ],
+        "size": [
+          596,
+          590
+        ],
+        "sourceBox": [
+          474,
+          0,
+          1006,
+          526
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/philinhchu/03.png",
+        "bounds": [
+          67,
+          149,
+          521,
+          481
+        ],
+        "size": [
+          594,
+          590
+        ],
+        "sourceBox": [
+          1006,
+          0,
+          1536,
+          526
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/philinhchu/04.png",
+        "bounds": [
+          97,
+          57,
+          494,
+          475
+        ],
+        "size": [
+          590,
+          562
+        ],
+        "sourceBox": [
+          0,
+          526,
+          526,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/philinhchu/05.png",
+        "bounds": [
+          66,
+          76,
+          480,
+          457
+        ],
+        "size": [
+          528,
+          562
+        ],
+        "sourceBox": [
+          526,
+          526,
+          990,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/philinhchu/06.png",
+        "bounds": [
+          108,
+          85,
+          500,
+          436
+        ],
+        "size": [
+          610,
+          562
+        ],
+        "sourceBox": [
+          990,
+          526,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "phonglinhphien": [
+      {
+        "src": "CHARACTER/SkillSprites/Quat/phonglinhphien/01.png",
+        "bounds": [
+          76,
+          111,
+          529,
+          525
+        ],
+        "size": [
+          590,
+          582
+        ],
+        "sourceBox": [
+          0,
+          0,
+          526,
+          518
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/phonglinhphien/02.png",
+        "bounds": [
+          67,
+          123,
+          463,
+          516
+        ],
+        "size": [
+          520,
+          582
+        ],
+        "sourceBox": [
+          526,
+          0,
+          982,
+          518
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/phonglinhphien/03.png",
+        "bounds": [
+          63,
+          124,
+          554,
+          524
+        ],
+        "size": [
+          618,
+          582
+        ],
+        "sourceBox": [
+          982,
+          0,
+          1536,
+          518
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/phonglinhphien/04.png",
+        "bounds": [
+          80,
+          58,
+          525,
+          462
+        ],
+        "size": [
+          574,
+          570
+        ],
+        "sourceBox": [
+          0,
+          518,
+          510,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/phonglinhphien/05.png",
+        "bounds": [
+          83,
+          40,
+          506,
+          479
+        ],
+        "size": [
+          600,
+          570
+        ],
+        "sourceBox": [
+          510,
+          518,
+          1046,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/phonglinhphien/06.png",
+        "bounds": [
+          50,
+          66,
+          478,
+          464
+        ],
+        "size": [
+          554,
+          570
+        ],
+        "sourceBox": [
+          1046,
+          518,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "thiencotran": [
+      {
+        "src": "CHARACTER/SkillSprites/Quat/thiencotran/01.png",
+        "bounds": [
+          183,
+          182,
+          415,
+          437
+        ],
+        "size": [
+          552,
+          558
+        ],
+        "sourceBox": [
+          0,
+          0,
+          488,
+          494
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/thiencotran/02.png",
+        "bounds": [
+          67,
+          121,
+          557,
+          460
+        ],
+        "size": [
+          594,
+          558
+        ],
+        "sourceBox": [
+          488,
+          0,
+          1018,
+          494
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/thiencotran/03.png",
+        "bounds": [
+          44,
+          80,
+          519,
+          494
+        ],
+        "size": [
+          582,
+          558
+        ],
+        "sourceBox": [
+          1018,
+          0,
+          1536,
+          494
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/thiencotran/04.png",
+        "bounds": [
+          64,
+          70,
+          544,
+          496
+        ],
+        "size": [
+          582,
+          594
+        ],
+        "sourceBox": [
+          0,
+          494,
+          518,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/thiencotran/05.png",
+        "bounds": [
+          40,
+          49,
+          523,
+          502
+        ],
+        "size": [
+          574,
+          594
+        ],
+        "sourceBox": [
+          518,
+          494,
+          1028,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/thiencotran/06.png",
+        "bounds": [
+          49,
+          61,
+          511,
+          493
+        ],
+        "size": [
+          572,
+          594
+        ],
+        "sourceBox": [
+          1028,
+          494,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "vanphuphongan": [
+      {
+        "src": "CHARACTER/SkillSprites/Quat/vanphuphongan/01.png",
+        "bounds": [
+          99,
+          137,
+          513,
+          480
+        ],
+        "size": [
+          572,
+          574
+        ],
+        "sourceBox": [
+          0,
+          0,
+          508,
+          510
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/vanphuphongan/02.png",
+        "bounds": [
+          70,
+          119,
+          513,
+          472
+        ],
+        "size": [
+          578,
+          574
+        ],
+        "sourceBox": [
+          508,
+          0,
+          1022,
+          510
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/vanphuphongan/03.png",
+        "bounds": [
+          49,
+          79,
+          516,
+          529
+        ],
+        "size": [
+          578,
+          574
+        ],
+        "sourceBox": [
+          1022,
+          0,
+          1536,
+          510
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/vanphuphongan/04.png",
+        "bounds": [
+          60,
+          43,
+          543,
+          508
+        ],
+        "size": [
+          582,
+          578
+        ],
+        "sourceBox": [
+          0,
+          510,
+          518,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/vanphuphongan/05.png",
+        "bounds": [
+          39,
+          38,
+          526,
+          499
+        ],
+        "size": [
+          568,
+          578
+        ],
+        "sourceBox": [
+          518,
+          510,
+          1022,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Quat/vanphuphongan/06.png",
+        "bounds": [
+          41,
+          60,
+          511,
+          483
+        ],
+        "size": [
+          578,
+          578
+        ],
+        "sourceBox": [
+          1022,
+          510,
+          1536,
+          1024
+        ]
+      }
+    ]
+  },
+  "Thuong": {
+    "cuuthienloitran": [
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/cuuthienloitran/01.png",
+        "bounds": [
+          143,
+          234,
+          440,
+          451
+        ],
+        "size": [
+          592,
+          558
+        ],
+        "sourceBox": [
+          0,
+          0,
+          528,
+          494
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/cuuthienloitran/02.png",
+        "bounds": [
+          45,
+          144,
+          499,
+          497
+        ],
+        "size": [
+          558,
+          558
+        ],
+        "sourceBox": [
+          528,
+          0,
+          1022,
+          494
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/cuuthienloitran/03.png",
+        "bounds": [
+          73,
+          83,
+          492,
+          510
+        ],
+        "size": [
+          578,
+          558
+        ],
+        "sourceBox": [
+          1022,
+          0,
+          1536,
+          494
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/cuuthienloitran/04.png",
+        "bounds": [
+          78,
+          89,
+          510,
+          518
+        ],
+        "size": [
+          566,
+          594
+        ],
+        "sourceBox": [
+          0,
+          494,
+          502,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/cuuthienloitran/05.png",
+        "bounds": [
+          48,
+          53,
+          552,
+          528
+        ],
+        "size": [
+          616,
+          594
+        ],
+        "sourceBox": [
+          502,
+          494,
+          1054,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/cuuthienloitran/06.png",
+        "bounds": [
+          46,
+          165,
+          469,
+          497
+        ],
+        "size": [
+          546,
+          594
+        ],
+        "sourceBox": [
+          1054,
+          494,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "hoanhtaothienquan": [
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/hoanhtaothienquan/01.png",
+        "bounds": [
+          109,
+          138,
+          516,
+          489
+        ],
+        "size": [
+          582,
+          574
+        ],
+        "sourceBox": [
+          0,
+          0,
+          518,
+          510
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/hoanhtaothienquan/02.png",
+        "bounds": [
+          74,
+          111,
+          483,
+          501
+        ],
+        "size": [
+          570,
+          574
+        ],
+        "sourceBox": [
+          518,
+          0,
+          1024,
+          510
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/hoanhtaothienquan/03.png",
+        "bounds": [
+          56,
+          108,
+          506,
+          524
+        ],
+        "size": [
+          576,
+          574
+        ],
+        "sourceBox": [
+          1024,
+          0,
+          1536,
+          510
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/hoanhtaothienquan/04.png",
+        "bounds": [
+          82,
+          49,
+          549,
+          490
+        ],
+        "size": [
+          602,
+          578
+        ],
+        "sourceBox": [
+          0,
+          510,
+          538,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/hoanhtaothienquan/05.png",
+        "bounds": [
+          56,
+          66,
+          501,
+          462
+        ],
+        "size": [
+          550,
+          578
+        ],
+        "sourceBox": [
+          538,
+          510,
+          1024,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/hoanhtaothienquan/06.png",
+        "bounds": [
+          62,
+          86,
+          500,
+          474
+        ],
+        "size": [
+          576,
+          578
+        ],
+        "sourceBox": [
+          1024,
+          510,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "loilonggiangthe": [
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loilonggiangthe/01.png",
+        "bounds": [
+          171,
+          153,
+          408,
+          473
+        ],
+        "size": [
+          584,
+          580
+        ],
+        "sourceBox": [
+          0,
+          0,
+          520,
+          516
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loilonggiangthe/02.png",
+        "bounds": [
+          169,
+          38,
+          378,
+          539
+        ],
+        "size": [
+          552,
+          580
+        ],
+        "sourceBox": [
+          520,
+          0,
+          1008,
+          516
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loilonggiangthe/03.png",
+        "bounds": [
+          132,
+          46,
+          492,
+          534
+        ],
+        "size": [
+          592,
+          580
+        ],
+        "sourceBox": [
+          1008,
+          0,
+          1536,
+          516
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loilonggiangthe/04.png",
+        "bounds": [
+          127,
+          42,
+          467,
+          514
+        ],
+        "size": [
+          574,
+          572
+        ],
+        "sourceBox": [
+          0,
+          516,
+          510,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loilonggiangthe/05.png",
+        "bounds": [
+          83,
+          37,
+          498,
+          521
+        ],
+        "size": [
+          584,
+          572
+        ],
+        "sourceBox": [
+          510,
+          516,
+          1030,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loilonggiangthe/06.png",
+        "bounds": [
+          139,
+          41,
+          454,
+          505
+        ],
+        "size": [
+          570,
+          572
+        ],
+        "sourceBox": [
+          1030,
+          516,
+          1536,
+          1024
+        ]
+      }
+    ],
+    "loithuongdotkich": [
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loithuongdotkich/01.png",
+        "bounds": [
+          127,
+          84,
+          430,
+          537
+        ],
+        "size": [
+          550,
+          600
+        ],
+        "sourceBox": [
+          0,
+          0,
+          486,
+          536
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loithuongdotkich/02.png",
+        "bounds": [
+          73,
+          240,
+          538,
+          431
+        ],
+        "size": [
+          584,
+          600
+        ],
+        "sourceBox": [
+          486,
+          0,
+          1006,
+          536
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loithuongdotkich/03.png",
+        "bounds": [
+          43,
+          188,
+          538,
+          476
+        ],
+        "size": [
+          594,
+          600
+        ],
+        "sourceBox": [
+          1006,
+          0,
+          1536,
+          536
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loithuongdotkich/04.png",
+        "bounds": [
+          85,
+          50,
+          494,
+          469
+        ],
+        "size": [
+          578,
+          552
+        ],
+        "sourceBox": [
+          0,
+          536,
+          514,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loithuongdotkich/05.png",
+        "bounds": [
+          49,
+          153,
+          522,
+          384
+        ],
+        "size": [
+          608,
+          552
+        ],
+        "sourceBox": [
+          514,
+          536,
+          1058,
+          1024
+        ]
+      },
+      {
+        "src": "CHARACTER/SkillSprites/Thuong/loithuongdotkich/06.png",
+        "bounds": [
+          67,
+          174,
+          426,
+          369
+        ],
+        "size": [
+          542,
+          552
+        ],
+        "sourceBox": [
+          1058,
+          536,
+          1536,
+          1024
+        ]
+      }
+    ]
+  }
+}

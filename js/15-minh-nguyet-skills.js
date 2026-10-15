@@ -15,17 +15,24 @@
   const live=e=>!e.dead&&e.hp>0;
   const ART=FILES.map(name=>{
     const img=new Image();img.onload=()=>refreshUI(true);img.onerror=()=>msg('Không tải được ảnh kỹ năng: '+name+'.png');
-    img.src='CHARACTER/Liem/skill/'+name+'.png';return img;
+    img.src='CHARACTER/SkillSprites/Liem/'+name+'/01.png';return img;
   });
   const physical=new Image();physical.src='CHARACTER/Liem/VuKhi/vukhi.png';
   const ring=new Image();ring.src='CHARACTER/Liem/Vong/vong.png';
   const bodies={Nam:{},Nu:{}};for(const gender of ['Nam','Nu'])for(const name of ['truoc','sau','trai','phai']){bodies[gender][name]=new Image();bodies[gender][name].src='CHARACTER/Liem/'+gender+'/'+name+'.png';}
   const ready=img=>img.complete&&img.naturalWidth>0;
   function crop(ctx,img,rect,x,y,w,h,angle=0,alpha=1){
+    const index=ART.indexOf(img);
+    if(index>=0){
+      const frame=rect===CAST?0:rect===ARC?3:rect===IMPACT?5:rect===GHOST?1:rect===APPEAR?2:rect===FIELD?3:rect===MOON?1:rect===BEAM?2:rect===ECLIPSE?4:0;
+      skillSprites.draw(ctx,1,index,frame,x,y,w,h,angle,alpha);return;
+    }
     if(!ready(img))return;
-    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=alpha;ctx.imageSmoothingEnabled=true;
-    ctx.drawImage(img,rect[0]*img.naturalWidth,rect[1]*img.naturalHeight,rect[2]*img.naturalWidth,rect[3]*img.naturalHeight,-w/2,-h/2,w,h);ctx.restore();
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=alpha;
+    const scale=Math.min(w/img.naturalWidth,h/img.naturalHeight),width=img.naturalWidth*scale,height=img.naturalHeight*scale;
+    ctx.drawImage(img,-width/2,-height/2,width,height);ctx.restore();
   }
+
   function moonBlade(ctx,x,y,slot,angle=0,alpha=1){
     const size=slot===2?34:25;
     ctx.save();if(slot===1){ctx.translate(x,y);ctx.scale(-1,1);x=y=0;}
@@ -167,7 +174,7 @@
   up=function(dt){previousUp(dt);if(!active()||paused())return;advance(dt);refreshUI();};
 
   function drawRing(ctx,zone,alpha=1){
-    crop(ctx,ring,[0,0,1,1],zone.x,zone.y,zone.radius*2,zone.radius*1.16,0,alpha);
+    skillSprites.draw(ctx,1,2,zone.duration&&zone.age>zone.duration-.45?5:Math.min(4,Math.floor((zone.age||0)*4)+1),zone.x,zone.y,zone.radius*2,zone.radius*1.3,0,alpha);
     // Hai lớp khí dạng elip xoay ngược chiều; giữa là Nguyệt Luân phát sáng.
     ctx.save();ctx.translate(zone.x,zone.y);ctx.scale(1,.58);ctx.globalAlpha*=alpha;
     for(let layer=0;layer<2;layer++){
