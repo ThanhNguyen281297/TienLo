@@ -1,5 +1,5 @@
 const cv=document.getElementById('c'),g=cv.getContext('2d'),$=id=>document.getElementById(id);
-const M=2000;let Z=2.4;const R=['Phàm Nhân','Luyện Khí','Trúc Cơ','Kim Đan','Nguyên Anh','Hóa Thần','Luyện Hư','Hợp Thể','Đại Thừa','Độ Kiếp','Chân Tiên','Kim Tiên','Thái Ất','Đại La','Đạo Tổ'],RC=['#8b7d6b','#5fb3a1','#4a78b5','#d9a441','#b0566f','#8a5cc2','#65a1d5','#a1b474','#e2bd72','#e183bb','#d2eafa','#ffd574','#ad9beb','#fae4ab','#fff4db'];
+const M=2000;let Z=1.8;const R=['Phàm Nhân','Luyện Khí','Trúc Cơ','Kim Đan','Nguyên Anh','Hóa Thần','Luyện Hư','Hợp Thể','Đại Thừa','Độ Kiếp','Chân Tiên','Kim Tiên','Thái Ất','Đại La','Đạo Tổ'],RC=['#8b7d6b','#5fb3a1','#4a78b5','#d9a441','#b0566f','#8a5cc2','#65a1d5','#a1b474','#e2bd72','#e183bb','#d2eafa','#ffd574','#ad9beb','#fae4ab','#fff4db'];
 const T=[{n:'Bọ Ngựa',hp:20,at:4,xp:10,c:'#7fa650',s:10},{n:'Sói Yêu',hp:60,at:9,xp:28,c:'#7a7f88',s:13},{n:'Hổ Yêu',hp:320,at:20,xp:180,c:'#c9792e',s:22}];
 let P={x:1000,y:1000,hp:100,mp:20,xp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,sl:0,mv:false,dir:0,ap:null,nm:''};
 // Module tài khoản tải bản lưu từ server sau khi đăng nhập.
@@ -8,7 +8,7 @@ const cultivationLevel=()=>P.r*10+(P.stage||1)-1;
 const bonusStats=()=>{try{return window.bonusStats?window.bonusStats():{atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}catch(e){return {atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}};
 const mhp=()=>100+cultivationLevel()*6+(bonusStats().hp||0),mmp=()=>20+cultivationLevel()*3+(bonusStats().mp||0),atk=()=>8+cultivationLevel()*1.3+(bonusStats().atk||0),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
 let E=[],B=[],X=[],K={},ptr=null,W,H,tm=0,sv=0;
-function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight)));Z=2.4*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
+function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight)));Z=1.8*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
 function gameCamera(vw=W/Z,vh=H/Z){return {x:P.x-vw/2,y:P.y-vh/2,vw,vh};}
 function msg(s){$('log').textContent=s}
 function spawn(i){const a=Math.random()*6.28,d=Math.random(),t=d<.5?0:d<.88?1:2;

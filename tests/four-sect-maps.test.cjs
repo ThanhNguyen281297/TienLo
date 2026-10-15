@@ -109,7 +109,7 @@ fs.mkdirSync(artifacts, { recursive: true });
           mentor: worldMap.services.find(service => service.id === 'mentor').name, images };
       });
       assert.equal(facts.scene, definition.id); assert.equal(facts.appearance.w, sect); assert.equal(facts.title, definition.name);
-      assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert(Math.abs(facts.zoom-2.4)<.001);
+      assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert(Math.abs(facts.zoom-1.8)<.001);
       assert.equal(facts.camera.x + facts.camera.vw / 2, 1000); assert.equal(facts.camera.y + facts.camera.vh / 2, 1110);
       assert.deepEqual(facts.keys.sort(), ['hub','valley', ...maps.map(map => map.id)].sort()); assert.deepEqual(facts.regions.sort(), facts.keys.sort());
       assert.equal(facts.routes, 4); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' routes remain connected');

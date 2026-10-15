@@ -118,9 +118,9 @@
     if (!ready(img)) return;
     ctx.save();
     ctx.imageSmoothingEnabled = true;
-    ctx.globalAlpha = .78 + Math.sin(tm * 3) * .12;
+    ctx.globalAlpha = .52 + Math.sin(tm * 3) * .06;
     ctx.shadowColor = color;
-    ctx.shadowBlur = 5;
+    ctx.shadowBlur = 2;
     // Ảnh đã có phối cảnh: giữ hình vòng, chỉ thu chiều cao cho mặt đất.
     renderArtwork(ctx,img, x - 30, y - 12, 60, 28);
     ctx.restore();

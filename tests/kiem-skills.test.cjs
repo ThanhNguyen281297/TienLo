@@ -56,8 +56,9 @@ fs.mkdirSync(output, { recursive: true });
       skill(0);
       const source=characterWeapon.position(0);
       if(!kiemCombat.state.flying.every(s=>Math.abs(s.x-source.x)<.001&&Math.abs(s.y-10-source.y)<.001))throw new Error('Swords must launch from the orbiting weapon');
-      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),images=[],draw=ctx.drawImage.bind(ctx);
-      ctx.drawImage=(img,...args)=>{images.push(img.src||'');draw(img,...args);};drawChar(ctx,60,70,0,1,false,0,false,P.ap);
+      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),images=[],draw=window.renderArtwork;
+      window.renderArtwork=(context,img,...args)=>{images.push(img.src||'');draw(context,img,...args);};
+      try{drawChar(ctx,60,70,0,1,false,0,false,P.ap);}finally{window.renderArtwork=draw;}
       if(!images.some(src=>src.endsWith('/Kiem/Lung/lung.png'))||images.some(src=>src.includes('/Skill/')))throw new Error('Original sword back equipment must remain, without idle skill blades');
       stepTest(1.5);
     });

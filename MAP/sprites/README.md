@@ -1,8 +1,10 @@
 # Individual painted map assets
 
-These 45 RGBA PNG files were extracted from the original `MAP/asset*.png`
-atlases. The game loads each prop separately. No SVG is rendered, and the full
-atlas is not loaded at runtime. Original pixel sizes and alpha are preserved.
+The game loads these 45 individual painted PNG assets separately. No SVG is
+rendered and no full atlas is loaded at runtime. Most props were extracted from
+the original `MAP/asset*.png` atlases. Five heavily enlarged props now use
+ImageGen redraws: greatIsland, pineTree, mysticHall, thunderHall and tile.
+Props have transparent alpha; the repeating stone tile is opaque.
 
 Buildings: palace, gate, school, market, forge, tower, hubBazaar, hubWell,
 thunderHall, mysticHall, mysticArchive, board, stall.
@@ -17,6 +19,7 @@ Open `index.html` to inspect every separated PNG on a dark background.
 `manifest.json` lists native dimensions and hashes. Refresh the index using
 `python tools/index_map_sprites.py`.
 
-Small source assets retain their actual source detail. Resizing a file upward
-does not create new detail. The renderer uses smooth high quality sampling.
+Small source assets retain their actual source detail. The five HD redraws add
+new painted detail, rather than claiming to recover missing original pixels.
+The renderer uses smooth high quality sampling and a 1.8× CSS world zoom.
 The previous SVG experiment is retained in `MAP/vector` as unused history.

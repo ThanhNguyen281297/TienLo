@@ -1,5 +1,7 @@
 /* Cache downsampled levels for painted art. No upscaling or invented detail. */
 (function(){
+  const revision=new URL(document.currentScript.src).searchParams.get('v');
+  window.artworkURL=src=>revision?src+(src.includes('?')?'&':'?')+'v='+encodeURIComponent(revision):src;
   const levels=new WeakMap();
   function draw(ctx,image,x,y,width,height){
     const sw=image.naturalWidth||image.width,sh=image.naturalHeight||image.height;
@@ -24,4 +26,13 @@
     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(source,x,y,width,height);
   }
   window.renderArtwork=draw;
+  // Compact labels retain Vietnamese accents without thick outlines hiding glyphs.
+  window.drawWorldLabel=function(ctx,text,x,y,color='#ead6aa',size=8.5){
+    ctx.save();ctx.font='600 '+size+'px Arial, sans-serif';ctx.textAlign='center';
+    ctx.textBaseline='middle';ctx.lineJoin='round';
+    const width=ctx.measureText(text).width+10,height=size+7;
+    ctx.fillStyle='rgba(9,22,31,.82)';ctx.strokeStyle='rgba(192,174,125,.38)';ctx.lineWidth=.55;
+    ctx.beginPath();ctx.roundRect(x-width/2,y-height/2,width,height,3);ctx.fill();ctx.stroke();
+    ctx.fillStyle=color;ctx.fillText(text,x,y+.2);ctx.restore();
+  };
 })();

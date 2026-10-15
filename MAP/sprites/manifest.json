@@ -61,9 +61,9 @@
   },
   "greatIsland": {
     "file": "MAP/sprites/greatIsland.png",
-    "width": 701,
-    "height": 528,
-    "sha256": "c5785c16458f09207e042f7e45eb3f20ca7d625af64d5aedecd76875ddde5746"
+    "width": 1445,
+    "height": 1089,
+    "sha256": "e375bfefb9dccb54c5f007ebbba09a27aba0b69a95b9aa74103cae18abc9b2ae"
   },
   "guardianLion": {
     "file": "MAP/sprites/guardianLion.png",
@@ -145,9 +145,9 @@
   },
   "mysticHall": {
     "file": "MAP/sprites/mysticHall.png",
-    "width": 328,
-    "height": 292,
-    "sha256": "f433dd5f9219d932cb1e2648f79045ef3c8ffa40afcc1a38be853936c201ef44"
+    "width": 1254,
+    "height": 1254,
+    "sha256": "4839662266e4bbec6b2dc0bbfb9d11ce9685f38e2e1bec0b23da4bf6fdeb4882"
   },
   "palace": {
     "file": "MAP/sprites/palace.png",
@@ -163,9 +163,9 @@
   },
   "pineTree": {
     "file": "MAP/sprites/pineTree.png",
-    "width": 129,
-    "height": 114,
-    "sha256": "578694741b9de9fbec6cb5bb0475b437edb59bf73b874bb04961ef6333c6ed95"
+    "width": 1334,
+    "height": 1179,
+    "sha256": "78181d0a11a7fc02dd7a68f76d18b4a01fd5e0569387a0dca2c87b0038bd6f4d"
   },
   "platform": {
     "file": "MAP/sprites/platform.png",
@@ -229,15 +229,15 @@
   },
   "thunderHall": {
     "file": "MAP/sprites/thunderHall.png",
-    "width": 601,
-    "height": 359,
-    "sha256": "f996510e19c9453939f0fb2e7fb35e2918f9fc18e6f33e04f6be4c044fb86716"
+    "width": 1619,
+    "height": 972,
+    "sha256": "b587750e500e9675d37e8eb550921dec403126d09ad70b60fecbe4ad3f3fcfd1"
   },
   "tile": {
     "file": "MAP/sprites/tile.png",
-    "width": 48,
-    "height": 24,
-    "sha256": "6b2da4c6c595884911494e60d689a614f47cca908892807beb582775c1e93071"
+    "width": 1774,
+    "height": 887,
+    "sha256": "0cc9286169f8793126f9d202973cfb7d6bba7173130f36f833e32312f8c06e0c"
   },
   "tower": {
     "file": "MAP/sprites/tower.png",

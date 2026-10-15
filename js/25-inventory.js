@@ -260,10 +260,8 @@
   let selectedUid=null;
   function itemIcon(item,slot) {
     if((item?.slot||slot)==='vukhi')return 'CHARACTER/'+characterClasses[P.ap.w].folder+'/VuKhi/vukhi.png';
-    const paths={daobao:'M15 10 L24 5 L33 10 L42 22 L35 27 L31 20 L33 43 L15 43 L17 20 L13 27 L6 22 Z',ngoc:'M24 7 L37 22 L24 42 L11 22 Z',gioi:'M24 8 A15 15 0 1 0 24 38 A15 15 0 1 0 24 8 M24 16 A7 7 0 1 1 24 30 A7 7 0 1 1 24 16',giay:'M17 8 L30 8 L30 29 L40 34 L39 41 L10 41 L10 31 L17 27 Z',phapbao:'M12 17 L36 17 L33 36 L29 42 L19 42 L15 36 Z M10 13 L38 13 M19 8 L29 8',consume:'M19 7 L29 7 L29 18 Q39 23 37 36 Q35 43 24 43 Q13 43 11 36 Q9 23 19 18 Z M18 6 L30 6 M14 30 L34 30'};
-    const type=item?.type==='consume'?'consume':item?.slot||slot, color=RARITY[item?.rarity||'pham'].color;
-    const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path d="'+(paths[type]||paths.ngoc)+'" fill="'+color+'33" fill-rule="evenodd" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/><path d="M18 14 L24 11" stroke="white" opacity=".6" stroke-width="2"/></svg>';
-    return 'data:image/svg+xml,'+encodeURIComponent(svg);
+    const type=item?.type==='consume'?'consume':item?.slot||slot;
+    return artworkURL('ITEMS/'+(['daobao','ngoc','gioi','giay','phapbao','consume'].includes(type)?type:'ngoc')+'.png');
   }
   function cells(p) {
     const used=new Set();
@@ -319,7 +317,7 @@
     const heading=document.createElement('h3');heading.textContent=P.nm+' · '+sectName();gear.append(heading);
     const paper=document.createElement('div');paper.className='paper-doll';gear.append(paper);
     const preview=document.createElement('canvas');const density=Math.max(1.5,Math.min(3,devicePixelRatio||1));preview.width=Math.round(320*density);preview.height=Math.round(380*density);preview.className='gear-preview';paper.append(preview);
-    const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(3*density,0,0,3*density,160*density,285*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);
+    const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(2.6*density,0,0,2.6*density,160*density,270*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);
     Object.keys(SLOTS).forEach((slot,i)=>{
       const item=p.equip[slot],button=document.createElement('button');button.type='button';button.className='item-cell gear-slot gear-'+i;button.dataset.equipSlot=slot;button.style.setProperty('--rarity',RARITY[item?.rarity||'pham'].color);button.setAttribute('aria-label',SLOTS[slot]+': '+(item?.name||'trống'));
       const img=document.createElement('img');img.src=itemIcon(item,slot);img.alt='';button.append(img);
@@ -336,7 +334,7 @@
     const grid=document.createElement('div');grid.className='bag-grid';grid.setAttribute('aria-label','30 ô túi đồ');bag.append(grid);
     cells(p).forEach((item,i)=>{
       const button=document.createElement('button');button.type='button';button.className='item-cell';button.dataset.bagCell=i;button.setAttribute('aria-label',item?item.name:'Ô trống '+(i+1));dropTarget(button);
-      if(item){button.classList.add('occupied');button.style.setProperty('--rarity',RARITY[item.rarity].color);const img=document.createElement('img');img.src=itemIcon(item);img.alt='';button.append(img);
+      if(item){button.classList.add('occupied');button.dataset.itemId=item.id;button.style.setProperty('--rarity',RARITY[item.rarity].color);const img=document.createElement('img');img.src=itemIcon(item);img.alt='';button.append(img);
         if(item.qty>1){const qty=document.createElement('span');qty.className='item-qty';qty.textContent=item.qty;button.append(qty);}
         button.title=item.name+' · '+statText(item);button.onclick=()=>{selectedUid=item.uid;grid.querySelectorAll('.selected').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');showDetails(item,false);};dragSource(button,item.uid);
       }else{const label=document.createElement('span');label.className='cell-index';label.textContent=i+1;button.append(label);}

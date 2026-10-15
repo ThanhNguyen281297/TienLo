@@ -9,3 +9,10 @@ Prompt set:
 - thunderHall: preserve wide blue/gold palace and floating terrace, side waterfalls, banners and front steps; clear architectural and rock detail, transparent background.
 
 These are redrawn assets, not recovered detail from the original pixels. Ground repetition remains 48 × 24 world units regardless of source image size.
+
+2026-10-15: selected HD art is copied into `MAP/sprites` so all map props use
+the same individual PNG loader. The main greatIsland PNG was also redrawn from
+its original reference (701 × 528 → 1445 × 1089), preserving the floating
+courtyard, crystal, stairs, waterfalls and transparent silhouette. Its prompt
+requests precise ivory stone seams, gold/cyan inlays, controlled bloom and
+complete uncropped production game art. Original atlases remain untouched.

@@ -180,6 +180,7 @@ async function installHelpers(page) {
     assert.equal(suspend.last, null);
     console.log('PASS attacks suspend during meditation, dash, ultimate, modal and title pause');
 
+    assert(await page.evaluate(() => !$('world-dialog').contains(document.activeElement)), 'Closing a dialog restores focus outside the hidden modal');
     await page.evaluate(() => { basicReset(3); const enemy = basicEnemy('selected', P.x + 190, P.y); E = [enemy]; });
     await page.keyboard.press('f');
     await page.evaluate(() => basicStep(.25));

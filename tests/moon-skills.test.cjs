@@ -27,8 +27,9 @@ fs.mkdirSync(output,{recursive:true});
       window.enemyTest=(id,x,y)=>({id,t:2,x,y,hx:x,hy:y,hp:10000,dead:0,cd:100,fr:100,fl:0});
       window.stepTest=seconds=>{const frames=Math.ceil(seconds/.01),dt=seconds/frames;for(let i=0;i<frames;i++){tm+=dt;up(dt);}dr();};
       resetTest();
-      window.equipmentCheck=()=>{const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),images=[];const draw=ctx.drawImage.bind(ctx);
-        ctx.drawImage=(img,...args)=>{images.push(img.src||'');draw(img,...args);};drawChar(ctx,60,70,0,1,false,0,false,P.ap);
+      window.equipmentCheck=()=>{const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),images=[];const draw=window.renderArtwork;
+        window.renderArtwork=(context,img,...args)=>{images.push(img.src||'');draw(context,img,...args);};
+        try{drawChar(ctx,60,70,0,1,false,0,false,P.ap);}finally{window.renderArtwork=draw;}
         return images.filter(src=>src.includes('/CHARACTER/')).map(src=>new URL(src).pathname);};
       E.push(enemyTest('crossing',1200,1100));moonCombat.state.aim={x:1200,y:1100};skill(0);
     });

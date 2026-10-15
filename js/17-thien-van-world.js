@@ -29,7 +29,7 @@
   function isolate(key){
     if(!definitions[key])return null;
     if(!cleaned.has(key)){
-      const img=new Image();img.src='MAP/sprites/'+key+'.png';
+      const img=new Image();img.src=artworkURL('MAP/sprites/'+key+'.png');
       img.onerror=()=>msg('Không tải được asset bản đồ '+key+'.');cleaned.set(key,img);
     }
     const img=cleaned.get(key);return ready(img)?img:null;
@@ -126,10 +126,14 @@
   const modal=document.createElement('div');modal.id='world-dialog';modal.hidden=true;modal.innerHTML='<section role="dialog" aria-modal="true" aria-labelledby="world-title"><button class="world-close" aria-label="Đóng">×</button><small class="world-eyebrow">THIÊN VÂN THÀNH</small><h2 id="world-title"></h2><p id="world-description"></p><div id="world-content"></div></section>';document.body.appendChild(modal);
   const previousPaused=paused;
   // Chặn cập nhật ở wrapper khi mở dịch vụ để giữ toàn bộ cooldown và animation.
-  let dialogOpen=false;
-  function close(){dialogOpen=false;modal.hidden=true;K={};ptr=null;updateInterface();}
+  let dialogOpen=false,returnFocus=null;
+  cv.tabIndex=0;cv.setAttribute('aria-label','Bản đồ game');
+  function close(){const heldFocus=modal.contains(document.activeElement);dialogOpen=false;modal.hidden=true;K={};ptr=null;updateInterface();
+    // A hidden dialog must not keep swallowing the next game shortcut.
+    if(heldFocus){const target=returnFocus?.isConnected&&returnFocus.getClientRects().length&&returnFocus.matches('button:not(:disabled),a[href],[tabindex]')?returnFocus:cv;target.focus({preventScroll:true});}
+  }
   modal.querySelector('.world-close').onclick=close;modal.addEventListener('click',e=>{if(e.target===modal)close();});
-  function show(title,description){modal.querySelector('section').classList.remove('inventory-dialog');dialogOpen=true;modal.hidden=false;modal.querySelector('.world-eyebrow').textContent=window.worldMap?.sceneTitle?.()||'THIÊN VÂN THÀNH';$('world-title').textContent=title;$('world-description').textContent=description;$('world-content').replaceChildren();window.creatureArt?.decorateDialog(title);K={};ptr=null;modal.querySelector('.world-close').focus();}
+  function show(title,description){if(!dialogOpen)returnFocus=document.activeElement;modal.querySelector('section').classList.remove('inventory-dialog');dialogOpen=true;modal.hidden=false;modal.querySelector('.world-eyebrow').textContent=window.worldMap?.sceneTitle?.()||'THIÊN VÂN THÀNH';$('world-title').textContent=title;$('world-description').textContent=description;$('world-content').replaceChildren();window.creatureArt?.decorateDialog(title);K={};ptr=null;modal.querySelector('.world-close').focus();}
   function action(label,callback,disabled=false){const button=document.createElement('button');button.textContent=label;button.disabled=disabled;button.onclick=callback;$('world-content').appendChild(button);return button;}
   function line(text){const p=document.createElement('p');p.className='world-line';p.textContent=text;$('world-content').appendChild(p);}
   function pay(amount,change,reopen){if(P.gold<amount){line('Cần thêm '+(amount-P.gold)+' Linh Thạch.');return;}P.gold-=amount;change();saveCharacter();reopen();}
@@ -210,7 +214,7 @@
   };
   const originalDraw=dr;
   dr=function(){originalDraw();if(previousPaused())return;const {x:cx,y:cy}=gameCamera();g.save();g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);
-    for(const s of services){const y=s.y-(s.npc?(window.creatureArt?.npcHeight(s)||36)+7:10);if(Math.abs(s.x-P.x)>W/Z||y<cy+45||y>cy+H/Z-65)continue;g.font='600 8px Georgia,serif';g.textAlign='center';g.lineWidth=1.6;g.strokeStyle='#202d30';g.strokeText(s.name,s.x,y);g.fillStyle=s.color;g.fillText(s.name,s.x,y);
+    for(const s of services){const y=s.y-(s.npc?(window.creatureArt?.npcHeight(s)||36)+7:10);if(Math.abs(s.x-P.x)>W/Z||y<cy+45||y>cy+H/Z-65)continue;drawWorldLabel(g,s.name,s.x,y,s.color,7.5);
       if(state.near===s){g.strokeStyle='#f3db9b';g.lineWidth=1;g.beginPath();g.ellipse(s.x,s.y+3,18,7,0,0,Math.PI*2);g.stroke();}}
     if(state.scene!=='hub')for(let i=0;i<5;i++){const x=((tm*8+i*437)%2400)-200,y=140+i*370;if(Math.hypot(x-P.x,y-P.y)<650)sprite(g,'cloud',x,y,300,90,.1);}
     g.restore();
