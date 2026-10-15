@@ -1,0 +1,22 @@
+[Unit]
+Description=Tien Lo Online game server
+After=network.target
+
+[Service]
+Type=simple
+User=tienlo
+Group=tienlo
+WorkingDirectory=/opt/tienlo
+EnvironmentFile=/etc/tienlo.env
+ExecStart=/usr/bin/python3 /opt/tienlo/server.py
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/tienlo
+
+[Install]
+WantedBy=multi-user.target

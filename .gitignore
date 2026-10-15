@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+data/*.sqlite3
+data/*.sqlite3-wal
+data/*.sqlite3-shm
+dist/
+tests/artifacts/
+
+.env
+.env.*
+*.pem
+*.key
+.ssh/
+data/*.txt
