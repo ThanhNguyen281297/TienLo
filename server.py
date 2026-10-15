@@ -201,7 +201,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         requested=Path(self.translate_path(self.path))
         target=requested.resolve()
         relative=target.relative_to(ROOT) if target.is_relative_to(ROOT) else None
-        if relative is None or (relative.parts and relative.parts[0] not in ('js','css','CHARACTER','MAP','MONTERS','NPC')) and relative.as_posix()!='index.html' and path!='/':
+        if relative is None or (relative.parts and relative.parts[0] not in ('js','css','CHARACTER','MAP','MONTERS','NPC','ITEMS')) and relative.as_posix()!='index.html' and path!='/':
             return self.send_error(403)
         if target.is_dir() and path!='/': return self.send_error(403)
         if not target.is_dir() and requested.relative_to(ROOT).as_posix() not in STATIC_FILES:

@@ -22,6 +22,8 @@
   control or game canvas. A real-keyboard regression checks this behavior.
 - Map and item PNG URLs inherit the deployment revision from their script,
   preventing a newly deployed game from retaining old cached artwork.
+- Added the public ITEMS folder to the Python static-art allowlist. A real HTTP
+  integration test verifies GET and HEAD for every icon, including versioned URLs.
 - Retained the existing high resolution character art and 96 full skill PNG
   poses. No source rectangles are used to clip skill artwork.
 

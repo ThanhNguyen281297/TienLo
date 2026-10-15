@@ -16,6 +16,20 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_public_item_artwork(self):
+        for name in ('daobao','ngoc','gioi','giay','phapbao','consume'):
+            path='/ITEMS/'+name+'.png?v=release-test'
+            status, data, _ = self.request(path)
+            self.assertEqual(status,200,path)
+            self.assertTrue(data.startswith(b'\x89PNG\r\n\x1a\n'))
+            connection=HTTPConnection('127.0.0.1',self.http.server_port,timeout=10)
+            connection.request('HEAD',path)
+            response=connection.getresponse()
+            self.assertEqual(response.status,200)
+            self.assertEqual(response.getheader('Content-Type'),'image/png')
+            self.assertEqual(response.read(),b'')
+            connection.close()
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.patch=patch.object(server,'DATABASE',Path(self.temp.name)/'test.sqlite3');self.patch.start()
         server.AUTH_LIMIT.clear();server.PEERS.clear();server.ROOMS.clear();server.EVENTS.clear();server.CHAT.clear();server.init_db()
