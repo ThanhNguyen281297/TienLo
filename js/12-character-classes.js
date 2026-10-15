@@ -128,41 +128,54 @@
 
   // Local weapon coordinates: effects follow rotation, orbit depth and preview scale.
   const reducedWeaponMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const weaponTones=['#59bfff','#4de2b7','#a77aff','#f3c76b'];
+  const weaponAuras=new Map();
+  function weaponAura(index){
+    if(weaponAuras.has(index))return weaponAuras.get(index);
+    const image=assets[index].vukhi;if(!ready(image))return null;
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=96;
+    const c=canvas.getContext('2d',{willReadFrequently:true});
+    const width=36*image.naturalWidth/image.naturalHeight;
+    c.drawImage(image,48-width/2,30,width,36);
+    const pixels=c.getImageData(0,0,96,96).data,edges=[];
+    for(let y=31;y<66;y+=2)for(let x=1;x<95;x++){
+      const alpha=(x,y)=>pixels[(y*96+x)*4+3];
+      if(alpha(x,y)>100&&(alpha(x-1,y)<50||alpha(x+1,y)<50))edges.push({x:x-48,y:y-48});
+    }
+    c.globalCompositeOperation='source-in';c.fillStyle=weaponTones[index];c.fillRect(0,0,96,96);
+    const aura={canvas,edges};weaponAuras.set(index,aura);return aura;
+  }
   function weaponEnergy(ctx,index,quality,attacking,front) {
-    const t=reducedWeaponMotion.matches?0:tm;
-    const colors=['#66cfff','#57ffd4','#bb85ff','#ffc96b'];
-    const color=colors[index],power=1+quality*.14+(attacking?.35:0);
-    ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle=color;ctx.shadowColor=color;ctx.shadowBlur=front?5:12;
+    const aura=weaponAura(index);if(!aura)return;
+    const t=reducedWeaponMotion.matches?0:tm,color=weaponTones[index];
+    const power=1+quality*.1+(attacking?.18:0);
+    ctx.save();ctx.globalCompositeOperation='lighter';
     if(!front){
-      // A different silhouette of light for each sect; the original art stays visible.
-      ctx.globalAlpha=.32;ctx.lineWidth=2.2*power;ctx.beginPath();
-      if(index===0){ctx.moveTo(0,17);ctx.lineTo(-2,-18);ctx.lineTo(2,-22);ctx.lineTo(3,14);}
-      if(index===1){ctx.ellipse(0,-2,13,19,-.4,-2.7,1.4);}
-      if(index===2){ctx.moveTo(-2,18);ctx.lineTo(0,-21);ctx.moveTo(-6,-12);ctx.lineTo(0,-22);ctx.lineTo(6,-12);}
-      if(index===3){ctx.arc(0,9,22,-2.8,-.35);ctx.moveTo(0,15);ctx.lineTo(-16,-10);ctx.moveTo(0,15);ctx.lineTo(14,-9);}
-      ctx.stroke();
+      // Alpha-masked bloom follows the real blade, rather than an invented outline.
+      for(const [blur,alpha] of [[8,.19],[3,.3]]){
+        ctx.shadowColor=color;ctx.shadowBlur=blur;ctx.globalAlpha=alpha*power;
+        ctx.drawImage(aura.canvas,-48,-48);
+      }
+      ctx.shadowBlur=0;
+      // Soft, rising spirit flames seeded on the actual silhouette of each weapon.
+      const count=reducedWeaponMotion.matches?6:14;
+      for(let i=0;i<count&&aura.edges.length;i++){
+        const edge=aura.edges[(i*37+index*13)%aura.edges.length];
+        const life=(t*.36+i*.618)%1,fade=Math.sin(life*Math.PI);
+        const x=edge.x+Math.sin(t*1.8+i*2)*life*3,y=edge.y-life*9;
+        ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t+i)*.22);ctx.scale(1,1.8);
+        const radius=1.2+life*2.1,flame=ctx.createRadialGradient(0,0,0,0,0,radius);
+        flame.addColorStop(0,color);flame.addColorStop(.35,color+'99');flame.addColorStop(1,color+'00');
+        ctx.fillStyle=flame;ctx.globalAlpha=fade*.43*power;
+        ctx.fillRect(-radius,-radius,radius*2,radius*2);ctx.restore();
+      }
     }else{
-      // Bounded procedural arcs: no particle allocation, timers or full-screen flashes.
-      const count=reducedWeaponMotion.matches?1:(index===2?3:2);
-      for(let bolt=0;bolt<count;bolt++){
-        const seed=bolt*2.1+index,side=bolt%2?1:-1;
-        const points=[];
-        for(let step=0;step<=7;step++){
-          const y=17-step*5;
-          const envelope=Math.sin(step/7*Math.PI);
-          points.push([side*(4+Math.sin(t*4+seed)*2)+Math.sin(step*2.7+t*9+seed)*4*envelope,y]);
-        }
-        for(let layer=0;layer<2;layer++){
-          ctx.strokeStyle=layer?'#f0ffff':color;ctx.lineWidth=layer?.65:2.2;
-          ctx.globalAlpha=(layer?.38:.24)*power;
-          ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
-        }
-        if(!reducedWeaponMotion.matches){
-          const travel=(t*.48+bolt*.37)%1;
-          ctx.globalAlpha=Math.sin(travel*Math.PI)*.8;ctx.fillStyle=color;
-          ctx.beginPath();ctx.arc(side*(8+travel*6),16-travel*42,1.1,0,Math.PI*2);ctx.fill();
-        }
+      // Tiny embers drift off the blade. No lightning, white strokes or strobe.
+      for(let i=0;i<5&&aura.edges.length;i++){
+        const edge=aura.edges[(i*53+7)%aura.edges.length];
+        const life=(t*.24+i*.23)%1;
+        ctx.globalAlpha=Math.sin(life*Math.PI)*.55;ctx.fillStyle=color;
+        ctx.beginPath();ctx.arc(edge.x+Math.sin(i*3+t)*life*6,edge.y-life*13,.35+(1-life)*.3,0,Math.PI*2);ctx.fill();
       }
     }
     ctx.restore();
@@ -185,7 +198,7 @@
     const weapon = window.characterWeapon.position(index, x, y, bob);
     const wx = weapon.x, wy = weapon.y;
     const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
-    const weaponColor=quality===3?'#ffd885':quality===2?'#9eeaff':info.color;
+    const weaponColor=weaponTones[index];
     const drawBackItem = () => {
       if (!ready(images.lung)) return;
       ctx.save();
@@ -203,30 +216,12 @@
       const size = .94 + depth * .08;
       ctx.scale(size, size);
       ctx.rotate(Math.cos(angle) * .22 + (attacking ? .65 : 0));
-      const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, 23);
-      halo.addColorStop(0, weaponColor);
-      halo.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.globalAlpha = (attacking ? .6 : .24+quality*.07) + Math.sin(tm * 4) * .05;
-      ctx.fillStyle = halo;
-      ctx.fillRect(-23, -23, 46, 46);
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = 1;
       weaponEnergy(ctx,index,quality,attacking,false);
       ctx.shadowColor = weaponColor;
-      ctx.shadowBlur = attacking ? 22+quality*3 : 10+quality*4 + Math.sin(tm * 4) * 2;
+      ctx.shadowBlur = attacking ? 7 : 3+quality*.5;
       sprite(ctx, images.vukhi, 0, 18, 36);
       ctx.shadowBlur = 0;
       weaponEnergy(ctx,index,quality,attacking,true);
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = '#e6ffff';
-      for (let i = 0; i < 4+quality*2; i++) {
-        const a = tm * 1.8 + i * Math.PI *2/(4+quality*2);
-        ctx.globalAlpha = .4 + .3 * Math.sin(tm * 3 + i);
-        ctx.beginPath();
-        ctx.arc(Math.cos(a) * 14, Math.sin(a) * 20, .65, 0, Math.PI * 2);
-        ctx.fill();
-      }
       ctx.restore();
     };
     // Nửa quỹ đạo xa bị thân che; nửa gần đi qua trước nhân vật.
