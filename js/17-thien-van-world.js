@@ -196,7 +196,7 @@
     if(state.near)interactButton.textContent=state.near.name+' · E';
     const region=regions.find(r=>r.id===state.scene)||regions[0];state.region=state.scene;tag.textContent=(window.worldMap?.sceneTitle?.()||region.name)+(isSafe(P)?' · An toàn':'');if(window.worldMap?.renderMini)window.worldMap.renderMini(minimap,200);else miniature(minimap);
     guide.hidden=hidden||progress().tutorial||dialogOpen;
-    if(!guide.hidden){guide.innerHTML='<b>Những bước đầu tiên</b><p>'+(state.guideMove?'✓':'1.')+' Di chuyển bằng WASD / chạm kéo</p><p>'+(state.guideSkill?'✓':'2.')+' Ngắm và dùng skill 1 / Space</p><p>3. Gặp '+(state.scene==='hub'?'Vân Châu':'Sư phụ')+' ở phía bắc quảng trường (E)</p>';}
+    if(!guide.hidden){guide.innerHTML='<b>Những bước đầu tiên</b><p>'+(state.guideMove?'✓':'1.')+' Di chuyển bằng WASD / chạm kéo</p><p>'+(state.guideSkill?'✓':'2.')+' Ngắm và dùng skill 1 / Space</p><p>3. Gặp '+(state.scene==='hub'?'Vân Châu':'Sư phụ')+(state.scene==='hub'?' ở phía bắc quảng trường (E)':' ở sân phía tây (E)')+'</p>';}
   }
   const originalSkill=skill;skill=function(index){if(dialogOpen)return;const before=P.mp;originalSkill(index);if(P.mp<before)state.guideSkill=true;resolve(P);if(moonCombat.state.blink)moonCombat.state.blink.end={x:P.x,y:P.y};};
   const originalUp=up;
@@ -216,7 +216,6 @@
   dr=function(){originalDraw();if(previousPaused())return;const {x:cx,y:cy}=gameCamera();g.save();g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);
     for(const s of services){const y=s.y-(s.npc?(window.creatureArt?.npcHeight(s)||36)+7:10);if(Math.abs(s.x-P.x)>W/Z||y<cy+45||y>cy+H/Z-65)continue;drawWorldLabel(g,s.name,s.x,y,s.color,7.5);
       if(state.near===s){g.strokeStyle='#f3db9b';g.lineWidth=1;g.beginPath();g.ellipse(s.x,s.y+3,18,7,0,0,Math.PI*2);g.stroke();}}
-    if(state.scene!=='hub')for(let i=0;i<5;i++){const x=((tm*8+i*437)%2400)-200,y=140+i*370;if(Math.hypot(x-P.x,y-P.y)<650)sprite(g,'cloud',x,y,300,90,.1);}
     g.restore();
   };
   const create=$('ok').onclick;$('ok').onclick=()=>{create();if(!P.ap||cr.style.display!=='none')return;P.world=defaults();P.x=HUB.x;P.y=HUB.y;state.guideStart={...HUB};state.guideMove=state.guideSkill=false;stopArena();saveCharacter();updateInterface();};

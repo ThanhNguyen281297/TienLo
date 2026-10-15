@@ -31,7 +31,7 @@
   }
 
   function blade(ctx,x,y,length,rotation=0,alpha=1) {
-    crop(ctx,ART[2],SWORD,x,y,length*54/185,length,rotation,alpha);
+    skillSprites.draw(ctx,0,0,3,x,y,length*1.65,length*.78,rotation+Math.PI/2,alpha);
   }
   function camera() {
     const vw=W/Z,vh=H/Z;
@@ -193,7 +193,7 @@
   };
 
   function drawRing(ctx,center,radius,alpha=1) {
-    skillSprites.draw(ctx,0,2,center.duration&&center.age>center.duration-.45?5:Math.min(4,Math.floor((center.age||0)*4)+1),center.x,center.y,radius*2,radius*1.4,0,alpha);
+    skillSprites.draw(ctx,0,2,Math.min(5,(center.age||0)/Math.max(.1,center.duration||4.8)*5),center.x,center.y,radius*2,radius*1.4,0,alpha);
 
   }
   function drawField(ctx,field) {
@@ -217,32 +217,12 @@
     }
   }
   function drawUltimate(ctx,u) {
-    const t=u.age,fade=clamp((u.duration-t)/.5,0,1);
-    if(t<1.7) {
-      const p=clamp(t/.7,0,1);
-      for(let i=0;i<5;i++){const a=i*Math.PI*2/5,pos=u.sources[i];blade(ctx,pos.x+(u.x+Math.cos(a)*65-pos.x)*p,pos.y+(u.y-125+Math.sin(a)*14-pos.y)*p,34,Math.PI);}
-    }
-    // Kiếm khí xuất hiện trên không, cùng lao xuống vùng đã đánh dấu.
-    for(let i=0;i<30;i++) {
-      const wave=Math.floor(i/5),a=i*2.39996,r=20+(i%5)*15,arrival=.9+wave*.18;
-      const tx=u.x+Math.cos(a)*r,ty=u.y+Math.sin(a)*r*.55;
-      const p=clamp((t-.62)/(arrival-.62),0,1);
-      if(t<.55||t>arrival+.09)continue;
-      const y=ty-155*(1-p);
-      ctx.save();ctx.strokeStyle=CYAN;ctx.lineWidth=1.3;ctx.globalAlpha=p*.55;
-      ctx.beginPath();ctx.moveTo(tx,y-28);ctx.lineTo(tx,y+8);ctx.stroke();ctx.restore();
-      blade(ctx,tx,y,24+(i%3)*4,0,clamp((t-.55)/.15,0,1));
-    }
-    // Năm kiếm thật hợp nhất; silhouette luôn là thanh kiếm, không có cầu nổ.
-    if(t>=1.7&&t<2.05) {
-      const p=clamp((t-1.7)/.35,0,1);
-      for(let i=0;i<5;i++){const a=i*Math.PI*2/5;blade(ctx,u.x+Math.cos(a)*65*(1-p),u.y-125+Math.sin(a)*14*(1-p),34+p*36,0);}
-    }
-    if(t>=1.85&&t<2.18) {
-      const p=clamp((t-1.85)/.2,0,1);
-      blade(ctx,u.x,u.y-125+125*p,105,0,1);
-    }
-    if(t>=2.05){crop(ctx,ART[3],ULT_FRAMES[3],u.x,u.y-36,150,150,0,fade);spellMotion.impact(ctx,0,u.x,u.y,t-2.05,u.radius,.65);}
+    const t=u.age,duration=u.duration||3.1;
+    const phase=t<.55?t/.55:t<1.85?1+(t-.55)/1.3*2.4:3.4+(t-1.85)/(duration-1.85)*1.6;
+    const fade=clamp(t/.18,0,1)*clamp((duration-t)/.5,0,1),grow=.8+.2*clamp(t/.7,0,1);
+    spellMotion.charge(ctx,0,u.x,u.y-20,t,.65);
+    skillSprites.draw(ctx,0,3,Math.min(5,phase),u.x,u.y-48,195*grow,210*grow,0,fade*.94);
+    if(t>=2.05)spellMotion.impact(ctx,0,u.x,u.y,t-2.05,u.radius,.65);
   }
   function drawEffects(ctx) {
     if(state.ultimate)drawUltimate(ctx,state.ultimate);
@@ -253,7 +233,7 @@
     for(const effect of state.slash) {
       if(effect.kind==='dash'&&window.voidStep?.outlineOnly)continue;
       const p=effect.age/effect.duration;
-      if(effect.kind==='impact'){crop(ctx,ART[0],PHI_FLASH,effect.x,effect.y,28,28,0,1-p);continue;}
+      if(effect.kind==='impact'){if(!window.worldVFX)crop(ctx,ART[0],PHI_FLASH,effect.x,effect.y,28,28,0,1-p);continue;}
       const length=distance(effect.start,effect.end),mx=(effect.start.x+effect.end.x)/2,my=(effect.start.y+effect.end.y)/2-16;
       ctx.save();ctx.strokeStyle=p<.15?'#fff':CYAN;ctx.lineWidth=p<.15?7:3;ctx.globalAlpha=1-p;
       ctx.beginPath();ctx.moveTo(effect.start.x,effect.start.y-16);ctx.lineTo(effect.end.x,effect.end.y-16);ctx.stroke();ctx.restore();

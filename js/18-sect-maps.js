@@ -153,7 +153,7 @@ ctx.restore();
     P.x=maps[id].spawn.x;P.y=maps[id].spawn.y;P.med=0;P.sl=0;P.acd=.3;K={};ptr=null;
     kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;world.state.near=null;
     if(initial){world.state.guideStart={x:P.x,y:P.y};world.state.guideMove=world.state.guideSkill=false;}
-    dialog.close();world.updateInterface();saveCharacter();msg(maps[id].name+' · '+(id==='hub'?'Hub an toàn. Gặp Vân Châu để nhận nhiệm vụ.':'Gặp Sư phụ ở phía bắc đài hoặc đi tới khu luyện công.'));
+    dialog.close();world.updateInterface();saveCharacter();msg(maps[id].name+' · '+(id==='hub'?'Hub an toàn. Gặp Vân Châu để nhận nhiệm vụ.':'Gặp Sư phụ ở sân phía tây hoặc đi tới khu luyện công.'));
   }
   world.switchScene=sceneSwitch;
   world.respawn=()=>{challenge.active=null;E=E.filter(e=>!e.challenge);P.x=maps[scene()].spawn.x;P.y=maps[scene()].spawn.y;};
@@ -196,7 +196,7 @@ ctx.restore();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(P.x,P.y,20,0,Math.PI*2);ctx.fill();ctx.restore();
   };
   world.openOverview=function(){dialog.show('Năm miền tiên lộ',maps[scene()].name+' · điểm trắng là vị trí hiện tại; điểm vàng là truyền tống.');const c=document.createElement('canvas');c.className='world-overview';c.width=c.height=360;$('world-content').appendChild(c);world.renderMini(c.getContext('2d'),360);
-    Object.values(maps).forEach(m=>dialog.line(m.name+' · '+m.description));dialog.line('Sư phụ: phía bắc đài · truyền công: phía đông · truyền tống: tây nam · luyện công: đảo đông nam · thử thách: đảo đông bắc.');dialog.line('Thiên Môn, Linh Mạch Cốc và Bí Cảnh sẽ mở ở phiên bản sau.');
+    Object.values(maps).forEach(m=>dialog.line(m.name+' · '+m.description));dialog.line('Sư phụ: sân phía tây · truyền công: phía đông · truyền tống: tây nam · luyện công: đảo đông nam · thử thách: đảo đông bắc.');dialog.line('Thiên Môn, Linh Mạch Cốc và Bí Cảnh sẽ mở ở phiên bản sau.');
   };
   const oldDraw=dr;dr=function(){oldDraw();if(paused()||scene()==='hub'||scene()==='arena'||world.customLayout)return;
     const {x:cx,y:cy}=gameCamera();g.save();g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);

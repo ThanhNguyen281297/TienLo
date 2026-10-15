@@ -14,6 +14,14 @@
   }
   function preload(sect){for(let i=0;i<4;i++)for(let frame=0;frame<6;frame++)load(sect,i,frame);}
   function draw(ctx,sect,index,frame,x,y,width,height,rotation=0,alpha=1){
+    frame=Math.max(0,Math.min(5,frame));
+    const lower=Math.floor(frame),mix=frame-lower;
+    if(mix>.001){
+      const first=draw(ctx,sect,index,lower,x,y,width,height,rotation,alpha*(1-mix));
+      const second=draw(ctx,sect,index,lower+1,x,y,width,height,rotation,alpha*mix);
+      return first||second;
+    }
+    frame=lower;
     const asset=load(sect,index,frame);if(!asset||!asset.image.complete||!asset.image.naturalWidth)return false;
     const {image,meta}=asset,[left,top,right,bottom]=meta.bounds;
     // Contain the complete visible pose, preserve aspect ratio, draw the WHOLE PNG.

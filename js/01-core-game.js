@@ -15,7 +15,7 @@ function spawn(i){const a=Math.random()*6.28,d=Math.random(),t=d<.5?0:d<.88?1:2;
  const rad=[250+Math.random()*250,520+Math.random()*350,900+Math.random()*80][t],x=1000+Math.cos(a)*rad,y=1000+Math.sin(a)*rad;
  E[i]={t,x,y,hx:x,hy:y,hp:T[t].hp,dead:0,cd:0,fr:0,fl:0}}
 for(let i=0;i<32;i++)spawn(i);
-const fx=(x,y,t,c)=>X.push({x,y,t,c,l:.9});
+const fx=(x,y,t,c)=>{X.push({x,y,t,c,l:.9,vx:((X.length%3)-1)*5,strong:typeof t==='number'&&t>atk()*1.5});if(X.length>64)X.shift();};
 const near=r=>{let b=null,bd=r*r;for(const e of E){if(e.dead)continue;const d=(e.x-P.x)**2+(e.y-P.y)**2;if(d<bd){bd=d;b=e}}return b};
 function hit(e,v){const k=T[e.t];v=Math.round(v);e.hp-=v;fx(e.x,e.y-k.s,v,'#ffd27a');
  if(e.hp<=0){e.dead=8;const experience=e.xpReward??k.xp;P.xp=Math.min(need()*3,P.xp+experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
@@ -56,7 +56,7 @@ function up(dt){
   if(e.worldMap&&window.worldMap?.traceMove){const end=worldMap.traceMove(origin,e);e.x=end.x;e.y=end.y;}
   if(window.worldMap?.state.scene!=='hub'&&d<=k.s+14&&e.cd<=0&&!window.classCombat?.isDashing()&&(!e.worldMap||!window.worldMap?.isSafe(P))){e.cd=1;window.creatureArt?.onAttack(e);const bst=bonusStats();const dodge=Math.min(.2,bst.dodge||0);if(Math.random()<dodge){fx(P.x,P.y-20,'Né','#7fffc8')}else{const v=Math.max(1,Math.round(k.at*(e.attackScale||1)-P.r*1.5-(P.world?.armor||0)-(bst.armor||0)));const final=Math.max(1,Math.round(v*(window.newClassCombat?.damageTaken()||1)));P.hp-=final;P.med=0;fx(P.x,P.y-20,'-'+final,'#ff6a5a')}}}
  if(P.hp<=0){window.classCombat?.onRespawn();if(window.worldMap?.respawn)worldMap.respawn();else{P.x=1000;P.y=1100;}P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;msg('Trọng thương! Được đưa về đài an toàn, mất một phần Linh Thạch.')}
- for(const f of X){f.l-=dt;f.y-=22*dt}X=X.filter(f=>f.l>0);
+ for(const f of X){f.l-=dt;f.y-=22*dt;f.x+=(f.vx||0)*dt}X=X.filter(f=>f.l>0);
  sv+=dt;if(sv>5){sv=0;saveCharacter()}
  hud()}
 function hud(){$('rn').textContent=R[P.r]+(P.med?' · đả tọa':'');$('gd').textContent='◈ '+P.gold;

@@ -39,11 +39,13 @@
           if(state.seenRewards.has(reward.eventId)||claimed.includes(reward.eventId)){if(!state.acks.includes(reward.eventId))state.acks.push(reward.eventId);continue;}
           state.seenRewards.add(reward.eventId);claimed.push(reward.eventId);if(claimed.length>100)claimed.shift();
           // Replay each server-issued death once through existing quest/loot hooks.
-          const e={...reward,hp:1,dead:0,network:false};localHit(e,1);
+          const e={...reward,hp:1,dead:0,network:false},count=X.length;localHit(e,1);
+          // Reward replay is bookkeeping, not a real one-point attack popup.
+          for(let i=X.length-1;i>=count;i--)if(X[i].t===1)X.splice(i,1);
           account.flush().then(ok=>{if(ok)state.acks.push(reward.eventId);});
         }
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
-        E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){Object.assign(e,snapshot);return e;}return snapshot;});
+        E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;if(damage>0&&e.hp>0){fx(snapshot.x,snapshot.y-T[snapshot.t].s,damage,'#ffe0a0');window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
         if(data.damage&&!worldMap.isSafe(P)&&!classCombat.isDashing()){
           const bonus=bonusStats();if(Math.random()>=Math.min(.2,bonus.dodge||0)){const amount=Math.max(1,Math.round((data.damage-(P.world?.armor||0)-(bonus.armor||0))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }

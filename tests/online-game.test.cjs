@@ -28,10 +28,12 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   console.log('PASS chat safely renders text between accounts');
   for(const page of [one,two]){await page.evaluate(()=>{worldMap.progress().tutorial=true;P.x=1105;});for(const y of [930,750,570,490]){await page.evaluate(y=>P.y=y,y);await page.waitForTimeout(350);}}
   await one.waitForTimeout(500);
+  for(const page of [one,two])await page.evaluate(()=>{window.networkVisualHits=[];const confirmed=worldVFX.confirmedHit;worldVFX.confirmedHit=(enemy,damage,kill)=>{networkVisualHits.push({id:enemy.id,damage,kill,mode:creatureArt.frame(enemy).mode});return confirmed(enemy,damage,kill);};});
   await one.evaluate(()=>{const e=E.find(e=>e.network&&e.camp==='north'&&!e.dead);window.coopId=e.id;hit(e,10);});
   const id=await one.evaluate(()=>coopId);await two.waitForFunction(id=>E.some(e=>e.id===id&&e.hp<e.maxHp),id);
   await two.evaluate(id=>{const e=E.find(e=>e.id===id);hit(e,48);},id);
   await one.waitForFunction(()=>worldMap.progress().kills>=1);await two.waitForFunction(()=>worldMap.progress().kills>=1);
+  for(const page of [one,two])assert(await page.evaluate(id=>networkVisualHits.some(h=>h.id===id&&h.damage>0),id),'Shared HP snapshots trigger real damage VFX on both clients');
   console.log('PASS shared monster HP, cooperative kill rewards');
   await one.evaluate(()=>{P.x=1000;P.y=1100;worldMap.dialog.close();inventory.openBag();});
   assert.equal(await one.locator('.bag-grid .item-cell').count(),30);assert.equal(await one.locator('[data-equip-slot]').count(),6);

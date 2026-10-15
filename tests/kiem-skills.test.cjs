@@ -85,8 +85,8 @@ fs.mkdirSync(output, { recursive: true });
     assert.equal(dash.hits.length, 2);
     assert(dash.cooldown < 4 && dash.cooldown > 3.7, 'Cooldown refund must happen once');
     assert.equal(dash.active, false);
-    await page.evaluate(() => {resetTest();P.x=1180;P.y=1150;K.d=1;skill(1);stepTest(.16);});
-    assert(await page.evaluate(() => P.x<1205&&worldMap.canWalk(P)), 'Dash must stop at the island edge');
+    await page.evaluate(() => {resetTest();const shape=worldMap.sectLayouts.sword;P.y=1150;P.x=1000+shape.rx*(1-50/shape.ry)-30;window.dashBoundaryStart=P.x;K.d=1;skill(1);stepTest(.16);});
+    assert(await page.evaluate(() => P.x<dashBoundaryStart+180&&worldMap.canWalk(P)&&!worldMap.canWalk({x:P.x+4,y:P.y})), 'Dash must stop at the current island edge');
     console.log('PASS Dash: line damage, invulnerability, one refund, map bounds');
 
     await page.evaluate(() => {resetTest();E.push(enemyTest('inside',1020,1100),enemyTest('outside',1450,1100));skill(2);stepTest(.4);});

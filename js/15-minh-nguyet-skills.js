@@ -175,7 +175,7 @@
 
   function drawRing(ctx,zone,alpha=1){
     spellMotion.formation(ctx,1,zone,alpha);
-    skillSprites.draw(ctx,1,2,zone.duration&&zone.age>zone.duration-.45?5:Math.min(4,Math.floor((zone.age||0)*4)+1),zone.x,zone.y,zone.radius*2,zone.radius*1.3,0,alpha);
+    skillSprites.draw(ctx,1,2,Math.min(5,(zone.age||0)/Math.max(.1,zone.duration||4.8)*5),zone.x,zone.y,zone.radius*2,zone.radius*1.3,0,alpha);
     // Hai lớp khí dạng elip xoay ngược chiều; giữa là Nguyệt Luân phát sáng.
     ctx.save();ctx.translate(zone.x,zone.y);ctx.scale(1,.58);ctx.globalAlpha*=alpha;
     for(let layer=0;layer<2;layer++){
@@ -207,20 +207,12 @@
     if(ghost.exploded){const p=clamp((ghost.age-.5)/.5,0,1);ctx.save();ctx.globalAlpha=(1-p)*.8;ctx.strokeStyle=COLOR;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(ghost.x,ghost.y,48*p,28*p,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
   }
   function drawUltimate(ctx,u){
-    const t=u.age,center={x:u.x,y:u.y-125};
-    if(t<.65){const p=clamp(t/.65,0,1);for(let slot=0;slot<3;slot++){const source=u.sources[slot],a=slot*Math.PI*2/3;moonBlade(ctx,source.x+(center.x+Math.cos(a)*26-source.x)*p,source.y-20+(center.y+Math.sin(a)*26-source.y+20)*p,slot,t);}}
-    if(t>=.35&&t<3.4){
-      const size=76*clamp((t-.35)/.35,0,1),dark=t>=3.05&&t<3.25;
-      crop(ctx,ART[3],MOON,center.x,center.y,size,size,0,dark?.28:1);
-      if(!dark)glowFor(ctx,center.x,center.y,48,COLOR,.14);
-    }
-    if(t>=.55&&t<1.55){
-      crop(ctx,ART[3],BEAM,u.x,u.y-57,36,125,0,.7);
-
-    }
-    if(t>=1.55&&t<3.05){for(let slot=0;slot<3;slot++){const p=stormPosition(slot,u);moonBlade(ctx,p.x,p.y-18,slot,t*3);crop(ctx,ART[0],ARC,p.x,p.y-18,50,35,t*3,.3);}}
-    if(t>=3.25){spellMotion.impact(ctx,1,u.x,u.y,t-3.25,u.radius,.7);const p=clamp((t-3.25)/.75,0,1);crop(ctx,ART[3],ECLIPSE,u.x,u.y-25,125,135,0,(1-p)*.6);
-      ctx.save();ctx.globalAlpha=(1-p)*.85;ctx.strokeStyle=COLOR;ctx.lineWidth=4*(1-p)+1;ctx.beginPath();ctx.ellipse(u.x,u.y,u.radius*p,u.radius*.58*p,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
+    const t=u.age,duration=u.duration||4,dark=t>=3.05&&t<3.25;
+    const phase=t<.55?t/.55:t<1.55?1+(t-.55):t<3.05?2+(t-1.55)/1.5*1.5:3.5+(t-3.05)/.95*1.5;
+    const fade=clamp(t/.18,0,1)*clamp((duration-t)/.5,0,1)*(dark?.2:1),grow=.8+.2*clamp(t/.65,0,1);
+    spellMotion.charge(ctx,1,u.x,u.y-25,t,.65);
+    skillSprites.draw(ctx,1,3,Math.min(5,phase),u.x,u.y-58,190*grow,200*grow,0,fade*.9);
+    if(t>=3.25)spellMotion.impact(ctx,1,u.x,u.y,t-3.25,u.radius,.7);
   }
   function drawEffects(ctx){
     if(state.field){const f=state.field;for(let slot=0;slot<3;slot++)if(!state.flying.some(b=>b.slot===slot)){

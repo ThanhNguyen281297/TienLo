@@ -11,10 +11,10 @@
   world.farmCamps=camps;
   Object.assign(world.definitions,{moonCourt:[2,0,510/1086,375/1448,225/1086],moonDais:[2,375/1448,530/1086,270/1448,174/1086],stairs:[2,0,850/1086,200/1448,236/1086],bridgeRail:[2,8/1448,995/1086,20/1448,50/1086]});world.preloadSprites();
   const layouts={
-    sword:{rx:305,ry:143,sky:'#172e31',light:'#82b9aa',hall:null,subtitle:'Thiên kiếm giữa biển mây',trees:'pineTree'},
+    sword:{rx:390,ry:200,sky:'#172e31',light:'#82b9aa',hall:null,subtitle:'Thiên kiếm giữa biển mây',trees:'pineTree'},
     moon:{rx:420,ry:190,sky:'#0e253d',light:'#84c2da',hall:'palace',subtitle:'Thủy đình và vườn trăng',trees:'whiteBlossom'},
-    thunder:{rx:350,ry:170,sky:'#1b203e',light:'#aaa7e3',hall:'thunderHall',subtitle:'Lôi đài trên đỉnh mây',trees:'pineTree'},
-    mystic:{rx:370,ry:175,sky:'#173531',light:'#a6cfb4',hall:'mysticHall',subtitle:'Thư các và trận pháp trong vườn ngọc',trees:'sakura'},
+    thunder:{rx:390,ry:190,sky:'#1b203e',light:'#aaa7e3',hall:'thunderHall',subtitle:'Lôi đài trên đỉnh mây',trees:'pineTree'},
+    mystic:{rx:400,ry:200,sky:'#173531',light:'#a6cfb4',hall:'mysticHall',subtitle:'Thư các và trận pháp trong vườn ngọc',trees:'sakura'},
     valley:{rx:420,ry:210,sky:'#1d3a2e',light:'#9fe8b8',hall:null,subtitle:'Mạch linh hội tụ · Linh Nguyên x2',trees:'pineTree'}
   };
   const valleyMines=[
@@ -25,22 +25,11 @@
   world.sectLayouts=layouts;world.valleyMines=valleyMines;
   const clan=()=>world.isSectMap(world.state.scene),isValley=()=>world.state.scene==='valley',layout=()=>layouts[world.state.scene]||layouts.sword;
   const ready=image=>image&&image.complete&&image.naturalWidth>0;
-  const nativeHubDetails=world.drawGroundDetails,nativeHubActors=world.queueActors;
   const nativeSwitch=world.switchScene,nativeRespawn=world.respawn,nativeService=world.handleService,nativeCamera=world.camera;
   const originalTitle=world.sceneTitle;
   const point=(x,y)=>({x,y});
   const routeCache={};
-  function computeRoutes(){const center=point(1000,1100),openCourt=world.state.scene!=='sword';return openCourt?[
-    [center,point(680,1150),point(520,1150),point(520,650),point(1000,575),point(1000,490)],
-    [center,point(1400,1100),point(1510,1180),point(1640,1180),point(1640,1100)],
-    [center,point(1000,1290),point(1000,1650)],
-    [center,point(600,1100),point(490,1180),point(360,1180),point(360,1100)]
-  ]:[
-    [center,point(720,1235),point(600,1280),point(560,1280),point(560,650),point(1000,575),point(1000,490)],
-    [center,point(1285,1220),point(1370,1280),point(1640,1180),point(1640,1100)],
-    [center,point(1000,1390),point(1000,1650)],
-    [center,point(720,1235),point(600,1280),point(360,1180),point(360,1100)]
-  ];}
+  function computeRoutes(){const center=point(1000,1100);return (isValley()?valleyMines:camps).map(c=>[center,point(c.x,c.y)]);}
   // Cache theo scene để tránh cấp phát mảng mỗi lần canWalk/traceMove gọi.
   function routes(){const key=world.state.scene;if(!routeCache[key])routeCache[key]=computeRoutes();return routeCache[key];}
   const mainShape=()=>layout();
@@ -58,24 +47,64 @@
   world.sceneTitle=()=>world.state.scene==='arena'?'Đấu trường tông môn':originalTitle();
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
   function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
+  const modules=Object.fromEntries(Object.entries(spriteCatalog.modules).map(([key,meta])=>{const image=new Image();image.src=artworkURL(meta.src);return[key,image];}));
   const patterns=new WeakMap();
+  const cliffPatterns=new WeakMap();
+  function cliffTexture(ctx){if(!ready(modules.cliff))return null;
+    if(!cliffPatterns.has(ctx))cliffPatterns.set(ctx,ctx.createPattern(modules.cliff,'repeat'));
+    return cliffPatterns.get(ctx);
+  }
   function paving(ctx){const tile=world.asset('tile');if(!ready(tile))return null;if(!patterns.has(ctx)){const pattern=ctx.createPattern(tile,'repeat');pattern.setTransform(new DOMMatrix().translate(976,1088).scale(48/tile.naturalWidth,24/tile.naturalHeight));patterns.set(ctx,pattern);}return patterns.get(ctx);}
-  function deck(ctx,route){const pattern=paving(ctx);if(!pattern)return;ctx.save();ctx.strokeStyle=pattern;ctx.lineWidth=bridgeHalfWidth*2;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();route.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.restore();}
+  function routePath(ctx,route,offset=0,side=0){ctx.beginPath();route.forEach((p,i)=>i?ctx.lineTo(p.x+side,p.y+offset):ctx.moveTo(p.x+side,p.y+offset));}
+  function deck(ctx,route){const pattern=paving(ctx);if(!pattern)return;ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
+    routePath(ctx,route,13,7);ctx.strokeStyle='#102a36';ctx.lineWidth=57;ctx.stroke();
+    routePath(ctx,route,8,5);ctx.strokeStyle='#7b8074';ctx.lineWidth=53;ctx.stroke();
+    routePath(ctx,route);ctx.strokeStyle='#d3bc8c';ctx.lineWidth=53;ctx.stroke();ctx.strokeStyle=pattern;ctx.lineWidth=47;ctx.stroke();
+    // Separate underside arches add depth beneath each span; walkable top stays flat.
+    const [a,b]=route,length=Math.hypot(b.x-a.x,b.y-a.y),dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
+    if(ready(modules.arch)&&Math.abs(dx)>.6)for(let d=70;d<length-30;d+=90){ctx.globalAlpha=.72;renderArtwork(ctx,modules.arch,a.x+dx*d-16,a.y+dy*d+24,32,10);}
+    ctx.restore();
+  }
+  function diamondPath(ctx,x,y,rx,ry){ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();}
+  function islandDeck(ctx,x,y,rx,ry,depth=70){const tile=paving(ctx);if(!tile)return;ctx.save();
+    // Front cliff uses extracted rock texture, independent of trees / crystal / buildings.
+    ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);
+    ctx.lineTo(x+rx*.94,y+depth*.6);ctx.lineTo(x+rx*.73,y+ry*.28+depth*.9);ctx.lineTo(x+rx*.59,y+ry*.42+depth*.65);ctx.lineTo(x+rx*.43,y+ry*.65+depth*.95);ctx.lineTo(x+rx*.24,y+ry*.75+depth*.72);ctx.lineTo(x,y+ry+depth*1.25);
+    ctx.lineTo(x-rx*.24,y+ry*.75+depth*.72);ctx.lineTo(x-rx*.43,y+ry*.65+depth*.95);ctx.lineTo(x-rx*.59,y+ry*.42+depth*.65);ctx.lineTo(x-rx*.73,y+ry*.28+depth*.9);ctx.lineTo(x-rx*.94,y+depth*.6);ctx.closePath();
+    ctx.fillStyle='#2f505d';ctx.fill();ctx.save();ctx.clip();
+    const rock=cliffTexture(ctx);if(rock){rock.setTransform(new DOMMatrix().translate(x-rx,y).scale(.48));ctx.fillStyle=rock;ctx.fillRect(x-rx,y,rx*2,ry+depth*1.25);}
+    const shade=ctx.createLinearGradient(x-rx,y,x+rx,y+ry+depth);shade.addColorStop(0,'#0a233650');shade.addColorStop(.5,'#0a233610');shade.addColorStop(1,'#061825b0');ctx.fillStyle=shade;ctx.fillRect(x-rx,y,rx*2,ry+depth*1.25);ctx.restore();
+    if(ready(modules.flow))for(const side of [-1,1]){const w=rx>250?35:17,h=w*modules.flow.naturalHeight/modules.flow.naturalWidth;ctx.save();ctx.globalAlpha=.72+Math.sin((world.environmentClock||0)*1.2+side)*.08;renderArtwork(ctx,modules.flow,x+side*rx*.65-w/2,y+ry*.35-3,w,h);ctx.restore();}
+    diamondPath(ctx,x,y,rx,ry);ctx.fillStyle='#d9c694';ctx.fill();ctx.lineWidth=5;ctx.strokeStyle='#a18e66';ctx.stroke();
+    ctx.save();diamondPath(ctx,x,y,rx-4,ry-3);ctx.clip();ctx.fillStyle=tile;ctx.fillRect(x-rx,y-ry,rx*2,ry*2);ctx.restore();
+    diamondPath(ctx,x,y,rx-9,ry-6);ctx.lineWidth=1;ctx.strokeStyle='#fff1ca';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x-rx,y+3);ctx.lineTo(x,y+ry+3);ctx.lineTo(x+rx,y+3);ctx.lineWidth=3;ctx.strokeStyle='#c0a46d';ctx.stroke();ctx.restore();
+  }
   function rail(ctx,route,sides=[-1,1]){const image=world.asset('bridgeRail');if(!ready(image))return;
     for(const side of sides){const edge=route.map((p,i)=>{const normal=(a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=Math.hypot(dx,dy)||1;return {x:-dy/l,y:dx/l};};const before=normal(route[Math.max(0,i-1)],route[Math.max(1,i)]),after=normal(route[Math.min(i,route.length-2)],route[Math.min(i+1,route.length-1)]);const dot=before.x*after.x+before.y*after.y,factor=side*25/Math.max(.5,1+dot);return {x:p.x+(before.x+after.x)*factor,y:p.y+(before.y+after.y)*factor};});
       edge.forEach((b,i)=>{if(!i)return;const a=edge[i-1],length=Math.hypot(b.x-a.x,b.y-a.y),angle=Math.atan2(b.y-a.y,b.x-a.x);ctx.save();ctx.translate(a.x,a.y);ctx.rotate(angle);for(let x=0;x<length;x+=48){const span=Math.min(48,length-x);ctx.drawImage(image,0,0,image.naturalWidth*span/48,image.naturalHeight,x,-10,span,12);}ctx.restore();});}}
-  function court(ctx,shape){const tile=paving(ctx);if(!tile)return;ctx.save();ctx.beginPath();ctx.moveTo(1000,1100-shape.ry);ctx.lineTo(1000+shape.rx,1100);ctx.lineTo(1000,1100+shape.ry);ctx.lineTo(1000-shape.rx,1100);ctx.closePath();ctx.clip();ctx.fillStyle=tile;ctx.fillRect(1000-shape.rx,1100-shape.ry,shape.rx*2,shape.ry*2);ctx.restore();
+  function bridgeLights(ctx,route){const [a,b]=route,length=Math.hypot(b.x-a.x,b.y-a.y),dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
+    const lantern=world.asset('lantern');if(!ready(lantern))return;
+    for(let d=160;d<length-100;d+=140){const x=a.x+dx*d,y=a.y+dy*d;
+      if(diamond({x,y},1000,1100,layout().rx+35,layout().ry+20))continue;
+      for(const side of [-1,1]){const xx=x-dy*side*30,yy=y+dx*side*30;ctx.save();ctx.globalAlpha=.9;renderArtwork(ctx,lantern,xx-4,yy-20,8,20);ctx.restore();}
+    }
+  }
+  function court(ctx,shape){islandDeck(ctx,1000,1100,shape.rx,shape.ry,90);
     const x=1000,y=1100,rx=shape.rx,ry=shape.ry;
     [[point(x+30,y-ry+14),point(x+rx-35,y-18)],[point(x+rx-35,y+18),point(x+38,y+ry-14)],
       [point(x-38,y+ry-14),point(x-rx+35,y+18)],[point(x-rx+35,y-18),point(x-30,y-ry+14)]].forEach(edge=>rail(ctx,edge,[0]));
   }
   function sky(ctx,cx,cy,vw,vh){const l=layout(),gradient=ctx.createLinearGradient(0,cy,0,cy+vh);gradient.addColorStop(0,l.sky);gradient.addColorStop(1,world.state.scene==='mystic'?'#35564b':l.sky);ctx.fillStyle=gradient;ctx.fillRect(cx,cy,vw,vh);
-    for(const [x,y,w]of [[550,735,300],[1420,880,380],[680,1510,330],[1540,1550,260]])world.sprite(ctx,'cloud',x,y,w,undefined,.3);
+    // Two distant parallax layers. Simulation time freezes with dialogs and pause.
+    const clock=world.environmentClock||0;
+    if(ready(modules.cloud))for(let i=0;i<10;i++){const far=i<5,span=2600,speed=far?2.5:5.5,x=((i*437+clock*speed)%span)-300+cx*(far?.08:.035),y=230+(i*269)%1680+Math.sin(i*2+clock*.035)*8;const width=far?380:250;ctx.save();ctx.globalAlpha=far?.16:.25;renderArtwork(ctx,modules.cloud,x,y,width,width*modules.cloud.naturalHeight/modules.cloud.naturalWidth);ctx.restore();}
     if(world.state.scene==='thunder')for(const [x,y]of [[590,865],[1440,730],[1320,1560]])world.sprite(ctx,'cloudRock',x,y,155,undefined,.6);
   }
-  const hubDecor=[{key:'pineTree',x:680,y:940,w:85},{key:'whiteBlossom',x:1320,y:950,w:90},
-    {key:'sakura',x:680,y:1230,w:100},{key:'whiteBlossom',x:1320,y:1250,w:90},
-    {key:'lotusPond',x:1130,y:1190,w:105},{key:'hubWell',x:1220,y:1230,w:120},{key:'guardianLion',x:940,y:890,w:48},{key:'guardianLion',x:1060,y:890,w:48}];
+  const hubDecor=[{key:'pineTree',x:655,y:970,w:42},{key:'whiteBlossom',x:1345,y:970,w:42},
+    {key:'sakura',x:655,y:1320,w:42},{key:'hubWell',x:1345,y:1320,w:58},
+    {key:'lotusPond',x:1100,y:1210,w:60},{key:'lotusPond',x:900,y:1250,w:65},
+    {key:'guardianLion',x:950,y:875,w:36},{key:'guardianLion',x:1050,y:875,w:36}];
   function hubFloor(ctx,cx,cy,vw,vh){ctx.fillStyle='#263b3c';ctx.fillRect(cx,cy,vw,vh);const c=world.city,pattern=paving(ctx);if(pattern){ctx.fillStyle=pattern;ctx.fillRect(c.left,c.top,c.right-c.left,c.bottom-c.top);}
     [[point(c.left+8,c.top+10),point(c.right-8,c.top+10)],
       [point(c.left+8,c.top+10),point(c.left+8,c.bottom-10)],
@@ -84,37 +113,42 @@
       [point(1055,c.bottom-10),point(c.right-8,c.bottom-10)]].forEach(edge=>rail(ctx,edge,[0]));
     assetAt(ctx,'stairs',1000,c.bottom+18,80,.5);
     // Vườn trang trí nằm ngoài các trục đi tới NPC.
-    world.sprite(ctx,'lotusPond',720,1220,110);world.sprite(ctx,'lotusPond',1280,1220,110);
-    assetAt(ctx,'moonCourt',1000,1100,370,.52);
+    assetAt(ctx,'moonDais',1000,1100,190,.5);
+    assetAt(ctx,'moonDais',1240,1340,130,.5);
     for(const x of [650,1350])for(const y of [710,875,1045,1220,1390])world.sprite(ctx,'lantern',x,y,20);
   }
   const decor={sword:[],moon:[],thunder:[],mystic:[]};
   for(const id of world.sectIds){const l=layouts[id];
-    for(const [x,y]of [[740,1105],[1260,1105],[850,1210],[1150,1210]])decor[id].push({key:l.trees,x,y,w:id==='mystic'?70:82});
-    camps.forEach((c,n)=>{decor[id].push({key:l.trees,x:c.x-105,y:c.y-48,w:80},{key:n%2?'rock':'whiteBlossom',x:c.x+112,y:c.y-38,w:n%2?40:65});});
+    for(const [x,y]of [[800,1140],[1190,1145]])decor[id].push({key:l.trees,x,y,w:44});
+    camps.forEach(c=>{
+      decor[id].push({key:l.trees,x:c.x,y:c.y+(c.id==='south'?50:-50),w:40});
+    });
   }
-  decor.moon.push({key:'lotusPond',x:775,y:1198,w:115},{key:'lotusPond',x:1225,y:1198,w:115},{key:'moonFall',x:610,y:1160,w:85},{key:'moonFall',x:1390,y:1160,w:85});
-  decor.thunder.push(...[[755,1080],[1245,1080],[850,1188],[1150,1188]].map(([x,y])=>({key:'crystalPillar',x,y,w:30})));
-  decor.mystic.push({key:'mysticGarden',x:725,y:1095,w:175},{key:'lotusPond',x:1240,y:1188,w:115});
+  decor.moon.push({key:'lotusPond',x:730,y:1130,w:85},{key:'lotusPond',x:1270,y:1130,w:85});
+  decor.thunder.push({key:'crystalPillar',x:1220,y:1100,w:22});
+  decor.mystic.push({key:'lotusPond',x:730,y:1120,w:70},{key:'lotusPond',x:1270,y:1120,w:70});
   world.mapDecorations=decor;
   const valleyDecor=[{key:'pineTree',x:740,y:1105,w:82},{key:'pineTree',x:1260,y:1105,w:82},{key:'crystalPillar',x:1000,y:620,w:34},{key:'crystalPillar',x:1500,y:1300,w:30},{key:'crystalPillar',x:500,y:1300,w:30},{key:'lotusPond',x:850,y:1210,w:95},{key:'lotusPond',x:1150,y:1210,w:95}];
   function paintGround(ctx,cx,cy,vw,vh){ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
     if(world.state.scene==='hub'){hubFloor(ctx,cx,cy,vw,vh);ctx.restore();return;}
     sky(ctx,cx,cy,vw,vh);
-    if(world.state.scene==='arena'){assetAt(ctx,'arena',1000,1100,486,.62);ctx.restore();return;}
-    const connections=routes();connections.forEach(route=>deck(ctx,route));connections.forEach(route=>rail(ctx,route));
-    if(world.state.scene==='sword')assetAt(ctx,'greatIsland',1000,1100,720,.41);else court(ctx,layout());
-    (isValley()?valleyMines:camps).forEach(c=>assetAt(ctx,'island',c.x,c.y,400,.35));ctx.restore();
+    if(world.state.scene==='arena'){islandDeck(ctx,1000,1100,200,100,65);ctx.restore();return;}
+    const connections=routes();connections.forEach(route=>deck(ctx,route));connections.forEach(route=>rail(ctx,route));connections.forEach(route=>bridgeLights(ctx,route));
+    court(ctx,layout());
+    (isValley()?valleyMines:camps).forEach(c=>islandDeck(ctx,c.x,c.y,isValley()?150:156,isValley()?78:80,65));ctx.restore();
   }
   drawGround=(cx,cy,vw,vh)=>paintGround(g,cx,cy,vw,vh);
-  const rings=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='CHARACTER/'+folder+'/Vong/vong.png';return img;});
-  world.drawGroundDetails=function(ctx,cx,cy,vw,vh){if(world.state.scene==='hub')return nativeHubDetails(ctx,cx,cy,vw,vh);
-    if(clan()){const ring=rings[world.sectMaps[world.state.scene].classIndex];if(ready(ring)){ctx.save();ctx.globalAlpha=.35;ctx.drawImage(ring,945,1072,110,56);ctx.restore();}
-      if(world.state.scene==='moon')assetAt(ctx,'moonDais',1000,1100,155,.5);
-    }
+  world.drawGroundDetails=function(ctx,cx,cy,vw,vh){if(world.state.scene==='hub')return;
+    if(clan()){assetAt(ctx,'moonDais',1000,1100,175,.5);camps.forEach(c=>assetAt(ctx,'moonDais',c.x,c.y,95,.5));}
   };
   function configure(){
-    if(world.state.scene==='hub'){const market=world.buildings.find(b=>b.key==='market');if(market)market.key='hubBazaar';return;}
+    if(world.state.scene==='hub'){
+      const positions={palace:[1000,830,300],school:[760,940,160],board:[1240,940,85],market:[760,1140,160],hubBazaar:[760,1140,160],forge:[1240,1140,150],arena:[1240,1340,155],portal:[1000,1300,65],garden:[760,1340,130]};
+      for(const b of world.buildings){const p=positions[b.key];if(p){[b.x,b.y,b.w]=p;if(b.solid)b.solid=[-b.w*.26,-12,b.w*.26,-2];}if(b.key==='market')b.key='hubBazaar';}
+      const services={quest:[1000,935],shop:[760,1210],forge:[1240,1210],teleport:[1000,1330],arena:[1240,1385],rank:[1240,1015],skills:[760,1000]};
+      for(const s of world.services)if(services[s.id])[s.x,s.y]=services[s.id];
+      return;
+    }
     if(isValley()){
       world.buildings.splice(0,world.buildings.length,{key:'portal',x:870,y:1165,w:45},{key:'crystalPillar',x:1000,y:1020,w:34},{key:'crystalPillar',x:940,y:1040,w:26},{key:'crystalPillar',x:1060,y:1040,w:26});
       world.services.splice(0,world.services.length,
@@ -125,22 +159,35 @@
     }
     if(!clan())return;
     const id=world.state.scene,meta=world.sectMaps[id],l=layout();
-    const buildings=[{key:'portal',x:870,y:1165,w:45}];
-    if(l.hall)buildings.push({key:l.hall,x:1000,y:id==='moon'?965:980,w:id==='thunder'?500:id==='mystic'?340:420,solid:[-85,-22,85,-3]});
-    if(id==='moon')buildings.push({key:'garden',x:720,y:1025,w:160},{key:'garden',x:1280,y:1025,w:160});
-    if(id==='thunder')buildings.push({key:'thunderAltar',x:1070,y:1060,w:90});
-    if(id==='mystic')buildings.push({key:'mysticArchive',x:1250,y:1055,w:185},{key:'mysticDais',x:1060,y:1065,w:78});
+    // Three reserved zones: west academy, east archive, open central crossing.
+    const buildings=[{key:'portal',x:870,y:1165,w:38},
+      {key:l.hall||'school',x:835,y:1060,w:id==='sword'?170:id==='mystic'?190:210,solid:[-42,-12,42,-2]}];
+    buildings.push({key:{sword:'statue',moon:'lotusPond',thunder:'thunderAltar',mystic:'mysticDais'}[id],x:1080,y:1000,w:id==='moon'?60:40,solid:[-9,-6,9,-1]});
+    if(id==='mystic')buildings.push({key:'mysticArchive',x:1195,y:1070,w:130,solid:[-24,-10,24,-2]});
+    buildings.push({key:'board',x:1130,y:1190,w:30});
     world.buildings.splice(0,world.buildings.length,...buildings);
     world.services.splice(0,world.services.length,
-      {id:'mentor',name:meta.mentor+' · Sư phụ',x:1000,y:1045,npc:true,color:meta.color},
-      {id:'sectSkills',name:'Truyền công',x:1110,y:1115,npc:true,color:meta.color},
+      {id:'mentor',name:meta.mentor+' · Sư phụ',x:910,y:1125,npc:true,color:meta.color},
+      {id:'sectSkills',name:'Truyền công',x:1120,y:1125,npc:true,color:meta.color},
       {id:'teleport',name:'Truyền tống · Thiên Vân Thành',x:870,y:1175,color:'#eed8a7'},
       {id:'boss',name:'Đấu trường · 30 lượt',x:1130,y:1175,color:'#eed8a7'},
       ...camps.map(c=>({id:'camp-'+c.id,name:c.name,x:c.x,y:c.y+38,color:'#d4e4d9'})));
     world.state.near=null;
   }
+  world.layoutArt={modules,islandDeck,hubDecor,decor,valleyDecor};
   const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='CHARACTER/'+folder+'/Nam/truoc.png';return img;});
-  world.queueActors=function(items,cx,cy,vw,vh){if(world.state.scene==='hub'){nativeHubActors(items,cx,cy,vw,vh);hubDecor.forEach(d=>items.push([d.y,()=>world.sprite(g,d.key,d.x,d.y,d.w)]));return;}
+  world.layoutArt.placements=function(){
+    const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:[];
+    const props=[...world.buildings.filter(b=>!b.ground),...decorations].map((p,i)=>{const image=world.asset(p.key),h=ready(image)?p.w*image.naturalHeight/image.naturalWidth:0;return{id:p.key+':'+i,type:'prop',left:p.x-p.w/2,right:p.x+p.w/2,top:p.y-h,bottom:p.y};});
+    const roles={quest:'nhiemvu',shop:'thoren',forge:'thoren',arena:'dautruong',rank:'bxh'};
+    for(const s of world.services)if(s.npc){const index=world.sectMaps[world.state.scene]?.classIndex||0,role=world.state.scene==='hub'?roles[s.id]:null,image=role?creatureArt.npcImages[role]:actorBodies[index],h=role?(s.id==='rank'?68:60):index===2?52.5:42,w=ready(image)?h*image.naturalWidth/image.naturalHeight:24;props.push({id:s.id,type:'npc',left:s.x-w/2,right:s.x+w/2,top:s.y-h,bottom:s.y});}
+    return props;
+  };
+  world.queueActors=function(items,cx,cy,vw,vh){if(world.state.scene==='hub'){
+    for(const d of [...world.buildings.filter(b=>!b.ground),...hubDecor])items.push([d.y,()=>world.sprite(g,d.key,d.x,d.y,d.w)]);
+    for(const s of world.services)if(s.npc)items.push([s.y,()=>{if(!creatureArt.drawNpc(g,s)){const image=actorBodies[0],h=42;if(ready(image))renderArtwork(g,image,s.x-h*image.naturalWidth/image.naturalHeight/2,s.y-h,h*image.naturalWidth/image.naturalHeight,h);}}]);
+    return;
+  }
     for(const e of window.creatureArt?.corpses||[])items.push([e.y,()=>mon(e)]);
     const decorations=isValley()?valleyDecor:clan()?decor[world.state.scene]:[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
     for(const b of [...world.buildings,...decorations])if(b.x>cx-b.w&&b.x<cx+vw+b.w&&b.y>cy-40&&b.y<cy+vh+b.w)items.push([b.y,()=>world.sprite(g,b.key,b.x,b.y,b.w)]);

@@ -1,5 +1,11 @@
 # Graphics review — 2026-10-15
 
+Current layout revision: map floors now use modular paving, cliff, waterfall and
+bridge sprites; the old complete decorated island is retained only as a source.
+NPC/prop bounds are audited in all five service maps. See
+`MAP/SPRITE-WORKFLOW.md` for the current 304-sprite catalog, paths and VFX design.
+The notes below describe the preceding resolution/UI pass.
+
 ## Findings and changes
 
 - The old 701 px island filled over 1,700 CSS pixels at 2.4× zoom. Rebuilt it

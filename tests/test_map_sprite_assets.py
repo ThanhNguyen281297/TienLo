@@ -8,6 +8,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MapSprites(unittest.TestCase):
+    def test_runtime_sprite_catalog(self):
+        catalog=json.loads((ROOT / 'MAP/sprite-catalog.json').read_text())
+        for group,count in [('maps',45),('modules',5),('monsters',104),('skills',96),('characters',44),('items',6),('npcs',4)]:
+            entries=catalog[group].values() if group=='modules' else catalog[group]
+            self.assertEqual(len(catalog[group]),count)
+            for entry in entries:
+                path=ROOT / entry['src']
+                self.assertTrue(path.resolve().is_relative_to(ROOT))
+                data=path.read_bytes()
+                self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
+                self.assertEqual(struct.unpack('>II',data[16:24]),(entry['width'],entry['height']))
+
     def test_painted_item_icons_and_hd_map_sizes(self):
         for name in ('daobao', 'ngoc', 'gioi', 'giay', 'phapbao', 'consume'):
             with self.subTest(item=name):

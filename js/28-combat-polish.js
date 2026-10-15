@@ -6,7 +6,7 @@
   const originalSkill=skill;
   skill=function(index){const before=P.mp,result=originalSkill(index);if(P.mp<before){const color=palette[P.ap.w],point=index===3?(getClassCombat().state.aim||P):P;if(index!==1&&P.ap.w<2)pulse(point.x,point.y,index===3?155:index===2?110:45,color,index===3?.95:.5);if(index!==1&&P.ap.w<2)spark(P.x,P.y-25,color,index===3?22:10);if(window.onlineWorld)onlineWorld.state.cast={id:Date.now()+':'+Math.random(),index,x:point.x,y:point.y};if(index!==1&&P.ap.w<2)echoes.push({x:P.x,y:P.y,ap:{...P.ap},dir:P.dir,f:P.f,age:0});}return result;};
   const originalHit=hit;
-  hit=function(enemy,power){if(enemy&&!enemy.dead&&enemy.hp>0){pulse(enemy.x,enemy.y-12,Math.min(36,12+power*.08),palette[P.ap?.w||0],.25);}return originalHit(enemy,power);};
+  hit=function(enemy,power){if(enemy&&!enemy.dead&&enemy.hp>0&&!window.worldVFX){pulse(enemy.x,enemy.y-12,Math.min(36,12+power*.08),palette[P.ap?.w||0],.25);}return originalHit(enemy,power);};
   const draw=dr;
   dr=function(){draw();const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
     if(!P.ap||paused())return;

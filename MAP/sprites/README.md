@@ -22,4 +22,5 @@ Open `index.html` to inspect every separated PNG on a dark background.
 Small source assets retain their actual source detail. The five HD redraws add
 new painted detail, rather than claiming to recover missing original pixels.
 The renderer uses smooth high quality sampling and a 1.8× CSS world zoom.
-The previous SVG experiment is retained in `MAP/vector` as unused history.
+The old SVG experiment is retired. See `MAP/sprite-library.html` for the complete
+searchable sprite catalog and `MAP/SPRITE-WORKFLOW.md` for the map workflow.

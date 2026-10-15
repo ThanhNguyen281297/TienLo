@@ -12,7 +12,10 @@
     Nhen:{height:76,sheets:[6,6,5,6],idle:1,move:1,attack:2,hurt:3,death:4},
     Doi:{height:84,sheets:[6,6,5,6],idle:1,move:1,attack:2,hurt:3,death:4}
   };
-  for(const [key,kind]of Object.entries(species))kind.images=kind.sheets.map((_,i)=>image('MONTERS/'+key+'/'+(i+1)+'.png'));
+  for(const [key,kind]of Object.entries(species)){
+    kind.poses=spriteCatalog.monsterFrames[key].map(sheet=>sheet.map(meta=>({...meta,image:image(artworkURL(meta.src))})));
+    kind.images=kind.poses.flat().map(pose=>pose.image);
+  }
   Object.assign(T[0],{n:'Bọ Ngựa',skin:'BoNgua',sp:40});
   Object.assign(T[1],{n:'Nguyệt Thố',skin:'Tho',sp:65,c:'#aadfff'});
   Object.assign(T[2],{n:'Huyết Nhện Vương',skin:'Nhen',sp:90,c:'#e76054'});
@@ -28,7 +31,8 @@
     else if(s.attack>0){mode='attack';age=s.attackAge;fps=10;}
     else if(s.moving){mode='move';fps=9;}
     const sheet=kind[mode],count=kind.sheets[sheet-1],index=['hurt','attack','death'].includes(mode)?Math.min(count-1,Math.floor(age*fps)):Math.floor(age*fps)%count;
-    return {kind,mode,sheet,index,image:kind.images[sheet-1],count,rect:monsterFrames[e.skin||T[e.t].skin]?.[sheet-1]?.[index]};
+    const pose=kind.poses[sheet-1][index];
+    return {kind,mode,sheet,index,image:pose.image,count,rect:pose.rect,sourceHeight:pose.sourceHeight,padding:pose.padding};
   }
   function drawNpc(ctx,service){const img=npcImages[npcRoles[service.id]];if(!img)return false;if(!ready(img))return true;
     const h=service.id==='rank'?68:60,w=h*img.naturalWidth/img.naturalHeight;
@@ -40,10 +44,10 @@
     portrait=document.createElement('img');portrait.id='npc-dialog-portrait';portrait.src=npcImages[key].src;portrait.alt='NPC '+title;portrait.width=70;portrait.height=95;$('world-title').before(portrait);
   }
   mon=function(e){const f=frame(e);if(!ready(f.image))return;
-    const height=f.kind.height*(e.t===2?1.45:e.elite?1.2:1),rect=f.rect,scale=height/f.image.naturalHeight,width=rect.w*scale,bob=(e.skin||T[e.t].skin)==='Doi'&&!e.corpse?Math.sin(clock*5+state(e).phase)*2-5:0;
+    const height=f.kind.height*(e.t===2?1.45:e.elite?1.2:1),rect=f.rect,scale=height/f.sourceHeight,width=rect.w*scale,bob=(e.skin||T[e.t].skin)==='Doi'&&!e.corpse?Math.sin(clock*5+state(e).phase)*2-5:0;
     g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';if(e.corpse)g.globalAlpha=Math.min(1,(.95-e.age)*3);
     g.fillStyle='rgba(6,15,21,.24)';g.beginPath();g.ellipse(e.x,e.y+3,Math.max(10,width*.38),4,0,0,Math.PI*2);g.fill();
-    g.translate(Math.round(e.x*Z)/Z,Math.round((e.y+bob)*Z)/Z);if(P.x>e.x+3)g.scale(-1,1);g.drawImage(f.image,rect.x,rect.y,rect.w,rect.h,-width/2,-height*.93+rect.y*scale,width,rect.h*scale);g.restore();
+    g.translate(Math.round(e.x*Z)/Z,Math.round((e.y+bob)*Z)/Z);if(P.x>e.x+3)g.scale(-1,1);renderArtwork(g,f.image,-width/2-f.padding*scale,-height*.93+(rect.y-f.padding)*scale,f.image.naturalWidth*scale,f.image.naturalHeight*scale);g.restore();
     if(e.corpse)return;
     const barWidth=e.t===2?58:34,y=e.y-height*.79+bob,ratio=Math.max(0,Math.min(1,e.hp/(e.maxHp||T[e.t].hp)));
     g.save();g.fillStyle='#14202add';g.fillRect(e.x-barWidth/2-1,y-4,barWidth+2,5);g.fillStyle=e.t===2?'#e6a853':'#cb6554';g.fillRect(e.x-barWidth/2,y-3,barWidth*ratio,3);
@@ -68,5 +72,6 @@
   const previousRespawn=classCombat.onRespawn;classCombat.onRespawn=function(){corpses.length=0;return previousRespawn();};
   const css=document.createElement('style');css.textContent='.v{background:none!important}#npc-dialog-portrait{float:right;width:70px;height:95px;object-fit:contain;margin:0 22px 10px 16px;filter:drop-shadow(0 3px 5px #0005)}';document.head.appendChild(css);
   window.creatureArt={species,npcImages,corpses,frame,drawNpc,decorateDialog,npcHeight:s=>npcRoles[s.id]?(s.id==='rank'?68:60):36,
+    onNetworkDamage(e,dead){const s=state(e);s.hurt=.25;s.hurtAge=0;e.fl=.1;if(dead&&!corpses.some(c=>c.id===e.id&&c.age<.95)){corpses.push({...e,corpse:true,age:0});s.attack=0;}},
     onAttack(e){const s=state(e);s.attack=.6;s.attackAge=0;},ready:()=>Object.values(npcImages).every(ready)&&Object.values(species).every(s=>s.images.every(ready))};
 })();
