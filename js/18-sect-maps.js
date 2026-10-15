@@ -68,7 +68,7 @@
   ];}
   // Nền lát trực tiếp bằng tile PNG gốc; cầu dùng nguyên ảnh asset MAP.
   const floorPatterns=new WeakMap();
-  function paving(ctx){const tile=world.asset('tile');if(!tile)return null;if(!floorPatterns.has(ctx))floorPatterns.set(ctx,ctx.createPattern(tile,'repeat'));return floorPatterns.get(ctx);}
+  function paving(ctx){const tile=world.asset('tile');if(!tile)return null;if(!floorPatterns.has(ctx)){const pattern=ctx.createPattern(tile,'repeat');if(pattern)pattern.setTransform(new DOMMatrix().scale(48/tile.width,24/tile.height));floorPatterns.set(ctx,pattern);}return floorPatterns.get(ctx);}
   function drawBridge(ctx,pair){
     const path=bridgePath(pair),pattern=paving(ctx);if(!pattern)return;
     // Mask chỉ định phạm vi đường; toàn bộ mặt đường lấy từ ảnh gạch MAP.
@@ -77,14 +77,14 @@
     // Giữ nguyên hình cầu, hạn chế phóng ảnh nhỏ thành cả đoạn đường dài.
     const length=dist(pair[0],pair[1]),span=Math.min(.5,190/length),center=.5;
     const p=bridgePlacement([bridgePoint(bridgePlacement(pair),center-span/2),bridgePoint(bridgePlacement(pair),center+span/2)]);
-    if(!p.img)return;ctx.save();ctx.translate(p.a.x,p.a.y);ctx.rotate(p.angle);ctx.drawImage(p.img,-p.width*.12,-p.height*.65,p.width,p.height);ctx.restore();
+    if(!p.img)return;ctx.save();ctx.translate(p.a.x,p.a.y);ctx.rotate(p.angle);renderArtwork(ctx,p.img,-p.width*.12,-p.height*.65,p.width,p.height);ctx.restore();
   }
   drawGround=function(cx,cy,vw,vh){g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';const pattern=paving(g);
     if(scene()==='hub'){const c=world.city;g.beginPath();g.rect(c.left,c.top,c.right-c.left,c.bottom-c.top);g.clip();if(pattern){g.fillStyle=pattern;g.fillRect(c.left,c.top,c.right-c.left,c.bottom-c.top);}g.restore();return;}
     // Khoảng trống là màu nền, không dựng núi / mặt nước / đường bằng vector.
     g.fillStyle=scene()==='moon'?'#112a43':'#213c43';g.fillRect(cx,cy,vw,vh);
     if(scene()==='sword')for(const [x,y]of [[650,590],[1300,950],[1100,1500]])world.sprite(g,'cloud',x,y,420,undefined,.35);
-    for(const i of islands)if(i!==islands[0]){const img=world.asset('island');if(img){const width=i.rx*2+20,height=width*img.height/img.width;g.drawImage(img,i.x-width/2,i.y-height*.32,width,height);}}
+    for(const i of islands)if(i!==islands[0]){const img=world.asset('island');if(img){const width=i.rx*2+20,height=width*img.height/img.width;renderArtwork(g,img,i.x-width/2,i.y-height*.32,width,height);}}
     if(pattern)for(const i of islands){g.save();g.beginPath();g.ellipse(i.x,i.y,i.rx,i.ry,0,0,Math.PI*2);g.clip();g.fillStyle=pattern;g.fillRect(i.x-i.rx,i.y-i.ry,i.rx*2,i.ry*2);g.restore();}
     for(const pair of bridges)drawBridge(g,pair);g.restore();
   };

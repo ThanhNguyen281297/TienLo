@@ -9,7 +9,7 @@ let lpx=0,lpy=0,lt=performance.now();
 dr=function(){const now=performance.now(),dt=Math.min(.05,(now-lt)/1000);lt=now;
  P.mv=P.x!=lpx||P.y!=lpy;lpx=P.x;lpy=P.y;
  const vw=W/Z,vh=H/Z,{x:cx,y:cy}=gameCamera(vw,vh);
- g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=false;g.fillStyle='#171310';g.fillRect(0,0,W,H);
+ g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.fillStyle='#171310';g.fillRect(0,0,W,H);
  g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);drawGround(cx,cy,vw,vh);window.worldMap?.drawGroundDetails(g,cx,cy,vw,vh);window.classCombat?.drawGroundEffects(g);
  if(P.med||P.xp>=need()){const c=P.med?'95,224,192':'217,164,65',p=Math.sin(tm*4);g.lineWidth=2;for(let i=0;i<3;i++){g.strokeStyle='rgba('+c+','+(.7-i*.2)+')';g.beginPath();g.ellipse(P.x,P.y+2,14+i*6+p*2,6+i*2.5+p,0,0,6.3);g.stroke()}glow(P.x,P.y,40,'rgba('+c+',.8)',.3)}
  const it=[];

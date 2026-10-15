@@ -91,7 +91,7 @@ fs.mkdirSync(artifacts, { recursive: true });
         }
         const images = [], draw = g.drawImage; g.drawImage = function (image, ...args) { if (image.src) images.push(image.src); return draw.call(this, image, ...args); };
         try { const actors = []; worldMap.queueActors(actors, 0, 0, M, M); actors.forEach(actor => actor[1]()); } finally { g.drawImage = draw; }
-        return { scene: worldMap.state.scene, appearance: P.ap, title: worldMap.sceneTitle(), spawn, safe: worldMap.isSafe(P), zoom: Z / Math.min(2, devicePixelRatio || 1),
+        return { scene: worldMap.state.scene, appearance: P.ap, title: worldMap.sceneTitle(), spawn, safe: worldMap.isSafe(P), zoom: Z * innerWidth / W,
           camera: gameCamera(), keys: Object.keys(worldMap.sectMaps), regions: worldMap.regions.map(region => region.id), routes: routes.length, routeFailures,
           waterWalkable: worldMap.canWalk(water), stop, stopWalkable: worldMap.canWalk(stop),
           camps: worldMap.farmCamps.map(camp => ({ id: camp.id, x: camp.x, y: camp.y, type: camp.t, count: E.filter(enemy => enemy.camp === camp.id).length })),
@@ -100,7 +100,7 @@ fs.mkdirSync(artifacts, { recursive: true });
           mentor: worldMap.services.find(service => service.id === 'mentor').name, images };
       });
       assert.equal(facts.scene, definition.id); assert.equal(facts.appearance.w, sect); assert.equal(facts.title, definition.name);
-      assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert.equal(facts.zoom, 2.4);
+      assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert(Math.abs(facts.zoom-2.4)<.001);
       assert.equal(facts.camera.x + facts.camera.vw / 2, 1000); assert.equal(facts.camera.y + facts.camera.vh / 2, 1110);
       assert.deepEqual(facts.keys.sort(), ['hub','valley', ...maps.map(map => map.id)].sort()); assert.deepEqual(facts.regions.sort(), facts.keys.sort());
       assert.equal(facts.routes, 4); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' routes remain connected');

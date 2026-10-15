@@ -244,9 +244,9 @@
   function refreshUI(force=false){
     if(!active()){state.stamp=false;return;}
     if(force||!state.stamp){state.stamp=true;
-      [...sb.children].forEach((button,i)=>{button.innerHTML='<canvas class="ic" width="64" height="64"></canvas><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';
+      [...sb.children].forEach((button,i)=>{button.innerHTML='<canvas class="ic" width="192" height="192"></canvas><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';
         button.style.borderColor='#b9edf5';button.title=NAMES[i]+' · '+MANA[i]+' linh lực · '+COOLDOWNS[i]+'s · '+R[i];button.setAttribute('aria-label',NAMES[i]);
-        crop(button.querySelector('canvas').getContext('2d'),ART[i],[CAST,APPEAR,FIELD,MOON][i],32,32,60,60);});
+        const icon=button.querySelector('canvas').getContext('2d');icon.setTransform(3,0,0,3,0,0);crop(icon,ART[i],[CAST,APPEAR,FIELD,MOON][i],32,32,60,60);});
       $('bs').textContent='Tam Nguyệt (Space)';$('tip').textContent='WASD / chạm kéo: di chuyển · chuột: ngắm · 1/Space: Tam Nguyệt · 2: Teleport · 3: Nguyệt Luân · 4: Giáng Thế · Q: đả tọa · B: đột phá';
     }
     [...sb.children].forEach((button,i)=>{const cd=state.cooldown[i];button.lastChild.style.height=(cd/COOLDOWNS[i]*100)+'%';button.querySelector('.remaining').textContent=cd>0?cd.toFixed(1):'';

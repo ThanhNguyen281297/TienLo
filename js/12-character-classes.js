@@ -111,7 +111,7 @@
   function sprite(ctx, img, x, y, height) {
     if (!ready(img)) return;
     const width = height * img.naturalWidth / img.naturalHeight;
-    ctx.drawImage(img, x - width / 2, y - height, width, height);
+    renderArtwork(ctx,img, x - width / 2, y - height, width, height);
   }
 
   function footRing(ctx, img, x, y, color) {
@@ -122,7 +122,7 @@
     ctx.shadowColor = color;
     ctx.shadowBlur = 5;
     // Ảnh đã có phối cảnh: giữ hình vòng, chỉ thu chiều cao cho mặt đất.
-    ctx.drawImage(img, x - 30, y - 12, 60, 28);
+    renderArtwork(ctx,img, x - 30, y - 12, 60, 28);
     ctx.restore();
   }
 
@@ -137,11 +137,10 @@
     const c=canvas.getContext('2d',{willReadFrequently:true});
     const width=36*image.naturalWidth/image.naturalHeight;
     c.drawImage(image,48-width/2,30,width,36);
-    const pixels=c.getImageData(0,0,96,96).data,edges=[];
-    for(let y=31;y<66;y+=2)for(let x=1;x<95;x++){
-      const alpha=(x,y)=>pixels[(y*96+x)*4+3];
-      if(alpha(x,y)>100&&(alpha(x-1,y)<50||alpha(x+1,y)<50))edges.push({x:x-48,y:y-48});
-    }
+    const edges=[];
+    // Seed wisps geometrically; the glow itself uses the image alpha mask.
+    // Avoid readback/taint so direct file opening keeps rendering reliably.
+    for(let y=32;y<65;y+=3){const spread=width*(.24+.12*Math.sin((y-30)/36*Math.PI));for(const side of [-1,1])edges.push({x:side*spread,y:y-48});}
     c.globalCompositeOperation='source-in';c.fillStyle=weaponTones[index];c.fillRect(0,0,96,96);
     const aura={canvas,edges};weaponAuras.set(index,aura);return aura;
   }

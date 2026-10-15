@@ -318,8 +318,8 @@
     const gear=document.createElement('section');gear.className='gear-panel';layout.append(gear);
     const heading=document.createElement('h3');heading.textContent=P.nm+' · '+sectName();gear.append(heading);
     const paper=document.createElement('div');paper.className='paper-doll';gear.append(paper);
-    const preview=document.createElement('canvas');preview.width=320;preview.height=380;preview.className='gear-preview';paper.append(preview);
-    const ctx=preview.getContext('2d');ctx.setTransform(3,0,0,3,160,285);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);
+    const preview=document.createElement('canvas');const density=Math.max(1.5,Math.min(3,devicePixelRatio||1));preview.width=Math.round(320*density);preview.height=Math.round(380*density);preview.className='gear-preview';paper.append(preview);
+    const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(3*density,0,0,3*density,160*density,285*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);
     Object.keys(SLOTS).forEach((slot,i)=>{
       const item=p.equip[slot],button=document.createElement('button');button.type='button';button.className='item-cell gear-slot gear-'+i;button.dataset.equipSlot=slot;button.style.setProperty('--rarity',RARITY[item?.rarity||'pham'].color);button.setAttribute('aria-label',SLOTS[slot]+': '+(item?.name||'trống'));
       const img=document.createElement('img');img.src=itemIcon(item,slot);img.alt='';button.append(img);

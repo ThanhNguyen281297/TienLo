@@ -33,7 +33,7 @@
   function drawNpc(ctx,service){const img=npcImages[npcRoles[service.id]];if(!img)return false;if(!ready(img))return true;
     const h=service.id==='rank'?68:60,w=h*img.naturalWidth/img.naturalHeight;
     ctx.save();ctx.fillStyle='rgba(10,24,28,.22)';ctx.beginPath();ctx.ellipse(service.x,service.y,12,4,0,0,Math.PI*2);ctx.fill();
-    ctx.drawImage(img,service.x-w/2,service.y-h,w,h);ctx.restore();return true;
+    renderArtwork(ctx,img,service.x-w/2,service.y-h,w,h);ctx.restore();return true;
   }
   function decorateDialog(title){const key=title.includes('Thiên Vân Bảng')?'bxh':title.includes('Đấu trường')?'dautruong':title.includes('Luyện Khí')||title.includes('Bảo Khí')?'thoren':title.includes('Vân Châu')?'nhiemvu':null;
     let portrait=$('npc-dialog-portrait');if(portrait)portrait.remove();if(!key)return;

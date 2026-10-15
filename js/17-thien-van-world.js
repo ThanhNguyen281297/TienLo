@@ -30,7 +30,7 @@
   function isolate(key){
     if(!definitions[key])return null;
     if(!cleaned.has(key)){
-      const img=new Image();img.src='MAP/sprites/'+key+'.png';
+      const img=new Image();img.src=(['tile','pineTree','mysticHall','thunderHall'].includes(key)?'MAP/hd/':'MAP/sprites/')+key+'.png';
       img.onerror=()=>msg('Không tải được asset bản đồ '+key+'.');cleaned.set(key,img);
     }
     const img=cleaned.get(key);return ready(img)?img:null;
@@ -41,7 +41,7 @@
     const img=isolate(key);if(!img)return;
     const h=height||width*img.height/img.width;
     ctx.save();ctx.globalAlpha*=alpha;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-    ctx.drawImage(img,x-width/2,y-h,width,h);ctx.restore();
+    renderArtwork(ctx,img,x-width/2,y-h,width,h);ctx.restore();
   }
   const buildings=[
     {key:'palace',x:1000,y:865,w:310,solid:[-110,-36,110,0]},

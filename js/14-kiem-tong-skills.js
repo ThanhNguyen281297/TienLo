@@ -287,13 +287,13 @@
     if(force||stamp!==state.stamp) {
       state.stamp=stamp;
       [...sb.children].forEach((button,i)=>{
-        button.innerHTML=(sword?'<canvas class="ic" width="64" height="64"></canvas>':'<i class="ic">'+oldIcons[i]+'</i>')+'<small>'+(i+1)+'</small><span class="remaining"></span><u></u>';
+        button.innerHTML=(sword?'<canvas class="ic" width="192" height="192"></canvas>':'<i class="ic">'+oldIcons[i]+'</i>')+'<small>'+(i+1)+'</small><span class="remaining"></span><u></u>';
         button.style.borderColor=sword?'#8fdfff':SN[i][2];
         button.title=sword?NAMES[i]+' · '+MANA[i]+' linh lực · '+COOLDOWNS[i]+'s · '+R[i]:oldNames[i];
         button.setAttribute('aria-label',sword?NAMES[i]:oldNames[i]);
         if(!sword)button.disabled=false;
         if(sword) {
-          const icon=button.querySelector('canvas').getContext('2d');
+          const icon=button.querySelector('canvas').getContext('2d');icon.setTransform(3,0,0,3,0,0);
           const image=i===0?ART[2]:ART[i];
           const rect=i===0?SWORD:i===1?DASH_FRAMES[3]:i===2?[.72,.10,.28,.76]:ULT_FRAMES[3];
           crop(icon,image,rect,32,32,i===0?22:62,58);

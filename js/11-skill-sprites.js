@@ -20,7 +20,7 @@
     const scale=Math.min(width/(right-left),height/(bottom-top));
     ctx.save();ctx.translate(x,y);ctx.rotate(rotation);ctx.globalAlpha*=alpha;
     ctx.shadowBlur=0;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-    ctx.drawImage(image,-(left+right)/2*scale,-(top+bottom)/2*scale,image.naturalWidth*scale,image.naturalHeight*scale);
+    renderArtwork(ctx,image,-(left+right)/2*scale,-(top+bottom)/2*scale,image.naturalWidth*scale,image.naturalHeight*scale);
     ctx.restore();return true;
   }
   window.skillSprites={draw,preload,names,cache,get failed(){return failed;}};
