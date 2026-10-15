@@ -128,6 +128,8 @@
 
   function advance(dt) {
     for(let i=0;i<4;i++)state.cooldown[i]=Math.max(0,state.cooldown[i]-dt);
+    // Skill animation clock: 65% speed; cooldowns keep real elapsed time.
+    dt*=.65;
     for(let i=state.flying.length-1;i>=0;i--) {
       const sword=state.flying[i];
       if(sword.delay>0){sword.delay-=dt;continue;}

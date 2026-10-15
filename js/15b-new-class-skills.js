@@ -38,6 +38,8 @@
     state.cooldown=state.cooldown.map(v=>Math.max(0,v-dt));
     for(const [e,m]of state.marks){m.time-=dt;if(!live(e)||m.time<=0)state.marks.delete(e);}
     for(const [e,c]of state.control){c.time-=dt;if(!live(e)||c.time<=0)state.control.delete(e);}
+    // Slow skill motion, leaving cooldown/mark/control clocks unchanged.
+    dt*=.65;
     const dash=state.dash;if(dash){dash.age+=dt;const t=Math.min(1,dash.age/.18),old={x:P.x,y:P.y};P.x=dash.start.x+(dash.end.x-dash.start.x)*t;P.y=dash.start.y+(dash.end.y-dash.start.y)*t;
       for(const e of E)if(live(e)&&!dash.hits.has(e)&&kiemCombat.segmentDistance(e,old,P)<(T[e.t]?.s||10)+16){dash.hits.add(e);strike(e,dash.power*1.3,0);if(stacks(e))strike(e,dash.power*.5,0);if(!dash.first){mark(e);dash.first=true;}flash(e,0);}if(t===1)state.dash=null;
     }
