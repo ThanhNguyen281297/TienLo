@@ -199,6 +199,7 @@
   function drawField(ctx,field) {
     const spawn=clamp(field.age/.35,0,1),fade=clamp((field.duration-field.age)/.35,0,1);
     drawRing(ctx,field,field.radius*(.6+.4*spawn),fade*.9);
+    spellMotion.formation(ctx,0,field,fade);
     ctx.save();ctx.textAlign='center';ctx.font='bold 14px Georgia,serif';
     const active=Math.floor(field.age/.32)%8;
     for(let i=0;i<8;i++) {
@@ -241,7 +242,7 @@
       const p=clamp((t-1.85)/.2,0,1);
       blade(ctx,u.x,u.y-125+125*p,105,0,1);
     }
-    if(t>=2.05)crop(ctx,ART[3],ULT_FRAMES[3],u.x,u.y-36,150,150,0,fade);
+    if(t>=2.05){crop(ctx,ART[3],ULT_FRAMES[3],u.x,u.y-36,150,150,0,fade);spellMotion.impact(ctx,0,u.x,u.y,t-2.05,u.radius,.65);}
   }
   function drawEffects(ctx) {
     if(state.ultimate)drawUltimate(ctx,state.ultimate);

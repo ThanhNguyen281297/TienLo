@@ -174,6 +174,7 @@
   up=function(dt){previousUp(dt);if(!active()||paused())return;advance(dt);refreshUI();};
 
   function drawRing(ctx,zone,alpha=1){
+    spellMotion.formation(ctx,1,zone,alpha);
     skillSprites.draw(ctx,1,2,zone.duration&&zone.age>zone.duration-.45?5:Math.min(4,Math.floor((zone.age||0)*4)+1),zone.x,zone.y,zone.radius*2,zone.radius*1.3,0,alpha);
     // Hai lớp khí dạng elip xoay ngược chiều; giữa là Nguyệt Luân phát sáng.
     ctx.save();ctx.translate(zone.x,zone.y);ctx.scale(1,.58);ctx.globalAlpha*=alpha;
@@ -210,17 +211,15 @@
     if(t<.65){const p=clamp(t/.65,0,1);for(let slot=0;slot<3;slot++){const source=u.sources[slot],a=slot*Math.PI*2/3;moonBlade(ctx,source.x+(center.x+Math.cos(a)*26-source.x)*p,source.y-20+(center.y+Math.sin(a)*26-source.y+20)*p,slot,t);}}
     if(t>=.35&&t<3.4){
       const size=76*clamp((t-.35)/.35,0,1),dark=t>=3.05&&t<3.25;
-      ctx.save();ctx.beginPath();ctx.arc(center.x,center.y,size/2,0,Math.PI*2);ctx.clip();
-      crop(ctx,ART[3],MOON,center.x,center.y,size,size,0,1);
-      if(dark){ctx.fillStyle='rgba(12,20,44,.96)';ctx.fillRect(center.x-size/2,center.y-size/2,size,size);}ctx.restore();
+      crop(ctx,ART[3],MOON,center.x,center.y,size,size,0,dark?.28:1);
       if(!dark)glowFor(ctx,center.x,center.y,48,COLOR,.14);
     }
     if(t>=.55&&t<1.55){
       crop(ctx,ART[3],BEAM,u.x,u.y-57,36,125,0,.7);
-      ctx.save();const beam=ctx.createLinearGradient(u.x,center.y,u.x,u.y);beam.addColorStop(0,'rgba(235,255,255,.5)');beam.addColorStop(1,'rgba(140,225,255,.05)');ctx.fillStyle=beam;ctx.fillRect(u.x-15,center.y,30,125);ctx.restore();
+
     }
     if(t>=1.55&&t<3.05){for(let slot=0;slot<3;slot++){const p=stormPosition(slot,u);moonBlade(ctx,p.x,p.y-18,slot,t*3);crop(ctx,ART[0],ARC,p.x,p.y-18,50,35,t*3,.3);}}
-    if(t>=3.25){const p=clamp((t-3.25)/.75,0,1);crop(ctx,ART[3],ECLIPSE,u.x,u.y-25,125,135,0,(1-p)*.6);
+    if(t>=3.25){spellMotion.impact(ctx,1,u.x,u.y,t-3.25,u.radius,.7);const p=clamp((t-3.25)/.75,0,1);crop(ctx,ART[3],ECLIPSE,u.x,u.y-25,125,135,0,(1-p)*.6);
       ctx.save();ctx.globalAlpha=(1-p)*.85;ctx.strokeStyle=COLOR;ctx.lineWidth=4*(1-p)+1;ctx.beginPath();ctx.ellipse(u.x,u.y,u.radius*p,u.radius*.58*p,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
   }
   function drawEffects(ctx){

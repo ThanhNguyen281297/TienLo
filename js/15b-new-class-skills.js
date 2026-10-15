@@ -63,20 +63,27 @@
     // Original perspective art belongs beneath characters, without extra debug rings.
     const frame=f.age>5?5:Math.min(4,Math.floor(f.age*2));
     atlas(ctx,2,frame,f.x,f.y+42,f.radius*2.05,thunder()?f.radius*1.45:f.radius*1.25,fade*.58);
+    spellMotion.formation(ctx,P.ap.w,f,fade);
   }
   function draw(ctx){
     const color=thunder()?'#ae8eff':'#e8c477';ctx.save();
     if(state.dash){const d=state.dash;skillSprites.draw(ctx,2,0,2,P.x,P.y-16,90,42,Math.atan2(d.end.y-d.start.y,d.end.x-d.start.x),.8);}
     if(state.ultimate){
       const u=state.ultimate,duration=thunder()?2.2:4;
-      const phase=Math.min(5,u.age/duration*5),frame=Math.floor(phase),mix=phase-frame;
+      const hitAt=thunder()?1.3:3.2;
+      const phase=u.age<hitAt?Math.min(3,u.age/hitAt*3):Math.min(5,4+(u.age-hitAt)/(duration-hitAt));
+      const frame=Math.floor(phase),mix=phase-frame;
       const fade=Math.min(1,u.age/.22,(duration-u.age)/.45);
       // Cross-fade the original dragon/seal artwork; no synthetic lightning over it.
-      const width=thunder()?150:235,height=thunder()?225:155;
-      atlas(ctx,3,frame,u.x,u.y+18,width,height,fade*(1-mix)*.82);
-      if(frame<5)atlas(ctx,3,frame+1,u.x,u.y+18,width,height,fade*mix*.82);
+      const grow=.7+.3*Math.min(1,u.age/hitAt),width=(thunder()?130:210)*grow,height=(thunder()?150:140)*grow;
+      const lift=thunder()?42*(1-Math.min(1,u.age/hitAt)):0;
+      spellMotion.charge(ctx,P.ap.w,u.x,u.y-26,u.age,hitAt);
+      if(u.age>=hitAt)spellMotion.impact(ctx,P.ap.w,u.x,u.y,u.age-hitAt,u.radius,.65);
+      atlas(ctx,3,frame,u.x,u.y+18-lift,width,height,fade*(1-mix)*.82);
+      if(frame<5)atlas(ctx,3,frame+1,u.x,u.y+18-lift,width,height,fade*mix*.82);
     }
     for(const p of state.projectiles){
+      spellMotion.trail(ctx,P.ap.w,p);
       skillSprites.draw(ctx,3,0,1,p.x,p.y-15,32,22,p.angle,.9);
     }
 
