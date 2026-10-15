@@ -38,8 +38,6 @@
     state.cooldown=state.cooldown.map(v=>Math.max(0,v-dt));
     for(const [e,m]of state.marks){m.time-=dt;if(!live(e)||m.time<=0)state.marks.delete(e);}
     for(const [e,c]of state.control){c.time-=dt;if(!live(e)||c.time<=0)state.control.delete(e);}
-    // Slow skill motion, leaving cooldown/mark/control clocks unchanged.
-    dt*=.65;
     const dash=state.dash;if(dash){dash.age+=dt;const t=Math.min(1,dash.age/.18),old={x:P.x,y:P.y};P.x=dash.start.x+(dash.end.x-dash.start.x)*t;P.y=dash.start.y+(dash.end.y-dash.start.y)*t;
       for(const e of E)if(live(e)&&!dash.hits.has(e)&&kiemCombat.segmentDistance(e,old,P)<(T[e.t]?.s||10)+16){dash.hits.add(e);strike(e,dash.power*1.3,0);if(stacks(e))strike(e,dash.power*.5,0);if(!dash.first){mark(e);dash.first=true;}flash(e,0);}if(t===1)state.dash=null;
     }
@@ -58,17 +56,49 @@
   function atlas(ctx,index,frame,x,y,width,height,alpha=1){
     const img=art[P.ap.w-2][index];if(!img.complete||!img.naturalWidth)return;
     const columns=thunder()?6:3,rows=thunder()?1:2,sw=img.naturalWidth/columns,sh=img.naturalHeight/rows;
-    ctx.save();ctx.globalAlpha*=alpha;ctx.drawImage(img,(frame%columns)*sw,Math.floor(frame/columns)*sh,sw,sh,x-width/2,y-height,width,height);ctx.restore();
+    ctx.save();ctx.globalCompositeOperation='source-over';ctx.shadowBlur=0;ctx.globalAlpha=alpha;ctx.drawImage(img,(frame%columns)*sw,Math.floor(frame/columns)*sh,sw,sh,x-width/2,y-height,width,height);ctx.restore();
   }
-  function draw(ctx){const color=thunder()?'#ac9aff':'#d8fff2';ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2;ctx.shadowColor=color;ctx.shadowBlur=8;
-    function ring(f,ultimate=false){ctx.save();ctx.globalAlpha=.65;ctx.beginPath();ctx.ellipse(f.x,f.y,f.radius,f.radius*.58,0,0,Math.PI*2);ctx.stroke();const count=Math.min(8,Math.floor(f.age*6)+1);for(let n=0;n<count;n++){const a=n*Math.PI/4+f.age*.2,x=f.x+Math.cos(a)*f.radius,y=f.y+Math.sin(a)*f.radius*.58;ctx.strokeRect(x-4,y-18,8,18);if(ultimate&&f.age>1.8){ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x,y-85);ctx.stroke();}}ctx.restore();}
-    if(state.field)ring(state.field);if(state.ultimate){const u=state.ultimate;ring(u,true);atlas(ctx,3,Math.min(5,Math.floor(u.age/(thunder()?2.2:4)*6)),u.x,u.y+15,thunder()?155:270,thunder()?230:180,.8);if(thunder()){ctx.beginPath();for(let n=0;n<22;n++){const y=u.y-180+n*8,x=u.x+Math.sin(n*.7-u.age*8)*(22-n*.6);n?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();}else for(let n=0;n<24;n++){const a=n*Math.PI/12+u.age*2,r=u.age<3.2?u.radius:Math.max(0,u.radius*(4-u.age));ctx.strokeRect(u.x+Math.cos(a)*r-3,u.y+Math.sin(a)*r*.58-40,6,16);}}
-    for(const p of state.projectiles){ctx.save();ctx.translate(p.x,p.y-15);ctx.rotate(p.angle);ctx.fillStyle='#fff0bb';ctx.fillRect(-9,-4,18,8);ctx.strokeRect(-9,-4,18,8);ctx.restore();}
-    for(const [e,m]of state.marks){for(let n=0;n<m.count;n++){ctx.beginPath();ctx.arc(e.x+(n-1)*8,e.y-45,2.5,0,Math.PI*2);ctx.fill();}}
-    for(const f of state.effects){if(f.index===1&&window.voidStep?.outlineOnly)continue;ctx.save();ctx.globalAlpha=1-f.age/.5;if(f.index===1){ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.arc(f.x,f.y,f.radius,f.angle-(thunder()?Math.PI*.675:Math.PI*.3),f.angle+(thunder()?Math.PI*.675:Math.PI*.3));ctx.closePath();ctx.stroke();}else{ctx.beginPath();ctx.moveTo(f.x,f.y-70);ctx.lineTo(f.x-6,f.y-35);ctx.lineTo(f.x+5,f.y-40);ctx.lineTo(f.x,f.y);ctx.stroke();}ctx.restore();}ctx.restore();
+  function ground(ctx){
+    const f=state.field;if(!f)return;
+    const fade=Math.min(1,f.age/.3,(5.5-f.age)/.55);
+    // Original perspective art belongs beneath characters, without extra debug rings.
+    const frame=Math.min(4,Math.floor(f.age*2));
+    atlas(ctx,2,frame,f.x,f.y+42,f.radius*2.05,thunder()?f.radius*1.45:f.radius*1.25,fade*.58);
+  }
+  function draw(ctx){
+    const color=thunder()?'#ae8eff':'#e8c477';ctx.save();
+    if(state.ultimate){
+      const u=state.ultimate,duration=thunder()?2.2:4;
+      const phase=Math.min(5,u.age/duration*5),frame=Math.floor(phase),mix=phase-frame;
+      const fade=Math.min(1,u.age/.22,(duration-u.age)/.45);
+      // Cross-fade the original dragon/seal artwork; no synthetic lightning over it.
+      const width=thunder()?150:235,height=thunder()?225:155;
+      atlas(ctx,3,frame,u.x,u.y+18,width,height,fade*(1-mix)*.82);
+      if(frame<5)atlas(ctx,3,frame+1,u.x,u.y+18,width,height,fade*mix*.82);
+    }
+    for(const p of state.projectiles){
+      ctx.save();ctx.translate(p.x,p.y-15);ctx.rotate(p.angle+Math.PI/2);
+      ctx.shadowColor='#e4c878';ctx.shadowBlur=4;
+      const paper=ctx.createLinearGradient(-4,0,4,0);paper.addColorStop(0,'#947338');paper.addColorStop(.5,'#fff0bb');paper.addColorStop(1,'#cba558');
+      ctx.fillStyle=paper;ctx.beginPath();ctx.moveTo(-3,-10);ctx.quadraticCurveTo(-5,0,-2,10);ctx.lineTo(3,8);ctx.quadraticCurveTo(1,0,4,-9);ctx.closePath();ctx.fill();
+      ctx.shadowBlur=0;ctx.strokeStyle='#96602c';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(0,-6);ctx.lineTo(0,6);ctx.moveTo(-2,-3);ctx.lineTo(2,-3);ctx.moveTo(-1,1);ctx.lineTo(2,2);ctx.stroke();
+      ctx.restore();
+    }
+    for(const [e,m]of state.marks){
+      ctx.save();ctx.fillStyle=color;ctx.globalAlpha=.75;
+      for(let n=0;n<m.count;n++){ctx.save();ctx.translate(e.x+(n-(m.count-1)/2)*7,e.y-43);ctx.rotate(Math.PI/4);ctx.fillRect(-1.5,-1.5,3,3);ctx.restore();}ctx.restore();
+    }
+    for(const f of state.effects){
+      if(f.index===1&&window.voidStep?.outlineOnly)continue;
+      // Small contact blooms do not obscure the target or compete with the ultimate.
+      const p=f.age/.5;ctx.save();ctx.globalAlpha=(1-p)*.38;ctx.strokeStyle=color;ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.ellipse(f.x,f.y-9,5+p*15,3+p*8,0,0,Math.PI*2);ctx.stroke();
+      for(let n=0;n<4;n++){const a=n*Math.PI/2+f.angle;ctx.fillStyle=color;ctx.beginPath();ctx.arc(f.x+Math.cos(a)*p*18,f.y-9+Math.sin(a)*p*12,.8*(1-p),0,Math.PI*2);ctx.fill();}ctx.restore();
+    }
+    ctx.restore();
   }
   const reset=()=>{state.cooldown.fill(0);state.aim=null;state.marks.clear();state.control.clear();state.projectiles=[];state.effects=[];state.field=state.ultimate=state.dash=null;};
-  window.newClassCombat={state,refreshUI,isDashing:()=>active()&&!!state.dash,drawGroundEffects:()=>{},onRespawn:reset,enemySpeed:e=>{if(!active())return 1;let speed=state.control.get(e)?.speed??1;if(state.field&&inside(e,state.field))speed=Math.min(speed,thunder()?.8:.65);return speed;},attackInterval:()=>active()&&thunder()&&state.field&&inside(P,state.field)?.48:.6,damageTaken:()=>active()&&thunder()&&state.field&&inside(P,state.field)?.8:1};
+  window.newClassCombat={state,refreshUI,isDashing:()=>active()&&!!state.dash,drawGroundEffects:ctx=>{if(active())ground(ctx);},onRespawn:reset,enemySpeed:e=>{if(!active())return 1;let speed=state.control.get(e)?.speed??1;if(state.field&&inside(e,state.field))speed=Math.min(speed,thunder()?.8:.65);return speed;},attackInterval:()=>active()&&thunder()&&state.field&&inside(P,state.field)?.48:.6,damageTaken:()=>active()&&thunder()&&state.field&&inside(P,state.field)?.8:1};
   // Đánh thường và kỹ năng dùng cùng Ấn, cùng thời gian tồn tại và giới hạn ba tầng.
   Object.assign(window.newClassCombat, {
     markCount: stacks,
@@ -76,7 +106,7 @@
     consumeMark: (enemy, all = false) => active() && live(enemy) ? consume(enemy, all) : 0
   });
   window.getClassCombat=()=>P.ap?.w>=2?newClassCombat:P.ap?.w===1?moonCombat:kiemCombat;
-  classCombat={isDashing:()=>oldCombat.isDashing()||newClassCombat.isDashing(),enemySpeed:e=>active()?newClassCombat.enemySpeed(e):oldCombat.enemySpeed(e),drawGroundEffects:ctx=>oldCombat.drawGroundEffects(ctx),onRespawn:()=>{oldCombat.onRespawn();reset();}};
+  classCombat={isDashing:()=>oldCombat.isDashing()||newClassCombat.isDashing(),enemySpeed:e=>active()?newClassCombat.enemySpeed(e):oldCombat.enemySpeed(e),drawGroundEffects:ctx=>{oldCombat.drawGroundEffects(ctx);if(active())ground(ctx);},onRespawn:()=>{oldCombat.onRespawn();reset();}};
   up=function(dt){oldUp(dt);if(active()&&!paused()){advance(dt);refreshUI();}};
   dr=function(){oldDraw();if(!active()||paused())return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);draw(g);g.restore();};
   const creator=$('ok').onclick;$('ok').onclick=()=>{creator();reset();refreshUI();};

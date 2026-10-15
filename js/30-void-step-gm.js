@@ -50,7 +50,7 @@
     ctx.closePath();
   }
   function render(ctx,r){
-    const p=r.age/.9;if(p<0||p>=1)return;
+    const p=r.age/.55;if(p<0||p>=1)return;
     const open=Math.min(1,p/.22,(1-p)/.45),t=reduced.matches?0:r.age*3,color=colors[r.index];
     ctx.save();ctx.translate(r.x,r.y);ctx.globalAlpha=open*.28;
     ctx.scale(Math.max(.04,open),.7+open*.3);
@@ -60,7 +60,7 @@
     }
     ctx.restore();
   }
-  const update=up;up=function(dt){update(dt);if(gmTest.enabled&&P.ap){P.mp=Math.max(mmp(),...combatMana[P.ap.w]);cultivation.refresh();}if(paused())return;for(const r of tears)r.age+=dt;for(let i=tears.length-1;i>=0;i--)if(tears[i].age>=.9)tears.splice(i,1);};
+  const update=up;up=function(dt){update(dt);if(gmTest.enabled&&P.ap){P.mp=Math.max(mmp(),...combatMana[P.ap.w]);cultivation.refresh();}if(paused())return;for(const r of tears)r.age+=dt;for(let i=tears.length-1;i>=0;i--)if(tears[i].age>=.55)tears.splice(i,1);};
   const draw=dr;dr=function(){draw();if(paused())return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);for(const r of tears)render(g,r);g.restore();};
   const respawn=classCombat.onRespawn;classCombat.onRespawn=function(){tears.length=0;return respawn();};
   window.voidStep={tears,outlineOnly:true};

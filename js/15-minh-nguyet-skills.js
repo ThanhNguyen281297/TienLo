@@ -130,8 +130,6 @@
   function stormPosition(slot,u,age=u.age){const t=age-1.55,a=t*6+slot*Math.PI*2/3,r=20+65*(.5+.5*Math.sin(t*7+slot*2));return{x:u.x+Math.cos(a)*r,y:u.y+Math.sin(a)*r*.58};}
   function advance(dt){
     for(let i=0;i<4;i++)state.cooldown[i]=Math.max(0,state.cooldown[i]-dt);
-    // Skill animation clock: 65% speed; cooldowns keep real elapsed time.
-    dt*=.65;
     for(const [e,time]of state.slows){if(!live(e)||time<=dt)state.slows.delete(e);else state.slows.set(e,time-dt);}
     advanceBlades(dt);
     if(state.blink){state.blink.age+=dt;if(state.blink.age>=state.blink.duration)state.blink=null;}
