@@ -8,6 +8,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MapSprites(unittest.TestCase):
+    def test_nine_atlas_exports_and_new_hd_terrain(self):
+        manifest=json.loads((ROOT/'MAP/atlas-sprites/manifest.json').read_text())
+        self.assertEqual(manifest['atlases'],9)
+        self.assertEqual(len({r['source'] for r in manifest['sprites']}),9)
+        for r in manifest['sprites']+list(manifest['terrain'].values()):
+            data=(ROOT/r['src']).read_bytes()
+            self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
+            self.assertEqual(data[25],6)
+            self.assertEqual(struct.unpack('>II',data[16:24]),(r['width'],r['height']))
+        data=(ROOT/'MAP/hd/courtyard-island.png').read_bytes()
+        self.assertEqual(data[25],6)
+        self.assertGreaterEqual(struct.unpack('>II',data[16:24])[0],1536)
+
     def test_runtime_sprite_catalog(self):
         catalog=json.loads((ROOT / 'MAP/sprite-catalog.json').read_text())
         for group,count in [('maps',45),('modules',5),('monsters',104),('skills',96),('characters',44),('items',6),('npcs',4)]:

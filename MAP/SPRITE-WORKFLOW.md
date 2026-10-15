@@ -1,5 +1,24 @@
 # Tiên Lộ sprite workflow
 
+## Nine original map atlases
+
+Open `MAP/atlas-sprites/index.html` to browse all nine atlases as **534 native PNG
+props / connected scenic compounds**, plus four reviewed terrain cutouts.
+`python tools/extract_map_atlases.py` requires Pillow, numpy and scipy. It keeps
+all visible source pixels exactly once, with independent alpha masks and eight
+pixels of transparent padding. `tests/test_atlas_extraction.py` reconstructs all
+nine originals and compares their visible RGBA pixels exactly.
+
+Some original buildings overlap/touch their neighbours. Those remain connected
+compounds, explicitly labelled in the manifest, rather than exporting a roof or
+staircase cut by a rectangular grid. These exports do not recover hidden artwork
+or increase source resolution. Native source sheets remain unchanged.
+
+`MAP/hd/courtyard-island.png` is a separate 1536×1024 ImageGen terrain redraw,
+with empty floor and cliff/waterfall edges. Its measured floor corners are aligned
+with collision diamonds. Individual buildings remain depth-sorted actors.
+See `MAP/hd/map-rebuild-prompts.md` for generation provenance.
+
 Open `MAP/sprite-library.html` locally or through the game host. Search and filter
 304 PNG sprites/poses: 45 map props, five terrain pieces, 104 monster poses,
 96 skill poses, 44 character/equipment sprites, six item icons and four NPCs.
@@ -47,6 +66,7 @@ building/tree set; that was the source of the previous duplicate scenery.
 alternating footsteps after real walking, and uses small sprite contacts on
 damage. Dash/teleport do not paint a trail of walking footprints. Effect arrays
 are capped, paused with simulation time and cleared on scene changes/respawn.
-Spell formations and ultimates crossfade complete poses without changing hit
+Spell formations and ultimates use short pose transitions; ultimates also move
+along class-specific lift, drop and sweep curves without changing hit
 timing, movement speed, mana cost or cooldown. Clouds use two slow parallax layers
 behind terrain so they cannot hide combat targets.

@@ -15,7 +15,9 @@
   function preload(sect){for(let i=0;i<4;i++)for(let frame=0;frame<6;frame++)load(sect,i,frame);}
   function draw(ctx,sect,index,frame,x,y,width,height,rotation=0,alpha=1){
     frame=Math.max(0,Math.min(5,frame));
-    const lower=Math.floor(frame),mix=frame-lower;
+    // A short exposure overlap keeps painted edges readable. Long full-frame
+    // dissolves turn six different silhouettes into a translucent double image.
+    const lower=Math.floor(frame),fraction=frame-lower,mix=Math.max(0,(fraction-.78)/.22);
     if(mix>.001){
       const first=draw(ctx,sect,index,lower,x,y,width,height,rotation,alpha*(1-mix));
       const second=draw(ctx,sect,index,lower+1,x,y,width,height,rotation,alpha*mix);
@@ -31,7 +33,19 @@
     renderArtwork(ctx,image,-(left+right)/2*scale,-(top+bottom)/2*scale,image.naturalWidth*scale,image.naturalHeight*scale);
     ctx.restore();return true;
   }
-  window.skillSprites={draw,preload,names,cache,get failed(){return failed;}};
+  function animate(ctx,sect,index,age,duration,x,y,width,height,hitAt=duration*.6,alpha=1){
+    const clamp=v=>Math.max(0,Math.min(1,v)),ease=v=>1-(1-clamp(v))**3;
+    const wind=clamp(age/hitAt),release=clamp((age-hitAt)/Math.max(.01,duration-hitAt));
+    const frame=age<hitAt?wind*2.8:3+release*2;
+    const fade=clamp(age/.12)*clamp((duration-age)/.3)*alpha;
+    let dx=0,dy=0,rotation=0,scale=.82+.18*ease(wind);
+    if(sect===0){dy=age<hitAt?-18*(1-ease(wind)):8*Math.sin(release*Math.PI);scale+=.08*Math.sin(release*Math.PI);}
+    if(sect===1){rotation=age<hitAt?-.14*(1-ease(wind)):.1*Math.sin(release*Math.PI);dy=-6*Math.sin(wind*Math.PI);}
+    if(sect===2){dy=age<hitAt?-48*(1-wind*wind):12*Math.sin(release*Math.PI);dx=age<hitAt?-12*(1-ease(wind)):0;rotation=age<hitAt?-.12*(1-wind):0;}
+    if(sect===3){dy=-10*Math.sin(wind*Math.PI);rotation=age<hitAt?.08*(1-ease(wind)):0;scale+=.05*Math.sin(release*Math.PI);}
+    return draw(ctx,sect,index,frame,x+dx,y+dy,width*scale,height*scale,rotation,fade);
+  }
+  window.skillSprites={draw,animate,preload,names,cache,get failed(){return failed;}};
   // Load one sect at a time; creator choices and the active character warm the rest.
   preload(P.ap?.w||0);
   const update=up;let current=P.ap?.w||0;

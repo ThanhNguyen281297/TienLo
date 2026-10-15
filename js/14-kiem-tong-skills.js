@@ -218,10 +218,8 @@
   }
   function drawUltimate(ctx,u) {
     const t=u.age,duration=u.duration||3.1;
-    const phase=t<.55?t/.55:t<1.85?1+(t-.55)/1.3*2.4:3.4+(t-1.85)/(duration-1.85)*1.6;
-    const fade=clamp(t/.18,0,1)*clamp((duration-t)/.5,0,1),grow=.8+.2*clamp(t/.7,0,1);
     spellMotion.charge(ctx,0,u.x,u.y-20,t,.65);
-    skillSprites.draw(ctx,0,3,Math.min(5,phase),u.x,u.y-48,195*grow,210*grow,0,fade*.94);
+    skillSprites.animate(ctx,0,3,t,duration,u.x,u.y-48,195,210,2.05,.94);
     if(t>=2.05)spellMotion.impact(ctx,0,u.x,u.y,t-2.05,u.radius,.65);
   }
   function drawEffects(ctx) {
