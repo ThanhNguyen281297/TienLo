@@ -88,7 +88,7 @@
   skill=function(index){
     if(!active())return previousSkill(index);
     if(paused()||!Number.isInteger(index)||index<0||index>3||state.blink)return;
-    if(P.r<index)return msg('Cần đạt '+R[index]+' để dùng '+NAMES[index]+'.');
+    if(!window.gmTest?.enabled&&P.r<index)return msg('Cần đạt '+R[index]+' để dùng '+NAMES[index]+'.');
     if(state.cooldown[index]>0||P.mp<MANA[index])return;
     if(state.ultimate)return msg('Đang thi triển Minh Nguyệt Giáng Thế.');
     if((index===0||index===2)&&state.flying.length)return msg('Chờ Nguyệt Nhận trở về để thi triển.');

@@ -5,6 +5,15 @@ for(let w=0;w<4;w++){const page=await browser.newPage({viewport:{width:1280,heig
 assert.equal(await page.evaluate(()=>P.ap.w),w);assert.equal(await page.evaluate(()=>P.ap.gender),'Nu');
 assert.equal(await page.evaluate(()=>worldMap.state.scene),['sword','moon','thunder','mystic'][w]);
 assert.deepEqual(await page.evaluate(()=>({x:P.x,y:P.y})),{x:1000,y:1110});
+// GM bypass is temporary: casting at realm 0 must not mutate saved progression.
+await page.locator('#gm-skills').click();
+assert.equal(await page.evaluate(()=>gmTest.enabled),true);assert.equal(await page.locator('#sb button:disabled').count(),0);
+const gm=await page.evaluate(()=>{const start={x:P.x,y:P.y};getClassCombat().state.aim={x:P.x,y:P.y-85};skill(1);for(let n=0;n<24;n++)up(.01);dr();return{distance:Math.hypot(P.x-start.x,P.y-start.y),tears:voidStep.tears.length,realm:P.r,learned:P.world.learnedSkills.slice(),allowed:[0,1,2,3].map(cultivation.canUse),cd:getClassCombat().state.cooldown[1]};});
+assert(gm.distance>10,'GM skill 2 moves every class');assert.equal(gm.tears,2);assert.equal(gm.realm,0);assert.deepEqual(gm.learned,[false,false,false,false]);assert.deepEqual(gm.allowed,[true,true,true,true]);assert.equal(gm.cd,0);
+await page.screenshot({path:path.join(__dirname,'artifacts','void-step-class-'+w+'.png')});
+await page.locator('#gm-skills').click();assert.equal(await page.evaluate(()=>cultivation.canUse(3)),false);
+await page.evaluate(()=>{P.x=1000;P.y=1110;classCombat.onRespawn();});
+console.log('PASS class '+w+' GM toggle preserves progression, skill 2 movement and paired void tears');
 await page.evaluate(()=>{P.world.learnedSkills=[true,true,true,true];P.r=3;P.mp=999;P.hp=999;P.acd=999;E=[];dr();up(.01);});
 if(w>=2){const result=await page.evaluate(()=>{const e={t:0,x:P.x+50,y:P.y,hx:P.x+50,hy:P.y,hp:10000,dead:0,cd:999,fr:999,fl:0};E=[e];const c=newClassCombat; c.state.aim={x:e.x,y:e.y};skill(0);for(let n=0;n<100;n++){tm+=.01;up(.01);}const count=c.state.marks.get(e)?.count||0;const hp=e.hp;skill(1);for(let n=0;n<60;n++)up(.01);skill(2);for(let n=0;n<190;n++)up(.01);skill(3);for(let n=0;n<420;n++){tm+=.01;up(.01);}dr();return{count,hp,final:e.hp,camera:gameCamera(),x:P.x,y:P.y,ultimate:c.state.ultimate};});assert(result.count>0,'Skill 1 applies mark');assert(result.final<result.hp,'Combo deals damage');assert.equal(result.ultimate,null);assert.equal(result.camera.x+result.camera.vw/2,result.x);}
 if(w>=2)await page.evaluate(()=>{
