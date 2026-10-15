@@ -43,37 +43,37 @@
   function outline(ctx,scale,t){
     ctx.beginPath();
     for(let n=0;n<32;n++){
-      const a=n/32*Math.PI*2,rough=1+.13*Math.sin(n*2.7)+.08*Math.sin(n*5.3+t);
-      const x=Math.cos(a)*13*rough*scale,y=Math.sin(a)*32*rough;
+      const a=n/32*Math.PI*2,rough=1+.045*Math.sin(n*2.7)+.025*Math.sin(n*5.3+t);
+      const x=Math.cos(a)*7*rough*scale,y=Math.sin(a)*23*rough;
       n?ctx.lineTo(x,y):ctx.moveTo(x,y);
     }
     ctx.closePath();
   }
   function render(ctx,r){
-    const p=r.age/.85;if(p<0||p>=1)return;
-    const open=Math.min(1,p/.14,(1-p)/.28),t=reduced.matches?0:r.age*3,color=colors[r.index];
-    ctx.save();ctx.translate(r.x,r.y);ctx.globalAlpha=Math.min(1,open*2);
+    const p=r.age/.55;if(p<0||p>=1)return;
+    const open=Math.min(1,p/.22,(1-p)/.45),t=reduced.matches?0:r.age*3,color=colors[r.index];
+    ctx.save();ctx.translate(r.x,r.y);ctx.globalAlpha=open*.28;
     ctx.scale(Math.max(.04,open),.7+open*.3);
     // A dark interior with colored depth, bounded by a jagged luminous seam.
     outline(ctx,1,t);const core=ctx.createRadialGradient(-3,0,0,0,0,34);
     core.addColorStop(0,'#162e48');core.addColorStop(.45,'#07121f');core.addColorStop(1,'#01050c');
     ctx.fillStyle=core;ctx.fill();ctx.save();ctx.clip();
-    ctx.strokeStyle=color;ctx.globalAlpha=.13;ctx.lineWidth=.7;
+    ctx.strokeStyle=color;ctx.globalAlpha=.045*open;ctx.lineWidth=.7;
     for(let n=0;n<4;n++){ctx.beginPath();ctx.ellipse(Math.sin(t+n)*4,Math.cos(t+n)*10,4+n*2,9+n*4,t+n,0,Math.PI*2);ctx.stroke();}ctx.restore();
     ctx.globalCompositeOperation='lighter';ctx.shadowColor=color;
-    for(const [width,blur,alpha]of [[5,15,.35],[2,6,.8],[.7,2,.95]]){
+    for(const [width,blur,alpha]of [[2.2,7,.16],[.9,2,.48]]){
       outline(ctx,1,t);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.shadowBlur=blur;ctx.globalAlpha=alpha*open;ctx.stroke();
     }
     ctx.shadowBlur=0;
-    for(let n=0;n<12;n++){
-      const a=n*Math.PI*2/12,life=(r.age*.7+n*.618)%1,rad=2+life*4;
-      const x=Math.cos(a)*(15+life*9),y=Math.sin(a)*(32+life*10);
+    for(let n=0;n<6;n++){
+      const a=n*Math.PI*2/6,life=(r.age*.7+n*.618)%1,rad=1+life*2;
+      const x=Math.cos(a)*(8+life*4),y=Math.sin(a)*(23+life*5);
       const mist=ctx.createRadialGradient(x,y,0,x,y,rad);mist.addColorStop(0,color+'aa');mist.addColorStop(1,color+'00');
-      ctx.globalAlpha=Math.sin(life*Math.PI)*open*.55;ctx.fillStyle=mist;ctx.fillRect(x-rad,y-rad,rad*2,rad*2);
+      ctx.globalAlpha=Math.sin(life*Math.PI)*open*.18;ctx.fillStyle=mist;ctx.fillRect(x-rad,y-rad,rad*2,rad*2);
     }
     ctx.restore();
   }
-  const update=up;up=function(dt){update(dt);if(gmTest.enabled&&P.ap){P.mp=Math.max(mmp(),...combatMana[P.ap.w]);cultivation.refresh();}if(paused())return;for(const r of tears)r.age+=dt;for(let i=tears.length-1;i>=0;i--)if(tears[i].age>=.85)tears.splice(i,1);};
+  const update=up;up=function(dt){update(dt);if(gmTest.enabled&&P.ap){P.mp=Math.max(mmp(),...combatMana[P.ap.w]);cultivation.refresh();}if(paused())return;for(const r of tears)r.age+=dt;for(let i=tears.length-1;i>=0;i--)if(tears[i].age>=.55)tears.splice(i,1);};
   const draw=dr;dr=function(){draw();if(paused())return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);for(const r of tears)render(g,r);g.restore();};
   const respawn=classCombat.onRespawn;classCombat.onRespawn=function(){tears.length=0;return respawn();};
   window.voidStep={tears};
