@@ -31,9 +31,11 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   for(const page of [one,two])await page.evaluate(()=>{window.networkVisualHits=[];const confirmed=worldVFX.confirmedHit;worldVFX.confirmedHit=(enemy,damage,kill)=>{networkVisualHits.push({id:enemy.id,damage,kill,mode:creatureArt.frame(enemy).mode});return confirmed(enemy,damage,kill);};});
   await one.evaluate(()=>{const e=E.find(e=>e.network&&e.camp==='north'&&!e.dead);window.coopId=e.id;hit(e,10);});
   const id=await one.evaluate(()=>coopId);await two.waitForFunction(id=>E.some(e=>e.id===id&&e.hp<e.maxHp),id);
+  for(const page of [one,two])await page.evaluate(()=>{X=Array.from({length:64},()=>({x:0,y:0,t:'previous',c:'#fff',l:10}));});
   await two.evaluate(id=>{const e=E.find(e=>e.id===id);hit(e,48);},id);
   await one.waitForFunction(()=>worldMap.progress().kills>=1);await two.waitForFunction(()=>worldMap.progress().kills>=1);
   for(const page of [one,two])assert(await page.evaluate(id=>networkVisualHits.some(h=>h.id===id&&h.damage>0),id),'Shared HP snapshots trigger real damage VFX on both clients');
+  for(const page of [one,two])assert(await page.evaluate(()=>X.every(popup=>popup.t!==1)),'Reward bookkeeping must not add fake one-point damage, even at the popup limit');
   console.log('PASS shared monster HP, cooperative kill rewards');
   await one.evaluate(()=>{P.x=1000;P.y=1100;worldMap.dialog.close();inventory.openBag();});
   assert.equal(await one.locator('.bag-grid .item-cell').count(),30);assert.equal(await one.locator('[data-equip-slot]').count(),6);

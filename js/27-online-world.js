@@ -39,9 +39,9 @@
           if(state.seenRewards.has(reward.eventId)||claimed.includes(reward.eventId)){if(!state.acks.includes(reward.eventId))state.acks.push(reward.eventId);continue;}
           state.seenRewards.add(reward.eventId);claimed.push(reward.eventId);if(claimed.length>100)claimed.shift();
           // Replay each server-issued death once through existing quest/loot hooks.
-          const e={...reward,hp:1,dead:0,network:false},count=X.length;localHit(e,1);
+          const e={...reward,hp:1,dead:0,network:false},existingPopups=new Set(X);localHit(e,1);
           // Reward replay is bookkeeping, not a real one-point attack popup.
-          for(let i=X.length-1;i>=count;i--)if(X[i].t===1)X.splice(i,1);
+          X=X.filter(popup=>existingPopups.has(popup)||popup.t!==1);
           account.flush().then(ok=>{if(ok)state.acks.push(reward.eventId);});
         }
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
