@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1434" viewBox="0 0 1000 700"><defs>
+<linearGradient id="stone" x2="0" y2="1"><stop stop-color="#fbefcf"/><stop offset="1" stop-color="#b5b6ac"/></linearGradient>
+<linearGradient id="wall" x2="0" y2="1"><stop stop-color="#eee5cc"/><stop offset="1" stop-color="#b1c6bd"/></linearGradient>
+<linearGradient id="roof" x2=".2" y2="1"><stop stop-color="#37647a"/><stop offset=".55" stop-color="#1c3e54"/><stop offset="1" stop-color="#102a3c"/></linearGradient>
+<linearGradient id="gold" x2=".2" y2="1"><stop stop-color="#fff0b5"/><stop offset=".5" stop-color="#c9a362"/><stop offset="1" stop-color="#8d6a3a"/></linearGradient>
+<linearGradient id="rock" x2=".3" y2="1"><stop stop-color="#789b94"/><stop offset=".45" stop-color="#416773"/><stop offset="1" stop-color="#1c354d"/></linearGradient>
+<linearGradient id="wood" x2="1" y2="1"><stop stop-color="#9f7c53"/><stop offset="1" stop-color="#4b4f43"/></linearGradient>
+<linearGradient id="water" x2="0" y2="1"><stop stop-color="#a4f3e7"/><stop offset=".45" stop-color="#51b9d2" stop-opacity=".9"/><stop offset="1" stop-color="#c2f7f2" stop-opacity="0"/></linearGradient>
+<linearGradient id="pool" x2="1" y2="1"><stop stop-color="#193f58"/><stop offset="1" stop-color="#65bbb6"/></linearGradient>
+<linearGradient id="leaf" x2=".2" y2="1"><stop stop-color="#a4c391"/><stop offset=".45" stop-color="#4b8274"/><stop offset="1" stop-color="#255a60"/></linearGradient>
+<linearGradient id="petal" x2=".2" y2="1"><stop stop-color="#fff0dd"/><stop offset=".45" stop-color="#e7a9b6"/><stop offset="1" stop-color="#b36e99"/></linearGradient>
+<radialGradient id="mist"><stop stop-color="#d9f4ec" stop-opacity=".65"/><stop offset="1" stop-color="#d9f4ec" stop-opacity="0"/></radialGradient>
+</defs><rect x="140" y="574" width="720" height="90" rx="9" fill="url(#stone)" /><ellipse cx="500" cy="432" rx="240" ry="170" fill="url(#rock)" /><ellipse cx="395" cy="259" rx="170" ry="160" fill="url(#stone)" /><ellipse cx="340" cy="247" rx="13" ry="16" fill="#315b65" /><path d="M250 343Q355 407 492 335M675 435Q865 205 832 445" fill="none" stroke="#b8c9b8" stroke-width="25" stroke-linejoin="round" /><rect x="278" y="490" width="105" height="110" rx="20" fill="url(#stone)" /><rect x="576" y="490" width="105" height="110" rx="20" fill="url(#stone)" /></svg>

@@ -57,7 +57,7 @@
   world.bridgeRoutes=routes;
   world.sceneTitle=()=>world.state.scene==='arena'?'Đấu trường tông môn':originalTitle();
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
-  function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
+  function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;if(['greatIsland','island','arena'].includes(key))groundY=250/700;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
   const patterns=new WeakMap();
   function paving(ctx){const tile=world.asset('tile');if(!ready(tile))return null;if(!patterns.has(ctx)){const pattern=ctx.createPattern(tile,'repeat');pattern.setTransform(new DOMMatrix().translate(976,1088).scale(48/tile.naturalWidth,24/tile.naturalHeight));patterns.set(ctx,pattern);}return patterns.get(ctx);}
   function deck(ctx,route){const pattern=paving(ctx);if(!pattern)return;ctx.save();ctx.strokeStyle=pattern;ctx.lineWidth=bridgeHalfWidth*2;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();route.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.restore();}
@@ -107,7 +107,7 @@
     (isValley()?valleyMines:camps).forEach(c=>assetAt(ctx,'island',c.x,c.y,400,.35));ctx.restore();
   }
   drawGround=(cx,cy,vw,vh)=>paintGround(g,cx,cy,vw,vh);
-  const rings=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='CHARACTER/'+folder+'/Vong/vong.png';return img;});
+  const rings=[0,1,2,3].map(index=>{const img=new Image();img.src='MAP/vector/sigil-'+index+'.svg';return img;});
   world.drawGroundDetails=function(ctx,cx,cy,vw,vh){if(world.state.scene==='hub')return nativeHubDetails(ctx,cx,cy,vw,vh);
     if(clan()){const ring=rings[world.sectMaps[world.state.scene].classIndex];if(ready(ring)){ctx.save();ctx.globalAlpha=.35;ctx.drawImage(ring,945,1072,110,56);ctx.restore();}
       if(world.state.scene==='moon')assetAt(ctx,'moonDais',1000,1100,155,.5);

@@ -22,15 +22,14 @@
     rock:[3,.686,.444,.105,.143],pond:[3,.532,.709,.278,.154],stall:[3,.013,.598,.112,.151],
     statue:[3,.095,.222,.124,.198],cloud:[3,.548,.854,.29,.144]
   };
-  const atlases=['asset','asset2','asset3','asset4'].map(name=>{const img=new Image();img.src='MAP/'+name+'.png';return img;});
+  const atlases=[]; // Legacy raster atlases retained on disk, never loaded by the vector renderer.
   const ready=img=>img.complete&&img.naturalWidth>0;
   const cleaned=new Map();
-  // Asset đã tách alpha sẵn: file:// không cho đọc pixel bằng getImageData.
-  // Dùng PNG sạch trực tiếp để cả mở file local và HTTP giữ cùng hình ảnh.
+  // SVG độc lập, trong suốt: không đọc pixel hay phóng lớn atlas raster cũ.
   function isolate(key){
     if(!definitions[key])return null;
     if(!cleaned.has(key)){
-      const img=new Image();img.src=(['tile','pineTree','mysticHall','thunderHall'].includes(key)?'MAP/hd/':'MAP/sprites/')+key+'.png';
+      const img=new Image();img.src='MAP/vector/'+key+'.svg';
       img.onerror=()=>msg('Không tải được asset bản đồ '+key+'.');cleaned.set(key,img);
     }
     const img=cleaned.get(key);return ready(img)?img:null;

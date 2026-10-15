@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1434" viewBox="0 0 1000 700"><defs>
+<linearGradient id="stone" x2="0" y2="1"><stop stop-color="#fbefcf"/><stop offset="1" stop-color="#b5b6ac"/></linearGradient>
+<linearGradient id="wall" x2="0" y2="1"><stop stop-color="#eee5cc"/><stop offset="1" stop-color="#b1c6bd"/></linearGradient>
+<linearGradient id="roof" x2=".2" y2="1"><stop stop-color="#37647a"/><stop offset=".55" stop-color="#1c3e54"/><stop offset="1" stop-color="#102a3c"/></linearGradient>
+<linearGradient id="gold" x2=".2" y2="1"><stop stop-color="#fff0b5"/><stop offset=".5" stop-color="#c9a362"/><stop offset="1" stop-color="#8d6a3a"/></linearGradient>
+<linearGradient id="rock" x2=".3" y2="1"><stop stop-color="#789b94"/><stop offset=".45" stop-color="#416773"/><stop offset="1" stop-color="#1c354d"/></linearGradient>
+<linearGradient id="wood" x2="1" y2="1"><stop stop-color="#9f7c53"/><stop offset="1" stop-color="#4b4f43"/></linearGradient>
+<linearGradient id="water" x2="0" y2="1"><stop stop-color="#a4f3e7"/><stop offset=".45" stop-color="#51b9d2" stop-opacity=".9"/><stop offset="1" stop-color="#c2f7f2" stop-opacity="0"/></linearGradient>
+<linearGradient id="pool" x2="1" y2="1"><stop stop-color="#193f58"/><stop offset="1" stop-color="#65bbb6"/></linearGradient>
+<linearGradient id="leaf" x2=".2" y2="1"><stop stop-color="#a4c391"/><stop offset=".45" stop-color="#4b8274"/><stop offset="1" stop-color="#255a60"/></linearGradient>
+<linearGradient id="petal" x2=".2" y2="1"><stop stop-color="#fff0dd"/><stop offset=".45" stop-color="#e7a9b6"/><stop offset="1" stop-color="#b36e99"/></linearGradient>
+<radialGradient id="mist"><stop stop-color="#d9f4ec" stop-opacity=".65"/><stop offset="1" stop-color="#d9f4ec" stop-opacity="0"/></radialGradient>
+</defs><path d="M80 620L270 251 360 312 512 40 665 348 770 252 935 623 700 674 410 655Z" fill="url(#rock)" stroke="#5a827f" stroke-width="3" stroke-linejoin="round" /><path d="M512 40L490 440 360 600M270 251L300 529M770 252L735 590" fill="none" stroke="#a8c1ad" stroke-width="4" stroke-linejoin="round" /></svg>

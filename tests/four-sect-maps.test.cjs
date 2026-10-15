@@ -40,6 +40,15 @@ fs.mkdirSync(artifacts, { recursive: true });
       });
       await require('./test-account.cjs')(page);await page.goto(url, { waitUntil: 'networkidle' });
       await page.waitForFunction(() => creatureArt.ready() && worldMap.state.ready, null, { polling: 50 });
+      await page.waitForFunction(() => Object.keys(worldMap.definitions).every(key => worldMap.asset(key)?.naturalWidth > 0), null, { polling: 50 });
+      const artwork = await page.evaluate(() => ({
+        count: Object.keys(worldMap.definitions).length,
+        vector: Object.keys(worldMap.definitions).every(key => /\/MAP\/vector\/[^/]+\.svg$/.test(worldMap.asset(key).src)),
+        raster: performance.getEntriesByType('resource').filter(entry => /\/MAP\/.*\.png(?:[?#]|$)/i.test(entry.name)).map(entry => entry.name)
+      }));
+      assert.equal(artwork.count, 45, 'Every map prop is covered');
+      assert.equal(artwork.vector, true, 'All map artwork loads native SVG');
+      assert.deepEqual(artwork.raster, [], 'No legacy raster map assets requested');
       await page.locator('.sect-choice').nth(sect).click();
       if (url.startsWith('file:')) await page.locator('.gender-choice button').nth(1).click();
       await page.locator('#nm').fill('Thử bốn map'); await page.locator('#ok').click();

@@ -7,7 +7,7 @@
     const matrix=ctx.getTransform(),sx=Math.hypot(matrix.a,matrix.b),sy=Math.hypot(matrix.c,matrix.d);
     const target=Math.max(width*sx/sw,height*sy/sh);
     let source=image;
-    if(target<.5){
+    if(target<.5&&!/\.svg(?:[?#]|$)/i.test(image.currentSrc||image.src||'')){
       let chain=levels.get(image);if(!chain){chain=[image];levels.set(image,chain);}
       let index=0,ratio=1;
       while(ratio*.5>=target&&Math.min(sw,sh)*ratio>96){
