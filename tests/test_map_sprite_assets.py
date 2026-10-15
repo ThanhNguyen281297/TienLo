@@ -11,7 +11,7 @@ class MapSprites(unittest.TestCase):
     def test_painted_item_icons_and_hd_map_sizes(self):
         for name in ('daobao', 'ngoc', 'gioi', 'giay', 'phapbao', 'consume'):
             with self.subTest(item=name):
-                data = (ROOT / 'ITEMS' / (name + '.png')).read_bytes()
+                data = (ROOT / 'MAP/items' / (name + '.png')).read_bytes()
                 self.assertEqual(data[:8], b'\x89PNG\r\n\x1a\n')
                 self.assertEqual(data[25], 6)
                 self.assertGreaterEqual(min(struct.unpack('>II', data[16:24])), 768)

@@ -18,7 +18,7 @@ import server
 class OnlineServerTest(unittest.TestCase):
     def test_public_item_artwork(self):
         for name in ('daobao','ngoc','gioi','giay','phapbao','consume'):
-            path='/ITEMS/'+name+'.png?v=release-test'
+            path='/MAP/items/'+name+'.png?v=release-test'
             status, data, _ = self.request(path)
             self.assertEqual(status,200,path)
             self.assertTrue(data.startswith(b'\x89PNG\r\n\x1a\n'))

@@ -261,7 +261,7 @@
   function itemIcon(item,slot) {
     if((item?.slot||slot)==='vukhi')return 'CHARACTER/'+characterClasses[P.ap.w].folder+'/VuKhi/vukhi.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
-    return artworkURL('ITEMS/'+(['daobao','ngoc','gioi','giay','phapbao','consume'].includes(type)?type:'ngoc')+'.png');
+    return artworkURL('MAP/items/'+(['daobao','ngoc','gioi','giay','phapbao','consume'].includes(type)?type:'ngoc')+'.png');
   }
   function cells(p) {
     const used=new Set();
