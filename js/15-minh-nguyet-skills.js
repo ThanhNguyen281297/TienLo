@@ -221,8 +221,8 @@
       const p=orbit(slot,f),progress=clamp(f.age/.35,0,1);
       moonBlade(ctx,f.source.x+(p.x-f.source.x)*progress,f.source.y-20+(p.y-18-f.source.y+20)*progress,slot,f.age*2);
     }}
-    for(const ghost of state.ghosts)drawGhost(ctx,ghost);
-    if(state.blink){const b=state.blink,p=b.age/b.duration;crop(ctx,ART[1],APPEAR,b.end.x,b.end.y-23,48,65,0,1-p);
+    if(!window.voidStep?.outlineOnly)for(const ghost of state.ghosts)drawGhost(ctx,ghost);
+    if(state.blink&&!window.voidStep?.outlineOnly){const b=state.blink,p=b.age/b.duration;crop(ctx,ART[1],APPEAR,b.end.x,b.end.y-23,48,65,0,1-p);
       for(let i=0;i<8;i++)glowFor(ctx,b.start.x+(b.end.x-b.start.x)*i/8,b.start.y-18+(b.end.y-b.start.y)*i/8,2,COLOR,(1-p)*.35);}
     drawFlying(ctx);if(state.ultimate)drawUltimate(ctx,state.ultimate);
     for(const f of state.flashes){const p=f.age/f.duration;

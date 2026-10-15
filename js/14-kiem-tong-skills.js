@@ -252,6 +252,7 @@
       blade(ctx,sword.x,sword.y-10,30,sword.angle);
     }
     for(const effect of state.slash) {
+      if(effect.kind==='dash'&&window.voidStep?.outlineOnly)continue;
       const p=effect.age/effect.duration;
       if(effect.kind==='impact'){crop(ctx,ART[0],PHI_FLASH,effect.x,effect.y,28,28,0,1-p);continue;}
       const length=distance(effect.start,effect.end),mx=(effect.start.x+effect.end.x)/2,my=(effect.start.y+effect.end.y)/2-16;
