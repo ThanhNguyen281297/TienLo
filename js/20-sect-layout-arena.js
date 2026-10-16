@@ -1,4 +1,4 @@
-/* Đảo tông môn và bãi luyện công; khoảng trống chỉ vượt qua bằng khinh công. */
+/* Đảo tông môn và bãi luyện công; cầu gỗ nối các đảo luyện công. */
 (function(){
   const world=worldMap,dialog=world.dialog;
   world.customLayout=true;
@@ -35,14 +35,14 @@
   const mainShape=()=>layout();
   const diamond=(p,x,y,rx,ry)=>Math.abs((p.x-x)/rx)+Math.abs((p.y-y)/ry)<1;
   function terrain(p){if(world.state.scene==='arena')return Math.hypot(p.x-1000,(p.y-1100)*2)<190;
+    if(world.mapStructures?.onBridge(p))return true;
     if(isValley()){const main=layouts.valley;return diamond(p,1000,1100,main.rx,main.ry)||valleyMines.some(c=>diamond(p,c.x,c.y,150,78));}
     const main=mainShape();return diamond(p,1000,1100,main.rx,main.ry)||camps.some(c=>diamond(p,c.x,c.y,156,80));}
   const oldWalk=world.canWalk;
   world.canWalk=p=>world.state.scene==='hub'?oldWalk(p):p.x>20&&p.x<M-20&&p.y>20&&p.y<M-20&&terrain(p)&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
   world.traceMove=(from,to)=>{if(!world.canWalk(from))return {...from};const steps=Math.max(1,Math.ceil(Math.hypot(to.x-from.x,to.y-from.y)/3));let last={...from};for(let i=1;i<=steps;i++){const p={x:from.x+(to.x-from.x)*i/steps,y:from.y+(to.y-from.y)*i/steps};if(!world.canWalk(p))break;last=p;}return last;};
   world.sceneSafety=p=>{if(isValley())return diamond(p,1000,1100,layouts.valley.rx+5,layouts.valley.ry+5);return clan()&&diamond(p,1000,1100,mainShape().rx+5,mainShape().ry+5);};
-  world.bridgeRoutes=()=>[];
-  world.flightRoutes=routes;
+  world.bridgeRoutes=()=>world.isSectMap(world.state.scene)||isValley()?routes():[];
   world.sceneTitle=()=>world.state.scene==='arena'?'Đấu trường tông môn':originalTitle();
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
   function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
@@ -99,11 +99,6 @@
     {key:'guardianLion',x:950,y:875,w:36},{key:'guardianLion',x:1050,y:875,w:36}];
   function hubFloor(ctx,cx,cy,vw,vh){sky(ctx,cx,cy,vw,vh);const c=world.city;
     stonePaving.draw(ctx,{left:c.left,top:c.top,right:c.right,bottom:c.bottom},floorView);
-    [[point(c.left+8,c.top+10),point(c.right-8,c.top+10)],
-      [point(c.left+8,c.top+10),point(c.left+8,c.bottom-10)],
-      [point(c.right-8,c.top+10),point(c.right-8,c.bottom-10)],
-      [point(c.left+8,c.bottom-10),point(945,c.bottom-10)],
-      [point(1055,c.bottom-10),point(c.right-8,c.bottom-10)]].forEach(edge=>rail(ctx,edge,[0]));
     assetAt(ctx,'stairs',1000,c.bottom+18,80,.5);
     // Vườn trang trí nằm ngoài các trục đi tới NPC.
     for(const x of [650,1350])for(const y of [710,875,1045,1220,1390])world.sprite(ctx,'lantern',x,y,20);
@@ -237,7 +232,7 @@
     if(id==='valley-info'){dialog.show('Linh Mạch Cốc','Ba mạch linh: Bắc / Đông / Tây. Quái cho x2 Linh Nguyên, nhiều đạo hạnh hơn 20%, nhưng khỏe hơn 15%. Trọng thương trở về tông môn.');dialog.line('Mạch Bắc: Bọ Ngựa · Mạch Đông: Nguyệt Thố · Mạch Tây: Băng Dực Dơi.');dialog.action('Về đài an toàn · hồi linh lực',()=>{P.x=1000;P.y=1100;P.mp=typeof mmp==='function'?mmp():P.mp;dialog.close();});return true;}
     if(id.startsWith('vein-')){const mine=valleyMines.find(c=>'vein-'+c.id===id);dialog.show(mine?.name||'Mạch linh','Mạch linh hội tụ, quái quanh mạch cho x2 Linh Nguyên.');dialog.line('Farm 6 quái quanh mạch, hồi sinh sau 8 giây. Cẩn thận quái khỏe hơn bãi thường.');return true;}
     if(id==='teleport'&&isValley()){dialog.show('Truyền tống','Rời Linh Mạch Cốc về nơi tu hành.');const back=P.world?.sectHome||world.sectMapFor(P.ap?.w||0);dialog.action('Về tông môn',()=>world.switchScene(back));dialog.action('Về Thiên Vân Thành',()=>world.switchScene('hub'));return true;}
-    if(id.startsWith('camp-')){dialog.show('Bãi luyện công',camps.find(c=>'camp-'+c.id===id)?.name||'Yêu thú');dialog.line('Bốn bãi ở bốn hướng, mỗi bãi có 6 quái cùng loài, hồi sinh sau 8 giây. Đến dấu ở mép đảo, nhấn G hoặc Khinh công để bay qua và bay về.');return true;}return nativeService(id);};
+    if(id.startsWith('camp-')){dialog.show('Bãi luyện công',camps.find(c=>'camp-'+c.id===id)?.name||'Yêu thú');dialog.line('Bốn bãi ở bốn hướng, mỗi bãi có 6 quái cùng loài, hồi sinh sau 8 giây. Đi theo cầu gỗ để đến bãi luyện công rồi quay lại sân tông môn.');return true;}return nativeService(id);};
   const nativeValleyRespawn=nativeRespawn;
   world.respawn=function(){if(run){leaveArena();msg('Thử thách kết thúc do trọng thương.');return;}if(world.state.scene==='valley'){const home=world.sectMapFor(P.ap?.w||0);msg('Trọng thương ở Linh Mạch Cốc! Được đưa về tông môn.');world.state.scene='hub';P.world.map='hub';nativeSwitch(home);configure();P.hp=typeof mhp==='function'?mhp():P.hp;return;}return nativeValleyRespawn();};
   const previousUp=up;up=function(dt){previousUp(dt);if(!run||paused()||dialog.isOpen())return;
@@ -248,5 +243,5 @@
     if(world.state.scene==='arena'){ctx.fillStyle='#c2b49a';ctx.beginPath();ctx.ellipse(1000,1100,190,95,0,0,Math.PI*2);ctx.fill();}
     else{const mark=(x,y,rx,ry)=>{ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.fill();};ctx.fillStyle='#d5c8aa';const main=isValley()?layouts.valley:mainShape();mark(1000,1100,main.rx,main.ry);(isValley()?valleyMines:camps).forEach(c=>{ctx.fillStyle=['#91b67e','#9fd8ed','#d58a80','#bac7e1'][[0,1,4,3].indexOf(c.t)];mark(c.x,c.y,150,78);});}
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(P.x,P.y,18,0,Math.PI*2);ctx.fill();ctx.restore();};
-  world.openOverview=()=>{dialog.show(isValley()?'Linh Mạch Cốc':'Tông môn và đấu trường',world.sceneTitle());const c=document.createElement('canvas');c.width=c.height=360;c.className='world-overview';$('world-content').appendChild(c);world.renderMapPreview(c.getContext('2d'),360);world.regions.forEach(r=>dialog.line(r.name+' · '+r.description));(isValley()?valleyMines:camps).forEach(c=>dialog.line(c.name));dialog.line(isValley()?'Linh Mạch Cốc: x2 Linh Nguyên, quái +15% máu/công, +20% đạo hạnh. Trọng thương về tông môn.':'Đến dấu ở mép đảo, nhấn G hoặc Khinh công để bay tới bãi luyện công và bay về. Trung tâm: Sư phụ, truyền công, truyền tống và lối vào đấu trường. Đấu trường là map riêng: 30 lượt, 2 lần/ngày. Linh Mạch Cốc mở ở Truyền Tống Trận sau khi nhập môn.');};
+  world.openOverview=()=>{dialog.show(isValley()?'Linh Mạch Cốc':'Tông môn và đấu trường',world.sceneTitle());const c=document.createElement('canvas');c.width=c.height=360;c.className='world-overview';$('world-content').appendChild(c);world.renderMapPreview(c.getContext('2d'),360);world.regions.forEach(r=>dialog.line(r.name+' · '+r.description));(isValley()?valleyMines:camps).forEach(c=>dialog.line(c.name));dialog.line(isValley()?'Linh Mạch Cốc: x2 Linh Nguyên, quái +15% máu/công, +20% đạo hạnh. Trọng thương về tông môn.':'Đi theo bốn cầu gỗ để tới bãi luyện công và quay về. Trung tâm: Sư phụ, truyền công, truyền tống và lối vào đấu trường. Đấu trường là map riêng: 30 lượt, 2 lần/ngày. Linh Mạch Cốc mở ở Truyền Tống Trận sau khi nhập môn.');};
 })();

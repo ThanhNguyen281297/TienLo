@@ -7,7 +7,6 @@
   function suspended() {
     try {
       if (!P.ap) return true;
-      if (window.lightness?.active) return true;
       if (typeof paused === 'function' && paused()) return true;
       if (window.worldMap && worldMap.dialog && worldMap.dialog.isOpen()) return true;
       return false;

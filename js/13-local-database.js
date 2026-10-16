@@ -46,7 +46,7 @@
     try{await enter(await api('/api/'+mode,{username:$('account-name').value.trim(),password:$('account-password').value}));$('account-password').value='';error.textContent='';}
     catch(e){error.textContent=e.message;panel.hidden=false;}finally{submit.disabled=false;}
   };
-  function snapshot(){const player=structuredClone(P),safe=window.lightness?.safePosition();if(safe){player.x=safe.x;player.y=safe.y;}return player;}
+  function snapshot(){return structuredClone(P);}
   async function flush(){
     clearTimeout(timer);
     if(!state.ready||state.restoring||state.conflict||!P.ap)return;

@@ -63,22 +63,26 @@ bounds. There are no synthetic oval shadows, enlarged black silhouettes or conta
 ellipses under props; painted source shading is used directly. Hub buildings use
 their own foundations, without a second raised courtyard underneath.
 `tests/world-vfx.test.cjs` rejects overlaps between visible prop/NPC rectangles
-and checks valid lightness-flight landings. Intentional ground decals and terrain
+and checks continuous walkable bridge routes. Intentional ground decals and terrain
 layers are excluded from actor overlap checks.
 
 North/east/south/west camp coordinates remain unchanged for online compatibility.
-Island floor diamonds are walkable; the void between them is not. There are no
-bridges to the farming islands. `js/33-lightness-flight.js` creates two-way launch
-points: approach a marker, press G or the Khinh công button, and fly to its paired
-landing. This utility uses no mana and is available to every class. Normal movement,
-auto-combat and new casts are suspended during flight. The flight pauses with
-dialogs, cancels safely on respawn/map changes, and saves its grounded departure
-position if the player disconnects before landing. Online peers receive bounded
-visual height metadata; it grants no server movement or damage exemptions.
-`tests/lightness-flight.test.cjs` covers every route in both directions and
-`tests/online-game.test.cjs` verifies flight visibility and midair DB saves with
-two authenticated accounts. Never place a whole decorated island under another complete
-building/tree set; that was the source of the previous duplicate scenery.
+Island floor diamonds are connected by continuous timber bridges. Khinh công and
+its button/key bindings are removed. `js/20b-map-structures.js` assembles the
+native wood deck/post from asset 5 and stone wall from asset 4. The complete PNG
+cutouts have reviewed alpha silhouettes, excluding neighbouring props and colored
+background pixels. Rebuild with `python tools/build_map_structures.py`; provenance
+and silhouette coordinates are in `MAP/structures/manifest.json`.
+
+Stone walls follow the island perimeter with open entrances aligned to bridges.
+The hub has a stone enclosure with four open entrances. Wall actors are depth
+sorted, and their ground footprints block movement. Bridge collision uses the
+same endpoints and width as the visible deck; the remaining void is unwalkable.
+`tests/map-structures.test.cjs` verifies both directions, wall collision, ordinary
+keyboard movement, mobile rendering and removal of the flight UI.
+`tests/online-game.test.cjs` verifies bridge walking and grounded DB saves between
+two authenticated accounts. Never stack a second island underneath a complete
+building/tree set.
 
 ## Effects
 
