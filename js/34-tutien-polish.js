@@ -13,7 +13,7 @@
   const portalImg=img('MAP/sprites/portal.png');
 
   /* ---------- trạng thái hiệu ứng ---------- */
-  const hitAge=new WeakMap();let shake=0,flash=0,killFlash=0,envT=0;
+  let shake=0,flash=0,killFlash=0,envT=0;
   const motes=[];for(let i=0;i<40;i++)motes.push({ox:Math.random(),oy:Math.random(),s:.6+Math.random()*1.6,sp:4+Math.random()*10,ph:Math.random()*6.28});
   const beams=[]; // cột sáng loot khi hạ quái tinh anh/boss
 
@@ -144,12 +144,10 @@
     };
   }catch(e){}
 
-  /* ---------- quái: aura tinh anh/boss + khung chọn mục tiêu ---------- */
-  function markHit(e){hitAge.set(e,0);}
+  /* ---------- feedback on damage and kills ---------- */
   try{
     const _hit=hit;
     hit=function(e,power){
-      if(e&&!e.dead&&e.hp>0)markHit(e);
       const r=_hit(e,power);
       try{
         if(e&&power>0){
@@ -169,44 +167,9 @@
       return r;
     };
   }catch(e){}
-  try{
-    const _mon=mon;
-    mon=function(e){
-      _mon(e);
-      try{
-        if(e.corpse)return;
-        const age=hitAge.get(e);
-        // chớp trắng khi trúng đòn
-        if(age!==undefined&&age<.12){
-          g.save();g.globalCompositeOperation='lighter';g.globalAlpha=(1-age/.12)*.5;
-          g.fillStyle='#fff';g.beginPath();g.ellipse(e.x,e.y-20,16,20,0,0,6.3);g.fill();g.restore();
-        }
-        // vòng boss/thủ lĩnh
-        if(e.t===2||e.elite){
-          g.save();g.globalCompositeOperation='lighter';
-          const p=reduced?0:Math.sin(envT*4)*2;
-          g.strokeStyle=e.t===2?'#ffcf7a':'#e6a853';g.globalAlpha=.75;g.lineWidth=1.6;
-          g.beginPath();g.ellipse(e.x,e.y+2,26+p,10+p*.4,0,0,6.3);g.stroke();
-          g.globalAlpha=.9;g.fillStyle='#ffe2a4';g.font='700 11px Arial';g.textAlign='center';
-          g.fillText(e.t===2?'♛ BOSS':'◆',e.x,e.y-(e.t===2?62:52)+p*.5);
-          g.restore();
-        }
-        // khung ngắm mục tiêu gần nhất
-        let t=null;try{t=near(320);}catch(err){}
-        if(t===e&&!reduced){
-          g.save();g.strokeStyle=SECT[sect()];g.globalAlpha=.85;g.lineWidth=1.2;
-          const r=20+Math.sin(envT*6)*2;
-          for(const [sx,sy]of [[-1,-1],[1,-1],[-1,1],[1,1]]){
-            g.beginPath();
-            g.moveTo(e.x+sx*r,e.y-20+sy*r-6);g.lineTo(e.x+sx*r-sx*7,e.y-20+sy*r-6);
-            g.moveTo(e.x+sx*r,e.y-20+sy*r-6);g.lineTo(e.x+sx*r,e.y-20+sy*r-6-sy*7);
-            g.stroke();
-          }
-          g.restore();
-        }
-      }catch(err){}
-    };
-  }catch(e){}
+  // Creature rendering owns silhouette hit flashes, boss labels and selected
+  // health bars. No enclosing circles or automatic nearest-enemy reticles.
+
 
   /* ---------- vòng cast + cột sáng loot (trên cùng, additive) ---------- */
   try{
@@ -291,11 +254,10 @@
       try{
         envT+=Math.max(0,dt||0);
         shake=Math.max(0,shake-dt*22);flash=Math.max(0,flash-dt*3);killFlash=Math.max(0,killFlash-dt*2.4);
-        for(const [e,a]of hitAge){hitAge.set(e,a+dt);if(a>.3)hitAge.delete(e);}
         for(let i=beams.length-1;i>=0;i--){beams[i].age+=dt;if(beams[i].age>1.4)beams.splice(i,1);}
         ensureHUD();
         // khung mục tiêu MMORPG
-        let t=null;try{t=near(320);}catch(e){}
+        let t=null;try{t=window.cultivation?.basicSelection().target;}catch(e){}
         if(t&&!t.dead&&targetEl){
           targetEl.hidden=false;
           const k=(typeof T!=='undefined'&&T[t.t])||{n:'Yêu thú',hp:20};

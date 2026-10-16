@@ -23,14 +23,23 @@
     const key=sect+':'+index;if(tints.has(key))return tints.get(key);
     const source=parts[index];if(!source)return null;
     const c=document.createElement('canvas');c.width=source.width;c.height=source.height;
-    const g=c.getContext('2d');g.drawImage(source,0,0);g.globalCompositeOperation='multiply';
+    const g=c.getContext('2d');g.filter='contrast(1.18)';g.drawImage(source,0,0);g.filter='none';g.globalCompositeOperation='multiply';
     g.fillStyle=colors[sect];g.fillRect(0,0,c.width,c.height);
     g.globalCompositeOperation='destination-in';g.drawImage(source,0,0);tints.set(key,c);return c;
   }
+  // Small sparks use a sharp geometric core instead of minifying a smoky
+  // painting to a few pixels. The glow is still a separate translucent layer.
+  function glint(ctx,sect,x,y,size,angle=0,alpha=1){
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
+    ctx.fillStyle=highlights[sect];ctx.beginPath();
+    for(let n=0;n<8;n++){const a=n*Math.PI/4,r=n%2?size*.12:size*.5;const px=Math.cos(a)*r,py=Math.sin(a)*r;n?ctx.lineTo(px,py):ctx.moveTo(px,py);}
+    ctx.closePath();ctx.fill();ctx.restore();return true;
+  }
   function part(ctx,sect,index,x,y,w,h,angle=0,alpha=1){
+    if(index===3&&w<=12)return glint(ctx,sect,x,y,Math.min(w,h),angle,alpha);
     const image=texture(sect,index);if(!image||alpha<=0||w<=0||h<=0)return false;
     ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
-    ctx.globalCompositeOperation='screen';renderArtwork(ctx,image,-w/2,-h/2,w,h);ctx.restore();stats.sprites++;return true;
+    ctx.globalCompositeOperation=[2,4,5].includes(index)?'source-over':'screen';renderArtwork(ctx,image,-w/2,-h/2,w,h);ctx.restore();stats.sprites++;return true;
   }
   // Soft light is cached once; crisp energy filaments sit above it. Keeping
   // these separate avoids enlarging a blurry sprite to suggest brightness.
@@ -115,7 +124,11 @@
     motes(ctx,sect,f.x,f.y-5,f.age,r*.9,fade*.4,10);
   }
   function projectile(ctx,sect,x,y,angle,age,size=32,alpha=1){
-    light(ctx,sect,x,y,size*.75,alpha*.3);
+    light(ctx,sect,x,y,size*.65,alpha*.22);
+    for(let n=0;n<3;n++){
+      const p=(age*1.7+n*.33)%1,back=size*(.3+p*1.4),side=Math.sin(n*2.4+age*5)*size*.1;
+      glint(ctx,sect,x-Math.cos(angle)*back-Math.sin(angle)*side,y-Math.sin(angle)*back+Math.cos(angle)*side,3.5*(1-p),angle,alpha*(1-p)*.65);
+    }
     if(sect===1){
       ribbon(ctx,sect,x,y,size*.58,size*.58,angle+age*4,2.5,alpha);
       part(ctx,sect,0,x,y,size*1.45,size*1.45,angle+age*4,alpha);
@@ -203,7 +216,7 @@
     }
     return parts.length===8;
   }
-  window.spellActors={part,field,projectile,impact,ultimate,weapon,light,ribbon,stats,get ready(){return parts.length===8;},atlas};
+  window.spellActors={part,glint,field,projectile,impact,ultimate,weapon,light,ribbon,stats,get ready(){return parts.length===8;},atlas};
   // Keep icon rendering separate from in-world moving actors.
   skillSprites.animate=ultimate;
 })();

@@ -18,9 +18,23 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(require('node:
     // Every sheet selects a single frame; hurt animations have five rather than six.
     assert(await page.evaluate(()=>Object.values(creatureArt.species).every(k=>k.sheets[k.hurt-1]===5&&k.sheets[k.death-1]===6)));
     await page.evaluate(()=>{worldMap.travel('sword');P.x=1000;P.y=1700;P.acd=100;P.hp=mhp();P.mp=mmp();E=[0,1,3,4].map((t,i)=>({t,x:910+i*60,y:1650,hx:910+i*60,hy:1650,hp:T[t].hp,dead:0,cd:100,fr:0,fl:0,worldMap:true}));stepCreatures(.01);});await page.screenshot({path:path.join(__dirname,'artifacts/monster-lineup.png')});
+    const cleanCreatures=await page.evaluate(()=>{
+      const results=[];const ellipse=g.ellipse.bind(g),stroke=g.stroke.bind(g),draw=g.drawImage.bind(g);
+      for(const t of [0,1,2,3,4]){
+        const e={t,x:1000,y:1650,hx:1000,hy:1650,hp:T[t].hp,dead:0,cd:100,fr:0,fl:0,elite:true};E=[e];cultivation.select(e);
+        let ellipses=0,strokes=0;const draws=[];
+        g.ellipse=(...a)=>{ellipses++;return ellipse(...a);};g.stroke=(...a)=>{strokes++;return stroke(...a);};g.drawImage=(...a)=>{draws.push(a.length);return draw(...a);};
+        mon(e);const idleDraws=draws.length;creatureArt.onNetworkDamage(e,false);mon(e);
+        results.push({t,ellipses,strokes,idleDraws,hurtDraws:draws.length-idleDraws,whole:draws.every(n=>n===5)});
+      }
+      g.ellipse=ellipse;g.stroke=stroke;g.drawImage=draw;cultivation.select(null);return results;
+    });
+    for(const result of cleanCreatures){assert.equal(result.ellipses,0,'No creature circles, including elite/selected/hurt');assert.equal(result.strokes,0,'No surrounding reticle');assert(result.whole);assert.equal(result.idleDraws,2);assert.equal(result.hurtDraws,3,'Hit flash follows cached sprite silhouette');}
+    await page.evaluate(()=>{cultivation.select(E[0]);stepCreatures(.01);});assert(await page.locator('#target-frame').isVisible(),'Selected enemy retains its target health panel');
+    await page.evaluate(()=>{cultivation.select(null);stepCreatures(.01);});assert(await page.locator('#target-frame').isHidden(),'No nearest-enemy reticle or target panel when nothing is selected');
     await page.evaluate(()=>{worldMap.travel('hub');const s=worldMap.services.find(s=>s.id==='forge');P.x=s.x;P.y=s.y;stepCreatures(.01);worldMap.interact();});assert.equal(await page.locator('#npc-dialog-portrait').getAttribute('src'),await page.evaluate(()=>creatureArt.npcImages.thoren.src));await page.screenshot({path:path.join(__dirname,'artifacts/npc-forge-dialog.png')});
     const pausedFrame=await page.evaluate(()=>{const e={t:0,x:1400,y:1500,hx:1400,hy:1500,hp:20,dead:0,cd:1,fr:0,fl:0};E.push(e);creatureArt.onAttack(e);const before=creatureArt.frame(e).index;stepCreatures(.5);return creatureArt.frame(e).index===before;});assert(pausedFrame,'Enemy attack animation must pause while talking to an NPC');await page.getByRole('button',{name:'Đóng',exact:true}).click();
     await page.evaluate(()=>{P.x=1000;P.y=1000;stepCreatures(.01);});await page.screenshot({path:path.join(__dirname,'artifacts/npc-hub.png')});
-    assert.deepEqual(errors,[]);assert.equal(await page.locator('#dbg').count(),0,await page.locator('#dbg').allTextContents());console.log('PASS All NPC/monster assets, species distribution, movement/attack/hurt/death animations, single kill reward, respawn, dialogues and rendering');
+    assert.deepEqual(errors,[]);assert.equal(await page.locator('#dbg').count(),0,await page.locator('#dbg').allTextContents());console.log('PASS circle-free selected/elite creatures and silhouette hit flashes; all NPC/monster assets, species distribution, movement/attack/hurt/death animations, single kill reward, respawn, dialogues and rendering');
   }finally{if(browser)await browser.close();server.kill();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
