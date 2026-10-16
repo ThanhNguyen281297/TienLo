@@ -4,6 +4,18 @@ Không có gameplay tốt nhất cho mọi nhóm người chơi. Hướng phù h
 
 Thiết kế tham khảo cách hướng dẫn theo mốc của [Guild Wars 2 New Player Guide](https://www.guildwars2.com/en/new-player-guide/) và chiến đấu hợp tác ngoài thế giới của [Guild Wars 2 Combat](https://www.guildwars2.com/en/the-game/combat/). Các con số dưới đây là lựa chọn riêng của Tiên Lộ, chưa phải kết quả cân bằng qua dữ liệu người chơi.
 
+## Tham khảo gameplay và sổ tay mới
+
+Ngày 16/10/2026, xem trực tiếp tài khoản Phàm Nhân tại [Tu Tiên 2D](https://tutien2d.com/?choi): nhiệm vụ nhiều bước, auto có bộ combo và ưu tiên mục tiêu, bí tịch có điều kiện học, bảng hoạt động/lịch boss, bản đồ mô tả khu vực, công thức rèn chỉ rõ nguyên liệu thiếu. Các hoạt động cấp cao bị khóa theo cảnh giới; chưa kiểm chứng thực chiến của chúng. Chỉ tham khảo cấu trúc, không dùng code hay asset của trang này.
+
+Tiên Lộ triển khai ba phần dựa trên dữ liệu và luật riêng đang có:
+
+- **Tiên Đồ → Hoạt động** (hoặc chạm khung Tiên Đồ): nhiệm vụ nhập môn, điều kiện học chiêu tiếp theo, tu luyện, Linh Mạch Cốc, bí cảnh, đấu trường, boss thế giới, tổ đội/tông môn và bộ đồ. Hiện tiến độ, nguồn thưởng, trạng thái chờ nhận. Mở chi tiết đấu trường chỉ kiểm tra lượt; nút vào trận hiện có mới tiêu lượt. Truyền tống từ bảng chỉ cho phép sau nhập môn, ở nơi an toàn, ngoài thử thách. Không thêm cơ chế phát thưởng song song.
+- **Chiến pháp → Combo Auto**: hai bộ Luyện công / Săn boss lưu riêng từng class vào SQLite cùng nhân vật. Có đổi thứ tự bốn skill, bật/tắt từng skill và đánh thường, ưu tiên gần nhất / boss-thủ lĩnh / chỉ quái thường / tỉ lệ HP thấp nhất trong bán kính 380. Bộ Luyện công mặc định đánh đủ năm chiêu như cũ. Bộ Săn boss mặc định tắt tự dùng skill 2, giữ lại để người chơi né; có thể bật lại. Tự đổi bộ theo loại mục tiêu là tùy chọn, mặc định tắt; luật tìm mục tiêu lấy từ bộ đang chọn. Đánh thường vẫn đan giữa các skill, khoảng cách giữa hai lần tự tung skill ít nhất 0,85s, không bỏ qua mana/học chiêu/cooldown. Thuốc trong túi có công tắc và ngưỡng HP/MP 10–80%, mặc định 30%/20%; không mua thuốc tự động. Auto không tự né boss và không đánh người chơi.
+- **Bách khoa**: tìm có dấu hoặc không dấu, lọc kỹ năng / vật phẩm / bản đồ / yêu thú / linh thú. Đọc trực tiếp catalog skill, cooldown, mana, điều kiện học, trang bị thường và 96 template bộ, map và pet. Chỉ số quái là gốc, ghi rõ có tăng theo tầng/hoạt động. Không dùng dữ liệu cân bằng của game tham khảo.
+
+Hướng tiếp theo từ khảo sát: mở rộng nhiệm vụ kể chuyện dẫn vào từng vùng, hệ thống bí tịch chủ động/bị động với lựa chọn build, thêm công thức có nguyên liệu theo vùng. Chỉ mở giao dịch hoặc PvP có phần thưởng khi kinh tế và tiến trình được server xác thực đầy đủ; bản này chưa thêm các hệ thống đó.
+
 ## Vòng chơi đã triển khai
 
 Đăng ký → chọn phái → nhận bộ đồ/thuốc → gặp Sư phụ → farm và nhiệm vụ nhập môn → Phàm Nhân 3 → học skill trong thành → chọn thuộc tính/trang bị → luyện đan/tăng tầng → farm cùng đạo hữu → thử đấu trường.
@@ -51,7 +63,7 @@ Người cùng map nhìn thấy nhau và chat/biểu cảm. Quái farm chia phò
 ## Hướng phát triển nên ưu tiên tiếp theo
 
 1. Chuyển toàn bộ skill/cooldown/mana, tiến trình và kinh tế sang server trước PvP hoặc giao dịch. Hiện server chỉ quản lý HP quái chung, kiểm tra tầm/tần suất damage và xác thực tài khoản/bản lưu.
-2. Thêm boss hợp tác có vùng báo đòn trước 0,7–1 giây, ba cơ chế tránh được bằng di chuyển. Mục tiêu là thắng nhờ hiểu chiêu, không chỉ đứng auto và tăng chỉ số. Chưa triển khai trong bản này.
+2. Tiếp tục mở rộng boss hợp tác sau Thái Cổ Huyết Ma đã triển khai: thêm cơ chế phối hợp, kiểm chứng thời gian né bằng playtest. Mục tiêu là thắng nhờ hiểu chiêu, không chỉ đứng auto và tăng chỉ số.
 3. Thêm nhiệm vụ tuần/sự kiện bản đồ và đội nhỏ, phần thưởng cá nhân; tránh tranh quyền last-hit. Giữ solo đủ khả năng tiến trình.
 4. Đo thời gian tới skill đầu, số lần chết, thời gian hoàn thành tầng và mức dùng thuốc. Điều chỉnh từ dữ liệu playtest; chưa tuyên bố các chỉ số hiện tại đã cân bằng.
 5. Tách renderer/update/event thành hệ thống rõ ràng, chuyển online transport sang WebSocket và benchmark tải trước khi mở đông người.

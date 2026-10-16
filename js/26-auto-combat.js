@@ -3,6 +3,33 @@
   const state = { enabled: false, skillTimer: 0, potionTimer: 0, cursor: 0, sect: null };
   const SEARCH_RADIUS = 380;
   const SKILL_GAP = .85, ROTATION = [2, 0, 1, 3];
+  const priorities=['nearest','boss','mobs','weak'];
+  let cachedWorld,cachedClass,cachedPlans;
+  function normalizePlan(raw={},boss=false){
+    if(!raw||typeof raw!=='object')raw={};
+    const order=Array.isArray(raw.order)?[...new Set(raw.order.filter(i=>Number.isInteger(i)&&i>=0&&i<4))]:[];
+    for(const i of ROTATION)if(!order.includes(i))order.push(i);
+    return {priority:priorities.includes(raw.priority)?raw.priority:boss?'boss':'nearest',order,
+      skills:[0,1,2,3].map(i=>Array.isArray(raw.skills)?raw.skills[i]!==false:!(boss&&i===1)),
+      basic:raw.basic!==false,potions:raw.potions!==false,
+      hp:Number.isFinite(raw.hp)?Math.max(.1,Math.min(.8,raw.hp)):.3,
+      mp:Number.isFinite(raw.mp)?Math.max(.1,Math.min(.8,raw.mp)):.2};
+  }
+  function plans(){
+    const p=worldMap.progress(),classId=P.ap?.w||0;
+    if(cachedWorld!==p||cachedClass!==classId){
+      const raw=p.autoCombatPlans?.[classId]||{};
+      cachedPlans={active:raw.active==='boss'?'boss':'farm',automatic:raw.automatic===true,
+        farm:normalizePlan(raw.farm),boss:normalizePlan(raw.boss,true)};
+      p.autoCombatPlans??={};p.autoCombatPlans[classId]=cachedPlans;
+      cachedWorld=p;cachedClass=classId;
+    }
+    return cachedPlans;
+  }
+  const isBoss=e=>!!(e&&(e.boss||e.worldBoss||e.elite||e.t===2));
+  function plan(target){const s=plans();return s[s.automatic&&target?(isBoss(target)?'boss':'farm'):s.active];}
+  function configure(change){const s=plans();if(change.active)s.active=change.active==='boss'?'boss':'farm';if(typeof change.automatic==='boolean')s.automatic=change.automatic;
+    if(change.plan)s[s.active]=normalizePlan({...s[s.active],...change.plan},s.active==='boss');state.cursor=0;saveCharacter();return s;}
 
   function alive(e) { return !!e && E.includes(e) && !e.dead && e.hp > 0; }
   function suspended() {
@@ -52,13 +79,16 @@
     try { if (window.skillAim) skillAim.state.visible = true; } catch (e) {}
   }
   function findTarget() {
-    let best = null, bd = SEARCH_RADIUS * SEARCH_RADIUS;
+    const candidates=[];
     for (const e of E) {
       if (!alive(e)) continue;
       const d = (e.x - P.x) * (e.x - P.x) + (e.y - P.y) * (e.y - P.y);
-      if (d < bd) { bd = d; best = e; }
+      if(d<SEARCH_RADIUS*SEARCH_RADIUS)candidates.push({e,d});
     }
-    return best;
+    const priority=plan().priority;
+    const filtered=priority==='mobs'?candidates.filter(c=>!isBoss(c.e)):candidates;
+    filtered.sort((a,b)=>priority==='boss'?(Number(isBoss(b.e))-Number(isBoss(a.e))||a.d-b.d):priority==='weak'?(a.e.hp/Math.max(1,a.e.maxHp||a.e.hp)-b.e.hp/Math.max(1,b.e.maxHp||b.e.hp)||a.d-b.d):a.d-b.d);
+    return filtered[0]?.e||null;
   }
   function face(point) {
     const dx = point.x - P.x, dy = point.y - P.y;
@@ -75,7 +105,8 @@
     if (!target || manualMoving() || combat()?.state.ultimate || combat()?.state.blink || classCombat.isDashing()) return;
     // Ranged classes must approach to place a field or use their short skill,
     // rather than stopping forever at normal-attack range.
-    const range = Math.min(basicRange(),canUseSkill(2)?90:canUseSkill(1)?140:basicRange());
+    const policy=plan(target);
+    const range = Math.min(basicRange(),policy.skills[2]&&canUseSkill(2)?90:policy.skills[1]&&canUseSkill(1)?140:basicRange());
     const dx = target.x - P.x, dy = target.y - P.y, d = Math.hypot(dx, dy);
     if (d <= range * 0.9) return;
     const speed = 150 + (P.r || 0) * 10;
@@ -91,13 +122,15 @@
   }
   function tryAutoSkills(target) {
     if (!target) return;
+    const policy=plan(target),rotation=policy.order;
     // Ngắm vào mục tiêu để skill định hướng bắn đúng.
     setAim({ x: target.x, y: target.y });
     const d = Math.hypot(target.x - P.x, target.y - P.y);
     // Resume after the last successful cast; unavailable slots never block
     // other skills. A separate gap leaves room for normal combo attacks.
-    for (let offset=0;offset<ROTATION.length;offset++) {
-      const slot=(state.cursor+offset)%ROTATION.length,i=ROTATION[slot];
+    for (let offset=0;offset<rotation.length;offset++) {
+      const slot=(state.cursor+offset)%rotation.length,i=rotation[slot];
+      if(!policy.skills[i])continue;
       if (!canUseSkill(i)) continue;
       if (i === 0 && d > 300) continue;
       if (i === 1 && d > 190) continue;
@@ -130,19 +163,21 @@
         // skill thành công khi tụt mana hoặc vào cooldown.
         const c = combat();
         if (P.mp < mpBefore || (c?.state.cooldown?.[i] > 0) || (window.gmTest?.enabled&&signature(c).some((v,n)=>v!==before[n]))) {
-          state.cursor=(slot+1)%ROTATION.length;return true;
+          state.cursor=(slot+1)%rotation.length;return true;
         }
       } catch (e) {}
     }
   }
   function autoPotion(dt) {
+    const policy=plan(cultivation.basicSelection()?.target);
+    if(!policy.potions)return;
     state.potionTimer += dt;
     if (state.potionTimer < 1) return;
     state.potionTimer = 0;
     try {
       const p = window.worldMap ? worldMap.progress() : null;
       if (!p || !p.bag) return;
-      if (P.hp < mhp() * 0.3) {
+      if (P.hp < mhp() * policy.hp) {
         const item = p.bag.find(i => i.id === 'hoi-huyet-dan' && (i.qty || 1) > 0);
         if (item) {
           P.hp = Math.min(mhp(), P.hp + (item.heal || 80));
@@ -152,7 +187,7 @@
           return;
         }
       }
-      if (P.mp < mmp() * 0.2) {
+      if (P.mp < mmp() * policy.mp) {
         const item = p.bag.find(i => i.id === 'hoi-linh-dan' && (i.qty || 1) > 0);
         if (item) {
           P.mp = Math.min(mmp(), P.mp + (item.mana || 40));
@@ -208,7 +243,8 @@
         try {
           if (window.cultivation) {
             const sel = cultivation.basicSelection ? cultivation.basicSelection() : null;
-            if ((sel && sel.target) !== target || (target&&!sel?.attacking)) cultivation.select(target);
+            const attacking=!!target&&plan(target).basic;
+            if ((sel && sel.target) !== target || !!sel?.attacking!==attacking) cultivation.select(target,attacking);
           }
         } catch (e) {}
         if (target) {
@@ -240,5 +276,5 @@
     const creator = $('ok').onclick;
     $('ok').onclick = () => { creator(); if (P.ap && cr.style.display === 'none' && state.enabled) toggle(false); };
   } catch (e) {}
-  window.autoCombat = { state, toggle, findTarget };
+  window.autoCombat = { state, toggle, findTarget, plans, plan, configure, isBoss };
 })();

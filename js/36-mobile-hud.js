@@ -53,6 +53,7 @@
     return 'url("'+canvas.toDataURL()+'")';
   }
   const labels={'bag-button':['Túi đồ','bag'],'attr-button':['Thuộc tính','attrs'],'auto-button':['Auto','auto'],'hud-chat':['Chat','chat'],'hud-more':['Khác','more'],'bq':['Đả tọa','meditate'],'bb':['Đột phá','break'],'cultivation-info':['Tu luyện','realm'],'gm-skills':['GM','gm'],'hud-map':['Bản đồ','map'],'basic-attack':['Đánh','attack'],'community-button':['Đạo hữu','chat'],'sets-button':['Bộ đồ','enhance'],'rift-button':['Bí cảnh','map'],'pet-button':['Linh thú','pet'],'enhance-button':['Cường hóa','enhance']};
+  Object.assign(labels,{'activities-button':['Tiên Đồ','realm'],'auto-plan-button':['Chiến pháp','auto'],'codex-button':['Bách khoa','map']});
   for(const [id,[label,kind]]of Object.entries(labels)){const b=$(id);if(!b)continue;b.dataset.hudLabel=label;b.setAttribute('aria-label',id==='basic-attack'?'Đánh thường':label);b.style.setProperty('--hud-icon',icon(kind));b.classList.add('hud-icon');}
   function refresh(){const ready=!!P.ap&&account.state.ready&&cr.style.display==='none'&&ttl.style.display==='none';document.body.classList.toggle('game-controls-ready',ready);document.body.classList.toggle('controls-paused',worldMap.dialog.isOpen());
     if(!ready||paused()||worldMap.dialog.isOpen()){reset();closeMenu();}

@@ -28,7 +28,7 @@
   let target=null,attacking=false;
   const combatButton=document.createElement('button');combatButton.id='basic-attack';combatButton.textContent='Đánh thường (F)';$('bt').prepend(combatButton);
   const realmButton=document.createElement('button');realmButton.id='cultivation-info';realmButton.textContent='Tu luyện (C)';$('bt').appendChild(realmButton);
-  function select(e){window.basicCombat?.targetChanged(e);target=e;attacking=!!e;refresh();}
+  function select(e,enable=true){window.basicCombat?.targetChanged(e);target=e;attacking=!!e&&enable;refresh();}
   const alive=e=>e&&E.includes(e)&&!e.dead&&e.hp>0;
   function basicTarget(){return attacking&&alive(target)&&Math.hypot(target.x-P.x,target.y-P.y)<(window.basicCombat?.range()||36)+T[target.t].s*.4?target:null;}
   combatButton.onclick=()=>{if(paused()||dialog.isOpen())return;if(alive(target))attacking=!attacking;else select(E.filter(e=>!e.dead&&e.hp>0&&Math.hypot(e.x-P.x,e.y-P.y)<(window.basicCombat?.range()||210)+T[e.t].s*.4).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y))[0]);if(!target)msg('Tới gần bãi quái rồi chọn mục tiêu.');refresh();};
