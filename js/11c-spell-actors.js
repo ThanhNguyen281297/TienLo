@@ -5,6 +5,7 @@
   const smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const colors=['#69d9ff','#71efd2','#b18aff','#ffdc91'];
+  const highlights=['#fff0c9','#e4fffa','#eadcff','#fff3d2'],halos=new Map();
   const parts=[],tints=new Map(),weapons=[],stats={sprites:0};
   const atlas=new Image();
   atlas.onload=()=>{
@@ -29,6 +30,33 @@
     const image=texture(sect,index);if(!image||alpha<=0||w<=0||h<=0)return false;
     ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
     ctx.globalCompositeOperation='lighter';renderArtwork(ctx,image,-w/2,-h/2,w,h);ctx.restore();stats.sprites++;return true;
+  }
+  // Soft light is cached once; crisp energy filaments sit above it. Keeping
+  // these separate avoids enlarging a blurry sprite to suggest brightness.
+  function light(ctx,sect,x,y,radius,alpha){
+    if(alpha<=0)return;
+    let image=halos.get(sect);
+    if(!image){
+      image=document.createElement('canvas');image.width=image.height=128;
+      const c=image.getContext('2d'),g=c.createRadialGradient(64,64,0,64,64,64);
+      g.addColorStop(0,colors[sect]+'80');g.addColorStop(.25,colors[sect]+'35');g.addColorStop(1,colors[sect]+'00');
+      c.fillStyle=g;c.fillRect(0,0,128,128);halos.set(sect,image);
+    }
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=clamp(alpha);
+    ctx.drawImage(image,x-radius,y-radius,radius*2,radius*2);ctx.restore();
+  }
+  function ribbon(ctx,sect,x,y,rx,ry,angle,sweep,alpha=1,tilt=0){
+    if(alpha<=0)return;
+    ctx.save();ctx.translate(x,y);ctx.rotate(tilt);ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+    const x0=Math.cos(angle)*rx,y0=Math.sin(angle)*ry,x1=Math.cos(angle+sweep)*rx,y1=Math.sin(angle+sweep)*ry;
+    const gradient=ctx.createLinearGradient(x0,y0,x1,y1);
+    gradient.addColorStop(0,colors[sect]+'00');gradient.addColorStop(.55,colors[sect]+'88');gradient.addColorStop(1,highlights[sect]);
+    ctx.beginPath();for(let n=0;n<=28;n++){
+      const a=angle+sweep*n/28,px=Math.cos(a)*rx,py=Math.sin(a)*ry;
+      if(n===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    }
+    ctx.strokeStyle=colors[sect];ctx.lineWidth=3;ctx.globalAlpha=alpha*.11;ctx.stroke();
+    ctx.strokeStyle=gradient;ctx.lineWidth=.8;ctx.globalAlpha=alpha*.85;ctx.stroke();ctx.restore();
   }
   function weapon(ctx,sect,x,y,size,angle=0,alpha=1){
     const image=weapons[sect];if(!image.complete||!image.naturalWidth||alpha<=0)return;
@@ -64,17 +92,39 @@
     part(ctx,sect,4,0,0,r*2.22,r*2.22,clock*.13,fade*.27);
     part(ctx,sect,7,0,0,r*1.65,r*1.65,-clock*.23,fade*.15);
     orbit(ctx,sect,5,0,0,clock,r*.78,22,sect===3?8:6,fade*.5,1);
+    // Fine rotating segments retain readable geometry on bright stone maps.
+    for(let n=0;n<8;n++){
+      const a=n*TAU/8+clock*.12;
+      ribbon(ctx,sect,0,0,r*.83,r*.83,a,.4,fade*.7);
+      const px=Math.cos(a)*r*.94,py=Math.sin(a)*r*.94;
+      ctx.save();ctx.translate(px,py);ctx.rotate(a+Math.PI/4);
+      ctx.strokeStyle=highlights[sect];ctx.globalAlpha=fade*.5;ctx.lineWidth=.65;
+      if(sect===0){
+        for(let bar=0;bar<3;bar++){ctx.beginPath();ctx.moveTo(-3,-3+bar*3);ctx.lineTo(bar===1?-1:3,-3+bar*3);ctx.stroke();if(bar===1){ctx.beginPath();ctx.moveTo(1,0);ctx.lineTo(3,0);ctx.stroke();}}
+      }else if(sect===1){
+        ctx.beginPath();ctx.arc(0,0,3,-1.4,1.4);ctx.stroke();
+      }else if(sect===2){
+        ctx.beginPath();ctx.moveTo(0,-5);ctx.lineTo(-2,0);ctx.lineTo(2,0);ctx.lineTo(0,5);ctx.stroke();
+      }else{
+        ctx.strokeRect(-2,-4,4,8);ctx.beginPath();ctx.moveTo(-1,-1);ctx.lineTo(1,1);ctx.lineTo(-1,2);ctx.stroke();
+      }
+      ctx.restore();
+    }
     ctx.restore();
     motes(ctx,sect,f.x,f.y-5,f.age,r*.9,fade*.4,10);
   }
   function projectile(ctx,sect,x,y,angle,age,size=32,alpha=1){
+    light(ctx,sect,x,y,size*.75,alpha*.3);
     if(sect===1){
+      ribbon(ctx,sect,x,y,size*.58,size*.58,angle+age*4,2.5,alpha);
       part(ctx,sect,0,x,y,size*1.45,size*1.45,angle+age*4,alpha);
       part(ctx,sect,0,x,y,size*1.2,size*1.2,angle+age*4-.3,alpha*.16);
     }else if(sect===3){
+      ribbon(ctx,sect,x-Math.cos(angle)*size*.65,y-Math.sin(angle)*size*.65,size*.8,size*.12,Math.PI,Math.PI,alpha*.7,angle);
       part(ctx,sect,1,x-Math.cos(angle)*12,y-Math.sin(angle)*12,size*2,size*.65,angle,alpha*.45);
       part(ctx,sect,5,x,y,size*.7,size*.9,angle+Math.PI/2+Math.sin(age*7)*.12,alpha);
     }else{
+      ribbon(ctx,sect,x-Math.cos(angle)*size*.8,y-Math.sin(angle)*size*.8,size*.9,size*.12,Math.PI,Math.PI,alpha*.75,angle);
       part(ctx,sect,1,x-Math.cos(angle)*10,y-Math.sin(angle)*10,size*2.3,size*.7,angle,alpha*.7);
       weapon(ctx,sect,x,y,size,angle+(sect===0?-Math.PI/2:Math.PI/2),alpha);
     }
@@ -82,6 +132,8 @@
   function impact(ctx,sect,x,y,age,radius=55,duration=.6){
     if(age<0||age>=duration)return;
     const p=age/duration,fade=(1-p)**2,expand=1-(1-p)**3;
+    light(ctx,sect,x,y-8,radius*(.6+expand),fade*.65);
+    for(let n=0;n<3;n++)ribbon(ctx,sect,x,y,8+radius*expand,4+radius*expand*.5,n*TAU/3+p*.3,1.6,fade*.85);
     part(ctx,sect,6,x,y-8,30+radius*expand,30+radius*expand*.75,age*.25,fade*.7);
     part(ctx,sect,7,x,y,12+radius*2*expand,6+radius*expand,0,fade*.65);
     for(let n=0;n<10;n++){
@@ -95,6 +147,7 @@
     const fade=smooth(age/.18)*smooth((duration-age)/.35)*alpha;
     const baseY=y+height*.32,clock=reduced.matches?0:age;
     field(ctx,sect,{x,y:baseY,radius:width*.43,age,duration},fade*.7);
+    light(ctx,sect,x,baseY-height*.2,width*.52,fade*(.12+.22*charge));
     if(age<hitAt){
       motes(ctx,sect,x,baseY-12,age,width*.54,fade*.65,18);
       if(sect===0){
@@ -104,9 +157,12 @@
           part(ctx,sect,1,px,py-12,54,14,Math.PI/2,fade*.32);
           weapon(ctx,sect,px,py,46+charge*12,Math.sin(clock+n)*.06,fade*(.55+.25*Math.sin(a)));
         }
+        for(let n=0;n<2;n++)ribbon(ctx,sect,x,baseY-height*.32,width*.33,height*.12,clock*1.4+n*Math.PI,2.8,fade*.65,-.15);
         weapon(ctx,sect,x,baseY-height*.5*(1-smooth((charge-.84)/.16)),70+30*charge,0,fade*.8);
       }else if(sect===1){
         orbit(ctx,sect,0,x,baseY-height*.27,clock,width*(.15+.19*charge),width*.42,3,fade*.8,.65);
+        for(let n=0;n<3;n++)ribbon(ctx,sect,x,baseY-height*.27,width*.33,height*.24,-clock*1.6+n*TAU/3,1.8,fade*.8,n*.18);
+        light(ctx,sect,x,baseY-height*.27,width*.28,fade*.6);
         part(ctx,sect,7,x,baseY-height*.27,width*.7,width*.7,-clock*.5,fade*.28);
       }else if(sect===2){
         // Separate wisps form a rising helix; their depth, pitch and width move.
@@ -115,10 +171,13 @@
           const r=width*(.13+.13*v),px=x+Math.cos(a)*r,py=baseY-v*height*.85;
           part(ctx,sect,2,px,py,52*(.7+v),34,Math.sin(a)*.6,fade*Math.sin(v*Math.PI)*(.35+.3*(Math.sin(a)+1)/2));
         }
+        for(let n=0;n<4;n++)ribbon(ctx,sect,x,baseY-height*(.12+n*.16),width*(.2-n*.025),height*.08,clock*2.3+n*1.3,2.7,fade*.65,-.15);
         weapon(ctx,sect,x,baseY-height*(.35+.12*charge)*(1-smooth((charge-.84)/.16)),height*.63,Math.PI,fade*.9);
       }else{
         orbit(ctx,sect,5,x,baseY-height*.25,clock,width*(.17+.2*charge),34,10,fade*.85,.65);
         for(let n=0;n<3;n++)part(ctx,sect,0,x,baseY-height*.25,width*.6,width*.6,clock*.6+n*TAU/3,fade*.25);
+        for(let n=0;n<3;n++)ribbon(ctx,sect,x,baseY-height*.25,width*.37,height*.22,clock*.8+n*TAU/3,1.8,fade*.75,n*.17);
+        light(ctx,sect,x,baseY-height*.25,width*.23,fade*.4);
         weapon(ctx,sect,x,baseY-height*.25,42,Math.sin(clock)*.12,fade*.7);
       }
     }else{
@@ -143,7 +202,7 @@
     }
     return parts.length===8;
   }
-  window.spellActors={part,field,projectile,impact,ultimate,weapon,stats,get ready(){return parts.length===8;},atlas};
+  window.spellActors={part,field,projectile,impact,ultimate,weapon,light,ribbon,stats,get ready(){return parts.length===8;},atlas};
   // Keep icon rendering separate from in-world moving actors.
   skillSprites.animate=ultimate;
 })();
