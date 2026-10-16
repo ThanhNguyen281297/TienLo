@@ -64,17 +64,31 @@
   function terrainArt(ctx,key,x,y,width,plane=.43,opacity=1){const image=terrainSprites[key];if(!ready(image))return false;
     const height=width*image.naturalHeight/image.naturalWidth;ctx.save();ctx.globalAlpha*=opacity;renderArtwork(ctx,image,x-width/2,y-height*plane,width,height);ctx.restore();return true;}
   function diamondPath(ctx,x,y,rx,ry){ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();}
+  function pavedOutline(ctx,x,y,rx,ry){
+    const cut=Math.min(.3,Math.max(.14,24/ry));
+    const points=[[-cut,-1+cut],[cut,-1+cut],[1-cut,-cut],[1-cut,cut],[cut,1-cut],[-cut,1-cut],[-1+cut,cut],[-1+cut,-cut]];
+    points.forEach(([px,py],i)=>i?ctx.lineTo(x+px*rx,y+py*ry):ctx.moveTo(x+px*rx,y+py*ry));ctx.closePath();
+  }
+  function bareCorners(ctx,x,y,rx,ry){const cut=Math.min(.3,Math.max(.14,24/ry));
+    const corners=[[[0,-1],[-cut,-1+cut],[cut,-1+cut]],[[1,0],[1-cut,-cut],[1-cut,cut]],[[0,1],[cut,1-cut],[-cut,1-cut]],[[-1,0],[-1+cut,cut],[-1+cut,-cut]]];
+    ctx.save();corners.forEach((points,i)=>{const [tip,a,b]=points.map(([px,py])=>({x:x+px*rx,y:y+py*ry}));
+      ctx.beginPath();ctx.moveTo(tip.x,tip.y);ctx.lineTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.closePath();ctx.fillStyle=['#b7bbac','#a9b09f','#a5ad9d','#b3b9a8'][i];ctx.fill();
+      const m={x:a.x*.58+b.x*.42,y:a.y*.58+b.y*.42};ctx.beginPath();ctx.moveTo(tip.x,tip.y);ctx.lineTo(m.x,m.y);ctx.lineTo(b.x,b.y);ctx.closePath();ctx.fillStyle='rgba(65,80,62,.09)';ctx.fill();
+      ctx.beginPath();ctx.moveTo(tip.x*.35+m.x*.65,tip.y*.35+m.y*.65);ctx.lineTo(m.x*.6+a.x*.4,m.y*.6+a.y*.4);ctx.strokeStyle='rgba(69,84,66,.15)';ctx.lineWidth=.6;ctx.stroke();
+    });ctx.restore();
+  }
   let floorView=null;
   function islandDeck(ctx,x,y,rx,ry,depth=70){
     if(ready(highIsland)){
-      // Keep the rock/waterfall silhouette, exclude its entire painted floor.
+      // Keep the original stone corners; paving ends before all four tips.
       ctx.save();ctx.beginPath();ctx.rect(x-rx*1.4,y-ry*2,rx*2.8,ry*5);
       ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.clip('evenodd');
       renderArtwork(ctx,highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);ctx.restore();
     }else{
       ctx.save();ctx.fillStyle='#40545c';ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry+depth);ctx.closePath();ctx.fill();ctx.restore();
     }
-    stonePaving.draw(ctx,{x,y,rx,ry},floorView);
+    bareCorners(ctx,x,y,rx,ry);
+    ctx.save();ctx.beginPath();pavedOutline(ctx,x,y,rx,ry);ctx.clip();stonePaving.draw(ctx,{x,y,rx,ry},floorView);ctx.restore();
   }
   function rail(ctx,route,sides=[-1,1]){const image=world.asset('bridgeRail');if(!ready(image))return;
     for(const side of sides){const edge=route.map((p,i)=>{const normal=(a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=Math.hypot(dx,dy)||1;return {x:-dy/l,y:dx/l};};const before=normal(route[Math.max(0,i-1)],route[Math.max(1,i)]),after=normal(route[Math.min(i,route.length-2)],route[Math.min(i+1,route.length-1)]);const dot=before.x*after.x+before.y*after.y,factor=side*25/Math.max(.5,1+dot);return {x:p.x+(before.x+after.x)*factor,y:p.y+(before.y+after.y)*factor};});

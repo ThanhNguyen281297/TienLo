@@ -24,6 +24,10 @@ drawn with Canvas paths, staggered joints and deterministic stone colors. No flo
 image, repeated image pattern or grass texture is rendered. The HD island is
 clipped outside the walkable diamond and supplies cliff scenery only. Cached slab
 geometry and viewport culling keep the paving stable during camera movement.
+Paving stops before the four pointed tips: those have bare, unjointed stone faces,
+without tiles or the original blue/gold floor inlays. The original cliff artwork
+remains. The floor clip is an inset octagon, while the island and collision remain
+diamonds, so no tiled triangle protrudes at the bridge entrances.
 Fine mineral marks, occasional hairline wear, beveled edges and a restrained
 daylight wash give each slab surface detail without a composite floor image.
 

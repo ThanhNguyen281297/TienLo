@@ -37,6 +37,14 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     assert.equal(joins.inside,0,'Timber must never paint over paving or hide the pointed corner');
     assert(joins.outside>0&&Math.abs(joins.edge-1)<1e-8&&joins.wedge,'The V-shaped join meets the exact island edge and stays walkable');
     assert.equal(joins.piers,joins.unique,'Each shared wall joint has one pier');
+    const corners=await page.evaluate(()=>{
+      const canvas=document.createElement('canvas');canvas.width=600;canvas.height=400;const ctx=canvas.getContext('2d'),draw=stonePaving.draw;
+      stonePaving.draw=ctx=>{ctx.fillStyle='#ff0000';ctx.fillRect(0,0,600,400);};
+      try{worldMap.layoutArt.islandDeck(ctx,300,200,250,140);}finally{stonePaving.draw=draw;}
+      const red=(x,y)=>{const p=ctx.getImageData(x,y,1,1).data;return p[0]===255&&p[1]===0&&p[2]===0;};
+      return {center:red(300,200),tips:[[300,65],[545,200],[300,335],[55,200]].map(([x,y])=>red(x,y))};
+    });
+    assert(corners.center&&corners.tips.every(red=>!red),'All four stone tips remain free of procedural paving');
     for(const scene of ['sword','moon','thunder','mystic','valley']){
       const result=await page.evaluate(scene=>{
         worldMap.travel(scene);P.world.tutorial=true;E=[];
