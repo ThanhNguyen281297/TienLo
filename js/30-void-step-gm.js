@@ -5,14 +5,14 @@
   window.gmTest={enabled:false};
   const button=document.createElement('button');button.id='gm-skills';
   button.type='button';button.textContent='GM · Test skill';button.setAttribute('aria-pressed','false');
-  button.title='Bật/tắt thử 4 kỹ năng, hồi linh lực và xóa hồi chiêu. Không đổi cảnh giới hoặc kỹ năng đã học.';
+  button.title='Bật/tắt thử 4 kỹ năng, hồi linh lực và xóa hồi chiêu. Tăng tầng, đột phá và cường hóa miễn phí; không tự thay đổi cảnh giới hoặc kỹ năng đã học.';
   $('bt').appendChild(button);
   button.onclick=()=>{
     if(!P.ap)return;
     gmTest.enabled=!gmTest.enabled;button.setAttribute('aria-pressed',String(gmTest.enabled));
     button.textContent=gmTest.enabled?'GM · Đang test · Tắt':'GM · Test skill';
     getClassCombat().state.cooldown.fill(0);P.mp=gmTest.enabled?Math.max(mmp(),...combatMana[P.ap.w]):Math.min(P.mp,mmp());cultivation.refresh();
-    msg(gmTest.enabled?'GM Test: mở tạm 4 skill, hồi linh lực, không chờ hồi chiêu. Tắt để trở về tiến trình thật.':'Đã tắt GM Test, khôi phục điều kiện kỹ năng đã học.');
+    msg(gmTest.enabled?'GM Test: mở tạm 4 skill, hồi linh lực, không chờ hồi chiêu; tăng tầng, đột phá và cường hóa miễn phí.':'Đã tắt GM Test, khôi phục điều kiện kỹ năng và chi phí tu luyện, cường hóa.');
   };
   const style=document.createElement('style');style.textContent='#gm-skills{border-color:#b99a60!important;color:#edce8b!important}#gm-skills[aria-pressed=true]{background:#514027!important;box-shadow:0 0 12px #eab75b44!important}';document.head.appendChild(style);
   function spawn(start,end,index){
