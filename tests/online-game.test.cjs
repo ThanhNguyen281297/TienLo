@@ -23,16 +23,6 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   await one.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Hai'));
   await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'));
   console.log('PASS two accounts see each other on shared map');
-  await one.evaluate(()=>{P.world.tutorial=true;E=[];const bridge=worldMap.mapStructures.layout().bridges[0];P.x=bridge.a.x;P.y=bridge.a.y;K.w=1;});
-  await one.waitForFunction(()=>P.y<800);await one.evaluate(()=>{K={};});
-  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.y<800&&p.airborne===0));
-  const bridgeSave=await one.evaluate(async()=>{await account.flush();const data=await account.api('/api/characters');return {saved:data.character.player,walkable:worldMap.canWalk(data.character.player)};});
-  assert(bridgeSave.walkable&&bridgeSave.saved.y<800,'Walking on a bridge saves a valid grounded point');
-  await one.evaluate(()=>{K.w=1;});await one.waitForFunction(()=>P.y<600);await one.evaluate(()=>{K={};});
-  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.y<600&&p.airborne===0));
-  await one.evaluate(()=>{K.s=1;});await one.waitForFunction(()=>P.y>950);await one.evaluate(()=>{K={};});
-  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.y>950&&p.airborne===0));
-  console.log('PASS synchronized two-way bridge walking and grounded DB save');
   await one.locator('#chat-input').fill('Xin chào <script>');await one.locator('#chat-form button').click();await two.waitForFunction(()=>document.getElementById('chat-messages').textContent.includes('Xin chào <script>'));
   assert.equal(await two.locator('#chat-messages script').count(),0);
   console.log('PASS chat safely renders text between accounts');

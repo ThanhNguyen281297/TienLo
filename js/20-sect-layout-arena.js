@@ -1,4 +1,4 @@
-/* Đảo tông môn và bãi luyện công; cầu gỗ nối các đảo luyện công. */
+/* Đảo tông môn và bãi luyện công; các đảo riêng, không có cầu nối. */
 (function(){
   const world=worldMap,dialog=world.dialog;
   world.customLayout=true;
@@ -28,21 +28,17 @@
   const nativeSwitch=world.switchScene,nativeRespawn=world.respawn,nativeService=world.handleService,nativeCamera=world.camera;
   const originalTitle=world.sceneTitle;
   const point=(x,y)=>({x,y});
-  const routeCache={};
-  function computeRoutes(){const center=point(1000,1100);return (isValley()?valleyMines:camps).map(c=>[center,point(c.x,c.y)]);}
-  // Cache theo scene để tránh cấp phát mảng mỗi lần canWalk/traceMove gọi.
-  function routes(){const key=world.state.scene;if(!routeCache[key])routeCache[key]=computeRoutes();return routeCache[key];}
   const mainShape=()=>layout();
   const diamond=(p,x,y,rx,ry)=>Math.abs((p.x-x)/rx)+Math.abs((p.y-y)/ry)<1;
   function terrain(p){if(world.state.scene==='arena')return Math.hypot(p.x-1000,(p.y-1100)*2)<190;
-    if(world.mapStructures?.onBridge(p))return true;
+    if(world.mapStructures&&!world.mapStructures.onSurface(p))return false;
     if(isValley()){const main=layouts.valley;return diamond(p,1000,1100,main.rx,main.ry)||valleyMines.some(c=>diamond(p,c.x,c.y,150,78));}
     const main=mainShape();return diamond(p,1000,1100,main.rx,main.ry)||camps.some(c=>diamond(p,c.x,c.y,156,80));}
   const oldWalk=world.canWalk;
   world.canWalk=p=>world.state.scene==='hub'?oldWalk(p):p.x>20&&p.x<M-20&&p.y>20&&p.y<M-20&&terrain(p)&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
   world.traceMove=(from,to)=>{if(!world.canWalk(from))return {...from};const steps=Math.max(1,Math.ceil(Math.hypot(to.x-from.x,to.y-from.y)/3));let last={...from};for(let i=1;i<=steps;i++){const p={x:from.x+(to.x-from.x)*i/steps,y:from.y+(to.y-from.y)*i/steps};if(!world.canWalk(p))break;last=p;}return last;};
   world.sceneSafety=p=>{if(isValley())return diamond(p,1000,1100,layouts.valley.rx+5,layouts.valley.ry+5);return clan()&&diamond(p,1000,1100,mainShape().rx+5,mainShape().ry+5);};
-  world.bridgeRoutes=()=>world.isSectMap(world.state.scene)||isValley()?routes():[];
+  world.bridgeRoutes=()=>[];
   world.sceneTitle=()=>world.state.scene==='arena'?'Đấu trường tông môn':originalTitle();
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
   function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
@@ -69,25 +65,16 @@
     const points=[[-cut,-1+cut],[cut,-1+cut],[1-cut,-cut],[1-cut,cut],[cut,1-cut],[-cut,1-cut],[-1+cut,cut],[-1+cut,-cut]];
     points.forEach(([px,py],i)=>i?ctx.lineTo(x+px*rx,y+py*ry):ctx.moveTo(x+px*rx,y+py*ry));ctx.closePath();
   }
-  function bareCorners(ctx,x,y,rx,ry){const cut=Math.min(.3,Math.max(.14,24/ry));
-    const corners=[[[0,-1],[-cut,-1+cut],[cut,-1+cut]],[[1,0],[1-cut,-cut],[1-cut,cut]],[[0,1],[cut,1-cut],[-cut,1-cut]],[[-1,0],[-1+cut,cut],[-1+cut,-cut]]];
-    ctx.save();corners.forEach((points,i)=>{const [tip,a,b]=points.map(([px,py])=>({x:x+px*rx,y:y+py*ry}));
-      ctx.beginPath();ctx.moveTo(tip.x,tip.y);ctx.lineTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.closePath();ctx.fillStyle=['#b7bbac','#a9b09f','#a5ad9d','#b3b9a8'][i];ctx.fill();
-      const m={x:a.x*.58+b.x*.42,y:a.y*.58+b.y*.42};ctx.beginPath();ctx.moveTo(tip.x,tip.y);ctx.lineTo(m.x,m.y);ctx.lineTo(b.x,b.y);ctx.closePath();ctx.fillStyle='rgba(65,80,62,.09)';ctx.fill();
-      ctx.beginPath();ctx.moveTo(tip.x*.35+m.x*.65,tip.y*.35+m.y*.65);ctx.lineTo(m.x*.6+a.x*.4,m.y*.6+a.y*.4);ctx.strokeStyle='rgba(69,84,66,.15)';ctx.lineWidth=.6;ctx.stroke();
-    });ctx.restore();
-  }
   let floorView=null;
   function islandDeck(ctx,x,y,rx,ry,depth=70){
     if(ready(highIsland)){
       // Keep the original stone corners; paving ends before all four tips.
       ctx.save();ctx.beginPath();ctx.rect(x-rx*1.4,y-ry*2,rx*2.8,ry*5);
-      ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.clip('evenodd');
+      pavedOutline(ctx,x,y,rx,ry);ctx.clip('evenodd');
       renderArtwork(ctx,highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);ctx.restore();
     }else{
       ctx.save();ctx.fillStyle='#40545c';ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry+depth);ctx.closePath();ctx.fill();ctx.restore();
     }
-    bareCorners(ctx,x,y,rx,ry);
     ctx.save();ctx.beginPath();pavedOutline(ctx,x,y,rx,ry);ctx.clip();stonePaving.draw(ctx,{x,y,rx,ry},floorView);ctx.restore();
   }
   function rail(ctx,route,sides=[-1,1]){const image=world.asset('bridgeRail');if(!ready(image))return;
@@ -213,7 +200,7 @@
       E[index]={t:mine.t,x,y,hx:x,hy:y,hp:T[mine.t].hp,dead:0,cd:1,fr:0,fl:0,worldMap:true,map:'valley',camp:mine.id,valley:true};return;
     }
     if(!clan())return;const camp=camps[Math.floor(index/6)%4],slot=index%6,a=slot*Math.PI/3,r=slot%2?67:43;
-    const spread=105+(slot%2)*5,x=camp.x+Math.cos(a)*spread,y=camp.y+Math.sin(a)*spread*.45;E[index]={t:camp.t,x,y,hx:x,hy:y,hp:T[camp.t].hp,dead:0,cd:1,fr:0,fl:0,worldMap:true,map:world.state.scene,camp:camp.id};};
+    const spread=90+(slot%2)*5,x=camp.x+Math.cos(a)*spread,y=camp.y+Math.sin(a)*spread*.45;E[index]={t:camp.t,x,y,hx:x,hy:y,hp:T[camp.t].hp,dead:0,cd:1,fr:0,fl:0,worldMap:true,map:world.state.scene,camp:camp.id};};
   const nativeGenerateFarm=world.generateFarm;
   spawn=index=>{if(isValley()||clan())world.generateFarm(index);};
   // Farm giữ theo map, đấu trường không đưa vào bộ nhớ quái tông môn.
@@ -246,7 +233,7 @@
     if(id==='valley-info'){dialog.show('Linh Mạch Cốc','Ba mạch linh: Bắc / Đông / Tây. Quái cho x2 Linh Nguyên, nhiều đạo hạnh hơn 20%, nhưng khỏe hơn 15%. Trọng thương trở về tông môn.');dialog.line('Mạch Bắc: Bọ Ngựa · Mạch Đông: Nguyệt Thố · Mạch Tây: Băng Dực Dơi.');dialog.action('Về đài an toàn · hồi linh lực',()=>{P.x=1000;P.y=1100;P.mp=typeof mmp==='function'?mmp():P.mp;dialog.close();});return true;}
     if(id.startsWith('vein-')){const mine=valleyMines.find(c=>'vein-'+c.id===id);dialog.show(mine?.name||'Mạch linh','Mạch linh hội tụ, quái quanh mạch cho x2 Linh Nguyên.');dialog.line('Farm 6 quái quanh mạch, hồi sinh sau 8 giây. Cẩn thận quái khỏe hơn bãi thường.');return true;}
     if(id==='teleport'&&isValley()){dialog.show('Truyền tống','Rời Linh Mạch Cốc về nơi tu hành.');const back=P.world?.sectHome||world.sectMapFor(P.ap?.w||0);dialog.action('Về tông môn',()=>world.switchScene(back));dialog.action('Về Thiên Vân Thành',()=>world.switchScene('hub'));return true;}
-    if(id.startsWith('camp-')){dialog.show('Bãi luyện công',camps.find(c=>'camp-'+c.id===id)?.name||'Yêu thú');dialog.line('Bốn bãi ở bốn hướng, mỗi bãi có 6 quái cùng loài, hồi sinh sau 8 giây. Đi theo cầu gỗ để đến bãi luyện công rồi quay lại sân tông môn.');return true;}return nativeService(id);};
+    if(id.startsWith('camp-')){dialog.show('Bãi luyện công',camps.find(c=>'camp-'+c.id===id)?.name||'Yêu thú');dialog.line('Bốn bãi ở bốn hướng, mỗi bãi có 6 quái cùng loài, hồi sinh sau 8 giây. Các bãi luyện công nằm trên các đảo riêng.');return true;}return nativeService(id);};
   const nativeValleyRespawn=nativeRespawn;
   world.respawn=function(){if(run){leaveArena();msg('Thử thách kết thúc do trọng thương.');return;}if(world.state.scene==='valley'){const home=world.sectMapFor(P.ap?.w||0);msg('Trọng thương ở Linh Mạch Cốc! Được đưa về tông môn.');world.state.scene='hub';P.world.map='hub';nativeSwitch(home);configure();P.hp=typeof mhp==='function'?mhp():P.hp;return;}return nativeValleyRespawn();};
   const previousUp=up;up=function(dt){previousUp(dt);if(!run||paused()||dialog.isOpen())return;
@@ -257,5 +244,5 @@
     if(world.state.scene==='arena'){ctx.fillStyle='#c2b49a';ctx.beginPath();ctx.ellipse(1000,1100,190,95,0,0,Math.PI*2);ctx.fill();}
     else{const mark=(x,y,rx,ry)=>{ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.fill();};ctx.fillStyle='#d5c8aa';const main=isValley()?layouts.valley:mainShape();mark(1000,1100,main.rx,main.ry);(isValley()?valleyMines:camps).forEach(c=>{ctx.fillStyle=['#91b67e','#9fd8ed','#d58a80','#bac7e1'][[0,1,4,3].indexOf(c.t)];mark(c.x,c.y,150,78);});}
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(P.x,P.y,18,0,Math.PI*2);ctx.fill();ctx.restore();};
-  world.openOverview=()=>{dialog.show(isValley()?'Linh Mạch Cốc':'Tông môn và đấu trường',world.sceneTitle());const c=document.createElement('canvas');c.width=c.height=360;c.className='world-overview';$('world-content').appendChild(c);world.renderMapPreview(c.getContext('2d'),360);world.regions.forEach(r=>dialog.line(r.name+' · '+r.description));(isValley()?valleyMines:camps).forEach(c=>dialog.line(c.name));dialog.line(isValley()?'Linh Mạch Cốc: x2 Linh Nguyên, quái +15% máu/công, +20% đạo hạnh. Trọng thương về tông môn.':'Đi theo bốn cầu gỗ để tới bãi luyện công và quay về. Trung tâm: Sư phụ, truyền công, truyền tống và lối vào đấu trường. Đấu trường là map riêng: 30 lượt, 2 lần/ngày. Linh Mạch Cốc mở ở Truyền Tống Trận sau khi nhập môn.');};
+  world.openOverview=()=>{dialog.show(isValley()?'Linh Mạch Cốc':'Tông môn và đấu trường',world.sceneTitle());const c=document.createElement('canvas');c.width=c.height=360;c.className='world-overview';$('world-content').appendChild(c);world.renderMapPreview(c.getContext('2d'),360);world.regions.forEach(r=>dialog.line(r.name+' · '+r.description));(isValley()?valleyMines:camps).forEach(c=>dialog.line(c.name));dialog.line(isValley()?'Linh Mạch Cốc: x2 Linh Nguyên, quái +15% máu/công, +20% đạo hạnh. Trọng thương về tông môn.':'Các đảo luyện công đã tách rời sân tông môn. Trung tâm: Sư phụ, truyền công, truyền tống và lối vào đấu trường. Đấu trường là map riêng: 30 lượt, 2 lần/ngày. Linh Mạch Cốc mở ở Truyền Tống Trận sau khi nhập môn.');};
 })();

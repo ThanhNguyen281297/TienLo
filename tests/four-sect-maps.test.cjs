@@ -112,7 +112,7 @@ fs.mkdirSync(artifacts, { recursive: true });
       assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert(Math.abs(facts.zoom-1.8)<.001);
       assert.equal(facts.camera.x + facts.camera.vw / 2, 1000); assert.equal(facts.camera.y + facts.camera.vh / 2, 1110);
       assert.deepEqual(facts.keys.sort(), ['hub','valley', ...maps.map(map => map.id)].sort()); assert.deepEqual(facts.regions.sort(), facts.keys.sort());
-      assert.equal(facts.routes, 4); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' bridges connect every camp with walkable ground');
+      assert.equal(facts.routes, 0); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' bridges connect every camp with walkable ground');
       assert.equal(facts.waterWalkable, false); assert(facts.stopWalkable); assert(Math.hypot(facts.stop.x - 200, facts.stop.y - 300) > 50, 'Movement stops at the land edge');
       assert.deepEqual(facts.camps, [
         { id: 'north', x: 1000, y: 490, type: 0, count: 6 }, { id: 'east', x: 1640, y: 1100, type: 1, count: 6 },

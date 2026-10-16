@@ -24,10 +24,10 @@ drawn with Canvas paths, staggered joints and deterministic stone colors. No flo
 image, repeated image pattern or grass texture is rendered. The HD island is
 clipped outside the walkable diamond and supplies cliff scenery only. Cached slab
 geometry and viewport culling keep the paving stable during camera movement.
-Paving stops before the four pointed tips: those have bare, unjointed stone faces,
-without tiles or the original blue/gold floor inlays. The original cliff artwork
-remains. The floor clip is an inset octagon, while the island and collision remain
-diamonds, so no tiled triangle protrudes at the bridge entrances.
+Paving stops before all four corners. Original island artwork remains exposed;
+there are no added bare-stone caps or wooden bridges at those corners. The floor
+clip and walkable boundary are chamfered octagons, while the original cliff
+silhouette remains intact. Walls close the former bridge exits along that boundary.
 Fine mineral marks, occasional hairline wear, beveled edges and a restrained
 daylight wash give each slab surface detail without a composite floor image.
 
@@ -73,33 +73,15 @@ and checks continuous walkable bridge routes. Intentional ground decals and terr
 layers are excluded from actor overlap checks.
 
 North/east/south/west camp coordinates remain unchanged for online compatibility.
-Island floor diamonds are connected by continuous timber bridges. Khinh công and
-its button/key bindings are removed. `js/20b-map-structures.js` assembles the
-native wood deck/post from asset 5 and stone wall from asset 4. The complete PNG
-cutouts have reviewed alpha silhouettes, excluding neighbouring props and colored
-background pixels. Rebuild with `python tools/build_map_structures.py`; provenance
-and silhouette coordinates are in `MAP/structures/manifest.json`.
-The bridge now assembles individual 6.5-unit boards from `wood-plank.png` instead
-of stretching a complete bridge section. The deck is 42 units wide with a vertical
-underside, nails, ropes and upright posts. Bridge endpoints are exactly on the
-diamond boundary. Deck ends are trimmed around the paving with an even-odd mask,
-preserving the original pointed corners with no square thresholds on top. Rail
-posts terminate on the same diamond edges. Visible boards are culled to the camera. Walls mirror their original
-orientation on opposing slopes, and have narrow masonry footings and directional
-contact shading; there are no oval shadows under buildings or architecture.
-Wall panels and piers are separate native PNGs. Adjacent panels share one upright
-pier, including closed corners; bridge entrances are cut from the boundary before
-subdivision instead of removing whole prefabricated wall sections.
+The islands are separate. Corner bridges, timber decks, ropes, bridge posts,
+extra stone caps and bridge minimap lines have been removed. Khinh công remains
+removed. `js/20b-map-structures.js` now loads only the wall panel/pier PNGs.
+Wall panels share one upright pier per joint, and follow the chamfered ground
+boundary. Collision blocks the removed tips and the void between islands.
 
-Stone walls follow the island perimeter with open entrances aligned to bridges.
-The hub has a stone enclosure with four open entrances. Wall actors are depth
-sorted, and their ground footprints block movement. Bridge collision uses the
-same endpoints and width as the visible deck; the remaining void is unwalkable.
-`tests/map-structures.test.cjs` verifies both directions, wall collision, ordinary
-keyboard movement, mobile rendering and removal of the flight UI.
-`tests/online-game.test.cjs` verifies bridge walking and grounded DB saves between
-two authenticated accounts. Never stack a second island underneath a complete
-building/tree set.
+`tests/map-structures.test.cjs` verifies closed walls, blocked former exits, mobile
+rendering, no loaded bridge artwork and no flight UI. Native bridge cutouts remain
+in the offline asset library for reuse, but are not loaded or rendered in game.
 
 ## Effects
 
