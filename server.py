@@ -19,6 +19,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent
 FARM_LAYOUT = json.loads((ROOT / 'MAP' / 'farm-layout.json').read_text(encoding='utf-8'))
+FIELD_RULES = json.loads((ROOT / 'MAP' / 'field-effects.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
 SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
@@ -158,6 +159,90 @@ def room_mobs(key):
 class GameServer(ThreadingHTTPServer):
     request_queue_size=128
     daemon_threads=True
+
+
+
+def register_skill_field(peer, body, now):
+    """A field has a fixed class profile, ground position, lifetime and cooldown."""
+    if 'field' not in body:
+        return
+    request = body['field']
+    if request is None:
+        peer.pop('skillField', None)
+        return
+    if not isinstance(request, dict) or not isinstance(request.get('id'), str) or not 1 <= len(request['id']) <= 64:
+        return
+    sect = peer['ap']['w']
+    rule = FIELD_RULES[sect]
+    current = peer.get('skillField')
+    if current and current['id'] == request['id']:
+        return  # A retried heartbeat never refreshes duration or control.
+    if peer.get('lastFieldId') == request['id'] or now - peer.get('fieldAt', -1000) < rule['cooldown']:
+        return
+    x, y = request.get('x'), request.get('y')
+    if any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 2000 for v in (x, y)):
+        return
+    # A native dash/teleport can occur before the first 220 ms heartbeat.
+    if math.hypot(x-peer['x'], y-peer['y']) > 240:
+        return
+    age=request.get('age',0)
+    if type(age) not in (int,float) or not math.isfinite(age) or not 0<=age<rule['duration']:
+        return
+    peer['skillField'] = dict(id=request['id'], sect=sect, x=x, y=y, until=now+rule['duration']-age, room=room_for(peer))
+    peer['lastFieldId'] = request['id']
+    peer['fieldAt'] = now
+
+
+def update_mob_fields(mob, fields, now, dt):
+    """Continuous exposure resets on exit; hard control triggers once per field."""
+    memory = mob.setdefault('_fieldExposure', {})
+    live_keys = set()
+    effects = []
+    for field in fields:
+        if mob['dead'] or field['until'] <= now:
+            continue
+        key = field['owner'], field['id']
+        live_keys.add(key)
+        record = memory.setdefault(key, dict(exposure=0, triggered=False, hardUntil=0))
+        rule = FIELD_RULES[field['sect']]
+        distance = math.hypot(mob['x']-field['x'], mob['y']-field['y'])
+        if distance > rule['radius']:
+            record['exposure'] = 0
+            record['hardUntil'] = 0
+            continue
+        record['exposure'] = record['exposure']+dt if distance <= rule.get('centerRadius', rule['radius']) else 0
+        resistant = mob['t'] == 2 or mob.get('elite', False)
+        if rule['threshold'] and record['exposure'] >= rule['threshold'] and not record['triggered']:
+            record['triggered'] = True
+            record['hardUntil'] = now+rule['hardDuration']*(.4 if resistant else 1)
+        effects.append({**rule, 'hard': max(0, record['hardUntil']-now),
+                        'stacks': min(3, int(record['exposure'])) if field['sect'] == 2 else 0,
+                        'vulnerability': 1+(rule['vulnerability']-1)*(.5 if resistant else 1)})
+    for key in list(memory):
+        if key not in live_keys:
+            del memory[key]
+    mob['fieldEffects'] = effects
+
+
+def field_attack_blocked(mob):
+    return any(effect['hard'] > 0 for effect in mob.get('fieldEffects', []))
+
+
+def field_speed(mob):
+    immobilized=any(effect['hard']>0 and effect['key']!='mysticSeal' for effect in mob.get('fieldEffects', []))
+    return 0 if immobilized else min([1]+[effect['slow'] for effect in mob.get('fieldEffects', [])])
+
+
+def field_outgoing(mob):
+    return min([1]+[effect['outgoing'] for effect in mob.get('fieldEffects', [])])
+
+
+def field_vulnerability(mob):
+    return max([1]+[effect['vulnerability'] for effect in mob.get('fieldEffects', [])])
+
+
+def public_mob(mob):
+    return {key: value for key, value in mob.items() if key != 'contributors' and not key.startswith('_')}
 
 
 class GameHandler(SimpleHTTPRequestHandler):
@@ -365,24 +450,27 @@ class GameHandler(SimpleHTTPRequestHandler):
             if isinstance(cast,dict) and type(cast.get('index')) is int and cast['index'] in range(4) and isinstance(cast.get('id'),str) and len(cast['id'])<64 and now-peer.get('castAt',0)>.3:
                 if all(type(cast.get(k)) in (int,float) and math.isfinite(cast[k]) and 0<=cast[k]<=2000 for k in ('x','y')):
                     peer['cast']={k:cast[k] for k in ('id','index','x','y')};peer['castAt']=now
+            register_skill_field(peer,body,now)
             PEERS[uid]=peer; key=room_for(peer)
             shared=scene in ('sword','moon','thunder','mystic','valley')
-            mobs=[]
+            mobs=[];fields=[]
             if shared:
                 room=room_mobs(key); mobs=room['mobs']
                 dt=min(.3,max(0,now-room['updated']));room['updated']=now
                 members=[v for v in PEERS.values() if room_for(v)==key]
+                fields=[dict(v['skillField'],owner=v['id']) for v in members if v.get('skillField',{}).get('until',0)>now and v['skillField']['room']==key]
                 for mob in mobs:
+                    update_mob_fields(mob,fields,now,dt)
                     if not mob['dead']:
                         nearest=min(members,key=lambda v:math.hypot(v['x']-mob['x'],v['y']-mob['y']),default=None)
                         tx,ty=mob['hx'],mob['hy']
                         if nearest and math.hypot(nearest['x']-mob['x'],nearest['y']-mob['y'])<190 and math.hypot(nearest['x']-mob['hx'],nearest['y']-mob['hy'])<110: tx,ty=nearest['x'],nearest['y']
                         distance=math.hypot(tx-mob['x'],ty-mob['y'])
                         if distance>20:
-                            step=min(distance,45*dt);nx=mob['x']+(tx-mob['x'])/distance*step;ny=mob['y']+(ty-mob['y'])/distance*step
+                            step=min(distance,45*dt*field_speed(mob));nx=mob['x']+(tx-mob['x'])/distance*step;ny=mob['y']+(ty-mob['y'])/distance*step
                             rx,ry=mob['campRX'],mob['campRY']; dx,dy=abs(nx-mob['campX'])/rx,abs(ny-mob['campY'])/ry; cut=min(.3,max(.14,24/ry))
                             if dx+dy<.96 and dx<1-cut-.025 and dy<1-cut-.025:mob['x'],mob['y']=nx,ny
-                    if mob['dead'] and now>=mob['dead']: mob['hp']=mob['maxHp'];mob['dead']=0;mob['contributors']={}
+                    if mob['dead'] and now>=mob['dead']: mob['hp']=mob['maxHp'];mob['dead']=0;mob['contributors']={};mob.pop('_fieldExposure',None);mob['fieldEffects']=[]
                 acks=body.get('ack',[])
                 if not isinstance(acks,list) or len(acks)>100: raise ValueError()
                 EVENTS[uid]=[e for e in EVENTS[uid] if e['eventId'] not in acks]
@@ -399,13 +487,13 @@ class GameHandler(SimpleHTTPRequestHandler):
                     if type(power) not in (int,float) or not math.isfinite(power) or power<=0: continue
                     level=p['r']*10+p['stage']-1; attrs=p.get('world',{}).get('attrs',{}); equipment=p.get('world',{}).get('equip',{})
                     attack=8+level*1.3+max(0,min(1000,attrs.get('luc',0)))*2+sum(max(0,min(100,item.get('atk',0))) for item in equipment.values() if isinstance(item,dict))
-                    damage=max(1,round(min(power,attack*6))); mob['hp']=max(0,mob['hp']-damage); mob['contributors'][uid]=now; hit_times.append(now)
+                    damage=max(1,round(min(power,attack*6)*field_vulnerability(mob))); mob['hp']=max(0,mob['hp']-damage); mob['contributors'][uid]=now; hit_times.append(now)
                     if mob['hp']==0:
                         mob['dead']=now+8
                         for contributor,stamp in mob['contributors'].items():
                             other=PEERS.get(contributor)
                             if other and room_for(other)==key and now-stamp<15:
-                                EVENTS[contributor].append({k:v for k,v in mob.items() if k not in ('contributors','dead')} | {'eventId':secrets.token_hex(12)})
+                                EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':secrets.token_hex(12)})
                                 EVENTS[contributor]=EVENTS[contributor][-100:]
                 peer['hitTimes']=hit_times
             peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
@@ -414,10 +502,11 @@ class GameHandler(SimpleHTTPRequestHandler):
             rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1
             if shared and not safe and now-peer.get('damageAt',0)>=1:
                 for m in mobs:
-                    if not m['dead'] and math.hypot(m['x']-x,m['y']-y)<30:
-                        damage+=max(1,round({0:4,1:9,3:6,4:10}[m['t']]*m['attackScale']-p['r']*1.5))
+                    if not m['dead'] and not field_attack_blocked(m) and math.hypot(m['x']-x,m['y']-y)<30:
+                        damage+=max(1,round({0:4,1:9,3:6,4:10}[m['t']]*m['attackScale']*field_outgoing(m)-p['r']*1.5))
                 if damage:peer['damageAt']=now
-            result={'damage':damage,'players':peers,'mobs':[{k:v for k,v in m.items() if k!='contributors'} | {'dead':max(0,m['dead']-now) if m['dead'] else 0} for m in mobs], 'rewards':EVENTS[uid][:],'chat':[m for m in CHAT if m['map']==scene],'shared':shared,'online':len(PEERS),'x':x,'y':y}
+            public_fields=[{k:f[k] for k in ('id','sect','x','y')} | {'age':max(0,now-f['until']+FIELD_RULES[f['sect']]['duration']),'duration':FIELD_RULES[f['sect']]['duration'],'radius':FIELD_RULES[f['sect']]['radius']} for f in fields if f['owner']!=uid]
+            result={'damage':damage,'players':peers,'fields':public_fields,'mobs':[public_mob(m) | {'dead':max(0,m['dead']-now) if m['dead'] else 0} for m in mobs], 'rewards':EVENTS[uid][:],'chat':[m for m in CHAT if m['map']==scene],'shared':shared,'online':len(PEERS),'x':x,'y':y}
         return self.reply(200,result)
 
 

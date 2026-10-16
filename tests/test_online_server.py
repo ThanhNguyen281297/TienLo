@@ -16,6 +16,66 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_field_profiles_exposure_resistance_and_composition(self):
+        rules_source=(server.ROOT/'js/13c-field-rules.js').read_text(encoding='utf-8')
+        self.assertEqual(json.loads(rules_source.split('window.fieldRules=',1)[1].strip().removesuffix(';')),server.FIELD_RULES)
+        for sect,rule in enumerate(server.FIELD_RULES):
+            with self.subTest(sect=sect):
+                mob=dict(t=0,x=1000,y=1000,hp=100,dead=0)
+                field=dict(owner=1,id='one',sect=sect,x=1000,y=1000,until=20)
+                clock=0
+                for _ in range(int(rule['threshold']*100)+2):
+                    clock+=.01;server.update_mob_fields(mob,[field],clock,.01)
+                self.assertEqual(mob['fieldEffects'][0]['key'],rule['key'])
+                self.assertEqual(server.field_attack_blocked(mob),bool(rule['hardDuration']))
+                self.assertEqual(server.field_speed(mob),0 if rule['hardDuration'] and sect!=3 else rule['slow'])
+                self.assertAlmostEqual(server.field_vulnerability(mob),rule['vulnerability'])
+                self.assertAlmostEqual(server.field_outgoing(mob),rule['outgoing'])
+                self.assertNotIn('_fieldExposure',server.public_mob(mob))
+                mob['x']=1200;server.update_mob_fields(mob,[field],clock+.01,.01)
+                self.assertEqual(mob['fieldEffects'],[])
+                mob['x']=1000;server.update_mob_fields(mob,[field],clock+.02,.01)
+                self.assertFalse(server.field_attack_blocked(mob),'Re-entry cannot retrigger control')
+                server.update_mob_fields(mob,[],clock+.03,.01)
+                self.assertEqual(server.field_speed(mob),1)
+        boss=dict(t=2,x=1000,y=1000,hp=100,dead=0)
+        field=dict(owner=1,id='boss',sect=1,x=1000,y=1000,until=20)
+        server.update_mob_fields(boss,[field],2,1.3)
+        self.assertAlmostEqual(boss['fieldEffects'][0]['hard'],.26)
+        mob=dict(t=0,x=1000,y=1000,hp=100,dead=0)
+        fields=[dict(owner=n,id=str(n),sect=0,x=1000,y=1000,until=20) for n in (1,2)]
+        server.update_mob_fields(mob,fields,1,.1)
+        self.assertAlmostEqual(server.field_vulnerability(mob),1.12,'Vulnerability uses the strongest source, never exponential stacking')
+
+    def test_field_registration_and_shared_frost_snapshots(self):
+        import time
+        caster,csrf=self.register('frost_caster');watcher,watch_csrf=self.register('frost_watcher')
+        for cookie,token,w in ((caster,csrf,1),(watcher,watch_csrf,0)):
+            player=self.player();player['ap']['w']=w
+            self.assertEqual(self.request('/api/characters',{'csrf':token,'player':player,'revision':0},cookie)[0],201)
+        point={'x':1105,'y':490}
+        def frame(cookie,token,**extra):
+            time.sleep(.14)
+            status,data,_=self.request('/api/world',{'csrf':token,'map':'sword',**point,**extra},cookie)
+            self.assertEqual(status,200);return data
+        initial=frame(caster,csrf);point.update(x=initial['mobs'][0]['x'],y=initial['mobs'][0]['y'])
+        descriptor=dict(id='frost-one',**point)
+        cast=frame(caster,csrf,field=descriptor)
+        owner=next(v for v in server.PEERS.values() if v['ap']['w']==1)
+        until=owner['skillField']['until']
+        frame(caster,csrf,field=descriptor)
+        self.assertEqual(owner['skillField']['until'],until,'Same field ID does not refresh lifetime')
+        for _ in range(9):snapshot=frame(watcher,watch_csrf)
+        target=snapshot['mobs'][0]
+        self.assertEqual(snapshot['fields'][0]['sect'],1,'Observers receive the persistent field as well as mob states')
+        self.assertTrue(any(effect['key']=='moonFrost' and effect['hard']>0 for effect in target['fieldEffects']))
+        self.assertFalse(any(key.startswith('_') for key in target),'Private control timers stay on server')
+        self.assertEqual(snapshot['damage'],0,'A frozen shared monster cannot attack the observer')
+        cancelled=frame(caster,csrf,field=None)
+        self.assertEqual(cancelled['mobs'][0]['fieldEffects'],[])
+        rejected=frame(caster,csrf,field=dict(descriptor,id='cooldown-bypass'))
+        self.assertEqual(rejected['mobs'][0]['fieldEffects'],[],'A new ID cannot bypass cooldown')
+
     def test_expanded_farms_and_validated_two_way_portals(self):
         import time
         browser_source=(server.ROOT/'js/19c-farm-layout.js').read_text(encoding='utf-8')

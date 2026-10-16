@@ -27,8 +27,9 @@
   const skin=e=>species[e.skin||T[e.t].skin]||species.BoNgua;
   function frame(e){const kind=skin(e),s=state(e);let mode='idle',age=clock+s.phase,fps=6;
     if(e.corpse){mode='death';age=e.age;fps=8;}
+    else if(window.fieldEffects?.immobilized(e)){mode='idle';age=0;}
     else if(s.hurt>0){mode='hurt';age=s.hurtAge;fps=13;}
-    else if(s.attack>0){mode='attack';age=s.attackAge;fps=10;}
+    else if(s.attack>0&&!window.fieldEffects?.blocksAttack(e)){mode='attack';age=s.attackAge;fps=10;}
     else if(s.moving){mode='move';fps=9;}
     const sheet=kind[mode],count=kind.sheets[sheet-1],index=['hurt','attack','death'].includes(mode)?Math.min(count-1,Math.floor(age*fps)):Math.floor(age*fps)%count;
     const pose=kind.poses[sheet-1][index];
@@ -75,6 +76,7 @@
     const hurt=state(e).hurtAge;
     if(!e.corpse&&state(e).hurt>0&&hurt<.1){g.globalAlpha*=.35*(1-hurt/.1);g.drawImage(sprite.flash,drawX,drawY,f.image.naturalWidth*scale,f.image.naturalHeight*scale);}
     g.restore();if(e.corpse)return;
+    window.fieldEffects?.draw(g,e,height);
     const selected=window.cultivation?.basicSelection().target===e;
     const boss=e.t===2||e.elite,barWidth=boss?50:34,y=e.y-height*.98+bob,ratio=Math.max(0,Math.min(1,e.hp/(e.maxHp||T[e.t].hp)));
     g.save();g.fillStyle=selected?'#ffe2a3':'#14202a';g.fillRect(e.x-barWidth/2-1,y-4,barWidth+2,5);

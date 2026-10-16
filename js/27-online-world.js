@@ -1,7 +1,7 @@
 /* Đồng bộ 5 Hz: người chơi, chat, biểu cảm, quái chung và sự kiện thưởng. */
 (function(){
   const stream=crypto.randomUUID?.()||('page-'+Date.now()+'-'+Math.random());
-  const state={players:[],connected:false,shared:false,hits:[],acks:[],seenRewards:new Set(),emote:null};
+  const state={players:[],fields:[],connected:false,shared:false,hits:[],acks:[],seenRewards:new Set(),emote:null};
   let busy=false,retry=null,serial=0,lastMap=null,retryAt=0;
   const localHit=hit;
   hit=function(enemy,power){
@@ -23,15 +23,15 @@
   async function frame(){
     if(busy||!account.state.ready||!P.ap||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
-    if(lastMap!==scene){state.hits=[];state.players=[];state.shared=false;retry=null;lastMap=scene;}
-    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;retry=batch;
+    if(lastMap!==scene){state.hits=[];state.players=[];state.fields=[];state.shared=false;retry=null;lastMap=scene;}
+    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,field:window.fieldEffects?.descriptor()??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;retry=batch;
     try{
       const data=await account.api('/api/world',batch);retry=null;state.connected=true;chat.hidden=false;
       if(scene!==worldMap.state.scene)return;
       if(Math.hypot(data.x-batch.x,data.y-batch.y)>1){P.x=data.x;P.y=data.y;}
       state.players=data.players.map(peer=>{const old=state.players.find(p=>p.id===peer.id);return {...peer,drawX:old?.drawX??peer.x,drawY:old?.drawY??peer.y,drawLift:old?.drawLift??peer.airborne??0};});
       for(const peer of data.players){if(peer.cast&&peer.cast.id!==state.remoteCasts?.get(peer.id)){state.remoteCasts??=new Map();state.remoteCasts.set(peer.id,peer.cast.id);const color=characterClasses[peer.ap.w].color;window.combatVisuals?.pulse(peer.cast.x,peer.cast.y,peer.cast.index===3?145:peer.cast.index===2?100:45,color,.65);spark(peer.x,peer.y-25,color,8);}}
-      state.shared=data.shared;
+      state.shared=data.shared;state.fields=data.fields||[];
       if(data.shared){
         const previous=new Map(E.filter(e=>e.network).map(e=>[e.id,e]));
         for(const reward of data.rewards){

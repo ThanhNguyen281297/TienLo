@@ -97,12 +97,12 @@ fs.mkdirSync(output, { recursive: true });
       damageLog.length=0;stepTest(4.5);
       return {buff,slow,hits:damageLog,field:kiemCombat.state.field};
     });
-    assert.equal(formation.buff, 125);
+    assert.equal(formation.buff, Math.round(100*1.25*1.06), 'Sword self-buff combines with boss-resistant pressure vulnerability');
     assert.equal(formation.slow, .8);
     assert.equal(formation.hits.filter(h=>h.id==='inside').length, 8);
     assert.equal(formation.hits.filter(h=>h.id==='outside').length, 0);
     assert.equal(formation.field, null);
-    console.log('PASS Formation: 4.8s duration, 8 pulses, 20% slow, 25% sword buff');
+    console.log('PASS Formation: 4.8s duration, 8 pulses, 20% slow, 25% sword buff and boss-resistant pressure');
 
     await page.evaluate(() => {
       resetTest();E.push(enemyTest('ultimate',1120,1100),enemyTest('outside',1460,1100));

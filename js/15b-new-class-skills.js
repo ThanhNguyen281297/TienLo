@@ -27,7 +27,7 @@
         if(stacks(e)){strike(e,power*(thunder()?1:.55),i);consume(e,thunder());flash(e,0);}
         if(!thunder()){const d=distance(e,P)||1,to={x:e.x+(e.x-P.x)/d*25,y:e.y+(e.y-P.y)/d*25},p=worldMap?.traceMove?worldMap.traceMove(e,to):to;e.x=p.x;e.y=p.y;control(e,1.5,.55);}
       }
-    }else if(i===2)state.field={x:P.x,y:P.y,radius:110,age:0,pulses:0,locked:false,power};
+    }else if(i===2)state.field={x:P.x,y:P.y,radius:110,age:0,pulses:0,power};
     else state.ultimate={...end,radius:140,age:0,finished:false,power};
   }
   const baseHit=hit;hit=function(e,power){return baseHit(e,power*(active()&&!thunder()&&state.field&&inside(e,state.field)?1.15:1));};
@@ -44,8 +44,8 @@
     for(const p of state.projectiles){p.age+=dt;const old={x:p.x,y:p.y};const enemy=E.filter(e=>live(e)&&!p.hits.has(e)&&distance(e,p)<160).sort((a,b)=>distance(a,p)-distance(b,p))[0];if(enemy){const wanted=Math.atan2(enemy.y-p.y,enemy.x-p.x),delta=Math.atan2(Math.sin(wanted-p.angle),Math.cos(wanted-p.angle));p.angle+=Math.max(-dt*.65,Math.min(dt*.65,delta));}p.x+=Math.cos(p.angle)*300*dt;p.y+=Math.sin(p.angle)*300*dt;
       for(const e of E)if(live(e)&&!p.hits.has(e)&&kiemCombat.segmentDistance(e,old,p)<(T[e.t]?.s||10)+7){p.hits.add(e);strike(e,p.power*.45,0);if(p.last)mark(e);p.age=2;flash(e,0);break;}}
     state.projectiles=state.projectiles.filter(p=>p.age<1.3);
-    const f=state.field;if(f){f.age+=dt;if(!thunder()&&!f.locked&&f.age>=1.8){f.locked=true;for(const e of E)if(live(e)&&distance(e,f)<60)control(e,.65);}
-      while(f.pulses<5&&f.age>=f.pulses+1){f.pulses++;for(const e of E)if(live(e)&&inside(e,f)){strike(e,f.power*(thunder()?.65:.5),2);if(thunder())mark(e,1,true);else if(stacks(e))control(e,.25);flash(e,2);}}if(f.age>=5.5)state.field=null;
+    const f=state.field;if(f){f.age+=dt;
+      while(f.pulses<5&&f.age>=f.pulses+1){f.pulses++;for(const e of E)if(live(e)&&inside(e,f)){strike(e,f.power*(thunder()?.65:.5),2);if(thunder())mark(e,1,true);flash(e,2);}}if(f.age>=5.5)state.field=null;
     }
     const u=state.ultimate;if(u){u.age+=dt;if(!thunder()&&u.age>=1.8&&u.age<2.6)for(const e of E)if(live(e)&&inside(e,u))control(e,.1,.15);
       if(!u.finished&&u.age>=(thunder()?1.3:3.2)){u.finished=true;for(const e of E)if(live(e)&&inside(e,u)){const n=stacks(e);strike(e,u.power*(thunder()?5:4)*(n===3?1.35:1),3);if(thunder()){mark(e,3);if(distance(e,u)<65)control(e,.7);}else consume(e,true);flash(e,3);}flash(u,3,0,180);}if(u.age>=(thunder()?2.2:4))state.ultimate=null;

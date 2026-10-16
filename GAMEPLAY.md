@@ -57,3 +57,18 @@ Người cùng map nhìn thấy nhau và chat/biểu cảm. Quái farm chia phò
 5. Tách renderer/update/event thành hệ thống rõ ràng, chuyển online transport sang WebSocket và benchmark tải trước khi mở đông người.
 
 Mốc playtest đề xuất: người mới hiểu điều khiển và trang bị trong năm phút; được dùng skill đầu trong 10–15 phút; mỗi lần chơi 15–30 phút có một nâng cấp nhìn thấy được. Đây là mục tiêu thiết kế để kiểm chứng, chưa phải số đo thực tế.
+
+## Trạng thái skill 3 theo class
+
+Các hiệu ứng dưới đây áp dụng cho quái trong vùng trận. Rời vùng sẽ bỏ trạng thái; quay vào phải tích lại thời gian tiếp xúc. Mỗi mục tiêu chỉ chịu một lần khống chế cứng từ mỗi lần đặt trận. Boss và tinh anh chỉ chịu 40% thời gian khống chế. Nhiều nguồn tăng sát thương hoặc suy yếu lấy mức mạnh nhất, không nhân chồng.
+
+| Class | Trạng thái | Tác dụng | Mục đích gameplay |
+|---|---|---|---|
+| Kiếm | Kiếm áp | Chậm 20%; nhận thêm 12% sát thương (boss/tinh anh 6%) | Giữ mục tiêu trong trận để combo kiếm và hỗ trợ đồng đội |
+| Liềm | Hàn nguyệt | Chậm 30%; đứng liên tục 1,2 giây sẽ đóng băng 0,65 giây | Giữ quái để nguyệt nhận bay về và trúng nhiều nhát |
+| Thương | Lôi tê | Chậm 20%; tích điện liên tục 3 giây sẽ choáng 0,45 giây | Phối hợp nhịp lôi ấn và đòn kết liễu; không gây choáng mỗi nhát |
+| Quạt | Phong ấn | Chậm 35%; giảm 20% sát thương quái gây ra; đứng trong tâm bán kính 60 liên tục 1,8 giây sẽ bị khóa đánh 0,65 giây | Hỗ trợ, thả diều và bảo vệ đồng đội; khóa đánh không đóng băng di chuyển |
+
+Quái bị đóng băng/choáng không di chuyển hoặc đánh. Quái bị khóa đánh vẫn di chuyển chậm. Dấu hiệu là kiếm áp hướng xuống, tinh thể tuyết, điện tích/ngôi sao choáng và lá phù phong ấn; không thêm vòng bao quanh quái.
+
+Bản online xử lý trạng thái, sát thương và AI quái trên server, gửi trạng thái quái và trận của đồng đội qua `/api/world`. Server cố định thời gian tồn tại/cooldown của trận theo class, không làm mới trận khi client gửi lại cùng ID. Cấu hình chung ở `MAP/field-effects.json`, bản trình duyệt tương ứng ở `js/13c-field-rules.js`.
