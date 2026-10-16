@@ -1,7 +1,8 @@
 /* Tự động chiến đấu: chọn mục tiêu gần, di chuyển, đánh thường + skill + đan dược. */
 (function () {
-  const state = { enabled: false, skillTimer: 0, potionTimer: 0 };
+  const state = { enabled: false, skillTimer: 0, potionTimer: 0, cursor: 0, sect: null };
   const SEARCH_RADIUS = 380;
+  const SKILL_GAP = .85, ROTATION = [2, 0, 1, 3];
 
   function alive(e) { return !!e && E.includes(e) && !e.dead && e.hp > 0; }
   function suspended() {
@@ -37,6 +38,8 @@
       if (!c || !c.state) return false;
       if (c.state.cooldown && c.state.cooldown[i] > 0) return false;
       if (c.state.ultimate) return false;
+      if (i===2&&c.state.field) return false;
+      if ((i===0||i===2)&&c.state.flying?.length) return false;
       if (P.mp < manaCost(i)) return false;
       if (window.classCombat && classCombat.isDashing && classCombat.isDashing()) return false;
       return true;
@@ -64,13 +67,15 @@
   }
   function manualMoving() {
     try {
-      if (ptr) return true;
+      if (ptr || window.mobileInput?.active) return true;
       return !!(K.w || K.a || K.s || K.d || K.arrowup || K.arrowdown || K.arrowleft || K.arrowright);
     } catch (e) { return false; }
   }
   function autoMove(target, dt) {
-    if (!target || manualMoving()) return;
-    const range = basicRange();
+    if (!target || manualMoving() || combat()?.state.ultimate || combat()?.state.blink || classCombat.isDashing()) return;
+    // Ranged classes must approach to place a field or use their short skill,
+    // rather than stopping forever at normal-attack range.
+    const range = Math.min(basicRange(),canUseSkill(2)?90:canUseSkill(1)?140:basicRange());
     const dx = target.x - P.x, dy = target.y - P.y, d = Math.hypot(dx, dy);
     if (d <= range * 0.9) return;
     const speed = 150 + (P.r || 0) * 10;
@@ -84,34 +89,26 @@
       face(target);
     } catch (e) {}
   }
-  function countNearby(center, radius) {
-    let n = 0;
-    for (const e of E) {
-      if (!alive(e)) continue;
-      if (Math.hypot(e.x - center.x, e.y - center.y) <= radius) n++;
-    }
-    return n;
-  }
   function tryAutoSkills(target) {
     if (!target) return;
     // Ngắm vào mục tiêu để skill định hướng bắn đúng.
     setAim({ x: target.x, y: target.y });
     const d = Math.hypot(target.x - P.x, target.y - P.y);
-    // Ưu tiên: ultimate > trận > skill0 > skill1.
-    const order = [3, 2, 0, 1];
-    for (const i of order) {
+    // Resume after the last successful cast; unavailable slots never block
+    // other skills. A separate gap leaves room for normal combo attacks.
+    for (let offset=0;offset<ROTATION.length;offset++) {
+      const slot=(state.cursor+offset)%ROTATION.length,i=ROTATION[slot];
       if (!canUseSkill(i)) continue;
       if (i === 0 && d > 300) continue;
       if (i === 1 && d > 190) continue;
-      if (i === 2 && d > 160) continue;
+      if (i === 2 && d > 90) continue;
+      if(i===1&&P.ap.w===0&&combat().state.field)continue;
       if (i === 3) {
         if (d > 330) continue;
-        // Ultimate đắt: chỉ dùng khi đông quái, boss, hoặc máu cao.
-        const crowd = countNearby(target, 130);
-        const maxHp = target.maxHp || (T[target.t] && T[target.t].hp) || target.hp;
-        const hpRatio = target.hp / Math.max(1, maxHp);
-        const isBig = target.t === 2 || target.elite || target.name;
-        if (!(crowd >= 2 || isBig || hpRatio > 0.5)) continue;
+        // Both sword and moon ultimates clear their active field. Let its
+        // final pulses resolve before starting a long channel.
+        const field=combat()?.state?.field;
+        if(field&&field.age<(field.duration||5.5)-.15)continue;
       }
       // Moon teleport cần điểm đến đi được, tránh spam msg.
       if (i === 1 && P.ap && P.ap.w === 1) {
@@ -126,11 +123,15 @@
         } catch (e) {}
       }
       try {
-        const mpBefore = P.mp;
+        const mpBefore = P.mp,cBefore=combat();
+        const signature=c=>[c.state.field,c.state.ultimate,c.state.dash,c.state.blink,...['flying','projectiles','effects','ghosts','slash'].map(k=>c.state[k]?.length||0)];
+        const before=signature(cBefore);
         skill(i);
         // skill thành công khi tụt mana hoặc vào cooldown.
         const c = combat();
-        if (P.mp < mpBefore || (c && c.state && c.state.cooldown && c.state.cooldown[i] > 0)) break;
+        if (P.mp < mpBefore || (c?.state.cooldown?.[i] > 0) || (window.gmTest?.enabled&&signature(c).some((v,n)=>v!==before[n]))) {
+          state.cursor=(slot+1)%ROTATION.length;return true;
+        }
       } catch (e) {}
     }
   }
@@ -175,7 +176,7 @@
       try { if (window.cultivation) cultivation.select(null); } catch (e) {}
       msg('Đã tắt tự động chiến đấu.');
     } else {
-      state.skillTimer = 0; state.potionTimer = 0;
+      state.skillTimer = 0; state.potionTimer = 0; state.cursor = 0;state.sect=P.ap?.w;
       try { P.med = 0; } catch (e) {}
       msg('Bật tự động: tự chọn mục tiêu, đánh thường, skill và đan dược.');
     }
@@ -207,15 +208,19 @@
         try {
           if (window.cultivation) {
             const sel = cultivation.basicSelection ? cultivation.basicSelection() : null;
-            if ((sel && sel.target) !== target) cultivation.select(target);
+            if ((sel && sel.target) !== target || (target&&!sel?.attacking)) cultivation.select(target);
           }
         } catch (e) {}
         if (target) {
           try { P.med = 0; } catch (e) {}
           face(target);
           autoMove(target, dt);
-          state.skillTimer += dt;
-          if (state.skillTimer >= 0.25) { state.skillTimer = 0; tryAutoSkills(target); }
+          if(state.sect!==P.ap.w){state.sect=P.ap.w;state.cursor=0;state.skillTimer=0;}
+          state.skillTimer=Math.min(SKILL_GAP,state.skillTimer+dt);
+          // Manual movement/aim takes precedence over automatic mobility casts.
+          if (state.skillTimer>=SKILL_GAP&&!manualMoving()&&!window.skillAim?.state.drag) {
+            if(tryAutoSkills(target))state.skillTimer=0;
+          }
           autoPotion(dt);
         } else {
           try {
@@ -229,7 +234,7 @@
   // Reset khi tạo char / hồi sinh để không kẹt mục tiêu cũ.
   try {
     const prevRespawn = classCombat.onRespawn;
-    classCombat.onRespawn = function () { try { if (window.cultivation) cultivation.select(null); } catch (e) {} return prevRespawn(); };
+    classCombat.onRespawn = function () { state.skillTimer=0;state.cursor=0;try { if (window.cultivation) cultivation.select(null); } catch (e) {} return prevRespawn(); };
   } catch (e) {}
   try {
     const creator = $('ok').onclick;

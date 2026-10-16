@@ -2,7 +2,7 @@
 (function(){
   window.combatNames=[['Phi Kiếm Quyết','Kiếm Ảnh Bộ','Bát Quái Kiếm Trận','Vạn Kiếm Quy Tông'],['Tam Nguyệt Trảm','Nguyệt Ảnh Bộ','Nguyệt Luân Trận','Minh Nguyệt Giáng Thế'],['Lôi Thương Đột Kích','Hoành Tảo Thiên Quân','Cửu Tiêu Lôi Trận','Lôi Long Giáng Thế'],['Phi Phù Chú','Phong Linh Phiến','Thiên Cơ Trận','Vạn Phù Phong Ấn']];
   window.combatMana=[[8,10,20,35],[9,12,22,38],[9,14,24,40],[8,12,24,40]];
-  const cds=[5,7,13,26],state={cooldown:[0,0,0,0],aim:null,marks:new Map(),control:new Map(),projectiles:[],effects:[],field:null,ultimate:null,dash:null};
+  const cds=()=>combatBalance.cooldowns(P.ap.w),state={cooldown:[0,0,0,0],aim:null,marks:new Map(),control:new Map(),projectiles:[],effects:[],field:null,ultimate:null,dash:null};
   const active=()=>P.ap?.w>=2,thunder=()=>P.ap?.w===2,live=e=>E.includes(e)&&!e.dead&&e.hp>0;
   const art=[['loithuongdotkich','hoanhtaothienquan','cuuthienloitran','loilonggiangthe'],['philinhchu','phonglinhphien','thiencotran','vanphuphongan']].map((names,c)=>names.map(n=>{const img=new Image();img.src='CHARACTER/SkillSprites/'+(c?'Quat':'Thuong')+'/'+n+'/01.png';return img;}));
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),inside=(e,f)=>distance(e,f)<=f.radius+(T[e.t]?.s||10);
@@ -32,7 +32,7 @@
   }
   const baseHit=hit;hit=function(e,power){return baseHit(e,power*(active()&&!thunder()&&state.field&&inside(e,state.field)?1.15:1));};
   const oldSkill=skill,oldCast=cast,oldUp=up,oldDraw=dr,oldCombat=classCombat;
-  skill=function(i){if(!active())return oldSkill(i);if(paused()||!Number.isInteger(i)||i<0||i>3||state.ultimate||state.dash)return;if((!window.gmTest?.enabled&&P.r<i)||state.cooldown[i]>0||P.mp<combatMana[P.ap.w][i])return;P.mp-=combatMana[P.ap.w][i];P.med=0;P.sl=.35;state.cooldown[i]=cds[i];castNew(i);msg(combatNames[P.ap.w][i]);refreshUI();};
+  skill=function(i){if(!active())return oldSkill(i);if(paused()||!Number.isInteger(i)||i<0||i>3||state.ultimate||state.dash)return;if((!window.gmTest?.enabled&&P.r<i)||state.cooldown[i]>0||P.mp<combatMana[P.ap.w][i])return;P.mp-=combatMana[P.ap.w][i];P.med=0;P.sl=.35;state.cooldown[i]=cds()[i];castNew(i);msg(combatNames[P.ap.w][i]);refreshUI();};
   cast=function(){if(active())skill(0);else oldCast();};$('bs').onclick=()=>cast();
   function advance(dt){
     state.cooldown=state.cooldown.map(v=>Math.max(0,v-dt));
@@ -52,7 +52,7 @@
     }
     for(const e of state.effects)e.age+=dt;state.effects=state.effects.filter(e=>e.age<.5);
   }
-  function refreshUI(){if(!active())return;[...sb.children].forEach((b,i)=>{const name=combatNames[P.ap.w][i];if(b.getAttribute('aria-label')!==name){b.innerHTML='<img class="ic" width="48" height="48"><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';b.querySelector('img').src='CHARACTER/SkillSprites/'+(thunder()?'Thuong':'Quat')+'/'+skillSprites.names[P.ap.w][i]+'/03.png';b.setAttribute('aria-label',name);}b.title=name;b.querySelector('.remaining').textContent=state.cooldown[i]>0?state.cooldown[i].toFixed(1):'';b.lastChild.style.height=state.cooldown[i]/cds[i]*100+'%';b.disabled=(window.cultivation?!cultivation.canUse(i):P.r<i)||P.mp<combatMana[P.ap.w][i]||state.cooldown[i]>0||!!state.ultimate;});$('bs').textContent=combatNames[P.ap.w][0]+' (Space)';}
+  function refreshUI(){if(!active())return;[...sb.children].forEach((b,i)=>{const name=combatNames[P.ap.w][i];if(b.getAttribute('aria-label')!==name){b.innerHTML='<img class="ic" width="48" height="48"><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';b.querySelector('img').src='CHARACTER/SkillSprites/'+(thunder()?'Thuong':'Quat')+'/'+skillSprites.names[P.ap.w][i]+'/03.png';b.setAttribute('aria-label',name);}b.title=name;b.querySelector('.remaining').textContent=state.cooldown[i]>0?state.cooldown[i].toFixed(1):'';b.lastChild.style.height=state.cooldown[i]/cds()[i]*100+'%';b.disabled=(window.cultivation?!cultivation.canUse(i):P.r<i)||P.mp<combatMana[P.ap.w][i]||state.cooldown[i]>0||!!state.ultimate;});$('bs').textContent=combatNames[P.ap.w][0]+' (Space)';}
   function atlas(ctx,index,frame,x,y,width,height,alpha=1){
     skillSprites.draw(ctx,P.ap.w,index,Math.max(0,Math.min(5,frame)),x,y-height/2,width,height,0,alpha);
   }

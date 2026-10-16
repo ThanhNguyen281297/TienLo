@@ -2,7 +2,7 @@
 (function () {
   const NAMES = ['Phi Kiếm Quyết', 'Kiếm Ảnh Bộ', 'Bát Quái Kiếm Trận', 'Vạn Kiếm Quy Tông'];
   const FILES = ['phikiemquyet', 'kiemanhbo', 'batquaikiemtran', 'vankiemquytong'];
-  const COOLDOWNS = [4, 6, 12, 24], MANA = [8, 10, 20, 35];
+  const COOLDOWNS = combatBalance.cooldowns(0), MANA = [8, 10, 20, 35];
   const CYAN = '#8ff4ff', TRIGRAMS = ['☰', '☱', '☲', '☳', '☴', '☵', '☶', '☷'];
   // Vùng ảnh tính theo tỷ lệ dải gốc 2172 x 724, không kéo cả dải thành một sprite.
   const SWORD = [52/2172, 220/724, 54/2172, 185/724]; // Chỉ một thanh kiếm, không lẫn vòng trận bên cạnh.

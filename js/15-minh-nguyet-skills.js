@@ -2,7 +2,7 @@
 (function () {
   const NAMES=['Tam Nguyệt Trảm','Nguyệt Ảnh Bộ','Nguyệt Luân Trận','Minh Nguyệt Giáng Thế'];
   const FILES=['tamnguyettram','nguyetanhbo','nguyetluantran','minhnguyetgiangthe'];
-  const COOLDOWNS=[5,7,13,26],MANA=[9,12,22,38],COLOR='#bafaff';
+  const COOLDOWNS=combatBalance.cooldowns(1),MANA=[9,12,22,38],COLOR='#bafaff';
   // Từng vùng của dải ảnh gốc 2172x724; không kéo nguyên cả atlas vào game.
   const CAST=[.265,.005,.18,.37],ARC=[.448,.025,.145,.34],IMPACT=[.005,.685,.15,.30];
   const GHOST=[.003,.28,.155,.61],APPEAR=[.807,.20,.191,.67];
