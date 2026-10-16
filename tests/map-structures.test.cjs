@@ -7,13 +7,25 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-proxy-server']});
     const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[],missing=[];
     page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()===404)missing.push(r.url());});
-    await page.addInitScript(()=>requestAnimationFrame=()=>0);await require('./test-account.cjs')(page);
+    await page.addInitScript(()=>{requestAnimationFrame=()=>0;window.viewportResizeSeen=false;addEventListener('resize',()=>viewportResizeSeen=true);});await require('./test-account.cjs')(page);
     await page.route('**/api/characters',r=>r.fulfill({status:201,body:'{}'}));
     await page.goto('http://127.0.0.1:'+port,{waitUntil:'networkidle'});
     await page.locator('#nm').fill('Cầu gỗ và thành');await page.locator('#ok').click();
     await page.waitForFunction(()=>Object.values(worldMap.mapStructures.images).every(i=>i.complete&&i.naturalWidth),null,{polling:50});
     assert.equal(await page.locator('#lightness-button').count(),0);
     assert(await page.evaluate(()=>!window.lightness));
+    const construction=await page.evaluate(()=>{
+      const canvas=document.createElement('canvas');canvas.width=600;canvas.height=400;
+      const ctx=canvas.getContext('2d'),draw=ctx.drawImage.bind(ctx),scale=ctx.scale.bind(ctx),planks=[];let mirrors=0;
+      ctx.drawImage=(image,...args)=>{planks.push({src:image.src,args:args.length});draw(image,...args);};
+      worldMap.mapStructures.drawTimber(ctx,{x:100,y:200},{x:450,y:200});
+      ctx.scale=(x,y)=>{if(x<0)mirrors++;scale(x,y);};
+      worldMap.mapStructures.drawWall(ctx,[{x:100,y:100},{x:200,y:150}]);
+      worldMap.mapStructures.drawWall(ctx,[{x:100,y:150},{x:200,y:100}]);
+      return {boards:planks.filter(p=>p.src.includes('wood-plank.png')).length,whole:planks.every(p=>p.args===4),mirrors};
+    });
+    assert(construction.boards>=50&&construction.whole,'Bridge boards use whole individual PNGs rather than a stretched span');
+    assert.equal(construction.mirrors,1,'Opposite wall slopes use matching sprite orientation');
     for(const scene of ['sword','moon','thunder','mystic','valley']){
       const result=await page.evaluate(scene=>{
         worldMap.travel(scene);P.world.tutorial=true;E=[];
@@ -42,8 +54,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     }
     await page.evaluate(()=>{worldMap.travel('sword');E=[];const a=worldMap.mapStructures.layout().bridges[0].a;P.x=a.x;P.y=a.y;K.w=1;for(let i=0;i<1600;i++){tm+=.01;up(.01);}K={};dr();});
     assert(await page.evaluate(()=>P.y<600&&worldMap.canWalk(P)),'Ordinary keyboard walking crosses the north bridge');
+    await page.evaluate(()=>viewportResizeSeen=false);
     await page.setViewportSize({width:390,height:844});
-    await page.evaluate(()=>{const bridge=worldMap.mapStructures.layout().bridges[1];P.x=(bridge.a.x+bridge.b.x)/2;P.y=(bridge.a.y+bridge.b.y)/2;up(.01);dr();});
+    await page.waitForFunction(()=>viewportResizeSeen,null,{polling:50});
+    await page.evaluate(()=>{rs();const bridge=worldMap.mapStructures.layout().bridges[1];P.x=(bridge.a.x+bridge.b.x)/2;P.y=(bridge.a.y+bridge.b.y)/2;up(.01);dr();});
     await page.screenshot({path:path.join(__dirname,'artifacts','structures-mobile.png')});
     await page.evaluate(()=>{worldMap.travel('hub');dr();});
     assert(await page.evaluate(()=>worldMap.mapStructures.layout().walls.length>20&&worldMap.mapStructures.layout().bridges.length===0));

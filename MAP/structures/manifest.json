@@ -220,5 +220,35 @@
     ],
     "width": 15,
     "height": 19
+  },
+  "wood-plank": {
+    "src": "MAP/structures/wood-plank.png",
+    "sourceSprite": "MAP/atlas-sprites/05/atlas-05-137.png",
+    "silhouette": [
+      [
+        66,
+        33
+      ],
+      [
+        74,
+        37
+      ],
+      [
+        60,
+        49
+      ],
+      [
+        52,
+        45
+      ]
+    ],
+    "crop": [
+      51,
+      32,
+      76,
+      51
+    ],
+    "width": 25,
+    "height": 19
   }
 }

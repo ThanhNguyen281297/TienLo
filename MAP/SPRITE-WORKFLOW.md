@@ -24,6 +24,8 @@ drawn with Canvas paths, staggered joints and deterministic stone colors. No flo
 image, repeated image pattern or grass texture is rendered. The HD island is
 clipped outside the walkable diamond and supplies cliff scenery only. Cached slab
 geometry and viewport culling keep the paving stable during camera movement.
+Fine mineral marks, occasional hairline wear, beveled edges and a restrained
+daylight wash give each slab surface detail without a composite floor image.
 
 Open `MAP/sprite-library.html` locally or through the game host. Search and filter
 304 PNG sprites/poses: 45 map props, five terrain pieces, 104 monster poses,
@@ -73,6 +75,12 @@ native wood deck/post from asset 5 and stone wall from asset 4. The complete PNG
 cutouts have reviewed alpha silhouettes, excluding neighbouring props and colored
 background pixels. Rebuild with `python tools/build_map_structures.py`; provenance
 and silhouette coordinates are in `MAP/structures/manifest.json`.
+The bridge now assembles individual 6.5-unit boards from `wood-plank.png` instead
+of stretching a complete bridge section. The deck is 42 units wide with a vertical
+underside, nails, ropes and upright posts. Stone thresholds join both ends to the
+paving. Visible boards are culled to the camera. Walls mirror their original
+orientation on opposing slopes, and have narrow masonry footings and directional
+contact shading; there are no oval shadows under buildings or architecture.
 
 Stone walls follow the island perimeter with open entrances aligned to bridges.
 The hub has a stone enclosure with four open entrances. Wall actors are depth
