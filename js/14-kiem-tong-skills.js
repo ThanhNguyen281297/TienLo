@@ -193,7 +193,7 @@
   };
 
   function drawRing(ctx,center,radius,alpha=1) {
-    skillSprites.draw(ctx,0,2,Math.min(5,(center.age||0)/Math.max(.1,center.duration||4.8)*5),center.x,center.y,radius*2,radius*1.4,0,alpha);
+    skillSprites.draw(ctx,0,2,skillSprites.fieldFrame(center.age||0,center.duration||4.8),center.x,center.y,radius*2,radius*1.4,Math.sin((center.age||0)*.7)*.025,alpha);
 
   }
   function drawField(ctx,field) {

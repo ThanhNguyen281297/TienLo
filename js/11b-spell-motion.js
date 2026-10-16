@@ -63,5 +63,29 @@
     }
     ctx.restore();
   }
-  window.spellMotion={charge,formation,impact,trail,colors};
+  function ribbons(ctx,sect,x,y,age,width,height,alpha=1){
+    if(alpha<=0)return;
+    ctx.save();ctx.translate(x,y);ctx.globalCompositeOperation='lighter';
+    ctx.strokeStyle=colors[sect];ctx.lineCap='round';
+    const clock=reduced.matches?0:age;
+    for(let n=0;n<3;n++){
+      const phase=clock*(sect===3?-1.4:1.7)+n*TAU/3;
+      ctx.beginPath();
+      for(let k=0;k<=24;k++){
+        const t=k/24,a=phase+t*1.8;
+        const rx=width*(.31+.035*Math.sin(clock*2+n));
+        const px=Math.cos(a)*rx;
+        const py=sect===2?height*(t-.5)*.82:Math.sin(a)*height*.23;
+        if(k===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      }
+      ctx.globalAlpha=alpha*(.42+.12*Math.sin(clock*3+n));
+      ctx.lineWidth=n===0?1.2:.65;ctx.stroke();
+      // The head follows the same curve, with a soft, restrained spark.
+      const a=phase+1.8,rx=width*(.31+.035*Math.sin(clock*2+n));
+      ctx.fillStyle=colors[sect];ctx.beginPath();
+      ctx.arc(Math.cos(a)*rx,sect===2?height*.41:Math.sin(a)*height*.23,1.3,0,TAU);ctx.fill();
+    }
+    ctx.restore();
+  }
+  window.spellMotion={charge,formation,impact,trail,ribbons,colors};
 })();

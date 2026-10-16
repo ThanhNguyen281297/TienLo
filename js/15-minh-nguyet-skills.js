@@ -175,7 +175,7 @@
 
   function drawRing(ctx,zone,alpha=1){
     spellMotion.formation(ctx,1,zone,alpha);
-    skillSprites.draw(ctx,1,2,Math.min(5,(zone.age||0)/Math.max(.1,zone.duration||4.8)*5),zone.x,zone.y,zone.radius*2,zone.radius*1.3,0,alpha);
+    skillSprites.draw(ctx,1,2,skillSprites.fieldFrame(zone.age||0,zone.duration||4.8),zone.x,zone.y,zone.radius*2,zone.radius*1.3,Math.sin((zone.age||0)*.7)*.025,alpha);
     // Hai lớp khí dạng elip xoay ngược chiều; giữa là Nguyệt Luân phát sáng.
     ctx.save();ctx.translate(zone.x,zone.y);ctx.scale(1,.58);ctx.globalAlpha*=alpha;
     for(let layer=0;layer<2;layer++){

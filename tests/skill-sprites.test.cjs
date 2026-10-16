@@ -4,6 +4,26 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(require('node:
 await new Promise(r=>setTimeout(r,1000));browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-proxy-server']});const page=await browser.newPage({viewport:{width:1536,height:1100}});const errors=[],missing=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()===404)missing.push(r.url());});await page.addInitScript(()=>requestAnimationFrame=()=>0);await require('./test-account.cjs')(page);await page.route('**/api/characters',r=>r.fulfill({status:200,contentType:'application/json',body:'{}'}));await page.goto('http://127.0.0.1:8099',{waitUntil:'networkidle'});
 await page.evaluate(()=>{for(let i=0;i<4;i++)skillSprites.preload(i);});await page.waitForFunction(()=>skillSprites.cache.size===96&&[...skillSprites.cache.values()].every(a=>a.image.complete&&a.image.naturalWidth>0),null,{timeout:60000,polling:100}).catch(async e=>{console.log(await page.evaluate(()=>({count:skillSprites.cache.size,failed:skillSprites.failed,pending:[...skillSprites.cache.values()].filter(a=>!a.image.complete||!a.image.naturalWidth).map(a=>a.meta.src)})));throw e;});
 const render=await page.evaluate(()=>{const target=document.createElement('canvas');target.width=target.height=300;const ctx=target.getContext('2d'),calls=[],real=ctx.drawImage.bind(ctx);ctx.drawImage=(...args)=>{calls.push(args.length);return real(...args);};for(let sect=0;sect<4;sect++)for(let skill=0;skill<4;skill++)for(let frame=0;frame<6;frame++)skillSprites.draw(ctx,sect,skill,frame,150,150,180,180);return{calls,failed:skillSprites.failed};});assert.equal(render.calls.length,96);assert(render.calls.every(n=>n===5),'Only whole-image drawImage calls are allowed');assert.equal(render.failed,0);
+const continuity=await page.evaluate(()=>{
+  const c=document.createElement('canvas');c.width=c.height=320;
+  const ctx=c.getContext('2d'),records=[];
+  const originalArtwork=window.renderArtwork;window.renderArtwork=(context,image,x,y,w,h)=>records.push({alpha:context.globalAlpha,scale:w/image.naturalWidth});
+  let samples=0;
+  for(let sect=0;sect<4;sect++)for(let skill=0;skill<4;skill++){
+    for(const frame of [.1,.5,.9,1.1,2.5,3.9,4.9]){
+      records.length=0;skillSprites.draw(ctx,sect,skill,frame,160,160,180,180);
+      if(records.length!==2||records.some(r=>!Number.isFinite(r.scale)||r.alpha<=0))throw Error('Held key pose: '+sect+'/'+skill+'/'+frame);
+      if(Math.abs(records[0].scale-records[1].scale)>1e-9)throw Error('Mismatched blended pose scales');
+      samples++;
+    }
+    for(let boundary=1;boundary<5;boundary++){
+      records.length=0;skillSprites.draw(ctx,sect,skill,boundary-.001,160,160,180,180);const before=records[0].scale;
+      records.length=0;skillSprites.draw(ctx,sect,skill,boundary+.001,160,160,180,180);const after=records[0].scale;
+      if(Math.abs(before-after)/before>.02)throw Error('Scale snap at pose boundary');
+    }
+  }
+  window.renderArtwork=originalArtwork;return samples;
+});assert.equal(continuity,112);
 for(let sect=0;sect<4;sect++){await page.evaluate(sect=>{document.getElementById('sprite-proof')?.remove();const c=document.createElement('canvas');c.id='sprite-proof';c.width=1536;c.height=1100;c.style.cssText='position:fixed;inset:0;width:1536px;height:1100px;z-index:99999';document.body.appendChild(c);const ctx=c.getContext('2d');ctx.fillStyle='#0d1724';ctx.fillRect(0,0,1536,1100);ctx.fillStyle='#efdbad';ctx.font='24px Georgia';ctx.fillText(characterClasses[sect].name+' · 4 skills / 24 PNG sprites',24,42);for(let skill=0;skill<4;skill++){ctx.fillStyle='#afc5d5';ctx.font='15px sans-serif';ctx.fillText(combatNames[sect][skill],24,88+skill*250);for(let frame=0;frame<6;frame++){const x=frame*256,y=100+skill*250;ctx.fillStyle='#172635';ctx.fillRect(x+8,y,240,220);skillSprites.draw(ctx,sect,skill,frame,x+128,y+105,210,190);ctx.fillStyle='#a2b8c6';ctx.font='12px sans-serif';ctx.fillText(String(frame+1).padStart(2,'0'),x+20,y+207);}}},sect);await page.screenshot({path:path.join(__dirname,'artifacts','sprite-gallery-'+sect+'.png')});}
-assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 96 PNGs load; all draw whole images without source cropping; four class galleries; no runtime errors or missing assets');
+assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 112 continuous blends and boundary scale checks; 96 PNGs load; all draw whole images without source cropping; four class galleries; no runtime errors or missing assets');
 }finally{await browser?.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1;});

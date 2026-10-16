@@ -61,7 +61,7 @@
     const f=state.field;if(!f)return;
     const fade=Math.min(1,f.age/.3,(5.5-f.age)/.55);
     // Original perspective art belongs beneath characters, without extra debug rings.
-    const frame=Math.min(5,f.age/5.5*5);
+    const frame=skillSprites.fieldFrame(f.age,5.5);
     atlas(ctx,2,frame,f.x,f.y+42,f.radius*2.05,thunder()?f.radius*1.45:f.radius*1.25,fade*.58);
     spellMotion.formation(ctx,P.ap.w,f,fade);
   }
