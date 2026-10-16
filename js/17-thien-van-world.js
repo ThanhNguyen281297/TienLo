@@ -36,11 +36,21 @@
   }
   function preloadSprites(){Object.keys(definitions).forEach(isolate);}
   preloadSprites();
+  const spriteMetadata=new Map(spriteCatalog.maps.map(asset=>[asset.id,asset]));
+  function placement(key,x,y,width,height){
+    const img=isolate(key);if(!img)return null;
+    const h=height||width*img.naturalHeight/img.naturalWidth;
+    const [l,t,r,b]=spriteMetadata.get(key)?.bounds||[0,0,img.naturalWidth,img.naturalHeight];
+    const sx=width/img.naturalWidth,sy=h/img.naturalHeight,left=x-width/2,top=y-b*sy;
+    return {img,left,top,width,height:h,bounds:{left:left+l*sx,right:left+r*sx,top:top+t*sy,bottom:y}};
+  }
+  function spriteBounds(key,x,y,width,height){return placement(key,x,y,width,height)?.bounds||null;}
   function sprite(ctx,key,x,y,width,height,alpha=1){
-    const img=isolate(key);if(!img)return;
-    const h=height||width*img.height/img.width;
+    const p=placement(key,x,y,width,height);if(!p)return;
     ctx.save();ctx.globalAlpha*=alpha;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-    renderArtwork(ctx,img,x-width/2,y-h,width,h);ctx.restore();
+    ctx.shadowBlur=ctx.shadowOffsetX=ctx.shadowOffsetY=0;ctx.shadowColor='transparent';ctx.filter='none';
+    // Anchor the visible foot to the ground while drawing the complete PNG.
+    renderArtwork(ctx,p.img,p.left,p.top,p.width,p.height);ctx.restore();
   }
   const buildings=[
     {key:'palace',x:1000,y:865,w:310,solid:[-110,-36,110,0]},
@@ -240,5 +250,5 @@
     .world-overview{position:static;width:min(100%,300px);height:auto;aspect-ratio:1;margin:auto;border:1px solid #768f87;border-radius:10px;image-rendering:auto}
     @media(max-width:700px){#world-minimap{width:82px;height:82px;right:8px;top:8px}#world-region{top:96px;right:8px;font-size:10px;max-width:130px}#world-guide{top:172px;left:8px;width:160px;padding:9px;font-size:10px}#world-guide b{font-size:11px}#world-interact{bottom:260px;font-size:12px}#world-dialog{padding:12px}#world-dialog section{padding:22px;max-height:90vh}}
   `;document.head.appendChild(css);
-  window.worldMap={state,regions,services,buildings,isSafe,queueActors,drawGroundDetails,resolve,travel,interact,openMap,progress,atlases,definitions,sprite,asset:isolate,city:CITY,preloadSprites,npc,rebuild,stopArena,updateInterface,dialog:{show,close,line,action,isOpen:()=>dialogOpen}};updateInterface();
+  window.worldMap={state,regions,services,buildings,isSafe,queueActors,drawGroundDetails,resolve,travel,interact,openMap,progress,atlases,definitions,sprite,spriteBounds,asset:isolate,city:CITY,preloadSprites,npc,rebuild,stopArena,updateInterface,dialog:{show,close,line,action,isOpen:()=>dialogOpen}};updateInterface();
 })();

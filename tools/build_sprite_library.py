@@ -57,7 +57,8 @@ catalog['modules']['cloud'] = record('MAP/modules/cloud.png', 'cloud',
                                      source='MAP/sprites/cloud.png', sourceBox=box)
 
 for path in sorted((ROOT / 'MAP/sprites').glob('*.png')):
-    catalog['maps'].append(record(path.relative_to(ROOT).as_posix(), anchor=[.5, 1]))
+    bounds = Image.open(path).convert('RGBA').getchannel('A').getbbox()
+    catalog['maps'].append(record(path.relative_to(ROOT).as_posix(), anchor=[.5, 1], bounds=list(bounds)))
 
 # Keep original timing / origin, while exporting whole PNG poses with alpha padding.
 text = (ROOT / 'MONTERS/frames.js').read_text(encoding='utf-8')

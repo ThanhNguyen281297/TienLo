@@ -13,6 +13,18 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     await page.locator('#nm').fill('Map rebuild');await page.locator('#ok').click();
     await page.waitForFunction(()=>[worldMap.layoutArt.highIsland,worldMap.layoutArt.gardenGrass,...Object.values(worldMap.layoutArt.terrainSprites),...worldMap.layoutArt.gardenFlowers].every(i=>i.complete&&i.naturalWidth),null,{polling:50});
     assert(await page.evaluate(()=>worldMap.layoutArt.highIsland.naturalWidth>=1536),'Main terrain must use HD artwork');
+    const grounded=await page.evaluate(()=>{
+      const canvas=document.createElement('canvas');canvas.width=canvas.height=600;const ctx=canvas.getContext('2d'),failures=[];
+      for(const key of Object.keys(worldMap.definitions)){
+        ctx.clearRect(0,0,600,600);let ellipses=0,draws=0;const ellipse=ctx.ellipse.bind(ctx),draw=ctx.drawImage.bind(ctx);
+        ctx.ellipse=(...a)=>{ellipses++;return ellipse(...a);};ctx.drawImage=(...a)=>{draws++;return draw(...a);};
+        worldMap.sprite(ctx,key,300,300,90);ctx.ellipse=ellipse;ctx.drawImage=draw;
+        const pixels=ctx.getImageData(0,0,600,600).data;let bottom=-1;
+        for(let y=599;y>=0&&bottom<0;y--)for(let x=0;x<600;x++)if(pixels[(y*600+x)*4+3]){bottom=y+1;break;}
+        if(ellipses||draws!==1||Math.abs(bottom-300)>3)failures.push({key,ellipses,draws,bottom});
+      }return failures;
+    });
+    assert.deepEqual(grounded,[],'Map props must draw once, without artificial oval shadows, with visible feet on the ground');
     for(const scene of ['sword','moon','thunder','mystic','hub','valley']){
       const draws=await page.evaluate(scene=>{
         worldMap.travel(scene);P.world.tutorial=true;up(.01);

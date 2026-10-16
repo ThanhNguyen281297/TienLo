@@ -12,6 +12,9 @@ class SpriteLibraryTest(unittest.TestCase):
         catalog = json.loads((ROOT / 'MAP/sprite-catalog.json').read_text())
         for key, count in [('maps',45),('modules',5),('monsters',104),('skills',96),('characters',44),('items',6),('npcs',4)]:
             self.assertEqual(len(catalog[key]), count, key)
+        for prop in catalog['maps']:
+            image=Image.open(ROOT/prop['src']).convert('RGBA')
+            self.assertEqual(prop['bounds'],list(image.getchannel('A').getbbox()))
         for frame in catalog['monsters']:
             source=Image.open(ROOT / frame['source']).convert('RGBA')
             pose=Image.open(ROOT / frame['src']).convert('RGBA')

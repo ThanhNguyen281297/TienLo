@@ -127,8 +127,8 @@
     if(world.state.scene==='thunder')for(const [x,y]of [[590,865],[1440,730],[1320,1560]])world.sprite(ctx,'cloudRock',x,y,155,undefined,.6);
   }
   const hubDecor=[{key:'pineTree',x:655,y:970,w:42},{key:'whiteBlossom',x:1345,y:970,w:42},
-    {key:'sakura',x:655,y:1320,w:42},{key:'hubWell',x:1345,y:1320,w:58},
-    {key:'lotusPond',x:1100,y:1210,w:60},{key:'lotusPond',x:900,y:1250,w:65},
+    {key:'sakura',x:655,y:1320,w:42},{key:'rock',x:1345,y:1320,w:58},
+    {key:'lotusPond',x:1100,y:1170,w:60},{key:'lotusPond',x:900,y:1285,w:65},
     {key:'guardianLion',x:950,y:875,w:36},{key:'guardianLion',x:1050,y:875,w:36}];
   function hubFloor(ctx,cx,cy,vw,vh){sky(ctx,cx,cy,vw,vh);const c=world.city,pattern=paving(ctx);
     if(ready(gardenGrass)){
@@ -137,11 +137,11 @@
     if(pattern){ctx.fillStyle=pattern;ctx.fillRect(950,c.top,100,c.bottom-c.top);
       for(const y of [935,1000,1210,1330,1385])ctx.fillRect(c.left,y-23,c.right-c.left,46);
       for(const [x,y]of [[760,940],[1240,940],[760,1140],[1240,1140],[760,1340],[1240,1340]]){
-        terrainArt(ctx,'court',x,y,185,.5);ctx.fillRect(x-22,y,44,72);
+        ctx.fillRect(x-75,y-25,150,50);ctx.fillRect(x-22,y,44,72);
       }
     }
-    const beds=[[850,1025,60],[1150,1025,60],[850,1130,55],[1150,1130,55],[840,1290,65],[1160,1290,65]];
-    beds.forEach(([x,y,w],i)=>{const image=gardenFlowers[i%gardenFlowers.length];if(ready(image))renderArtwork(ctx,image,x-w/2,y-12,w,w*image.naturalHeight/image.naturalWidth);});
+    const beds=[[890,1075,55],[1110,1075,55],[890,1175,50],[1110,1285,55]];
+    beds.forEach(([x,y,w],i)=>{const image=gardenFlowers[i%gardenFlowers.length];if(ready(image)){const h=w*image.naturalHeight/image.naturalWidth;renderArtwork(ctx,image,x-w/2,y-h,w,h);}});
     [[point(c.left+8,c.top+10),point(c.right-8,c.top+10)],
       [point(c.left+8,c.top+10),point(c.left+8,c.bottom-10)],
       [point(c.right-8,c.top+10),point(c.right-8,c.bottom-10)],
@@ -149,8 +149,8 @@
       [point(1055,c.bottom-10),point(c.right-8,c.bottom-10)]].forEach(edge=>rail(ctx,edge,[0]));
     assetAt(ctx,'stairs',1000,c.bottom+18,80,.5);
     // Vườn trang trí nằm ngoài các trục đi tới NPC.
-    assetAt(ctx,'moonDais',1000,1100,190,.5);
-    assetAt(ctx,'moonDais',1240,1340,130,.5);
+    terrainArt(ctx,'roundCourt',1000,1100,150,.5);
+    terrainArt(ctx,'roundCourt',1240,1340,110,.5);
     for(const x of [650,1350])for(const y of [710,875,1045,1220,1390])world.sprite(ctx,'lantern',x,y,20);
   }
   const decor={sword:[],moon:[],thunder:[],mystic:[]};
@@ -199,8 +199,8 @@
     // Three reserved zones: west academy, east archive, open central crossing.
     const buildings=[{key:'portal',x:870,y:1165,w:38},
       {key:l.hall||'school',x:835,y:1060,w:id==='sword'?170:id==='mystic'?190:210,solid:[-42,-12,42,-2]}];
-    buildings.push({key:{sword:'statue',moon:'lotusPond',thunder:'thunderAltar',mystic:'mysticDais'}[id],x:1080,y:1000,w:id==='moon'?60:40,solid:[-9,-6,9,-1]});
-    if(id==='mystic')buildings.push({key:'mysticArchive',x:1195,y:1070,w:130,solid:[-24,-10,24,-2]});
+    buildings.push({key:{sword:'statue',moon:'lotusPond',thunder:'thunderAltar',mystic:'crystalPillar'}[id],x:1080,y:1000,w:id==='moon'?60:40,solid:[-9,-6,9,-1]});
+    if(id==='mystic')buildings.push({key:'school',x:1195,y:1070,w:130,solid:[-24,-10,24,-2]});
     buildings.push({key:'board',x:1130,y:1190,w:30});
     world.buildings.splice(0,world.buildings.length,...buildings);
     world.services.splice(0,world.services.length,
@@ -215,7 +215,7 @@
   const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='CHARACTER/'+folder+'/Nam/truoc.png';return img;});
   world.layoutArt.placements=function(){
     const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:[];
-    const props=[...world.buildings.filter(b=>!b.ground),...decorations].map((p,i)=>{const image=world.asset(p.key),h=ready(image)?p.w*image.naturalHeight/image.naturalWidth:0;return{id:p.key+':'+i,type:'prop',left:p.x-p.w/2,right:p.x+p.w/2,top:p.y-h,bottom:p.y};});
+    const props=[...world.buildings.filter(b=>!b.ground),...decorations].map((p,i)=>{const bounds=world.spriteBounds(p.key,p.x,p.y,p.w);return{id:p.key+':'+i,type:'prop',...(bounds||{left:p.x,right:p.x,top:p.y,bottom:p.y})};});
     const roles={quest:'nhiemvu',shop:'thoren',forge:'thoren',arena:'dautruong',rank:'bxh'};
     for(const s of world.services)if(s.npc){const index=world.sectMaps[world.state.scene]?.classIndex||0,role=world.state.scene==='hub'?roles[s.id]:null,image=role?creatureArt.npcImages[role]:actorBodies[index],h=role?(s.id==='rank'?68:60):index===2?52.5:42,w=ready(image)?h*image.naturalWidth/image.naturalHeight:24;props.push({id:s.id,type:'npc',left:s.x-w/2,right:s.x+w/2,top:s.y-h,bottom:s.y});}
     return props;

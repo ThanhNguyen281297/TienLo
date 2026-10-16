@@ -50,6 +50,12 @@ zones. Portals and challenge boards have their own southern service positions.
 Trees and ponds stay near the perimeter. The hub uses spaced service districts.
 
 `worldMap.layoutArt.placements()` exposes image bounds for placement audits.
+Map entries now retain their source alpha bounds. The renderer anchors the visible
+bottom edge to the ground and still draws the complete PNG, so transparent padding
+cannot lift rocks, trees or buildings. Placement audits use these same visible
+bounds. There are no synthetic oval shadows, enlarged black silhouettes or contact
+ellipses under props; painted source shading is used directly. Hub buildings use
+their own foundations, without a second raised courtyard underneath.
 `tests/world-vfx.test.cjs` rejects overlaps between visible prop/NPC rectangles
 and checks valid lightness-flight landings. Intentional ground decals and terrain
 layers are excluded from actor overlap checks.
