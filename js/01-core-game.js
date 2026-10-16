@@ -6,7 +6,7 @@ let P={x:1000,y:1000,hp:100,mp:20,xp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,
 function saveCharacter(){if(window.saveLocalCharacter)window.saveLocalCharacter()}
 const cultivationLevel=()=>P.r*10+(P.stage||1)-1;
 const bonusStats=()=>{try{return window.bonusStats?window.bonusStats():{atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}catch(e){return {atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}};
-const mhp=()=>100+cultivationLevel()*6+(bonusStats().hp||0),mmp=()=>20+cultivationLevel()*3+(bonusStats().mp||0),atk=()=>8+cultivationLevel()*1.3+(bonusStats().atk||0),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
+const mhp=()=>Math.round((100+cultivationLevel()*6+(bonusStats().hp||0))*(1+(bonusStats().setBonus||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(bonusStats().mp||0))*(1+(bonusStats().setBonus||0))),atk=()=>(8+cultivationLevel()*1.3+(bonusStats().atk||0))*(1+(bonusStats().setBonus||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
 let E=[],B=[],X=[],K={},ptr=null,W,H,tm=0,sv=0;
 function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight)));Z=1.8*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
 function gameCamera(vw=W/Z,vh=H/Z){return {x:P.x-vw/2,y:P.y-vh/2,vw,vh};}
@@ -56,7 +56,7 @@ function up(dt){
   if(d<ag&&d>k.s+10){const sp=(k.sp??(40+e.t*25))*dt*slow;e.x+=(P.x-e.x)/d*sp;e.y+=(P.y-e.y)/d*sp}
   else if(d>=ag){const hd=Math.hypot(e.hx-e.x,e.hy-e.y);if(hd>4){e.x+=(e.hx-e.x)/hd*30*dt*slow;e.y+=(e.hy-e.y)/hd*30*dt*slow}}
   if(e.worldMap&&window.worldMap?.traceMove){const end=worldMap.traceMove(origin,e);e.x=end.x;e.y=end.y;}
-  if(!window.fieldEffects?.blocksAttack(e)&&window.worldMap?.state.scene!=='hub'&&d<=k.s+14&&e.cd<=0&&!window.classCombat?.isDashing()&&(!e.worldMap||!window.worldMap?.isSafe(P))){e.cd=1;window.creatureArt?.onAttack(e);const bst=bonusStats();const dodge=Math.min(.2,bst.dodge||0);if(Math.random()<dodge){fx(P.x,P.y-20,'Né','#7fffc8')}else{const v=Math.max(1,Math.round(k.at*(e.attackScale||1)*(window.fieldEffects?.attackMultiplier(e)??1)-P.r*1.5-(P.world?.armor||0)-(bst.armor||0)));const final=Math.max(1,Math.round(v*(window.newClassCombat?.damageTaken()||1)));P.hp-=final;P.med=0;fx(P.x,P.y-20,'-'+final,'#ff6a5a')}}}
+  if(!window.fieldEffects?.blocksAttack(e)&&window.worldMap?.state.scene!=='hub'&&d<=k.s+14&&e.cd<=0&&!window.classCombat?.isDashing()&&(!e.worldMap||!window.worldMap?.isSafe(P))){e.cd=1;window.creatureArt?.onAttack(e);const bst=bonusStats();const dodge=Math.min(.2,bst.dodge||0);if(Math.random()<dodge){fx(P.x,P.y-20,'Né','#7fffc8')}else{const v=Math.max(1,Math.round(k.at*(e.attackScale||1)*(window.fieldEffects?.attackMultiplier(e)??1)-P.r*1.5-(window.totalArmor?totalArmor(bst):(P.world?.armor||0)+(bst.armor||0))));const final=Math.max(1,Math.round(v*(window.newClassCombat?.damageTaken()||1)));P.hp-=final;P.med=0;fx(P.x,P.y-20,'-'+final,'#ff6a5a')}}}
  if(P.hp<=0){window.classCombat?.onRespawn();if(window.worldMap?.respawn)worldMap.respawn();else{P.x=1000;P.y=1100;}P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;msg('Trọng thương! Được đưa về đài an toàn, mất một phần Linh Thạch.')}
  for(const f of X){f.l-=dt;f.y-=22*dt;f.x+=(f.vx||0)*dt}X=X.filter(f=>f.l>0);
  sv+=dt;if(sv>5){sv=0;saveCharacter()}

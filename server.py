@@ -97,10 +97,19 @@ def valid_player(p):
     for item in world.get('bag',[])+[v for v in equipment.values() if v is not None]:
         if not isinstance(item,dict) or not isinstance(item.get('id'),str) or not isinstance(item.get('uid'),str):
             raise ValueError('Vật phẩm không hợp lệ.')
+        if type(item.get('enhance',0)) is not int or not 0<=item.get('enhance',0)<=15:raise ValueError('Cường hóa chỉ từ +0 đến +15.')
         if item.get('rarity') not in ('pham','huyen','linh','tien'):raise ValueError('Phẩm chất không hợp lệ.')
         for key in ('atk','hp','mp','armor','crit','dodge','skill','heal','mana','xp','price','req','qty'):
             if key in item and (type(item[key]) not in (int,float) or not math.isfinite(item[key]) or not 0<=item[key]<=10000):
                 raise ValueError('Chỉ số vật phẩm không hợp lệ.')
+    pets=world.get('pets',[])
+    species={'BoNgua','Tho','Nhen','Doi'}
+    if not isinstance(pets,list) or len(pets)>20:raise ValueError('Linh thú không hợp lệ.')
+    if any(not isinstance(pet,dict) or not isinstance(pet.get('id'),str) or not 1<=len(pet['id'])<=80 or pet.get('species') not in species or not isinstance(pet.get('name'),str) or len(pet['name'])>40 for pet in pets):raise ValueError('Linh thú không hợp lệ.')
+    pet_ids=[pet['id'] for pet in pets]
+    if len(set(pet_ids))!=len(pet_ids) or (world.get('activePet') is not None and world['activePet'] not in pet_ids):raise ValueError('Linh thú xuất chiến không hợp lệ.')
+    hatch=world.get('hatching')
+    if hatch is not None and (not isinstance(hatch,dict) or not isinstance(hatch.get('id'),str) or not 1<=len(hatch['id'])<=80 or hatch.get('species') not in species or type(hatch.get('readyAt')) not in (int,float) or not math.isfinite(hatch['readyAt']) or not 0<=hatch['readyAt']<=10000000000000):raise ValueError('Trứng đang ấp không hợp lệ.')
     for key in ('learnedSkills','skillLevels'):
         if key in world and (not isinstance(world[key],list) or len(world[key])!=4):raise ValueError('Kỹ năng không hợp lệ.')
     def inspect(value,depth=0):
@@ -112,6 +121,16 @@ def valid_player(p):
             for child in value:inspect(child,depth+1)
     inspect(p)
     json.dumps(p, allow_nan=False)
+
+
+def equipment_stats(player):
+    equipment=player.get('world',{}).get('equip',{})
+    slots=('vukhi','daobao','ngoc','gioi','giay','phapbao')
+    minimum=min((equipment.get(slot) or {}).get('enhance',0) for slot in slots)
+    tier=next((value for value in (15,13,11,9) if minimum>=value),0)
+    multiplier=1+{9:.05,11:.1,13:.15,15:.2}.get(tier,0)
+    attack=sum(max(0,min(100,item.get('atk',0)))*(1+.05*item.get('enhance',0)) for item in equipment.values() if isinstance(item,dict))
+    return attack,multiplier,tier
 
 
 def room_for(peer):
@@ -441,6 +460,9 @@ class GameHandler(SimpleHTTPRequestHandler):
                     else:x,y=previous['x'],previous['y']
             rank=max(0,min(int(p['r']),int(p.get('world',{}).get('trainingRealm',0))))
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
+            equipment=p.get('world',{}).get('equip',{})
+            peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
+            peer['pet']=next((pet for pet in p.get('world',{}).get('pets',[]) if pet['id']==p.get('world',{}).get('activePet')),None)
             # Presentation only: height grants no speed exception or damage immunity.
             airborne=body.get('airborne',0)
             peer['airborne']=max(0,min(80,airborne)) if scene in ('sword','moon','thunder','mystic','valley') and type(airborne) in (int,float) and math.isfinite(airborne) else 0
@@ -486,7 +508,8 @@ class GameHandler(SimpleHTTPRequestHandler):
                     power=event.get('power',0)
                     if type(power) not in (int,float) or not math.isfinite(power) or power<=0: continue
                     level=p['r']*10+p['stage']-1; attrs=p.get('world',{}).get('attrs',{}); equipment=p.get('world',{}).get('equip',{})
-                    attack=8+level*1.3+max(0,min(1000,attrs.get('luc',0)))*2+sum(max(0,min(100,item.get('atk',0))) for item in equipment.values() if isinstance(item,dict))
+                    gear_attack,set_multiplier,_=equipment_stats(p)
+                    attack=(8+level*1.3+max(0,min(1000,attrs.get('luc',0)))*2+gear_attack)*set_multiplier
                     damage=max(1,round(min(power,attack*6)*field_vulnerability(mob))); mob['hp']=max(0,mob['hp']-damage); mob['contributors'][uid]=now; hit_times.append(now)
                     if mob['hp']==0:
                         mob['dead']=now+8
@@ -496,7 +519,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                                 EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':secrets.token_hex(12)})
                                 EVENTS[contributor]=EVENTS[contributor][-100:]
                 peer['hitTimes']=hit_times
-            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
+            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
             shapes=FARM_LAYOUT['main']
             rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1

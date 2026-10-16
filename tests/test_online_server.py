@@ -16,6 +16,29 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_enhancement_levels_set_tiers_and_pet_validation(self):
+        player=self.player()
+        slots=('vukhi','daobao','ngoc','gioi','giay','phapbao')
+        player['world']['equip']={slot:dict(id=slot,uid=slot,slot=slot,rarity='pham',atk=2,enhance=0) for slot in slots}
+        for level,tier,multiplier in [(0,0,1),(8,0,1),(9,9,1.05),(11,11,1.1),(13,13,1.15),(14,13,1.15),(15,15,1.2)]:
+            for item in player['world']['equip'].values():item['enhance']=level
+            server.valid_player(player)
+            attack,bonus,actual_tier=server.equipment_stats(player)
+            self.assertEqual((actual_tier,bonus),(tier,multiplier))
+            self.assertAlmostEqual(attack,12*(1+.05*level))
+        player['world']['equip']['giay']=None
+        self.assertEqual(server.equipment_stats(player)[1],1)
+        for invalid in (16,-1,1.5,True):
+            player['world']['equip']['vukhi']['enhance']=invalid
+            with self.assertRaises(ValueError):server.valid_player(player)
+        player['world']['equip']['vukhi']['enhance']=15
+        player['world']['pets']=[dict(id='pet-one',species='Tho',name='Nguyệt Thố')]
+        player['world']['activePet']='pet-one';server.valid_player(player)
+        player['world']['activePet']='other-account-pet'
+        with self.assertRaises(ValueError):server.valid_player(player)
+        player['world']['activePet']='pet-one';player['world']['pets'][0]['species']='Dragon'
+        with self.assertRaises(ValueError):server.valid_player(player)
+
     def test_field_profiles_exposure_resistance_and_composition(self):
         rules_source=(server.ROOT/'js/13c-field-rules.js').read_text(encoding='utf-8')
         self.assertEqual(json.loads(rules_source.split('window.fieldRules=',1)[1].strip().removesuffix(';')),server.FIELD_RULES)

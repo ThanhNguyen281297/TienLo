@@ -47,7 +47,7 @@
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
         E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;if(damage>0&&e.hp>0){fx(snapshot.x,snapshot.y-T[snapshot.t].s,damage,'#ffe0a0');window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
         if(data.damage&&!worldMap.isSafe(P)&&!classCombat.isDashing()){
-          const bonus=bonusStats();if(Math.random()>=Math.min(.2,bonus.dodge||0)){const amount=Math.max(1,Math.round((data.damage-(P.world?.armor||0)-(bonus.armor||0))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
+          const bonus=bonusStats();if(Math.random()>=Math.min(.2,bonus.dodge||0)){const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }
       }
       if(P.hp<=0){worldMap.dialog.close();classCombat.onRespawn();worldMap.respawn();P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;saveCharacter();msg('Trọng thương! Trở về đài an toàn, mất 10% Linh Thạch.');}
@@ -61,8 +61,8 @@
   worldMap.queueActors=function(items,cx,cy,vw,vh){queue(items,cx,cy,vw,vh);if(!account.state.ready)return;
     for(const peer of state.players){peer.drawX+=(peer.x-peer.drawX)*.22;peer.drawY+=(peer.y-peer.drawY)*.22;peer.drawLift+=((peer.airborne||0)-peer.drawLift)*.22;
       if(peer.drawX<cx-80||peer.drawX>cx+vw+80||peer.drawY<cy-100||peer.drawY>cy+vh+80)continue;
-      items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,false,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);g.textAlign='center';g.font='bold 9px sans-serif';g.lineWidth=3;g.strokeStyle='#09151d';g.fillStyle='#96efda';g.strokeText(peer.name,peer.drawX,peer.drawY-peer.drawLift-70);g.fillText(peer.name,peer.drawX,peer.drawY-peer.drawLift-70);
-        if(peer.emote){g.font='bold 15px sans-serif';g.fillStyle='#fff1c9';g.fillText({wave:'✦ Xin chào!',heart:'♥',ready:'⚔ Sẵn sàng'}[peer.emote],peer.drawX,peer.drawY-peer.drawLift-90);}
+      items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,false,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);g.textAlign='center';g.font='bold 9px sans-serif';g.lineWidth=3;g.strokeStyle='#09151d';g.fillStyle='#96efda';g.strokeText(peer.name,peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70));g.fillText(peer.name,peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70));
+        if(peer.emote){g.font='bold 15px sans-serif';g.fillStyle='#fff1c9';g.fillText({wave:'✦ Xin chào!',heart:'♥',ready:'⚔ Sẵn sàng'}[peer.emote],peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70)-20);}
         g.restore();}]);
     }
   };

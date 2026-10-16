@@ -82,11 +82,10 @@
   if (!P.ap) openCr();
 
   function ready(img) { return img.complete && img.naturalWidth > 0; }
-  // Điểm phát kỹ năng trùng tâm vũ khí đang bay quanh thân.
+  // Skill origin follows the fixed weapon beside the character.
   window.characterWeapon = {
     position: (index = classOf(P.ap), x = P.x, y = P.y, bob = 0) => {
-      const angle = tm * 1.8;
-      return {x:x + Math.cos(angle) * 30, y:y - 20 - bob + Math.sin(angle) * 12};
+      return {x:x+28,y:y-24-bob};
     },
     trail: (ctx, points, end, offset, color) => {
       if (!points.length) return;
@@ -126,7 +125,7 @@
     ctx.restore();
   }
 
-  // Local weapon coordinates: effects follow rotation, orbit depth and preview scale.
+  // Weapon effects remain in the fixed local weapon coordinates.
   const reducedWeaponMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const weaponTones=['#59bfff','#4de2b7','#a77aff','#f3c76b'];
   const weaponAuras=new Map();
@@ -183,7 +182,7 @@
   // Nam Thương có búi tóc và dải áo lớn: tăng riêng thân ảnh để đầu/thân
   // nhìn cân với các phái khác. Neo đáy bàn chân theo từng ảnh 1122 × 1402.
   const spearMaleFit = { height: 52.5, feet: { truoc: 1339, sau: 1331, trai: 1353, phai: 1343 }, sourceHeight: 1402 };
-  window.characterNameHeight = ap => classOf(ap) === 2 && ap?.gender !== 'Nu' ? 58 : 48;
+  window.characterNameHeight = ap => [88,92,100,94][classOf(ap)];
   drawChar = function (ctx, x, y, dir, facing, moving, phase, attacking, ap) {
     const index = classOf(ap), info = classes[index], images = assets[index];
     const direction = dir === 1 ? 'sau' : dir === 2 ? (facing < 0 ? 'trai' : 'phai') : 'truoc';
@@ -191,9 +190,8 @@
     ctx.save();
     ctx.imageSmoothingEnabled = true;
     footRing(ctx, images.vong, x, y, info.color);
-    // Quỹ đạo elip quanh thân, không đổi vị trí đột ngột khi nhân vật quay hướng.
-    const angle = tm * 1.8;
-    const depth = Math.sin(angle);
+    // Fixed position and class angle; only the back accessory floats.
+    const angle = [-.18,-.3,.12,-.2][index];
     const weapon = window.characterWeapon.position(index, x, y, bob);
     const wx = weapon.x, wy = weapon.y;
     const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
@@ -201,38 +199,42 @@
     const drawBackItem = () => {
       if (!ready(images.lung)) return;
       ctx.save();
-      // Nhìn ngang: phụ kiện ở phía sau thân, thu hẹp theo phối cảnh.
-      ctx.translate(x + (dir === 2 ? -facing * 9 : 0), y - bob);
-      if (dir === 2) ctx.scale(.48, 1);
-      // Nhìn từ sau: vật phẩm nằm trên lưng, bên dưới vùng đỉnh đầu.
-      sprite(ctx, images.lung, 0, dir === 1 ? -2 : 2, dir === 1 ? 30 : 48);
+      const t=reducedWeaponMotion.matches?0:tm,height=[82,86,94,88][index];
+      const lift=Math.sin(t*1.8+index)*1.3;
+      ctx.translate(x+(dir===2?-facing*5:0),y+7-bob+lift);
+      ctx.rotate(Math.sin(t*1.3+index)*.025);
+      ctx.scale((dir===2?.7:1)*(1+Math.sin(t*(index===2?2.5:1.7))*.025),1);
+      sprite(ctx,images.lung,0,0,height);
+      const n=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.phapbao):(ap?.backEnhance||0);
+      window.equipmentProgression?.outline(ctx,images.lung,-height*images.lung.naturalWidth/images.lung.naturalHeight/2,-height,height*images.lung.naturalWidth/images.lung.naturalHeight,height,n||0);
       ctx.restore();
     };
     const drawWeapon = () => {
       if (!ready(images.vukhi)) return;
       ctx.save();
       ctx.translate(wx, wy);
-      const size = .94 + depth * .08;
-      ctx.scale(size, size);
-      ctx.rotate(Math.cos(angle) * .22 + (attacking ? .65 : 0));
+      ctx.rotate(angle);
       weaponEnergy(ctx,index,quality,attacking,false);
       ctx.shadowColor = weaponColor;
       ctx.shadowBlur = attacking ? 7 : 3+quality*.5;
       sprite(ctx, images.vukhi, 0, 18, 36);
+      const n=ap===P.ap?window.equipmentProgression?.level(gear):(ap?.weaponEnhance||0);
+      window.equipmentProgression?.outline(ctx,images.vukhi,-18*images.vukhi.naturalWidth/images.vukhi.naturalHeight,-18,36*images.vukhi.naturalWidth/images.vukhi.naturalHeight,36,n||0);
       ctx.shadowBlur = 0;
       weaponEnergy(ctx,index,quality,attacking,true);
       ctx.restore();
     };
-    // Nửa quỹ đạo xa bị thân che; nửa gần đi qua trước nhân vật.
-    if (depth < 0) drawWeapon();
-    if (dir !== 1) drawBackItem();
+    // Large back equipment stays behind the body for a readable silhouette.
+    drawBackItem();
     const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
     const fit = index === 2 && gender === 'Nam' ? spearMaleFit : null;
     const bodyHeight = fit ? fit.height : 42;
     const footOffset = fit ? bodyHeight * (1 - fit.feet[direction] / fit.sourceHeight) : 0;
     sprite(ctx, images[gender][direction], x, y - bob + footOffset, bodyHeight);
-    if (dir === 1) drawBackItem();
-    if (depth >= 0) drawWeapon();
+    const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
+    const bodyImage=images[gender][direction],bodyWidth=bodyHeight*bodyImage.naturalWidth/(bodyImage.naturalHeight||1);
+    window.equipmentProgression?.outline(ctx,bodyImage,x-bodyWidth/2,y-bob+footOffset-bodyHeight,bodyWidth,bodyHeight,bodyLevel||0);
+    drawWeapon();
     ctx.restore();
   };
 

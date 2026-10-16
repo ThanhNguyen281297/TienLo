@@ -47,10 +47,12 @@
     if(kind==='realm'){line([[5,25],[27,25]]);line([[9,22],[9,17],[23,17],[23,22]]);line([[7,15],[16,10],[25,15]]);line([[11,10],[16,5],[21,10]]);line([[16,5],[16,2]]);}
     if(kind==='break'){line([[8,26],[16,18],[24,26]]);line([[8,18],[16,10],[24,18]]);line([[8,10],[16,2],[24,10]]);}
     if(kind==='gm'){line([[6,25],[26,25],[27,10],[21,16],[16,6],[11,16],[5,10],[6,25]]);}
+    if(kind==='pet'){circle(16,21,6);for(const [x,y]of [[7,11],[14,6],[22,8],[27,15]])circle(x,y,2.5);}
+    if(kind==='enhance'){line([[6,26],[25,7],[20,3],[2,21],[6,26]]);line([[15,20],[22,27],[28,21],[21,14]]);}
     if(kind==='attack'){ctx.fillStyle='#e7cf8b';ctx.beginPath();ctx.moveTo(7,4);ctx.lineTo(15,8);ctx.lineTo(24,20);ctx.lineTo(20,24);ctx.lineTo(8,15);ctx.closePath();ctx.fill();line([[17,24],[24,17]]);line([[21,22],[27,28]]);line([[24,29],[29,24]]);}
     return 'url("'+canvas.toDataURL()+'")';
   }
-  const labels={'bag-button':['Túi đồ','bag'],'attr-button':['Thuộc tính','attrs'],'auto-button':['Auto','auto'],'hud-chat':['Chat','chat'],'hud-more':['Khác','more'],'bq':['Đả tọa','meditate'],'bb':['Đột phá','break'],'cultivation-info':['Tu luyện','realm'],'gm-skills':['GM','gm'],'hud-map':['Bản đồ','map'],'basic-attack':['Đánh','attack']};
+  const labels={'bag-button':['Túi đồ','bag'],'attr-button':['Thuộc tính','attrs'],'auto-button':['Auto','auto'],'hud-chat':['Chat','chat'],'hud-more':['Khác','more'],'bq':['Đả tọa','meditate'],'bb':['Đột phá','break'],'cultivation-info':['Tu luyện','realm'],'gm-skills':['GM','gm'],'hud-map':['Bản đồ','map'],'basic-attack':['Đánh','attack'],'pet-button':['Linh thú','pet'],'enhance-button':['Cường hóa','enhance']};
   for(const [id,[label,kind]]of Object.entries(labels)){const b=$(id);if(!b)continue;b.dataset.hudLabel=label;b.setAttribute('aria-label',id==='basic-attack'?'Đánh thường':label);b.style.setProperty('--hud-icon',icon(kind));b.classList.add('hud-icon');}
   function refresh(){const ready=!!P.ap&&account.state.ready&&cr.style.display==='none'&&ttl.style.display==='none';document.body.classList.toggle('game-controls-ready',ready);document.body.classList.toggle('controls-paused',worldMap.dialog.isOpen());
     if(!ready||paused()||worldMap.dialog.isOpen()){reset();closeMenu();}

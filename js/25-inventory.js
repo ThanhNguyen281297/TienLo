@@ -34,6 +34,7 @@
     { id: 'hoi-linh-dan', type: 'consume', name: 'Hồi Linh Đan', rarity: 'pham', price: 12, mana: 40, desc: 'Hồi 40 linh lực.' },
     { id: 'tu-vi-dan', type: 'consume', name: 'Tu Vi Đan', rarity: 'huyen', price: 25, xp: 30, desc: '+30 đạo hạnh.' }
   ];
+  for(const [species,name] of [['BoNgua','Linh Đường Lang'],['Tho','Nguyệt Thố'],['Nhen','Huyết Nhện'],['Doi','Băng Dực Dơi']])TEMPLATES.push({id:'egg-'+species,type:'egg',species,name:'Trứng '+name,rarity:'huyen',price:0,desc:'Ấp để nở linh thú '+name+'.'});
   const BY_ID = Object.fromEntries(TEMPLATES.map(t => [t.id, t]));
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'it-' + Date.now() + '-' + Math.floor(Math.random() * 1e9));
 
@@ -50,13 +51,13 @@
     if (!t) return null;
     const item = Object.assign({}, t);
     item.uid = uid();
-    if (item.type === 'consume') item.qty = qty;
+    if (['consume','egg'].includes(item.type)) item.qty = qty;
     return item;
   }
   function addItem(id, qty = 1) {
     const p = progress(), t = BY_ID[id];
     if (!t) return null;
-    if (t.type === 'consume') {
+    if (['consume','egg'].includes(t.type)) {
       const found = p.bag.find(i => i.id === id);
       if (found) { found.qty = (found.qty || 1) + qty; saveCharacter(); return found; }
     }
@@ -69,6 +70,7 @@
     return item;
   }
   function statText(t) {
+    if(window.equipmentProgression&&t.slot){const original=t;t={...t};for(const key of ['atk','hp','mp','armor','crit','dodge','skill'])t[key]=equipmentProgression.stat(original,key);}
     const parts = [];
     if (t.atk) parts.push('Công+' + t.atk);
     if (t.hp) parts.push('Máu+' + t.hp);
@@ -92,10 +94,11 @@
       for (const slot of Object.keys(SLOTS)) {
         const it = p.equip && p.equip[slot];
         if (!it) continue;
-        atk += it.atk || 0; hp += it.hp || 0; mp += it.mp || 0; armor += it.armor || 0;
-        crit += it.crit || 0; dodge += it.dodge || 0; skill += it.skill || 0;
+        atk += window.equipmentProgression?equipmentProgression.stat(it,'atk'):(it.atk||0); hp += window.equipmentProgression?equipmentProgression.stat(it,'hp'):(it.hp||0); mp += window.equipmentProgression?equipmentProgression.stat(it,'mp'):(it.mp||0); armor += window.equipmentProgression?equipmentProgression.stat(it,'armor'):(it.armor||0);
+        crit += window.equipmentProgression?equipmentProgression.stat(it,'crit'):(it.crit||0); dodge += window.equipmentProgression?equipmentProgression.stat(it,'dodge'):(it.dodge||0); skill += window.equipmentProgression?equipmentProgression.stat(it,'skill'):(it.skill||0);
       }
-      return { atk, hp, mp, armor, crit: Math.min(0.35, crit), dodge: Math.min(0.2, dodge), skill };
+      const setBonus=window.equipmentProgression?.setInfo(p.equip).bonus||0;
+      return { atk, hp, mp, armor, crit: Math.min(0.35, crit*(1+setBonus)), dodge: Math.min(0.2, dodge*(1+setBonus)), skill:skill*(1+setBonus),setBonus };
     } catch (e) { return { atk: 0, hp: 0, mp: 0, armor: 0, crit: 0, dodge: 0, skill: 0 }; }
   };
   // Linh + đồ tăng sát thương skill, cộng dồn với tu luyện 8%/cấp.
@@ -259,6 +262,7 @@
   }
   let selectedUid=null;
   function itemIcon(item,slot) {
+    if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
     if((item?.slot||slot)==='vukhi')return 'CHARACTER/'+characterClasses[P.ap.w].folder+'/VuKhi/vukhi.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
     return artworkURL('MAP/items/'+(['daobao','ngoc','gioi','giay','phapbao','consume'].includes(type)?type:'ngoc')+'.png');
@@ -317,16 +321,16 @@
     const heading=document.createElement('h3');heading.textContent=P.nm+' · '+sectName();gear.append(heading);
     const paper=document.createElement('div');paper.className='paper-doll';gear.append(paper);
     const preview=document.createElement('canvas');const density=Math.max(1.5,Math.min(3,devicePixelRatio||1));preview.width=Math.round(320*density);preview.height=Math.round(380*density);preview.className='gear-preview';paper.append(preview);
-    const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(2.6*density,0,0,2.6*density,160*density,270*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);
+    const ctx=preview.getContext('2d');function paintPreview(){if(!preview.isConnected||!dialog.isOpen())return;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,preview.width,preview.height);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(2.6*density,0,0,2.6*density,160*density,270*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);requestAnimationFrame(paintPreview);}paintPreview();
     Object.keys(SLOTS).forEach((slot,i)=>{
       const item=p.equip[slot],button=document.createElement('button');button.type='button';button.className='item-cell gear-slot gear-'+i;button.dataset.equipSlot=slot;button.style.setProperty('--rarity',RARITY[item?.rarity||'pham'].color);button.setAttribute('aria-label',SLOTS[slot]+': '+(item?.name||'trống'));
       const img=document.createElement('img');img.src=itemIcon(item,slot);img.alt='';button.append(img);
       const label=document.createElement('small');label.textContent=SLOTS[slot];button.append(label);
-      if(item){button.classList.add('occupied');dragSource(button,'equip:'+slot);button.onclick=()=>showDetails(item,true);}
+      if(item){button.classList.add('occupied');window.equipmentProgression?.decorate(button,item);dragSource(button,'equip:'+slot);button.onclick=()=>showDetails(item,true);}
       else button.onclick=()=>{const item=p.bag.find(i=>i.uid===selectedUid);if(item){if(item.slot!==slot)return msg('Chọn trang bị phù hợp '+SLOTS[slot]+'.');equipItem(item.uid);}};
       dropTarget(button);paper.append(button);
     });
-    const stats=document.createElement('div');stats.className='gear-stats';stats.textContent='Công '+Math.round(atk())+' · Máu '+mhp()+' · Linh '+mmp()+' · Giáp '+b.armor+' · Bạo '+Math.round(b.crit*100)+'%';gear.append(stats);
+    const stats=document.createElement('div');stats.className='gear-stats';stats.textContent='Công '+Math.round(atk())+' · Máu '+mhp()+' · Linh '+mmp()+' · Giáp '+Math.round(totalArmor(b))+' · Bạo '+Math.round(b.crit*100)+'%';gear.append(stats);
     const bag=document.createElement('section');bag.className='bag-panel';layout.append(bag);
     const toolbar=document.createElement('div');toolbar.className='bag-toolbar';bag.append(toolbar);
     const title=document.createElement('h3');title.textContent='Túi đồ';toolbar.append(title);
@@ -334,7 +338,7 @@
     const grid=document.createElement('div');grid.className='bag-grid';grid.setAttribute('aria-label','30 ô túi đồ');bag.append(grid);
     cells(p).forEach((item,i)=>{
       const button=document.createElement('button');button.type='button';button.className='item-cell';button.dataset.bagCell=i;button.setAttribute('aria-label',item?item.name:'Ô trống '+(i+1));dropTarget(button);
-      if(item){button.classList.add('occupied');button.dataset.itemId=item.id;button.style.setProperty('--rarity',RARITY[item.rarity].color);const img=document.createElement('img');img.src=itemIcon(item);img.alt='';button.append(img);
+      if(item){button.classList.add('occupied');window.equipmentProgression?.decorate(button,item);button.dataset.itemId=item.id;button.style.setProperty('--rarity',RARITY[item.rarity].color);const img=document.createElement('img');img.src=itemIcon(item);img.alt='';button.append(img);
         if(item.qty>1){const qty=document.createElement('span');qty.className='item-qty';qty.textContent=item.qty;button.append(qty);}
         button.title=item.name+' · '+statText(item);button.onclick=()=>{selectedUid=item.uid;grid.querySelectorAll('.selected').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');showDetails(item,false);};dragSource(button,item.uid);
       }else{const label=document.createElement('span');label.className='cell-index';label.textContent=i+1;button.append(label);}
@@ -342,9 +346,11 @@
     });
     const details=document.createElement('div');details.className='item-details';details.setAttribute('aria-live','polite');bag.append(details);
     function showDetails(item,equipped){
-      details.replaceChildren();const name=document.createElement('h4');name.textContent=item.name;name.style.color=RARITY[item.rarity].color;const desc=document.createElement('p');desc.textContent=item.desc+' · '+statText(item);details.append(name,desc);
+      details.replaceChildren();const name=document.createElement('h4');name.textContent=item.name+(equipmentProgression.level(item)?' +'+equipmentProgression.level(item):'');name.style.color=RARITY[item.rarity].color;const desc=document.createElement('p');desc.textContent=item.desc+' · '+statText(item);details.append(name,desc);
       const actions=document.createElement('div');actions.className='item-actions';details.append(actions);
       function action(label,fn){const button=document.createElement('button');button.textContent=label;button.onclick=fn;actions.append(button);}
+      if(item.slot)action('Cường hóa +'+equipmentProgression.level(item),()=>{if(equipmentProgression.enhance(item.uid))openBag();});
+      if(item.type==='egg')action('Ấp trứng',()=>spiritPets.startHatch(item.uid));
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
         action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
@@ -354,6 +360,8 @@
     const resources=document.createElement('div');resources.className='bag-resources';resources.textContent='Linh Nguyên '+(p.essence||0)+' · Đột Phá Đan '+(p.breakthroughPills||0)+' · Thăng Vị Đan '+(p.thangViDan||0);bag.append(resources);
     const shop=document.createElement('div');shop.className='quick-shop';bag.append(shop);
     ['hoi-huyet-dan','hoi-linh-dan'].forEach(id=>{const t=BY_ID[id],button=document.createElement('button');button.textContent=t.name+' · '+t.price+' ◈';button.onclick=()=>buyItem(id);button.disabled=P.gold<t.price;shop.append(button);});
+    const set=equipmentProgression.setInfo();dialog.line('Cường hóa full set: '+(set.tier?'+'+set.tier+' · +'+Math.round(set.bonus*100)+'%':'cần đủ 6 món +9 / +11 / +13 / +15'));
+    dialog.action('Cường hóa trang bị',equipmentProgression.open);dialog.action('Linh thú',()=>spiritPets.open());
     dialog.action('Thuộc tính (U)',openAttrs);
   }
   function openShopEquip() {

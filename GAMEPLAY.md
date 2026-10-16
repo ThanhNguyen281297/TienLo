@@ -72,3 +72,15 @@ Các hiệu ứng dưới đây áp dụng cho quái trong vùng trận. Rời v
 Quái bị đóng băng/choáng không di chuyển hoặc đánh. Quái bị khóa đánh vẫn di chuyển chậm. Dấu hiệu là kiếm áp hướng xuống, tinh thể tuyết, điện tích/ngôi sao choáng và lá phù phong ấn; không thêm vòng bao quanh quái.
 
 Bản online xử lý trạng thái, sát thương và AI quái trên server, gửi trạng thái quái và trận của đồng đội qua `/api/world`. Server cố định thời gian tồn tại/cooldown của trận theo class, không làm mới trận khi client gửi lại cùng ID. Cấu hình chung ở `MAP/field-effects.json`, bản trình duyệt tương ứng ở `js/13c-field-rules.js`.
+
+## Trang bị +15 và linh thú
+
+Trang bị lưng của bốn class cao hơn đầu, nổi nhẹ theo nhịp linh khí; lưng luôn vẽ sau thân để không che nhân vật. Vũ khí giữ vị trí và góc riêng cố định theo class, không quay vòng quanh người. Viền cường hóa bám silhouette của vũ khí, đạo bào và pháp bảo lưng; các ô trang bị có huy hiệu +N và viền sáng chuyển động.
+
+Cường hóa từng món tối đa +15, thành công 100%, mỗi cấp tăng 5% chỉ số gốc món đó. Lên cấp N cần `40 × N` Linh Thạch và `8 × N` Linh Nguyên. GM đang bật bỏ qua toàn bộ chi phí. Có thể nâng cả đồ trong túi lẫn đồ đang mặc qua chi tiết vật phẩm, Luyện Khí Phường hoặc menu Khác → Cường hóa.
+
+Màu viền: +1–8 xanh lá; +9–10 xanh dương; +11–13 cam; +14 đỏ; +15 vàng kim. Tại khoảng trùng +9/+11, lấy màu mốc cao hơn.
+
+Full set là đủ sáu món đang mặc. Lấy cấp thấp nhất của sáu món: đạt +9/+11/+13/+15 nhận tương ứng +5%/+10%/+15%/+20%. Chỉ lấy mốc cao nhất, không cộng bốn mốc. Thưởng áp dụng công, tổng HP/MP, tổng giáp, bạo kích, né và tăng sát thương kỹ năng; giới hạn né/bạo hiện có vẫn áp dụng. Tháo hoặc thay món thấp hơn làm thưởng thay đổi ngay. Chỉ số gốc được giữ nguyên trong DB, cấp cường hóa lưu riêng để tránh nhân lại chỉ số khi đăng nhập.
+
+Mỗi nhân vật được nhận một lần bốn trứng: Linh Đường Lang, Nguyệt Thố, Huyết Nhện và Băng Dực Dơi. Bản lưu cũ cũng nhận quà một lần; túi đầy sẽ chờ ô trống thay vì xóa đồ. Ấp một trứng trong ba giây; trạng thái đang ấp, bộ sưu tập và pet xuất chiến được lưu cùng nhân vật. Một pet đi theo, tối đa 20 pet trong bộ sưu tập. Pet dùng sprite quái sẵn có với kích thước nhỏ, có idle/di chuyển và không tham gia chiến đấu ở phiên bản này. Người chơi online nhìn thấy pet và cấp cường hóa của nhau.
