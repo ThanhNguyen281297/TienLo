@@ -75,7 +75,7 @@ Bản online xử lý trạng thái, sát thương và AI quái trên server, g�
 
 ## Trang bị +15 và linh thú
 
-Trang bị lưng của bốn class cao hơn đầu, nổi nhẹ theo nhịp linh khí; lưng luôn vẽ sau thân để không che nhân vật. Vũ khí giữ vị trí và góc riêng cố định theo class, không quay vòng quanh người. Viền cường hóa bám silhouette của vũ khí, đạo bào và pháp bảo lưng; các ô trang bị có huy hiệu +N và viền sáng chuyển động.
+Trang bị lưng của bốn class cao hơn đầu, nổi nhẹ theo nhịp linh khí; lưng vẽ sau thân khi quay mặt, phủ trước sprite sau lưng khi quay đi (kể cả tóc dài). Vũ khí giữ vị trí và góc riêng cố định theo class, không quay vòng quanh người. Viền cường hóa bám silhouette của vũ khí, đạo bào và pháp bảo lưng; các ô trang bị có huy hiệu +N và viền sáng chuyển động.
 
 Cường hóa từng món tối đa +15, thành công 100%, mỗi cấp tăng 5% chỉ số gốc món đó. Lên cấp N cần `40 × N` Linh Thạch và `8 × N` Linh Nguyên. GM đang bật bỏ qua toàn bộ chi phí. Có thể nâng cả đồ trong túi lẫn đồ đang mặc qua chi tiết vật phẩm, Luyện Khí Phường hoặc menu Khác → Cường hóa.
 
@@ -84,3 +84,13 @@ Màu viền: +1–8 xanh lá; +9–10 xanh dương; +11–13 cam; +14 đỏ; +15
 Full set là đủ sáu món đang mặc. Lấy cấp thấp nhất của sáu món: đạt +9/+11/+13/+15 nhận tương ứng +5%/+10%/+15%/+20%. Chỉ lấy mốc cao nhất, không cộng bốn mốc. Thưởng áp dụng công, tổng HP/MP, tổng giáp, bạo kích, né và tăng sát thương kỹ năng; giới hạn né/bạo hiện có vẫn áp dụng. Tháo hoặc thay món thấp hơn làm thưởng thay đổi ngay. Chỉ số gốc được giữ nguyên trong DB, cấp cường hóa lưu riêng để tránh nhân lại chỉ số khi đăng nhập.
 
 Mỗi nhân vật được nhận một lần bốn trứng: Linh Đường Lang, Nguyệt Thố, Huyết Nhện và Băng Dực Dơi. Bản lưu cũ cũng nhận quà một lần; túi đầy sẽ chờ ô trống thay vì xóa đồ. Ấp một trứng trong ba giây; trạng thái đang ấp, bộ sưu tập và pet xuất chiến được lưu cùng nhân vật. Một pet đi theo, tối đa 20 pet trong bộ sưu tập. Pet dùng sprite quái sẵn có với kích thước nhỏ, có idle/di chuyển và không tham gia chiến đấu ở phiên bản này. Người chơi online nhìn thấy pet và cấp cường hóa của nhau.
+
+## Vân Hải Bí Cảnh (solo)
+
+Mở Khác → Bí cảnh sau khi nhập môn và đứng tại vùng an toàn. Dùng đài riêng như đấu trường nhưng không tiêu hao lượt đấu trường, không trộn quái/người chơi của thế giới chung. Đây là bản solo; tổ đội và boss thế giới chưa nằm trong tính năng này.
+
+Ba đợt gồm 4/6/8 yêu thú, mỗi đợt kết thúc chọn một phúc duyên: Kiếm Tâm (+15% sát thương), Kim Cang (-15% sát thương nhận, tối đa 45%), Hồi Xuân (hồi ngay 30% HP và thêm 1% HP/MP mỗi giây). Có thể chọn lặp; tất cả biến mất khi rời lượt. Độ khó khóa theo công, HP và cấp lúc vào. Auto tắt khi vào đợt/chọn phúc duyên; có thể chủ động bật lại.
+
+Hộ Pháp có hai giai đoạn, chuyển ở 50% HP, miễn sát thương 1,5 giây khi chuyển. Chiêu báo vùng đỏ trước 1,35 giây (giai đoạn 1) hoặc ba vùng lệch nhịp, báo trước 1,1 giây (giai đoạn 2). Đòn nổ gây 20%/25% HP tối đa trước giảm sát thương; di chuyển khỏi vùng hoặc dịch chuyển để né. Boss đứng yên và không đánh thường trong lúc vận chiêu. Sau chuỗi nổ, điểm yếu mở 1,5 giây, nhận thêm 25% sát thương.
+
+Hoàn thành nhận 120 + cấp×4 Linh Thạch, 30 + floor(cấp/2) Linh Nguyên, một Đột Phá Đan và một trang bị theo mốc cảnh giới 0/10/25/45. Trang bị ở rương chờ nhận, túi đầy không mất; phải nhận trước khi vào lượt mới. Lưu vật phẩm, lượt thắng và thưởng cùng nhân vật trong SQLite theo cơ chế lưu hiện có. Trận và phúc duyên không tiếp tục sau tải lại; không nhận thưởng hoàn thành nếu chết/rời giữa trận. Cơ chế chiến đấu solo tính ở client như đấu trường hiện tại; chưa phải chế độ thi đấu có xác thực chiến đấu phía server.
