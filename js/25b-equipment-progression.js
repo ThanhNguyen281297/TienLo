@@ -21,8 +21,8 @@
   d.action('Mở túi đồ',inventory.openBag);
  }
  const masks=new WeakMap(),scratches=new WeakMap();
- function outline(ctx,image,x,y,width,height,n){
-  const tone=color(n);if(!tone||!image.complete||!image.naturalWidth)return;
+ function outline(ctx,image,x,y,width,height,n,fallbackTone){
+  const tone=color(n)||fallbackTone;if(!tone||!image.complete||!image.naturalWidth)return;
   let byColor=masks.get(image);if(!byColor){byColor=new Map();masks.set(image,byColor);}let mask=byColor.get(tone);
   const pad=8,h=256,w=Math.round(h*image.naturalWidth/image.naturalHeight);
   if(!mask){mask=document.createElement('canvas');mask.width=w+pad*2;mask.height=h+pad*2;const c=mask.getContext('2d');for(let i=0;i<12;i++){const a=i*Math.PI/6;c.drawImage(image,pad+Math.cos(a)*2.6,pad+Math.sin(a)*2.6,w,h);}c.globalCompositeOperation='source-in';c.fillStyle=tone;c.fillRect(0,0,mask.width,mask.height);c.globalCompositeOperation='destination-out';c.drawImage(image,pad,pad,w,h);byColor.set(tone,mask);}
@@ -30,7 +30,7 @@
   ctx.save();ctx.globalAlpha*=.8;ctx.drawImage(mask,dx,dy,dw,dh);
   let scratch=scratches.get(mask);if(!scratch){scratch=document.createElement('canvas');scratch.width=mask.width;scratch.height=mask.height;scratches.set(mask,scratch);}
   const c=scratch.getContext('2d');c.globalCompositeOperation='source-over';c.clearRect(0,0,scratch.width,scratch.height);c.drawImage(mask,0,0);c.globalCompositeOperation='source-in';
-  const a=tm*1.6,cx=mask.width/2,cy=mask.height/2,r=mask.height*.6,gradient=c.createLinearGradient(cx-Math.cos(a)*r,cy-Math.sin(a)*r,cx+Math.cos(a)*r,cy+Math.sin(a)*r);gradient.addColorStop(0,'#ffffff00');gradient.addColorStop(.48,'#ffffff00');gradient.addColorStop(.7,'#fff5cd');gradient.addColorStop(1,'#ffffff00');c.fillStyle=gradient;c.fillRect(0,0,mask.width,mask.height);ctx.drawImage(scratch,dx,dy,dw,dh);ctx.restore();
+  const a=matchMedia('(prefers-reduced-motion: reduce)').matches?0:tm*1.6,cx=mask.width/2,cy=mask.height/2,gradient=c.createConicGradient(a,cx,cy);gradient.addColorStop(0,'#ffffff00');gradient.addColorStop(.62,'#ffffff00');gradient.addColorStop(.84,tone);gradient.addColorStop(.94,'#fffbea');gradient.addColorStop(1,'#ffffff00');c.fillStyle=gradient;c.fillRect(0,0,mask.width,mask.height);ctx.shadowColor=tone;ctx.shadowBlur=3;ctx.drawImage(scratch,dx,dy,dw,dh);ctx.restore();
  }
  window.equipmentProgression={slots,level,color,setInfo,stat,cost,enhance,decorate,open,outline};inventory.enhance=enhance;
  window.totalArmor=(b=bonusStats())=>((P.world?.armor||0)+(b.armor||0))*(1+(b.setBonus||0));

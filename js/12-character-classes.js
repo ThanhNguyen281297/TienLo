@@ -121,7 +121,7 @@
     ctx.shadowColor = color;
     ctx.shadowBlur = 2;
     // Ảnh đã có phối cảnh: giữ hình vòng, chỉ thu chiều cao cho mặt đất.
-    renderArtwork(ctx,img, x - 30, y - 12, 60, 28);
+    renderArtwork(ctx,img, x - 44, y - 17, 88, 40);
     ctx.restore();
   }
 
@@ -182,7 +182,7 @@
   // Nam Thương có búi tóc và dải áo lớn: tăng riêng thân ảnh để đầu/thân
   // nhìn cân với các phái khác. Neo đáy bàn chân theo từng ảnh 1122 × 1402.
   const spearMaleFit = { height: 52.5, feet: { truoc: 1339, sau: 1331, trai: 1353, phai: 1343 }, sourceHeight: 1402 };
-  window.characterNameHeight = ap => [88,92,100,94][classOf(ap)];
+  window.characterNameHeight = ap => [105,109,117,111][classOf(ap)];
   drawChar = function (ctx, x, y, dir, facing, moving, phase, attacking, ap) {
     const index = classOf(ap), info = classes[index], images = assets[index];
     const direction = dir === 1 ? 'sau' : dir === 2 ? (facing < 0 ? 'trai' : 'phai') : 'truoc';
@@ -201,7 +201,8 @@
       ctx.save();
       const t=reducedWeaponMotion.matches?0:tm,height=[82,86,94,88][index];
       const lift=Math.sin(t*1.8+index)*1.3;
-      ctx.translate(x+(dir===2?-facing*5:0),y+7-bob+lift);
+      // Anchor at the shoulder blades, on the far side in profile.
+      ctx.translate(x+(dir===2?-facing*11:0),y-10-bob+lift);
       ctx.rotate(Math.sin(t*1.3+index)*.025);
       ctx.scale((dir===2?.7:1)*(1+Math.sin(t*(index===2?2.5:1.7))*.025),1);
       sprite(ctx,images.lung,0,0,height);
@@ -214,12 +215,13 @@
       ctx.save();
       ctx.translate(wx, wy);
       ctx.rotate(angle);
+      ctx.scale(1.4,1.4);
       weaponEnergy(ctx,index,quality,attacking,false);
       ctx.shadowColor = weaponColor;
       ctx.shadowBlur = attacking ? 7 : 3+quality*.5;
       sprite(ctx, images.vukhi, 0, 18, 36);
       const n=ap===P.ap?window.equipmentProgression?.level(gear):(ap?.weaponEnhance||0);
-      window.equipmentProgression?.outline(ctx,images.vukhi,-18*images.vukhi.naturalWidth/images.vukhi.naturalHeight,-18,36*images.vukhi.naturalWidth/images.vukhi.naturalHeight,36,n||0);
+      window.equipmentProgression?.outline(ctx,images.vukhi,-18*images.vukhi.naturalWidth/images.vukhi.naturalHeight,-18,36*images.vukhi.naturalWidth/images.vukhi.naturalHeight,36,n||0,weaponColor);
       ctx.shadowBlur = 0;
       weaponEnergy(ctx,index,quality,attacking,true);
       ctx.restore();
