@@ -61,13 +61,12 @@
     const f=state.field;if(!f)return;
     const fade=Math.min(1,f.age/.3,(5.5-f.age)/.55);
     // Original perspective art belongs beneath characters, without extra debug rings.
-    const frame=skillSprites.fieldFrame(f.age,5.5);
-    atlas(ctx,2,frame,f.x,f.y+42,f.radius*2.05,thunder()?f.radius*1.45:f.radius*1.25,fade*.58);
+    spellActors.field(ctx,P.ap.w,{...f,duration:5.5},.8);
     spellMotion.formation(ctx,P.ap.w,f,fade);
   }
   function draw(ctx){
     const color=thunder()?'#ae8eff':'#e8c477';ctx.save();
-    if(state.dash){const d=state.dash;skillSprites.draw(ctx,2,0,Math.min(5,d.age/.18*5),P.x,P.y-16,90,42,Math.atan2(d.end.y-d.start.y,d.end.x-d.start.x),.9);}
+    if(state.dash){const d=state.dash;spellActors.projectile(ctx,2,P.x,P.y-16,Math.atan2(d.end.y-d.start.y,d.end.x-d.start.x),d.age,60,.95);}
     if(state.ultimate){
       const u=state.ultimate,duration=thunder()?2.2:4;
       const hitAt=thunder()?1.3:3.2;
@@ -77,7 +76,7 @@
     }
     for(const p of state.projectiles){
       spellMotion.trail(ctx,P.ap.w,p);
-      skillSprites.draw(ctx,3,0,Math.min(4,1+p.age*3),p.x,p.y-15,32,22,p.angle,.9);
+      spellActors.projectile(ctx,3,p.x,p.y-15,p.angle,p.age,30,.9);
     }
 
     for(const [e,m]of state.marks){
@@ -87,6 +86,7 @@
     for(const f of state.effects){
       if(f.index===1&&window.voidStep?.outlineOnly)continue;
       // Small contact blooms do not obscure the target or compete with the ultimate.
+      spellActors.impact(ctx,P.ap.w,f.x,f.y,f.age,Math.min(f.radius,65),.5);
       const p=f.age/.5;ctx.save();ctx.globalAlpha=(1-p)*.38;ctx.strokeStyle=color;ctx.lineWidth=1.2;
       ctx.beginPath();ctx.ellipse(f.x,f.y-9,5+p*15,3+p*8,0,0,Math.PI*2);ctx.stroke();
       for(let n=0;n<4;n++){const a=n*Math.PI/2+f.angle;ctx.fillStyle=color;ctx.beginPath();ctx.arc(f.x+Math.cos(a)*p*18,f.y-9+Math.sin(a)*p*12,.8*(1-p),0,Math.PI*2);ctx.fill();}ctx.restore();

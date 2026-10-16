@@ -31,7 +31,7 @@
   }
 
   function blade(ctx,x,y,length,rotation=0,alpha=1) {
-    skillSprites.draw(ctx,0,0,3,x,y,length*1.65,length*.78,rotation+Math.PI/2,alpha);
+    spellActors.projectile(ctx,0,x,y,rotation,tm,length,alpha);
   }
   function camera() {
     const vw=W/Z,vh=H/Z;
@@ -193,7 +193,7 @@
   };
 
   function drawRing(ctx,center,radius,alpha=1) {
-    skillSprites.draw(ctx,0,2,skillSprites.fieldFrame(center.age||0,center.duration||4.8),center.x,center.y,radius*2,radius*1.4,Math.sin((center.age||0)*.7)*.025,alpha);
+    spellActors.field(ctx,0,{...center,radius},alpha);
 
   }
   function drawField(ctx,field) {

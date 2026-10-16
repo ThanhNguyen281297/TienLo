@@ -35,11 +35,7 @@
 
   function moonBlade(ctx,x,y,slot,angle=0,alpha=1){
     const size=slot===2?34:25;
-    ctx.save();if(slot===1){ctx.translate(x,y);ctx.scale(-1,1);x=y=0;}
-    ctx.shadowColor=COLOR;ctx.shadowBlur=8;
-    // Giữ silhouette liềm của vũ khí, phủ kiếm khí/nguyệt khí từ atlas đã cung cấp.
-    crop(ctx,physical,[0,0,1,1],x,y,size,size,angle,alpha*.8);
-    ctx.shadowBlur=0;crop(ctx,ART[0],ARC,x,y,size*1.65,size*1.3,angle,alpha*.8);ctx.restore();
+    spellActors.projectile(ctx,1,x,y,angle,tm+slot*.7,size*1.2,alpha);
   }
   function camera(){const vw=W/Z,vh=H/Z;return gameCamera(vw,vh);}
   cv.addEventListener('pointermove',event=>{
@@ -175,7 +171,7 @@
 
   function drawRing(ctx,zone,alpha=1){
     spellMotion.formation(ctx,1,zone,alpha);
-    skillSprites.draw(ctx,1,2,skillSprites.fieldFrame(zone.age||0,zone.duration||4.8),zone.x,zone.y,zone.radius*2,zone.radius*1.3,Math.sin((zone.age||0)*.7)*.025,alpha);
+    spellActors.field(ctx,1,zone,alpha);
     // Hai lớp khí dạng elip xoay ngược chiều; giữa là Nguyệt Luân phát sáng.
     ctx.save();ctx.translate(zone.x,zone.y);ctx.scale(1,.58);ctx.globalAlpha*=alpha;
     for(let layer=0;layer<2;layer++){
@@ -197,7 +193,7 @@
     for(const b of state.flying){
       window.characterWeapon.trail(ctx,b.trail,b,20,COLOR);
       moonBlade(ctx,b.x,b.y-20,b.slot,b.angle);
-      if(!b.visualOnly)crop(ctx,ART[0],ARC,b.x,b.y-20,37,30,b.angle,.45);
+
     }
   }
   function drawGhost(ctx,ghost){
@@ -222,8 +218,7 @@
       for(let i=0;i<8;i++)glowFor(ctx,b.start.x+(b.end.x-b.start.x)*i/8,b.start.y-18+(b.end.y-b.start.y)*i/8,2,COLOR,(1-p)*.35);}
     drawFlying(ctx);if(state.ultimate)drawUltimate(ctx,state.ultimate);
     for(const f of state.flashes){const p=f.age/f.duration;
-      if(f.kind==='pulse')crop(ctx,ART[2],FIELD,f.x,f.y-14,90,75,0,(1-p)*.35);
-      else crop(ctx,ART[0],f.kind==='cast'?CAST:IMPACT,f.x,f.y,f.kind==='cast'?52:30,f.kind==='cast'?54:25,0,(1-p)*.55);
+      spellActors.impact(ctx,1,f.x,f.y,f.age,f.kind==='pulse'?45:28,f.duration);
     }
   }
   dr=function(){previousDraw();if(!active())return;const c=camera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);drawEffects(g);g.restore();};

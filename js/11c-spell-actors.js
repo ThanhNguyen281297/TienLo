@@ -1,0 +1,149 @@
+/* Layered spell actors: one texture per moving part, continuous simulation time.
+   The old six-pose illustrations remain available for skill icons and galleries. */
+(function(){
+  const TAU=Math.PI*2,clamp=v=>Math.max(0,Math.min(1,v));
+  const smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const colors=['#69d9ff','#71efd2','#b18aff','#ffdc91'];
+  const parts=[],tints=new Map(),weapons=[],stats={sprites:0};
+  const atlas=new Image();
+  atlas.onload=()=>{
+    const w=atlas.naturalWidth/4,h=atlas.naturalHeight/2;
+    for(let n=0;n<8;n++){
+      const c=document.createElement('canvas');c.width=Math.ceil(w);c.height=Math.ceil(h);
+      c.getContext('2d').drawImage(atlas,(n%4)*w,Math.floor(n/4)*h,w,h,0,0,c.width,c.height);parts[n]=c;
+    }
+  };
+  atlas.src=artworkURL('CHARACTER/SkillVFX/spirit-components-v1.png');
+  for(const folder of ['Kiem','Liem','Thuong','Quat']){
+    const image=new Image();image.src=artworkURL('CHARACTER/'+folder+'/VuKhi/vukhi.png');weapons.push(image);
+  }
+  function texture(sect,index){
+    const key=sect+':'+index;if(tints.has(key))return tints.get(key);
+    const source=parts[index];if(!source)return null;
+    const c=document.createElement('canvas');c.width=source.width;c.height=source.height;
+    const g=c.getContext('2d');g.drawImage(source,0,0);g.globalCompositeOperation='source-atop';
+    g.globalAlpha=.42;g.fillStyle=colors[sect];g.fillRect(0,0,c.width,c.height);tints.set(key,c);return c;
+  }
+  function part(ctx,sect,index,x,y,w,h,angle=0,alpha=1){
+    const image=texture(sect,index);if(!image||alpha<=0||w<=0||h<=0)return false;
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
+    ctx.globalCompositeOperation='lighter';renderArtwork(ctx,image,-w/2,-h/2,w,h);ctx.restore();stats.sprites++;return true;
+  }
+  function weapon(ctx,sect,x,y,size,angle=0,alpha=1){
+    const image=weapons[sect];if(!image.complete||!image.naturalWidth||alpha<=0)return;
+    const ratio=size/Math.max(image.naturalWidth,image.naturalHeight);
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
+    renderArtwork(ctx,image,-image.naturalWidth*ratio/2,-image.naturalHeight*ratio/2,image.naturalWidth*ratio,image.naturalHeight*ratio);ctx.restore();
+  }
+  // Reconstruct the trail at past simulation times, rather than storing a frame
+  // history. This stays identical at 30/60/120 Hz and allocates no particles.
+  function orbit(ctx,sect,index,x,y,age,radius,size,count,alpha=1,flatten=.48){
+    const clock=reduced.matches?0:age;
+    for(let n=0;n<count;n++)for(let tail=3;tail>=0;tail--){
+      const a=n*TAU/count+clock*(sect===1?-1.6:1.35)-tail*.065;
+      const depth=.8+.2*Math.sin(a),s=size*depth;
+      part(ctx,sect,index,x+Math.cos(a)*radius,y+Math.sin(a)*radius*flatten,s,s,a+Math.PI/2,alpha*(tail===0?.8:.075)*(tail===0?1:1-tail/5));
+    }
+  }
+  function motes(ctx,sect,x,y,age,radius,alpha,count=14,outward=false){
+    const clock=reduced.matches?0:age;
+    for(let n=0;n<count;n++){
+      const p=(clock*(outward?.85:.38)+n*.61803398875)%1;
+      const a=n*2.399963+clock*.18,r=radius*(outward?p:1-p);
+      const opacity=Math.sin(p*Math.PI)*alpha;
+      part(ctx,sect,n%3===0?5:3,x+Math.cos(a)*r,y+Math.sin(a)*r*.54-(outward?0:p*16),n%3===0?11:6,n%3===0?20:6,a,opacity);
+    }
+  }
+  function field(ctx,sect,f,alpha=1){
+    const duration=f.duration||5.5;
+    const fade=smooth(f.age/.35)*smooth((duration-f.age)/.5)*alpha;
+    if(fade<=0)return;
+    const clock=reduced.matches?0:f.age,r=f.radius*(.7+.3*smooth(f.age/.45));
+    ctx.save();ctx.translate(f.x,f.y);ctx.scale(1,.54);
+    part(ctx,sect,4,0,0,r*2.22,r*2.22,clock*.13,fade*.27);
+    part(ctx,sect,7,0,0,r*1.65,r*1.65,-clock*.23,fade*.15);
+    orbit(ctx,sect,5,0,0,clock,r*.78,22,sect===3?8:6,fade*.5,1);
+    ctx.restore();
+    motes(ctx,sect,f.x,f.y-5,f.age,r*.9,fade*.4,10);
+  }
+  function projectile(ctx,sect,x,y,angle,age,size=32,alpha=1){
+    if(sect===1){
+      part(ctx,sect,0,x,y,size*1.45,size*1.45,angle+age*4,alpha);
+      part(ctx,sect,0,x,y,size*1.2,size*1.2,angle+age*4-.3,alpha*.16);
+    }else if(sect===3){
+      part(ctx,sect,1,x-Math.cos(angle)*12,y-Math.sin(angle)*12,size*2,size*.65,angle,alpha*.45);
+      part(ctx,sect,5,x,y,size*.7,size*.9,angle+Math.PI/2+Math.sin(age*7)*.12,alpha);
+    }else{
+      part(ctx,sect,1,x-Math.cos(angle)*10,y-Math.sin(angle)*10,size*2.3,size*.7,angle,alpha*.7);
+      weapon(ctx,sect,x,y,size,angle+(sect===0?-Math.PI/2:Math.PI/2),alpha);
+    }
+  }
+  function impact(ctx,sect,x,y,age,radius=55,duration=.6){
+    if(age<0||age>=duration)return;
+    const p=age/duration,fade=(1-p)**2,expand=1-(1-p)**3;
+    part(ctx,sect,6,x,y-8,30+radius*expand,30+radius*expand*.75,age*.25,fade*.7);
+    part(ctx,sect,7,x,y,12+radius*2*expand,6+radius*expand,0,fade*.65);
+    for(let n=0;n<10;n++){
+      const a=n*2.399963,r=radius*expand*(.45+(n%3)*.16);
+      part(ctx,sect,n%3?3:5,x+Math.cos(a)*r,y+Math.sin(a)*r*.5-p*12,7,10,a+p,fade*.7);
+    }
+  }
+  function ultimate(ctx,sect,index,age,duration,x,y,width,height,hitAt=duration*.6,alpha=1){
+    if(age<0||age>=duration)return false;
+    const charge=clamp(age/hitAt),release=clamp((age-hitAt)/Math.max(.01,duration-hitAt));
+    const fade=smooth(age/.18)*smooth((duration-age)/.35)*alpha;
+    const baseY=y+height*.32,clock=reduced.matches?0:age;
+    field(ctx,sect,{x,y:baseY,radius:width*.43,age,duration},fade*.7);
+    if(age<hitAt){
+      motes(ctx,sect,x,baseY-12,age,width*.54,fade*.65,18);
+      if(sect===0){
+        for(let n=0;n<7;n++){
+          const a=n*TAU/7+clock*.65,r=width*(.28+.08*Math.sin(clock));
+          const px=x+Math.cos(a)*r,py=baseY-height*(.25+.3*charge)+Math.sin(a)*r*.24;
+          part(ctx,sect,1,px,py-12,54,14,Math.PI/2,fade*.32);
+          weapon(ctx,sect,px,py,46+charge*12,Math.sin(clock+n)*.06,fade*(.55+.25*Math.sin(a)));
+        }
+        weapon(ctx,sect,x,baseY-height*.5*(1-smooth((charge-.84)/.16)),70+30*charge,0,fade*.8);
+      }else if(sect===1){
+        orbit(ctx,sect,0,x,baseY-height*.27,clock,width*(.15+.19*charge),width*.42,3,fade*.8,.65);
+        part(ctx,sect,7,x,baseY-height*.27,width*.7,width*.7,-clock*.5,fade*.28);
+      }else if(sect===2){
+        // Separate wisps form a rising helix; their depth, pitch and width move.
+        for(let n=0;n<10;n++){
+          const v=(n/10+clock*.28)%1,a=v*TAU*2-clock*2.2;
+          const r=width*(.13+.13*v),px=x+Math.cos(a)*r,py=baseY-v*height*.85;
+          part(ctx,sect,2,px,py,52*(.7+v),34,Math.sin(a)*.6,fade*Math.sin(v*Math.PI)*(.35+.3*(Math.sin(a)+1)/2));
+        }
+        weapon(ctx,sect,x,baseY-height*(.35+.12*charge)*(1-smooth((charge-.84)/.16)),height*.63,Math.PI,fade*.9);
+      }else{
+        orbit(ctx,sect,5,x,baseY-height*.25,clock,width*(.17+.2*charge),34,10,fade*.85,.65);
+        for(let n=0;n<3;n++)part(ctx,sect,0,x,baseY-height*.25,width*.6,width*.6,clock*.6+n*TAU/3,fade*.25);
+        weapon(ctx,sect,x,baseY-height*.25,42,Math.sin(clock)*.12,fade*.7);
+      }
+    }else{
+      const flight=smooth(release/.35),spread=width*(1-flight)*.38;
+      if(sect===0||sect===2){
+        const count=sect===0?9:5;
+        for(let n=0;n<count;n++){
+          const delay=n/count*.18,p=clamp((release-delay)/.32),drop=1-(1-p)**3;
+          const px=x+(n-(count-1)/2)*spread*.38,py=baseY-height*.85*(1-drop);
+          part(ctx,sect,1,px,py-22,70,15,Math.PI/2,fade*(1-p)*.8);
+          weapon(ctx,sect,px,py,sect===0?62:85,sect===0?0:Math.PI,fade*(1-p));
+        }
+      }else{
+        const count=sect===1?3:12;
+        for(let n=0;n<count;n++){
+          const a=n*TAU/count+clock*(sect===1?-2:1),r=width*(.12+release*.55);
+          part(ctx,sect,sect===1?0:5,x+Math.cos(a)*r,baseY+Math.sin(a)*r*.52-release*12,sect===1?width*.55:25,sect===1?width*.55:44,a+release*2,fade*(1-release));
+        }
+      }
+      impact(ctx,sect,x,baseY,age-hitAt,width*.6,Math.min(.85,duration-hitAt));
+      motes(ctx,sect,x,baseY,age-hitAt,width*.6,fade*.6,20,true);
+    }
+    return parts.length===8;
+  }
+  window.spellActors={part,field,projectile,impact,ultimate,weapon,stats,get ready(){return parts.length===8;},atlas};
+  // Keep icon rendering separate from in-world moving actors.
+  skillSprites.animate=ultimate;
+})();
