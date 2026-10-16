@@ -169,7 +169,15 @@ class OnlineServerTest(unittest.TestCase):
             duplicate=frame(petCast={**cast,'id':'second-'+species});self.assertEqual(next(m for m in duplicate['mobs'] if m['id']==mob_id)['hp'],hp)
             if species=='Doi':
                 self.assertEqual(server.field_speed(mob),.7)
-                peer_view=frame(observer,ocsrf);peer=next(v for v in peer_view['players'] if v['name']==p['nm']);self.assertEqual(peer['petCast']['species'],'Doi')
+                # Public cast visuals last one second. Control the snapshot clock
+                # instead of relying on HTTP round trips completing before expiry.
+                cast_at=server.PEERS[owner['id']]['petCastAt']
+                with patch.object(server.time,'monotonic',return_value=cast_at+.5):
+                    peer_view=frame(observer,ocsrf)
+                peer=next(v for v in peer_view['players'] if v['name']==p['nm']);self.assertEqual(peer['petCast']['species'],'Doi')
+                with patch.object(server.time,'monotonic',return_value=cast_at+1.1):
+                    expired_view=frame(observer,ocsrf)
+                self.assertIsNone(next(v for v in expired_view['players'] if v['name']==p['nm'])['petCast'])
             # A fresh peer stream still cannot bypass the SQLite cooldown.
             server.PEERS.pop(owner['id']);fresh=frame(petCast={**cast,'id':'fresh-'+species})
             self.assertEqual(next(m for m in fresh['mobs'] if m['id']==mob_id)['hp'],hp)
