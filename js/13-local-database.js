@@ -71,7 +71,14 @@
   addEventListener('pagehide',()=>{
     if(location.protocol!=='file:'&&state.ready&&!state.restoring&&!state.conflict&&P.ap&&!saving){navigator.sendBeacon('/api/characters',new Blob([JSON.stringify({csrf:state.csrf,revision:state.revision,player:snapshot()})],{type:'application/json'}));}
   });
-  window.account={state,api,flush,restore};
+  async function transact(path,data){
+    if(state.restoring||!await flush())throw new Error('Chưa lưu được nhân vật. Hãy thử lại.');
+    clearTimeout(timer);state.restoring=true;
+    try{const result=await api(path,{...data,revision:state.revision});if(result.character){state.revision=result.character.revision;restore(result.character);}return result;}
+    catch(e){if(e.conflict||!e.status){try{const latest=await api('/api/characters');if(latest.character){state.revision=latest.character.revision;restore(latest.character);}}catch{}}throw e;}
+    finally{state.restoring=false;}
+  }
+  window.account={state,api,flush,restore,transact};
   addEventListener('DOMContentLoaded',async()=>{
     if(location.protocol==='file:'){error.textContent='Game online cần server. Chạy python server.py rồi mở http://127.0.0.1:8080.';submit.disabled=true;return;}
     try{const session=await api('/api/session');if(session.user)await enter(session);}catch(e){error.textContent=e.message;}

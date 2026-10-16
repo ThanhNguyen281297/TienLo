@@ -16,22 +16,22 @@
   const chat=document.createElement('section');chat.id='online-panel';chat.innerHTML='<header><span id="online-status">Đang kết nối</span><button id="chat-toggle" type="button" aria-expanded="true">Chat</button></header><div id="chat-messages" role="log" aria-live="polite"></div><form id="chat-form"><input id="chat-input" maxlength="160" autocomplete="off" placeholder="Trò chuyện cùng đạo hữu…" aria-label="Tin nhắn"><button type="submit">Gửi</button></form><div class="emote-buttons"><button data-emote="wave" title="Chào đạo hữu">Chào</button><button data-emote="heart" title="Gửi trái tim">♥</button><button data-emote="ready" title="Sẵn sàng luyện công">Sẵn sàng</button></div>';document.body.append(chat);chat.hidden=true;
   $('chat-toggle').onclick=()=>{chat.classList.toggle('collapsed');$('chat-toggle').setAttribute('aria-expanded',String(!chat.classList.contains('collapsed')));};
   for(const button of chat.querySelectorAll('[data-emote]'))button.onclick=()=>{state.emote=button.dataset.emote;};
-  $('chat-form').onsubmit=async event=>{event.preventDefault();const input=$('chat-input'),text=input.value.trim();if(!text)return;try{await account.api('/api/chat',{text});input.value='';}catch(e){msg(e.message);}};
+  $('chat-form').onsubmit=async event=>{event.preventDefault();const input=$('chat-input'),text=input.value.trim();if(!text)return;try{await account.api('/api/chat',{text,channel:$('chat-channel')?.value||'world'});input.value='';}catch(e){msg(e.message);}};
   $('chat-input').addEventListener('focus',()=>{K={};ptr=null;});
   let chatKey='';
-  function showChat(messages){const key=messages.map(m=>m.id).join();if(chatKey===key)return;chatKey=key;const log=$('chat-messages');log.replaceChildren();for(const message of messages.slice(-25)){const p=document.createElement('p'),name=document.createElement('b');name.textContent=message.name+': ';p.append(name,document.createTextNode(message.text));log.append(p);}log.scrollTop=log.scrollHeight;}
+  function showChat(messages){const key=messages.map(m=>m.id).join();if(chatKey===key)return;chatKey=key;const log=$('chat-messages');log.replaceChildren();for(const message of messages.slice(-25)){const p=document.createElement('p'),name=document.createElement('b');name.textContent=(message.channel==='party'?'[Đội] ':message.channel==='guild'?'[Tông] ':'')+message.name+': ';p.append(name,document.createTextNode(message.text));log.append(p);}log.scrollTop=log.scrollHeight;}
   async function frame(){
-    if(busy||!account.state.ready||!P.ap||performance.now()<retryAt)return;
+    if(busy||!account.state.ready||account.state.restoring||!P.ap||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
     if(lastMap!==scene){state.hits=[];state.players=[];state.fields=[];state.shared=false;retry=null;lastMap=scene;}
-    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;state.petCast=null;retry=batch;
+    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,hp:P.hp,ackBoss:window.communityGame?.bossAcks||[],field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;state.petCast=null;retry=batch;
     try{
       const data=await account.api('/api/world',batch);retry=null;state.connected=true;chat.hidden=false;
-      if(scene!==worldMap.state.scene)return;
+      if(scene!==worldMap.state.scene||account.state.restoring)return;
       if(Math.hypot(data.x-batch.x,data.y-batch.y)>1){P.x=data.x;P.y=data.y;}
       state.players=data.players.map(peer=>{const old=state.players.find(p=>p.id===peer.id);return {...peer,drawX:old?.drawX??peer.x,drawY:old?.drawY??peer.y,drawLift:old?.drawLift??peer.airborne??0};});
       for(const peer of data.players){if(peer.cast&&peer.cast.id!==state.remoteCasts?.get(peer.id)){state.remoteCasts??=new Map();state.remoteCasts.set(peer.id,peer.cast.id);const color=characterClasses[peer.ap.w].color;window.combatVisuals?.pulse(peer.cast.x,peer.cast.y,peer.cast.index===3?145:peer.cast.index===2?100:45,color,.65);spark(peer.x,peer.y-25,color,8);}}
-      state.shared=data.shared;state.fields=data.fields||[];
+      state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);
       if(data.shared){
         const previous=new Map(E.filter(e=>e.network).map(e=>[e.id,e]));
         for(const reward of data.rewards){
@@ -61,7 +61,7 @@
   worldMap.queueActors=function(items,cx,cy,vw,vh){queue(items,cx,cy,vw,vh);if(!account.state.ready)return;
     for(const peer of state.players){peer.drawX+=(peer.x-peer.drawX)*.22;peer.drawY+=(peer.y-peer.drawY)*.22;peer.drawLift+=((peer.airborne||0)-peer.drawLift)*.22;
       if(peer.drawX<cx-80||peer.drawX>cx+vw+80||peer.drawY<cy-100||peer.drawY>cy+vh+80)continue;
-      items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,false,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);g.textAlign='center';g.font='bold 9px sans-serif';g.lineWidth=3;g.strokeStyle='#09151d';g.fillStyle='#96efda';g.strokeText(peer.name,peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70));g.fillText(peer.name,peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70));
+      items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,false,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);g.textAlign='center';g.font='bold 9px sans-serif';g.lineWidth=3;g.strokeStyle='#09151d';g.fillStyle='#96efda';const displayName=(window.communityGame?.isAlly(peer.id)?'◆ ':'')+peer.name;g.strokeText(displayName,peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70));g.fillText(displayName,peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70));
         if(peer.emote){g.font='bold 15px sans-serif';g.fillStyle='#fff1c9';g.fillText({wave:'✦ Xin chào!',heart:'♥',ready:'⚔ Sẵn sàng'}[peer.emote],peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70)-20);}
         g.restore();}]);
     }

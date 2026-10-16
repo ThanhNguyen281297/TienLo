@@ -16,6 +16,114 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def social_user(self,name,realm=0):
+        cookie,csrf=self.register(name);p=self.player(name);p.update(gold=1000,r=realm,x=1000,y=1100);p['world']['map']='hub'
+        self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':0,'player':p},cookie)[0],201)
+        return cookie,csrf
+
+    def social_action(self,auth,action,**values):
+        cookie,csrf=auth;saved=self.request('/api/characters',cookie=cookie)[1]['character']
+        return self.request('/api/community',{'csrf':csrf,'action':action,'operationId':server.secrets.token_hex(12),'revision':saved['revision'],**values},cookie)
+
+    def test_party_permissions_capacity_transfer_and_persistence(self):
+        users=[self.social_user('party_'+str(i)) for i in range(5)]
+        ids=[self.request('/api/session',cookie=c)[1]['user']['id'] for c,_ in users]
+        self.assertEqual(self.social_action(users[0],'party_create')[0],200)
+        party=self.request('/api/community',cookie=users[0][0])[1]['party'];gid=party['id']
+        for i in range(1,4):
+            self.assertEqual(self.social_action(users[0],'party_invite',target=ids[i])[0],200)
+            self.assertEqual(self.social_action(users[i],'party_accept',id=gid)[0],200)
+        self.assertEqual(self.social_action(users[0],'party_invite',target=ids[4])[0],409)
+        self.assertEqual(self.social_action(users[1],'party_kick',target=ids[0])[0],409)
+        self.assertEqual(self.social_action(users[4],'party_accept',id=gid)[0],409)
+        self.assertEqual(self.social_action(users[0],'party_promote',target=ids[1])[0],200)
+        self.assertEqual(self.social_action(users[0],'party_leave')[0],200)
+        server.init_db();data=self.request('/api/community',cookie=users[1][0])[1]
+        self.assertEqual(data['party']['leader'],ids[1]);self.assertEqual(len(data['party']['members']),3)
+        self.assertEqual(self.social_action(users[1],'party_leave')[0],200)
+        self.assertEqual(self.request('/api/community',cookie=users[2][0])[1]['party']['leader'],ids[2])
+        self.assertEqual(self.request('/api/community',{'action':'party_create'},users[4][0])[0],403)
+
+    def test_guild_transactions_tasks_permissions_and_once_daily_claims(self):
+        owner=self.social_user('guild_owner');member=self.social_user('guild_member')
+        mid=self.request('/api/session',cookie=member[0])[1]['user']['id'];uid=self.request('/api/session',cookie=owner[0])[1]['user']['id']
+        op='create-one';created=self.social_action(owner,'guild_create',name='Vân Hải Minh',operationId=op)
+        self.assertEqual(created[0],200);self.assertEqual(created[1]['character']['player']['gold'],800)
+        duplicate=self.social_action(owner,'guild_create',name='Vân Hải Minh',operationId=op)
+        self.assertEqual(duplicate[1]['character']['player']['gold'],800)
+        guild=self.request('/api/community',cookie=owner[0])[1]['guild'];gid=guild['id']
+        self.assertEqual(self.social_action(member,'guild_request',id=gid)[0],200)
+        self.assertEqual(self.social_action(member,'guild_accept',target=mid)[0],409)
+        self.assertEqual(self.social_action(owner,'guild_accept',target=mid)[0],200)
+        for _ in range(5):self.assertEqual(self.social_action(member,'guild_donate')[0],200)
+        self.assertEqual(self.social_action(member,'guild_donate')[0],409)
+        data=self.request('/api/community',cookie=owner[0])[1]['guild'];self.assertEqual(data['points'],50)
+        self.assertEqual(next(m for m in data['members'] if m['id']==mid)['contribution'],50)
+        with server.connect() as db:
+            for _ in range(20):server.community.record_kill(db,{uid,mid})
+        self.assertEqual(self.request('/api/community',cookie=owner[0])[1]['guild']['tasks']['kills'],20)
+        claimed=self.social_action(member,'task_claim',task='kills');self.assertEqual(claimed[0],200)
+        self.assertEqual(claimed[1]['character']['player']['world']['riftShards'],1)
+        self.assertEqual(self.social_action(member,'task_claim',task='kills')[0],409)
+        self.assertEqual(self.social_action(member,'guild_kick',target=uid)[0],409)
+        stale=self.social_action(owner,'guild_donate',revision=0);self.assertEqual(stale[0],409);self.assertTrue(stale[1]['conflict'])
+        self.assertEqual(self.social_action(owner,'guild_promote',target=mid)[0],200)
+        self.assertEqual(self.social_action(owner,'guild_leave')[0],200)
+        self.assertEqual(self.request('/api/community',cookie=member[0])[1]['guild']['leader'],mid)
+
+    def test_party_nearby_rewards_and_private_chat_channels(self):
+        import time
+        a=self.social_user('team_a');b=self.social_user('team_b');outsider=self.social_user('team_other')
+        bid=self.request('/api/session',cookie=b[0])[1]['user']['id']
+        self.social_action(a,'party_create');gid=self.request('/api/community',cookie=a[0])[1]['party']['id'];self.social_action(a,'party_invite',target=bid);self.social_action(b,'party_accept',id=gid)
+        def frame(auth,**extra):
+            time.sleep(.14);status,data,_=self.request('/api/world',{'csrf':auth[1],'map':'sword','x':1105,'y':490,'hp':100,'batch':server.secrets.token_hex(8),**extra},auth[0]);self.assertEqual(status,200);return data
+        first=frame(a);frame(b);frame(outsider);mob=first['mobs'][0]
+        killed=frame(a,hits=[{'id':mob['id'],'power':40}]);self.assertTrue(killed['rewards'])
+        self.assertTrue(frame(b)['rewards']);self.assertEqual(frame(outsider)['rewards'],[])
+        self.assertEqual(self.request('/api/chat',{'csrf':a[1],'text':'Đội riêng','channel':'party'},a[0])[0],200)
+        self.assertTrue(any(m['text']=='Đội riêng' for m in frame(b)['chat']))
+        self.assertFalse(any(m['text']=='Đội riêng' for m in frame(outsider)['chat']))
+        self.assertEqual(self.request('/api/chat',{'csrf':outsider[1],'text':'hack','channel':'party'},outsider[0])[0],409)
+
+    def test_world_boss_shared_phases_telegraphs_rewards_and_restart(self):
+        import time
+        cooldowns=server.re.findall(r'cooldowns:\[([^\]]+)\]',(server.ROOT/'js/13b-combat-balance.js').read_text(encoding='utf-8'))
+        self.assertEqual(tuple(int(row.split(',')[1]) for row in cooldowns),server.EVASION_COOLDOWNS)
+        a=self.social_user('raid_a',14);b=self.social_user('raid_b');watcher=self.social_user('raid_view')
+        def frame(auth,**extra):
+            time.sleep(.14);status,data,_=self.request('/api/world',{'csrf':auth[1],'map':'worldboss','x':1000,'y':1210,'hp':100,'batch':server.secrets.token_hex(8),**extra},auth[0]);self.assertEqual(status,200);return data
+        first=frame(a);second=frame(b);frame(watcher)
+        self.assertEqual(first['mobs'][0]['id'],second['mobs'][0]['id']);self.assertEqual(second['boss']['required'],48)
+        boss=server.ROOMS['worldboss:0']['mobs'][0];boss_id=boss['id']
+        frame(a,hits=[{'id':boss_id,'power':1000}]);frame(b,hits=[{'id':boss_id,'power':48} for _ in range(7)])
+        owner=next(p for p in server.PEERS.values() if p['name']=='raid_a')
+        boss['hp']=15001;server.damage_mob(boss,999999,owner['id'],time.monotonic(),'worldboss:0');self.assertEqual((boss['hp'],boss['phase']),(15000,2))
+        server.damage_mob(boss,999999,owner['id'],time.monotonic(),'worldboss:0');self.assertEqual(boss['hp'],15000)
+        boss['_enrageUntil']=0;boss['_nextCast']=0;warning=frame(a)
+        self.assertEqual(len(warning['boss']['marks']),3);self.assertEqual(warning['bossEvents'],[])
+        frame(b,paused=True)
+        frame(a,cast={'id':'verified-evade','index':1,'x':1000,'y':1210})
+        for mark in boss['_cast']['marks']:mark['start']=time.time()-mark['duration']-.01
+        evaded=frame(a);self.assertTrue(evaded['bossEvents']);self.assertTrue(all(e['dodged'] for e in evaded['bossEvents']))
+        struck=frame(b);self.assertTrue(any(not e['dodged'] and e['amount']>0 for e in struck['bossEvents']))
+        ids=[e['id'] for e in evaded['bossEvents']];self.assertEqual(frame(a,ackBoss=ids)['bossEvents'],[])
+        boss['hp']=1;boss['_enrageUntil']=0;finished=frame(a,hits=[{'id':boss_id,'power':100}]);self.assertEqual(finished['boss']['hp'],0)
+        self.assertGreater(finished['boss']['respawn'],290);self.assertEqual(finished['boss']['marks'],[])
+        chest=self.request('/api/community',cookie=a[0])[1]['rewards'];self.assertEqual(len(chest),1)
+        self.assertEqual(len(self.request('/api/community',cookie=b[0])[1]['rewards']),1)
+        self.assertEqual(self.request('/api/community',cookie=watcher[0])[1]['rewards'],[])
+        self.assertEqual(self.social_action(a,'reward_claim',id=chest[0]['id'])[0],409)
+        server.ROOMS.clear();reloaded=frame(a);self.assertEqual(reloaded['boss']['hp'],0);self.assertGreater(reloaded['boss']['respawn'],290)
+        saved=self.request('/api/characters',cookie=a[0])[1]['character'];player=saved['player'];player['world']['map']='hub'
+        self.request('/api/characters',{'csrf':a[1],'player':player,'revision':saved['revision']},a[0]);time.sleep(.14)
+        self.request('/api/world',{'csrf':a[1],'map':'hub','x':1000,'y':1100},a[0])
+        claimed=self.social_action(a,'reward_claim',id=chest[0]['id'],operationId='claim-one');self.assertEqual(claimed[0],200)
+        self.assertEqual(claimed[1]['character']['player']['gold'],1250)
+        duplicate=self.social_action(a,'reward_claim',id=chest[0]['id'],operationId='claim-one');self.assertEqual(duplicate[1]['character']['player']['gold'],1250)
+        self.assertEqual(self.social_action(a,'reward_claim',id=chest[0]['id'])[0],409)
+        self.assertEqual(self.social_action(watcher,'reward_claim',id=chest[0]['id'])[0],409)
+
     def test_collection_catalog_stats_mixed_sets_and_validation(self):
         source=(server.ROOT/'js/24b-build-catalog.js').read_text(encoding='utf-8')
         self.assertEqual(json.loads(source.split('window.buildCatalog=',1)[1].strip().removesuffix(';')),server.BUILD_RULES)

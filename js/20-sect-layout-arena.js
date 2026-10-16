@@ -112,7 +112,7 @@
   function paintGround(ctx,cx,cy,vw,vh){floorView={x:cx-2,y:cy-2,width:vw+4,height:vh+4};ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
     if(world.state.scene==='hub'){hubFloor(ctx,cx,cy,vw,vh);ctx.restore();return;}
     sky(ctx,cx,cy,vw,vh);
-    if(world.state.scene==='arena'){islandDeck(ctx,1000,1100,200,100,65);ctx.restore();return;}
+    if(world.state.scene==='arena'||world.state.scene==='worldboss'){const large=world.state.scene==='worldboss';islandDeck(ctx,1000,1100,large?320:200,large?160:100,65);ctx.restore();return;}
     const layers=[{y:1100,priority:0,draw:()=>court(ctx,layout())}];
     (isValley()?valleyMines:camps).forEach(c=>layers.push({y:c.y,priority:2,draw:()=>islandDeck(ctx,c.x,c.y,isValley()?farmLayout.valley.rx:farmLayout.camp.rx,isValley()?farmLayout.valley.ry:farmLayout.camp.ry,65)}));
     layers.sort((a,b)=>a.y-b.y||a.priority-b.priority).forEach(layer=>layer.draw());ctx.restore();
