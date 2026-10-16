@@ -2,6 +2,11 @@
 
 Game tu tiên HTML5 Canvas: bốn phái, bản đồ tông môn, thành chung, farm hợp tác, đấu trường, tu luyện và trang bị.
 
+Giao diện mobile: joystick bên trái, bốn skill tròn quanh nút đánh thường bên phải.
+Hỗ trợ hai ngón tay để vừa di chuyển vừa kéo/ngắm skill. Túi đồ, thuộc tính, auto
+và chat nằm ở dãy icon giữa dưới; nút **Khác** mở bản đồ, đả tọa, tu luyện, đột phá
+và GM test. Máy tính vẫn dùng được WASD, F và phím 1–4.
+
 Đến trận truyền tống ở bốn hướng và nhấn **E** (điện thoại: nút tương tác) để sang
 bãi luyện công; trận bên kia đưa về sân tông môn. Mỗi bãi có 12 quái, tổng 48 quái
 chung cho mỗi phòng tông môn/cảnh giới. Bốn đảo luyện công đã được mở rộng, không

@@ -34,8 +34,10 @@ addEventListener('pointerup',()=>ptr=null);
 $('bq').onclick=()=>P.med=!P.med;$('bs').onclick=cast;$('bb').onclick=brk;
 function up(dt){
  let dx=(K.d||K.arrowright?1:0)-(K.a||K.arrowleft?1:0),dy=(K.s||K.arrowdown?1:0)-(K.w||K.arrowup?1:0);
+ const stick=window.mobileInput;let moveScale=1;
+ if(stick?.active){dx=stick.x;dy=stick.y;moveScale=Math.min(1,Math.hypot(dx,dy));}
  if(ptr){const camera=gameCamera(),vx=camera.x+ptr.x/innerWidth*W/Z-P.x,vy=camera.y+ptr.y/innerHeight*H/Z-P.y;if(Math.hypot(vx,vy)>24){dx=vx;dy=vy}}
- if((dx||dy)&&!window.classCombat?.isDashing()){const d=Math.hypot(dx,dy);P.med=0;const sp=150+P.r*10,to={x:Math.max(20,Math.min(M-20,P.x+dx/d*sp*dt)),y:Math.max(20,Math.min(M-20,P.y+dy/d*sp*dt))};const end=window.worldMap?.traceMove(P,to)||to;P.x=end.x;P.y=end.y;if(dx)P.f=dx<0?-1:1}
+ if((dx||dy)&&!window.classCombat?.isDashing()){const d=Math.hypot(dx,dy);P.med=0;const sp=(150+P.r*10)*moveScale,to={x:Math.max(20,Math.min(M-20,P.x+dx/d*sp*dt)),y:Math.max(20,Math.min(M-20,P.y+dy/d*sp*dt))};const end=window.worldMap?.traceMove(P,to)||to;P.x=end.x;P.y=end.y;if(dx)P.f=dx<0?-1:1}
  if(P.med){P.xp=Math.min(need()*3,P.xp+2*dt*(1+P.r*.5));P.mp+=9*dt;if(P.hp>0)P.hp+=4*dt}else{P.mp+=1.5*dt;if(P.hp>0)P.hp+=1*dt}
  P.hp=Math.min(mhp(),P.hp);P.mp=Math.min(mmp(),P.mp);P.acd-=dt;P.scd-=dt;
  const t=window.cultivation?cultivation.basicTarget():near(50);

@@ -42,8 +42,9 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   await one.evaluate(()=>{P.x=1000;P.y=1110;P.hp=mhp();});
   console.log('PASS four authenticated E portals both ways, peer visibility, saved arrival and 48 shared monsters');
 
-  await one.locator('#chat-input').fill('Xin chào <script>');await one.locator('#chat-form button').click();await two.waitForFunction(()=>document.getElementById('chat-messages').textContent.includes('Xin chào <script>'));
+  await one.locator('#hud-chat').click();await one.locator('#chat-input').fill('Xin chào <script>');await one.locator('#chat-form button').click();await two.waitForFunction(()=>document.getElementById('chat-messages').textContent.includes('Xin chào <script>'));
   assert.equal(await two.locator('#chat-messages script').count(),0);
+  await one.locator('#chat-toggle').click();
   console.log('PASS chat safely renders text between accounts');
   for(const page of [one,two]){await page.evaluate(()=>{worldMap.progress().tutorial=true;P.x=1105;});for(const y of [930,750,570,490]){await page.evaluate(y=>P.y=y,y);await page.waitForTimeout(350);}}
   await one.waitForTimeout(500);

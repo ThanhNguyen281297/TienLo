@@ -6,12 +6,12 @@ assert.equal(await page.evaluate(()=>P.ap.w),w);assert.equal(await page.evaluate
 assert.equal(await page.evaluate(()=>worldMap.state.scene),['sword','moon','thunder','mystic'][w]);
 assert.deepEqual(await page.evaluate(()=>({x:P.x,y:P.y})),{x:1000,y:1110});
 // GM bypass is temporary: casting at realm 0 must not mutate saved progression.
-await page.locator('#gm-skills').click();
+await page.locator('#hud-more').click();await page.locator('#gm-skills').click();
 assert.equal(await page.evaluate(()=>gmTest.enabled),true);assert.equal(await page.locator('#sb button:disabled').count(),0);
 const gm=await page.evaluate(()=>{const start={x:P.x,y:P.y};getClassCombat().state.aim={x:P.x,y:P.y-85};skill(1);for(let n=0;n<24;n++)up(.01);dr();return{distance:Math.hypot(P.x-start.x,P.y-start.y),tears:voidStep.tears.length,realm:P.r,learned:P.world.learnedSkills.slice(),allowed:[0,1,2,3].map(cultivation.canUse),cd:getClassCombat().state.cooldown[1]};});
 assert(gm.distance>10,'GM skill 2 moves every class');assert.equal(gm.tears,2);assert.equal(gm.realm,0);assert.deepEqual(gm.learned,[false,false,false,false]);assert.deepEqual(gm.allowed,[true,true,true,true]);assert.equal(gm.cd,0);
 await page.screenshot({path:path.join(__dirname,'artifacts','void-step-class-'+w+'.png')});
-await page.locator('#gm-skills').click();assert.equal(await page.evaluate(()=>cultivation.canUse(3)),false);
+await page.locator('#hud-more').click();await page.locator('#gm-skills').click();assert.equal(await page.evaluate(()=>cultivation.canUse(3)),false);
 await page.evaluate(()=>{P.x=1000;P.y=1110;classCombat.onRespawn();});
 console.log('PASS class '+w+' GM toggle preserves progression, skill 2 movement and paired void tears');
 await page.evaluate(()=>{P.world.learnedSkills=[true,true,true,true];P.r=3;P.mp=999;P.hp=999;P.acd=999;E=[];dr();up(.01);});
