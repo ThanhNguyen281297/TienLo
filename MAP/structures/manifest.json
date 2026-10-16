@@ -250,5 +250,109 @@
     ],
     "width": 25,
     "height": 19
+  },
+  "wall-panel": {
+    "src": "MAP/structures/wall-panel.png",
+    "sourceSprite": "MAP/structures/wall-span.png",
+    "silhouette": [
+      [
+        76,
+        65
+      ],
+      [
+        143,
+        46
+      ],
+      [
+        144,
+        92
+      ],
+      [
+        77,
+        112
+      ]
+    ],
+    "crop": [
+      75,
+      44,
+      146,
+      114
+    ],
+    "width": 71,
+    "height": 70
+  },
+  "wall-pier": {
+    "src": "MAP/structures/wall-pier.png",
+    "sourceSprite": "MAP/structures/wall-span.png",
+    "silhouette": [
+      [
+        22,
+        109
+      ],
+      [
+        24,
+        91
+      ],
+      [
+        31,
+        83
+      ],
+      [
+        39,
+        80
+      ],
+      [
+        40,
+        58
+      ],
+      [
+        46,
+        49
+      ],
+      [
+        46,
+        40
+      ],
+      [
+        52,
+        31
+      ],
+      [
+        55,
+        24
+      ],
+      [
+        59,
+        32
+      ],
+      [
+        66,
+        43
+      ],
+      [
+        67,
+        57
+      ],
+      [
+        73,
+        62
+      ],
+      [
+        76,
+        111
+      ],
+      [
+        52,
+        124
+      ]
+    ],
+    "crop": [
+      20,
+      22,
+      78,
+      126
+    ],
+    "width": 58,
+    "height": 104
   }
 }

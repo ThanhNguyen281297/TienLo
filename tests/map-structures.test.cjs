@@ -26,6 +26,17 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     });
     assert(construction.boards>=50&&construction.whole,'Bridge boards use whole individual PNGs rather than a stretched span');
     assert.equal(construction.mirrors,1,'Opposite wall slopes use matching sprite orientation');
+    const joins=await page.evaluate(()=>{
+      const model=worldMap.mapStructures.layout(),bridge=model.bridges.find(b=>b.id==='east');
+      const canvas=document.createElement('canvas');canvas.width=600;canvas.height=400;const ctx=canvas.getContext('2d');ctx.translate(-1000,-900);
+      worldMap.mapStructures.drawTimber(ctx,bridge.a,bridge.b);
+      return {inside:ctx.getImageData(290,200,1,1).data[3],outside:ctx.getImageData(320,200,1,1).data[3],
+        edge:Math.abs(bridge.a.x-bridge.from.x)/bridge.from.rx+Math.abs(bridge.a.y-bridge.from.y)/bridge.from.ry,
+        wedge:worldMap.canWalk({x:1285,y:1118}),piers:model.piers.length,unique:new Set(model.piers.map(p=>p.x.toFixed(3)+','+p.y.toFixed(3))).size};
+    });
+    assert.equal(joins.inside,0,'Timber must never paint over paving or hide the pointed corner');
+    assert(joins.outside>0&&Math.abs(joins.edge-1)<1e-8&&joins.wedge,'The V-shaped join meets the exact island edge and stays walkable');
+    assert.equal(joins.piers,joins.unique,'Each shared wall joint has one pier');
     for(const scene of ['sword','moon','thunder','mystic','valley']){
       const result=await page.evaluate(scene=>{
         worldMap.travel(scene);P.world.tutorial=true;E=[];

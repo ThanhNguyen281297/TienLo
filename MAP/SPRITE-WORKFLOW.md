@@ -77,10 +77,15 @@ background pixels. Rebuild with `python tools/build_map_structures.py`; provenan
 and silhouette coordinates are in `MAP/structures/manifest.json`.
 The bridge now assembles individual 6.5-unit boards from `wood-plank.png` instead
 of stretching a complete bridge section. The deck is 42 units wide with a vertical
-underside, nails, ropes and upright posts. Stone thresholds join both ends to the
-paving. Visible boards are culled to the camera. Walls mirror their original
+underside, nails, ropes and upright posts. Bridge endpoints are exactly on the
+diamond boundary. Deck ends are trimmed around the paving with an even-odd mask,
+preserving the original pointed corners with no square thresholds on top. Rail
+posts terminate on the same diamond edges. Visible boards are culled to the camera. Walls mirror their original
 orientation on opposing slopes, and have narrow masonry footings and directional
 contact shading; there are no oval shadows under buildings or architecture.
+Wall panels and piers are separate native PNGs. Adjacent panels share one upright
+pier, including closed corners; bridge entrances are cut from the boundary before
+subdivision instead of removing whole prefabricated wall sections.
 
 Stone walls follow the island perimeter with open entrances aligned to bridges.
 The hub has a stone enclosure with four open entrances. Wall actors are depth
