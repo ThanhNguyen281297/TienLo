@@ -11,8 +11,17 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     await page.route('**/api/characters',r=>r.fulfill({status:201,body:'{}'}));
     await page.goto('http://127.0.0.1:'+port,{waitUntil:'networkidle'});
     await page.locator('#nm').fill('Map rebuild');await page.locator('#ok').click();
-    await page.waitForFunction(()=>[worldMap.layoutArt.highIsland,worldMap.layoutArt.gardenGrass,...Object.values(worldMap.layoutArt.terrainSprites),...worldMap.layoutArt.gardenFlowers].every(i=>i.complete&&i.naturalWidth),null,{polling:50});
-    assert(await page.evaluate(()=>worldMap.layoutArt.highIsland.naturalWidth>=1536),'Main terrain must use HD artwork');
+    await page.waitForFunction(()=>[worldMap.layoutArt.highIsland,...Object.values(worldMap.layoutArt.terrainSprites)].every(i=>i.complete&&i.naturalWidth),null,{polling:50});
+    assert(await page.evaluate(()=>worldMap.layoutArt.highIsland.naturalWidth>=1536),'Cliff scenery must use HD artwork');
+    const paving=await page.evaluate(()=>{
+      const c=document.createElement('canvas');c.width=600;c.height=400;const ctx=c.getContext('2d');
+      ctx.drawImage=ctx.createPattern=()=>{throw new Error('Floor must not use images or texture patterns');};
+      const region={x:300,y:200,rx:250,ry:140},count=stonePaving.draw(ctx,region);
+      const a=stonePaving.model(region),b=stonePaving.model(region);
+      return {count,cached:a===b,unique:new Set(a.tiles.map(t=>t.x+':'+t.y)).size,total:a.tiles.length,grass:performance.getEntriesByType('resource').some(r=>r.name.includes('garden-grass.png'))};
+    });
+    assert(paving.count>100&&paving.cached&&paving.unique===paving.total);
+    assert.equal(paving.grass,false,'Grass floor texture is no longer loaded');
     const grounded=await page.evaluate(()=>{
       const canvas=document.createElement('canvas');canvas.width=canvas.height=600;const ctx=canvas.getContext('2d'),failures=[];
       for(const key of Object.keys(worldMap.definitions)){
@@ -33,7 +42,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
         try{dr();}finally{g.drawImage=original;}
         return count;
       },scene);
-      assert.equal(draws,scene==='hub'?0:scene==='valley'?4:5,scene+': every walkable island uses the new terrain');
+      assert.equal(draws,scene==='hub'?0:scene==='valley'?4:5,scene+': every island retains its cliff scenery behind procedural paving');
       await page.screenshot({path:path.join(__dirname,'artifacts','map-rebuild-'+scene+'.png')});
     }
     await page.evaluate(()=>{for(let i=0;i<4;i++)skillSprites.preload(i);});

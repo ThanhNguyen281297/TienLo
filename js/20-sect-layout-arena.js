@@ -47,24 +47,12 @@
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
   function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
   const modules=Object.fromEntries(Object.entries(spriteCatalog.modules).map(([key,meta])=>{const image=new Image();image.src=artworkURL(meta.src);return[key,image];}));
-  const patterns=new WeakMap();
   const terrainSprites=Object.fromEntries(Object.entries(mapAtlasSprites.terrain).map(([key,meta])=>{const image=new Image();image.src=artworkURL(meta.src);return[key,image];}));
   // Complete connected island sprites: no rectangular cuts through neighbours.
   for(const [key,id]of Object.entries({emptyIsland:'atlas-06-024',gardenIsland:'atlas-06-038',wildIsland:'atlas-06-022',smallIsland:'atlas-06-026'})){
     const meta=mapAtlasSprites.sprites.find(s=>s.id===id);if(meta){const image=new Image();image.src=artworkURL(meta.src);terrainSprites[key]=image;}
   }
   const highIsland=new Image();highIsland.src=artworkURL('MAP/hd/courtyard-island.png');
-  const gardenGrass=new Image();gardenGrass.src=artworkURL('MAP/hd/garden-grass.png');
-  const gardenFlowers=['033','038','039'].map(id=>{const image=new Image();image.src=artworkURL('MAP/atlas-sprites/04/atlas-04-'+id+'.png');return image;});
-  const grassPatterns=new WeakMap();
-  function grassMaterial(ctx){if(!ready(gardenGrass))return null;if(!grassPatterns.has(ctx)){const pattern=ctx.createPattern(gardenGrass,'repeat');pattern.setTransform(new DOMMatrix().scale(150/gardenGrass.naturalWidth));grassPatterns.set(ctx,pattern);}return grassPatterns.get(ctx);}
-  const lawnCache=new Map();
-  function lawn(ctx,x,y,rx,ry){if(!ready(gardenGrass))return;const key=rx+':'+ry;let canvas=lawnCache.get(key);
-    if(!canvas){const pad=12;canvas=document.createElement('canvas');canvas.width=Math.ceil((rx+pad)*4);canvas.height=Math.ceil((ry+pad)*4);const c=canvas.getContext('2d');c.scale(2,2);c.translate(rx+pad,ry+pad);
-      const mask=document.createElement('canvas');mask.width=canvas.width;mask.height=canvas.height;const m=mask.getContext('2d');m.scale(2,2);m.translate(rx+pad,ry+pad);m.shadowColor='#fff';m.shadowBlur=14;m.fillStyle='#fff';diamondPath(m,0,0,rx-5,ry-3);m.fill();
-      c.fillStyle=grassMaterial(c);c.fillRect(-rx-pad,-ry-pad,(rx+pad)*2,(ry+pad)*2);c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='destination-in';c.drawImage(mask,0,0);lawnCache.set(key,canvas);
-    }ctx.drawImage(canvas,x-rx-12,y-ry-12,canvas.width/2,canvas.height/2);
-  }
   const themes={
     sword:{base:'emptyIsland',motif:'court',satellites:[['gardenIsland',560,805,180],['wildIsland',1440,820,150],['rockSpire',690,1430,95]]},
     moon:{base:'gardenIsland',motif:'roundCourt',satellites:[['smallIsland',600,845,185],['lotusTerrace',1410,820,205],['smallIsland',1430,1400,130]]},
@@ -75,39 +63,18 @@
   const districts={sword:[['school',560,805,230],['gate',1450,815,160]],moon:[['garden',555,810,220],['moonCourt',1450,810,190]],thunder:[['thunderHall',560,810,230],['thunderAltar',1440,815,100]],mystic:[['mysticArchive',560,810,210],['mysticGarden',1440,810,220]]};
   function terrainArt(ctx,key,x,y,width,plane=.43,opacity=1){const image=terrainSprites[key];if(!ready(image))return false;
     const height=width*image.naturalHeight/image.naturalWidth;ctx.save();ctx.globalAlpha*=opacity;renderArtwork(ctx,image,x-width/2,y-height*plane,width,height);ctx.restore();return true;}
-  const cliffPatterns=new WeakMap();
-  function cliffTexture(ctx){if(!ready(modules.cliff))return null;
-    if(!cliffPatterns.has(ctx))cliffPatterns.set(ctx,ctx.createPattern(modules.cliff,'repeat'));
-    return cliffPatterns.get(ctx);
-  }
-  function paving(ctx){const tile=world.asset('tile');if(!ready(tile))return null;if(!patterns.has(ctx)){const pattern=ctx.createPattern(tile,'repeat');pattern.setTransform(new DOMMatrix().translate(976,1088).scale(48/tile.naturalWidth,24/tile.naturalHeight));patterns.set(ctx,pattern);}return patterns.get(ctx);}
   function diamondPath(ctx,x,y,rx,ry){ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();}
-  function islandDeck(ctx,x,y,rx,ry,depth=70){const tile=paving(ctx);if(!tile)return;ctx.save();
+  let floorView=null;
+  function islandDeck(ctx,x,y,rx,ry,depth=70){
     if(ready(highIsland)){
-      // Measured floor corners in the 1536×1024 sprite: (143,355),
-      // (768,83), (1393,355), (768,627). Match the collision diamond.
-      renderArtwork(ctx,highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);
-      if(isValley()){
-        lawn(ctx,x,y,rx*.91,ry*.91);ctx.save();diamondPath(ctx,x,y,rx*.92,ry*.92);ctx.clip();ctx.fillStyle=tile;
-        ctx.fillRect(x-19,y-ry,38,ry*2);ctx.fillRect(x-rx,y-15,rx*2,30);ctx.restore();
-      }else if(['moon','mystic'].includes(world.state.scene)&&rx>250){
-        for(const side of [-1,1])lawn(ctx,x+side*rx*.48,y+ry*.12,rx*.23,ry*.24);
-      }
-      const theme=themes[world.state.scene];if(rx>250&&theme?.motif)terrainArt(ctx,'roundCourt',x,y,rx*.46,.48,.8);
-      ctx.restore();return;
+      // Keep the rock/waterfall silhouette, exclude its entire painted floor.
+      ctx.save();ctx.beginPath();ctx.rect(x-rx*1.4,y-ry*2,rx*2.8,ry*5);
+      ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.clip('evenodd');
+      renderArtwork(ctx,highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);ctx.restore();
+    }else{
+      ctx.save();ctx.fillStyle='#40545c';ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry+depth);ctx.closePath();ctx.fill();ctx.restore();
     }
-    // Front cliff uses extracted rock texture, independent of trees / crystal / buildings.
-    ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);
-    ctx.lineTo(x+rx*.94,y+depth*.6);ctx.lineTo(x+rx*.73,y+ry*.28+depth*.9);ctx.lineTo(x+rx*.59,y+ry*.42+depth*.65);ctx.lineTo(x+rx*.43,y+ry*.65+depth*.95);ctx.lineTo(x+rx*.24,y+ry*.75+depth*.72);ctx.lineTo(x,y+ry+depth*1.25);
-    ctx.lineTo(x-rx*.24,y+ry*.75+depth*.72);ctx.lineTo(x-rx*.43,y+ry*.65+depth*.95);ctx.lineTo(x-rx*.59,y+ry*.42+depth*.65);ctx.lineTo(x-rx*.73,y+ry*.28+depth*.9);ctx.lineTo(x-rx*.94,y+depth*.6);ctx.closePath();
-    ctx.fillStyle='#2f505d';ctx.fill();ctx.save();ctx.clip();
-    const rock=cliffTexture(ctx);if(rock){rock.setTransform(new DOMMatrix().translate(x-rx,y).scale(.48));ctx.fillStyle=rock;ctx.fillRect(x-rx,y,rx*2,ry+depth*1.25);}
-    const shade=ctx.createLinearGradient(x-rx,y,x+rx,y+ry+depth);shade.addColorStop(0,'#0a233650');shade.addColorStop(.5,'#0a233610');shade.addColorStop(1,'#061825b0');ctx.fillStyle=shade;ctx.fillRect(x-rx,y,rx*2,ry+depth*1.25);ctx.restore();
-    if(ready(modules.flow))for(const side of [-1,1]){const w=rx>250?35:17,h=w*modules.flow.naturalHeight/modules.flow.naturalWidth;ctx.save();ctx.globalAlpha=.72+Math.sin((world.environmentClock||0)*1.2+side)*.08;renderArtwork(ctx,modules.flow,x+side*rx*.65-w/2,y+ry*.35-3,w,h);ctx.restore();}
-    diamondPath(ctx,x,y,rx,ry);ctx.fillStyle='#d9c694';ctx.fill();ctx.lineWidth=5;ctx.strokeStyle='#a18e66';ctx.stroke();
-    ctx.save();diamondPath(ctx,x,y,rx-4,ry-3);ctx.clip();ctx.fillStyle=tile;ctx.fillRect(x-rx,y-ry,rx*2,ry*2);ctx.restore();
-    diamondPath(ctx,x,y,rx-9,ry-6);ctx.lineWidth=1;ctx.strokeStyle='#fff1ca';ctx.stroke();
-    ctx.beginPath();ctx.moveTo(x-rx,y+3);ctx.lineTo(x,y+ry+3);ctx.lineTo(x+rx,y+3);ctx.lineWidth=3;ctx.strokeStyle='#c0a46d';ctx.stroke();ctx.restore();
+    stonePaving.draw(ctx,{x,y,rx,ry},floorView);
   }
   function rail(ctx,route,sides=[-1,1]){const image=world.asset('bridgeRail');if(!ready(image))return;
     for(const side of sides){const edge=route.map((p,i)=>{const normal=(a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=Math.hypot(dx,dy)||1;return {x:-dy/l,y:dx/l};};const before=normal(route[Math.max(0,i-1)],route[Math.max(1,i)]),after=normal(route[Math.min(i,route.length-2)],route[Math.min(i+1,route.length-1)]);const dot=before.x*after.x+before.y*after.y,factor=side*25/Math.max(.5,1+dot);return {x:p.x+(before.x+after.x)*factor,y:p.y+(before.y+after.y)*factor};});
@@ -130,18 +97,8 @@
     {key:'sakura',x:655,y:1320,w:42},{key:'rock',x:1345,y:1320,w:58},
     {key:'lotusPond',x:1100,y:1170,w:60},{key:'lotusPond',x:900,y:1285,w:65},
     {key:'guardianLion',x:950,y:875,w:36},{key:'guardianLion',x:1050,y:875,w:36}];
-  function hubFloor(ctx,cx,cy,vw,vh){sky(ctx,cx,cy,vw,vh);const c=world.city,pattern=paving(ctx);
-    if(ready(gardenGrass)){
-      ctx.fillStyle=grassMaterial(ctx);ctx.fillRect(c.left,c.top,c.right-c.left,c.bottom-c.top);
-    }else if(pattern){ctx.fillStyle=pattern;ctx.fillRect(c.left,c.top,c.right-c.left,c.bottom-c.top);}
-    if(pattern){ctx.fillStyle=pattern;ctx.fillRect(950,c.top,100,c.bottom-c.top);
-      for(const y of [935,1000,1210,1330,1385])ctx.fillRect(c.left,y-23,c.right-c.left,46);
-      for(const [x,y]of [[760,940],[1240,940],[760,1140],[1240,1140],[760,1340],[1240,1340]]){
-        ctx.fillRect(x-75,y-25,150,50);ctx.fillRect(x-22,y,44,72);
-      }
-    }
-    const beds=[[890,1075,55],[1110,1075,55],[890,1175,50],[1110,1285,55]];
-    beds.forEach(([x,y,w],i)=>{const image=gardenFlowers[i%gardenFlowers.length];if(ready(image)){const h=w*image.naturalHeight/image.naturalWidth;renderArtwork(ctx,image,x-w/2,y-h,w,h);}});
+  function hubFloor(ctx,cx,cy,vw,vh){sky(ctx,cx,cy,vw,vh);const c=world.city;
+    stonePaving.draw(ctx,{left:c.left,top:c.top,right:c.right,bottom:c.bottom},floorView);
     [[point(c.left+8,c.top+10),point(c.right-8,c.top+10)],
       [point(c.left+8,c.top+10),point(c.left+8,c.bottom-10)],
       [point(c.right-8,c.top+10),point(c.right-8,c.bottom-10)],
@@ -149,8 +106,6 @@
       [point(1055,c.bottom-10),point(c.right-8,c.bottom-10)]].forEach(edge=>rail(ctx,edge,[0]));
     assetAt(ctx,'stairs',1000,c.bottom+18,80,.5);
     // Vườn trang trí nằm ngoài các trục đi tới NPC.
-    terrainArt(ctx,'roundCourt',1000,1100,150,.5);
-    terrainArt(ctx,'roundCourt',1240,1340,110,.5);
     for(const x of [650,1350])for(const y of [710,875,1045,1220,1390])world.sprite(ctx,'lantern',x,y,20);
   }
   const decor={sword:[],moon:[],thunder:[],mystic:[]};
@@ -165,7 +120,7 @@
   decor.mystic.push({key:'lotusPond',x:750,y:1120,w:70},{key:'lotusPond',x:1250,y:1120,w:70});
   world.mapDecorations=decor;
   const valleyDecor=[{key:'pineTree',x:740,y:1105,w:82},{key:'pineTree',x:1260,y:1105,w:82},{key:'crystalPillar',x:1000,y:620,w:34},{key:'crystalPillar',x:1500,y:1300,w:30},{key:'crystalPillar',x:500,y:1300,w:30},{key:'lotusPond',x:850,y:1210,w:95},{key:'lotusPond',x:1150,y:1210,w:95}];
-  function paintGround(ctx,cx,cy,vw,vh){ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  function paintGround(ctx,cx,cy,vw,vh){floorView={x:cx-2,y:cy-2,width:vw+4,height:vh+4};ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
     if(world.state.scene==='hub'){hubFloor(ctx,cx,cy,vw,vh);ctx.restore();return;}
     sky(ctx,cx,cy,vw,vh);
     if(world.state.scene==='arena'){islandDeck(ctx,1000,1100,200,100,65);ctx.restore();return;}
@@ -211,7 +166,7 @@
       ...camps.map(c=>({id:'camp-'+c.id,name:c.name,x:c.x,y:c.y+38,color:'#d4e4d9'})));
     world.state.near=null;
   }
-  world.layoutArt={modules,islandDeck,hubDecor,decor,valleyDecor,terrainSprites,highIsland,gardenGrass,gardenFlowers,themes,districts};
+  world.layoutArt={modules,islandDeck,hubDecor,decor,valleyDecor,terrainSprites,highIsland,stonePaving,themes,districts};
   const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='CHARACTER/'+folder+'/Nam/truoc.png';return img;});
   world.layoutArt.placements=function(){
     const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:[];

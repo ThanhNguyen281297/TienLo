@@ -19,6 +19,12 @@ with empty floor and cliff/waterfall edges. Its measured floor corners are align
 with collision diamonds. Individual buildings remain depth-sorted actors.
 See `MAP/hd/map-rebuild-prompts.md` for generation provenance.
 
+Walkable floors use `js/19b-stone-paving.js`: individual chamfered stone slabs
+drawn with Canvas paths, staggered joints and deterministic stone colors. No floor
+image, repeated image pattern or grass texture is rendered. The HD island is
+clipped outside the walkable diamond and supplies cliff scenery only. Cached slab
+geometry and viewport culling keep the paving stable during camera movement.
+
 Open `MAP/sprite-library.html` locally or through the game host. Search and filter
 304 PNG sprites/poses: 45 map props, five terrain pieces, 104 monster poses,
 96 skill poses, 44 character/equipment sprites, six item icons and four NPCs.
