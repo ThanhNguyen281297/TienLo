@@ -23,13 +23,14 @@
     const key=sect+':'+index;if(tints.has(key))return tints.get(key);
     const source=parts[index];if(!source)return null;
     const c=document.createElement('canvas');c.width=source.width;c.height=source.height;
-    const g=c.getContext('2d');g.drawImage(source,0,0);g.globalCompositeOperation='source-atop';
-    g.globalAlpha=.42;g.fillStyle=colors[sect];g.fillRect(0,0,c.width,c.height);tints.set(key,c);return c;
+    const g=c.getContext('2d');g.drawImage(source,0,0);g.globalCompositeOperation='multiply';
+    g.fillStyle=colors[sect];g.fillRect(0,0,c.width,c.height);
+    g.globalCompositeOperation='destination-in';g.drawImage(source,0,0);tints.set(key,c);return c;
   }
   function part(ctx,sect,index,x,y,w,h,angle=0,alpha=1){
     const image=texture(sect,index);if(!image||alpha<=0||w<=0||h<=0)return false;
     ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
-    ctx.globalCompositeOperation='lighter';renderArtwork(ctx,image,-w/2,-h/2,w,h);ctx.restore();stats.sprites++;return true;
+    ctx.globalCompositeOperation='screen';renderArtwork(ctx,image,-w/2,-h/2,w,h);ctx.restore();stats.sprites++;return true;
   }
   // Soft light is cached once; crisp energy filaments sit above it. Keeping
   // these separate avoids enlarging a blurry sprite to suggest brightness.
