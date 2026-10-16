@@ -46,8 +46,8 @@
         }
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
         E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;if(damage>0&&e.hp>0){fx(snapshot.x,snapshot.y-T[snapshot.t].s,damage,'#ffe0a0');window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
-        if(data.damage&&!worldMap.isSafe(P)&&!classCombat.isDashing()){
-          const bonus=bonusStats();if(Math.random()>=Math.min(.2,bonus.dodge||0)){const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
+        if(data.damage&&!worldMap.isSafe(P)){
+          const bonus=bonusStats();if(window.combatDefense?.evading()||classCombat.isDashing()||Math.random()<Math.min(.2,bonus.dodge||0)){window.combatDefense?.dodge();}else{const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }
       }
       if(P.hp<=0){worldMap.dialog.close();classCombat.onRespawn();worldMap.respawn();P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;saveCharacter();msg('Trọng thương! Trở về đài an toàn, mất 10% Linh Thạch.');}

@@ -94,3 +94,13 @@ Ba đợt gồm 4/6/8 yêu thú, mỗi đợt kết thúc chọn một phúc duy
 Hộ Pháp có hai giai đoạn, chuyển ở 50% HP, miễn sát thương 1,5 giây khi chuyển. Chiêu báo vùng đỏ trước 1,35 giây (giai đoạn 1) hoặc ba vùng lệch nhịp, báo trước 1,1 giây (giai đoạn 2). Đòn nổ gây 20%/25% HP tối đa trước giảm sát thương; di chuyển khỏi vùng hoặc dịch chuyển để né. Boss đứng yên và không đánh thường trong lúc vận chiêu. Sau chuỗi nổ, điểm yếu mở 1,5 giây, nhận thêm 25% sát thương.
 
 Hoàn thành nhận 120 + cấp×4 Linh Thạch, 30 + floor(cấp/2) Linh Nguyên, một Đột Phá Đan và một trang bị theo mốc cảnh giới 0/10/25/45. Trang bị ở rương chờ nhận, túi đầy không mất; phải nhận trước khi vào lượt mới. Lưu vật phẩm, lượt thắng và thưởng cùng nhân vật trong SQLite theo cơ chế lưu hiện có. Trận và phúc duyên không tiếp tục sau tải lại; không nhận thưởng hoàn thành nếu chết/rời giữa trận. Cơ chế chiến đấu solo tính ở client như đấu trường hiện tại; chưa phải chế độ thi đấu có xác thực chiến đấu phía server.
+
+## Phản hồi và cân bằng chiến đấu
+
+Quái có phản ứng giật nhẹ theo hướng nhận đòn và chớp sáng theo silhouette. Đánh liên tục không khởi động lại animation đau ở mỗi hit. Quái chung chỉ phản ứng khi snapshot server xác nhận mất máu; hiệu ứng giật ảnh không đẩy tọa độ quái trên server.
+
+Skill 2 thi triển thành công cấp cửa sổ né 0,22 giây cho cả bốn class; chiêu thiếu mana, chưa học hoặc đang hồi không cấp né. Cửa sổ không khóa di chuyển và không thay tốc độ animation skill. Né đòn cận chiến, đòn server gửi hoặc vùng boss có thông báo NÉ THÀNH CÔNG; các hit dồn được gộp để tránh spam. Xóa trạng thái khi hồi sinh/chuyển map; dialog tạm dừng đồng hồ.
+
+Boss/thủ lĩnh local ngoài bí cảnh báo vùng đỏ trước 1,3 giây, dưới 50% HP báo trước 1,1 giây với vùng lớn hơn. Boss đứng vận chiêu, không đánh thường trong lúc vận hoặc hồi sức 0,85 giây. Đóng băng/choáng/phong ấn trong lúc vận ngắt chiêu. Boss bí cảnh dùng chung cách hiển thị cảnh báo và phản hồi né; hiệu ứng khống chế cứng cũng ngắt chuỗi nổ đang vận, mở điểm yếu 0,7 giây. Cảnh báo được khóa tại vị trí khi bắt đầu, không đuổi theo người chơi. Không tạo boss giả hay tự tính sát thương boss thay server trong map quái chung.
+
+Cân bằng đánh thường dùng một bảng duy nhất trong combatBalance: Kiếm 0,34 giây/đòn, tầm 82, sát thương combo 0,8/0,85/1/1,8× công; Liềm 0,44 giây, tầm 215, 0,75/0,85/1,25× công (còn đòn quay về); Thương 0,50 giây, tầm 115, 1,1/1,2/1,25/1,65× công; Quạt 0,50 giây, tầm 275, 0,75/0,9/1,25× công. Giữ cơ chế đòn kết, Lôi/Phù Ấn, AoE, trường khống chế, giảm sát thương và cooldown bốn skill đã có. Đây là lượt cân bằng đầu, chưa phải kết luận cân bằng PvP. Tu luyện và tooltip skill giải thích vai trò từng class.

@@ -27,6 +27,7 @@
     }
     const mana=P.mp,result=castSkill(i);
     if(i===1&&P.mp<mana){
+      window.combatDefense?.evade(.22);
       let end=combat.state.dash?.end||combat.state.blink?.end||{x:P.x,y:P.y};
       // Sword/moon have native movement; spear/fan gain a short, collision-safe step.
       if(P.ap.w>=2){

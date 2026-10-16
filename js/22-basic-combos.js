@@ -1,11 +1,6 @@
 /* Đánh thường không tốn linh lực; projectile dùng vị trí thực và giới hạn hit. */
 (function () {
-  const profiles = [
-    { name: 'Ngự Kiếm Liên Trảm', steps: 4, interval: .30, range: 82, power: [.8, .85, 1, 1.8] },
-    { name: 'Tam Nguyệt Luân', steps: 3, interval: .42, range: 215, power: [.75, .85, 1.25] },
-    { name: 'Lôi Thương Tứ Kích', steps: 4, interval: .55, range: 115, power: [1.1, 1.2, 1.25, 1.65] },
-    { name: 'Linh Phù Tam Thức', steps: 3, interval: .58, range: 275, power: [.6, .8, 1] }
-  ];
+  const profiles = combatBalance.profiles.map(profile=>profile.basic);
   const state = { combo: 0, sect: null, target: null, gap: 0, serial: 0,
     projectiles: [], swings: [], effects: [], lastHit: null };
   let enemies = E;

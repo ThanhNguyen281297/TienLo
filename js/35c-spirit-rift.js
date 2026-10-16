@@ -33,18 +33,19 @@
   const respawn=world.respawn;world.respawn=function(){if(run){leave();msg('Trọng thương! Lượt bí cảnh kết thúc; phúc duyên đã được gỡ.');return;}return respawn();};
   const switchScene=world.switchScene;world.switchScene=function(id,...args){if(run){run=null;panel.hidden=true;reset();}return switchScene(id,...args);};
   const title=world.sceneTitle;world.sceneTitle=()=>run?'Vân Hải Bí Cảnh':title();
-  function mark(x,y,delay=0){run.marks.push({x,y,r:run.phase===2?40:48,age:-delay,duration:run.phase===2?1.1:1.35,spent:false});}
-  function blast(m){m.spent=true;if(Math.hypot(P.x-m.x,P.y-m.y)>m.r||classCombat.isDashing())return;const armor=window.totalArmor?totalArmor():0,damage=Math.max(1,Math.round((mhp()*(run.phase===2?.25:.2)-armor*.4)*Math.max(.55,1-.15*count('guard'))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-damage);P.med=0;fx(P.x,P.y-30,'-'+damage,'#ff8578');spark(m.x,m.y,'#ffbb85',16);}
+  function mark(x,y,delay=0){run.marks.push({x,y,r:run.phase===2?40:48,age:-delay,duration:run.phase===2?1.1:1.35,spent:false,targeted:Math.hypot(P.x-x,P.y-y)<=(run.phase===2?40:48)});}
+  function blast(m){m.spent=true;if(Math.hypot(P.x-m.x,P.y-m.y)>m.r||classCombat.isDashing()||window.combatDefense?.evading()){if(m.targeted)window.combatDefense?.dodge();return;}const armor=window.totalArmor?totalArmor():0,damage=Math.max(1,Math.round((mhp()*(run.phase===2?.25:.2)-armor*.4)*Math.max(.55,1-.15*count('guard'))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-damage);P.med=0;fx(P.x,P.y-30,'-'+damage,'#ff8578');spark(m.x,m.y,'#ffbb85',16);}
   const update=up;up=function(dt){if(!run)return update(dt);if(paused()||d.isOpen())return;const current=run;for(const e of E)if(e.rift){e.baseRiftAttack??=e.attackScale;e.attackScale=e.baseRiftAttack*Math.max(.55,1-.15*count('guard'));}update(dt);if(run!==current)return;if(world.state.scene!=='arena'){run=null;panel.hidden=true;return;}run.elapsed+=dt;const spring=count('spring');P.hp=Math.min(mhp(),P.hp+mhp()*.01*spring*dt);P.mp=Math.min(mmp(),P.mp+mmp()*.01*spring*dt);
     const boss=run.boss;if(!boss){if(E.every(e=>e.dead||e.hp<=0))choose();status();return;}
     if(boss.dead||boss.hp<=0){victory();return;}
     if(run.phase===1&&boss.hp<=boss.maxHp*.5){run.phase=2;run.transition=1.5;run.marks=[];run.cooldown=2;boss.name='Vân Hải Hộ Pháp · Phá Ấn';msg('Phong ấn vỡ! Hộ Pháp tung ba vùng nổ liên tiếp.');}
     run.exposed=Math.max(0,run.exposed-dt);if(run.transition>0){run.transition=Math.max(0,run.transition-dt);status();return;}
+    if(run.marks.some(m=>!m.spent)&&fieldEffects.list(boss).some(effect=>effect.hard>0)){run.marks=[];run.cooldown=2;run.exposed=.7;fx(boss.x,boss.y-45,'Ngắt chiêu','#b7eaff');}
     for(const m of run.marks){m.age+=dt;if(!m.spent&&m.age>=m.duration)blast(m);}if(P.hp<=0){world.respawn();P.hp=mhp();P.gold=Math.floor(P.gold*.9);saveCharacter();return;}
     const had=run.marks.length;run.marks=run.marks.filter(m=>m.age<m.duration+.35);if(had&&!run.marks.length)run.exposed=1.5;
     run.cooldown-=dt;if(run.cooldown<=0&&!run.marks.length){mark(P.x,P.y);if(run.phase===2){const a=Math.atan2(P.y-1100,P.x-1000);for(const sign of [-1,1])mark(1000+Math.cos(a+sign*.7)*95,1100+Math.sin(a+sign*.7)*48,sign===-1?.3:.6);}run.cooldown=run.phase===2?4.2:4.8;}status();
   };
   // Telegraphs belong below actors, on the floor, and never use opaque sprite rectangles.
-  const ground=world.drawGroundDetails;world.drawGroundDetails=function(ctx,...args){ground(ctx,...args);if(!run)return;ctx.save();for(const m of run.marks){if(m.age<0)continue;const p=Math.min(1,m.age/m.duration);ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fillStyle=m.spent?'#ffb36b55':'#d53e4030';ctx.fill();ctx.strokeStyle=m.spent?'#ffe4a5':'#ff8274';ctx.lineWidth=1.5;ctx.stroke();if(!m.spent){ctx.beginPath();ctx.arc(m.x,m.y,m.r*p,-Math.PI/2,-Math.PI/2+Math.PI*2*p);ctx.strokeStyle='#ffe4bd';ctx.lineWidth=2;ctx.stroke();}}ctx.restore();};
+  const ground=world.drawGroundDetails;world.drawGroundDetails=function(ctx,...args){ground(ctx,...args);if(!run)return;for(const m of run.marks)window.combatDefense?.drawTelegraph(ctx,m);};
   window.spiritRift={open,start,leave,claim,state:()=>run,blessings};
 })();

@@ -24,6 +24,10 @@
   const states=new WeakMap(),corpses=[];
   let clock=0,activeScene=worldMap.state.scene;
   function state(e){if(!states.has(e))states.set(e,{moving:false,attack:0,hurt:0,attackAge:0,hurtAge:0,phase:Math.abs(e.hx||0)%7});return states.get(e);}
+  function react(e){const s=state(e),dx=e.x-P.x,dy=e.y-P.y,d=Math.hypot(dx,dy)||1;
+    if(s.hurt<=0||s.hurtAge>=.16){s.hurt=.32;s.hurtAge=0;}
+    s.impact=.2;s.recoilX=dx/d*(e.t===2||e.elite?1.6:4);s.recoilY=dy/d*2;
+  }
   const skin=e=>species[e.skin||T[e.t].skin]||species.BoNgua;
   function frame(e){const kind=skin(e),s=state(e);let mode='idle',age=clock+s.phase,fps=6;
     if(e.corpse){mode='death';age=e.age;fps=8;}
@@ -71,9 +75,10 @@
     g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';if(e.corpse)g.globalAlpha=Math.max(0,Math.min(1,(.95-e.age)*3));
     shadow(g,e.x,e.y,Math.max(14,width*.72));
     // The visible pose ends at the same ground anchor for idle, move and hurt.
-    g.translate(Math.round(e.x*Z)/Z,Math.round((e.y+bob)*Z)/Z);if(P.x>e.x+3)g.scale(-1,1);
+    const reaction=state(e),kick=Math.sin(Math.min(1,(reaction.impact||0)/.2)*Math.PI);
+    g.translate(Math.round((e.x+(reaction.recoilX||0)*kick)*Z)/Z,Math.round((e.y+bob+(reaction.recoilY||0)*kick)*Z)/Z);if(P.x>e.x+3)g.scale(-1,1);
     g.drawImage(sprite.image,drawX,drawY,f.image.naturalWidth*scale,f.image.naturalHeight*scale);
-    const hurt=state(e).hurtAge;
+    const hurt=.2-(state(e).impact||0);
     if(!e.corpse&&state(e).hurt>0&&hurt<.1){g.globalAlpha*=.35*(1-hurt/.1);g.drawImage(sprite.flash,drawX,drawY,f.image.naturalWidth*scale,f.image.naturalHeight*scale);}
     g.restore();if(e.corpse)return;
     window.fieldEffects?.draw(g,e,height);
@@ -89,12 +94,12 @@
   hit=function(e,power){if(e.dead||e.hp<=0)return;const s=state(e),origin={x:e.x,y:e.y};previousHit(e,power);
     if(e.worldMap){const end=worldMap.traceMove(origin,e);e.x=end.x;e.y=end.y;}
     if(e.hp<=0){corpses.push({...e,corpse:true,age:0});s.attack=0;}
-    else{s.hurt=.38;s.hurtAge=0;}
+    else react(e);
   };
   const previousUp=up;
   up=function(dt){if(paused()||worldMap.dialog.isOpen())return previousUp(dt);
     if(activeScene!==worldMap.state.scene){corpses.length=0;activeScene=worldMap.state.scene;}
-    clock+=dt;for(const e of E){const s=state(e);s.attack=Math.max(0,s.attack-dt);s.hurt=Math.max(0,s.hurt-dt);s.attackAge+=dt;s.hurtAge+=dt;}
+    clock+=dt;for(const e of E){const s=state(e);s.attack=Math.max(0,s.attack-dt);s.hurt=Math.max(0,s.hurt-dt);s.attackAge+=dt;s.hurtAge+=dt;s.impact=Math.max(0,(s.impact||0)-dt);}
     for(let i=corpses.length-1;i>=0;i--){corpses[i].age+=dt;if(corpses[i].age>=.95)corpses.splice(i,1);}
     const positions=new Map(E.map(e=>[e,{x:e.x,y:e.y}]));previousUp(dt);
     for(const e of E){const old=positions.get(e);state(e).moving=!!old&&Math.hypot(e.x-old.x,e.y-old.y)>.01;}
@@ -103,7 +108,7 @@
   worldMap.queueActors=function(items,cx,cy,vw,vh){previousActors(items,cx,cy,vw,vh);for(const e of corpses)if(e.x>cx-80&&e.x<cx+vw+80&&e.y>cy-80&&e.y<cy+vh+80)items.push([e.y,()=>mon(e)]);};
   const previousRespawn=classCombat.onRespawn;classCombat.onRespawn=function(){corpses.length=0;return previousRespawn();};
   const css=document.createElement('style');css.textContent='.v{background:none!important}#npc-dialog-portrait{float:right;width:70px;height:95px;object-fit:contain;margin:0 22px 10px 16px;filter:drop-shadow(0 3px 5px #0005)}';document.head.appendChild(css);
-  window.creatureArt={species,npcImages,corpses,frame,drawNpc,decorateDialog,npcHeight:s=>npcRoles[s.id]?(s.id==='rank'?68:60):36,
-    onNetworkDamage(e,dead){const s=state(e);s.hurt=.25;s.hurtAge=0;e.fl=.1;if(dead&&!corpses.some(c=>c.id===e.id&&c.age<.95)){corpses.push({...e,corpse:true,age:0});s.attack=0;}},
+  window.creatureArt={reaction:state,species,npcImages,corpses,frame,drawNpc,decorateDialog,npcHeight:s=>npcRoles[s.id]?(s.id==='rank'?68:60):36,
+    onNetworkDamage(e,dead){const s=state(e);react(e);e.fl=.1;if(dead&&!corpses.some(c=>c.id===e.id&&c.age<.95)){corpses.push({...e,corpse:true,age:0});s.attack=0;}},
     onAttack(e){const s=state(e);s.attack=.6;s.attackAge=0;},ready:()=>Object.values(npcImages).every(ready)&&Object.values(species).every(s=>s.images.every(ready))};
 })();
