@@ -24,12 +24,12 @@
     if(busy||!account.state.ready||!P.ap||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
     if(lastMap!==scene){state.hits=[];state.players=[];state.shared=false;retry=null;lastMap=scene;}
-    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;retry=batch;
+    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:window.lightness?.height()||0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;retry=batch;
     try{
       const data=await account.api('/api/world',batch);retry=null;state.connected=true;chat.hidden=false;
       if(scene!==worldMap.state.scene)return;
       if(Math.hypot(data.x-batch.x,data.y-batch.y)>1){P.x=data.x;P.y=data.y;}
-      state.players=data.players.map(peer=>{const old=state.players.find(p=>p.id===peer.id);return {...peer,drawX:old?.drawX??peer.x,drawY:old?.drawY??peer.y};});
+      state.players=data.players.map(peer=>{const old=state.players.find(p=>p.id===peer.id);return {...peer,drawX:old?.drawX??peer.x,drawY:old?.drawY??peer.y,drawLift:old?.drawLift??peer.airborne??0};});
       for(const peer of data.players){if(peer.cast&&peer.cast.id!==state.remoteCasts?.get(peer.id)){state.remoteCasts??=new Map();state.remoteCasts.set(peer.id,peer.cast.id);const color=characterClasses[peer.ap.w].color;window.combatVisuals?.pulse(peer.cast.x,peer.cast.y,peer.cast.index===3?145:peer.cast.index===2?100:45,color,.65);spark(peer.x,peer.y-25,color,8);}}
       state.shared=data.shared;
       if(data.shared){
@@ -59,10 +59,10 @@
   setInterval(frame,220);
   const queue=worldMap.queueActors;
   worldMap.queueActors=function(items,cx,cy,vw,vh){queue(items,cx,cy,vw,vh);if(!account.state.ready)return;
-    for(const peer of state.players){peer.drawX+=(peer.x-peer.drawX)*.22;peer.drawY+=(peer.y-peer.drawY)*.22;
+    for(const peer of state.players){peer.drawX+=(peer.x-peer.drawX)*.22;peer.drawY+=(peer.y-peer.drawY)*.22;peer.drawLift+=((peer.airborne||0)-peer.drawLift)*.22;
       if(peer.drawX<cx-80||peer.drawX>cx+vw+80||peer.drawY<cy-100||peer.drawY>cy+vh+80)continue;
-      items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY,peer.dir,peer.f,false,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);g.textAlign='center';g.font='bold 9px sans-serif';g.lineWidth=3;g.strokeStyle='#09151d';g.fillStyle='#96efda';g.strokeText(peer.name,peer.drawX,peer.drawY-70);g.fillText(peer.name,peer.drawX,peer.drawY-70);
-        if(peer.emote){g.font='bold 15px sans-serif';g.fillStyle='#fff1c9';g.fillText({wave:'✦ Xin chào!',heart:'♥',ready:'⚔ Sẵn sàng'}[peer.emote],peer.drawX,peer.drawY-90);}
+      items.push([peer.drawY,()=>{g.save();window.lightness?.drawWake(g,peer.drawX,peer.drawY,peer.drawLift,peer.ap.w);drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,false,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);g.textAlign='center';g.font='bold 9px sans-serif';g.lineWidth=3;g.strokeStyle='#09151d';g.fillStyle='#96efda';g.strokeText(peer.name,peer.drawX,peer.drawY-peer.drawLift-70);g.fillText(peer.name,peer.drawX,peer.drawY-peer.drawLift-70);
+        if(peer.emote){g.font='bold 15px sans-serif';g.fillStyle='#fff1c9';g.fillText({wave:'✦ Xin chào!',heart:'♥',ready:'⚔ Sẵn sàng'}[peer.emote],peer.drawX,peer.drawY-peer.drawLift-90);}
         g.restore();}]);
     }
   };

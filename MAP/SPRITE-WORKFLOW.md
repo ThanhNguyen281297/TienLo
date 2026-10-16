@@ -51,13 +51,21 @@ Trees and ponds stay near the perimeter. The hub uses spaced service districts.
 
 `worldMap.layoutArt.placements()` exposes image bounds for placement audits.
 `tests/world-vfx.test.cjs` rejects overlaps between visible prop/NPC rectangles
-and checks complete cardinal traversal. Intentional ground decals and terrain
+and checks valid lightness-flight landings. Intentional ground decals and terrain
 layers are excluded from actor overlap checks.
 
 North/east/south/west camp coordinates remain unchanged for online compatibility.
-The renderer and collision share the same straight bridge centerlines and floor
-diamonds. Decks combine a PNG paving pattern, separate rails and arches, bevels
-and textured cliffs. Never place a whole decorated island under another complete
+Island floor diamonds are walkable; the void between them is not. There are no
+bridges to the farming islands. `js/33-lightness-flight.js` creates two-way launch
+points: approach a marker, press G or the Khinh công button, and fly to its paired
+landing. This utility uses no mana and is available to every class. Normal movement,
+auto-combat and new casts are suspended during flight. The flight pauses with
+dialogs, cancels safely on respawn/map changes, and saves its grounded departure
+position if the player disconnects before landing. Online peers receive bounded
+visual height metadata; it grants no server movement or damage exemptions.
+`tests/lightness-flight.test.cjs` covers every route in both directions and
+`tests/online-game.test.cjs` verifies flight visibility and midair DB saves with
+two authenticated accounts. Never place a whole decorated island under another complete
 building/tree set; that was the source of the previous duplicate scenery.
 
 ## Effects

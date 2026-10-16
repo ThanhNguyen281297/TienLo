@@ -94,9 +94,9 @@ fs.mkdirSync(artifacts, { recursive: true });
       const facts = await page.evaluate(() => {
         const routes = worldMap.bridgeRoutes(), spawn = { x: P.x, y: P.y }, water = { x: 200, y: 300 }, stop = worldMap.traceMove(spawn, water);
         const routeFailures = [];
-        for (const route of routes) for (let i = 1; i < route.length; i++) {
-          const end = worldMap.traceMove(route[i - 1], route[i]);
-          if (!worldMap.canWalk(route[i]) || Math.hypot(end.x - route[i].x, end.y - route[i].y) > 1) routeFailures.push({ from: route[i - 1], to: route[i], end });
+        for (const port of lightness.ports()) {
+          const gap={x:(port.from.x+port.to.x)/2,y:(port.from.y+port.to.y)/2};
+          if (!worldMap.canWalk(port.from)||!worldMap.canWalk(port.to)||worldMap.canWalk(gap)) routeFailures.push(port.id);
         }
         const images = [], draw = g.drawImage; g.drawImage = function (image, ...args) { if (image.src) images.push(image.src); return draw.call(this, image, ...args); };
         try { const actors = []; worldMap.queueActors(actors, 0, 0, M, M); actors.forEach(actor => actor[1]()); } finally { g.drawImage = draw; }
@@ -112,7 +112,7 @@ fs.mkdirSync(artifacts, { recursive: true });
       assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert(Math.abs(facts.zoom-1.8)<.001);
       assert.equal(facts.camera.x + facts.camera.vw / 2, 1000); assert.equal(facts.camera.y + facts.camera.vh / 2, 1110);
       assert.deepEqual(facts.keys.sort(), ['hub','valley', ...maps.map(map => map.id)].sort()); assert.deepEqual(facts.regions.sort(), facts.keys.sort());
-      assert.equal(facts.routes, 4); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' routes remain connected');
+      assert.equal(facts.routes, 0); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' flight landings are valid and gaps stay unwalkable');
       assert.equal(facts.waterWalkable, false); assert(facts.stopWalkable); assert(Math.hypot(facts.stop.x - 200, facts.stop.y - 300) > 50, 'Movement stops at the land edge');
       assert.deepEqual(facts.camps, [
         { id: 'north', x: 1000, y: 490, type: 0, count: 6 }, { id: 'east', x: 1640, y: 1100, type: 1, count: 6 },

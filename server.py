@@ -334,6 +334,9 @@ class GameHandler(SimpleHTTPRequestHandler):
                 if math.hypot(x-previous['x'],y-previous['y'])>max(240,delta*400) and math.hypot(x-1000,y-1100)>150: x,y=previous['x'],previous['y']
             rank=max(0,min(int(p['r']),int(p.get('world',{}).get('trainingRealm',0))))
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
+            # Presentation only: height grants no speed exception or damage immunity.
+            airborne=body.get('airborne',0)
+            peer['airborne']=max(0,min(80,airborne)) if scene in ('sword','moon','thunder','mystic','valley') and type(airborne) in (int,float) and math.isfinite(airborne) else 0
             emote=body.get('emote')
             if emote in ('wave','heart','ready') and now-previous.get('emoteAt',0)>2: peer['emote']=emote; peer['emoteAt']=now
             cast=body.get('cast')
@@ -382,7 +385,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                                 EVENTS[contributor].append({k:v for k,v in mob.items() if k not in ('contributors','dead')} | {'eventId':secrets.token_hex(12)})
                                 EVENTS[contributor]=EVENTS[contributor][-100:]
                 peer['hitTimes']=hit_times
-            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','emote','emoteAt','cast')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
+            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
             shapes={'sword':(305,143),'moon':(420,190),'thunder':(350,170),'mystic':(370,175),'valley':(420,210)}
             rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1

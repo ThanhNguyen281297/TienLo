@@ -23,6 +23,17 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   await one.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Hai'));
   await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'));
   console.log('PASS two accounts see each other on shared map');
+  await one.evaluate(()=>{P.world.tutorial=true;const p=lightness.ports()[0];P.x=p.from.x;P.y=p.from.y;});
+  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.y<1000));
+  assert(await one.evaluate(()=>lightness.start()));
+  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.airborne>15));
+  const safeSave=await one.evaluate(async()=>{const from=lightness.safePosition();await account.flush();const data=await account.api('/api/characters');return {from,saved:{x:data.character.player.x,y:data.character.player.y}};});
+  assert.deepEqual(safeSave.saved,safeSave.from,'Database saves a grounded point during flight');
+  await one.waitForFunction(()=>!lightness.active&&P.y<600);
+  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.y<600&&p.airborne===0));
+  await one.waitForFunction(()=>lightness.state.cooldown===0);assert(await one.evaluate(()=>lightness.start()));
+  await one.waitForFunction(()=>!lightness.active&&P.y>900);await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&p.y>900&&p.airborne===0));
+  console.log('PASS synchronized two-way khinh công and grounded midair DB save');
   await one.locator('#chat-input').fill('Xin chào <script>');await one.locator('#chat-form button').click();await two.waitForFunction(()=>document.getElementById('chat-messages').textContent.includes('Xin chào <script>'));
   assert.equal(await two.locator('#chat-messages script').count(),0);
   console.log('PASS chat safely renders text between accounts');

@@ -46,13 +46,14 @@
     try{await enter(await api('/api/'+mode,{username:$('account-name').value.trim(),password:$('account-password').value}));$('account-password').value='';error.textContent='';}
     catch(e){error.textContent=e.message;panel.hidden=false;}finally{submit.disabled=false;}
   };
+  function snapshot(){const player=structuredClone(P),safe=window.lightness?.safePosition();if(safe){player.x=safe.x;player.y=safe.y;}return player;}
   async function flush(){
     clearTimeout(timer);
     if(!state.ready||state.restoring||state.conflict||!P.ap)return;
     if(saving){pending=true;return new Promise(resolve=>saveWaiters.push(resolve));}
     saving=true;let ok=false;notice.textContent='Đang lưu…';
     try{
-      const result=await api('/api/characters',{revision:state.revision,player:structuredClone(P)},{keepalive:true});
+      const result=await api('/api/characters',{revision:state.revision,player:snapshot()},{keepalive:true});
       state.revision=result.revision;ok=true;notice.textContent='Đã lưu trên server';
     }catch(e){
       notice.textContent=e.message;console.error('Lưu nhân vật:',e);
@@ -68,7 +69,7 @@
     catch(e){msg(e.message);logout.disabled=false;}
   };
   addEventListener('pagehide',()=>{
-    if(location.protocol!=='file:'&&state.ready&&!state.restoring&&!state.conflict&&P.ap&&!saving){navigator.sendBeacon('/api/characters',new Blob([JSON.stringify({csrf:state.csrf,revision:state.revision,player:P})],{type:'application/json'}));}
+    if(location.protocol!=='file:'&&state.ready&&!state.restoring&&!state.conflict&&P.ap&&!saving){navigator.sendBeacon('/api/characters',new Blob([JSON.stringify({csrf:state.csrf,revision:state.revision,player:snapshot()})],{type:'application/json'}));}
   });
   window.account={state,api,flush,restore};
   addEventListener('DOMContentLoaded',async()=>{

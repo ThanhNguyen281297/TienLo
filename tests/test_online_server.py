@@ -16,6 +16,23 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_airborne_visual_metadata_is_bounded_and_cleared(self):
+        import time
+        one,csrf=self.register('flying_user');two,other_csrf=self.register('watching_user')
+        for cookie,token in ((one,csrf),(two,other_csrf)):
+            self.assertEqual(self.request('/api/characters',{'csrf':token,'player':self.player(),'revision':0},cookie)[0],201)
+        def frame(cookie,token,**values):
+            time.sleep(.14)
+            status,data,_=self.request('/api/world',{'csrf':token,'map':'sword','x':1000,'y':1100,**values},cookie)
+            self.assertEqual(status,200)
+            return data
+        for value,expected in ((65,65),(9999,80),(-10,0),(float('inf'),0),('invalid',0)):
+            frame(one,csrf,airborne=value)
+            peer=frame(two,other_csrf)['players'][0]
+            self.assertEqual(peer['airborne'],expected)
+        frame(one,csrf,map='hub',airborne=65)
+        self.assertEqual(frame(two,other_csrf,map='hub')['players'][0]['airborne'],0)
+
     def test_public_item_artwork(self):
         for name in ('daobao','ngoc','gioi','giay','phapbao','consume'):
             path='/MAP/items/'+name+'.png?v=release-test'
