@@ -16,6 +16,56 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_collection_catalog_stats_mixed_sets_and_validation(self):
+        source=(server.ROOT/'js/24b-build-catalog.js').read_text(encoding='utf-8')
+        self.assertEqual(json.loads(source.split('window.buildCatalog=',1)[1].strip().removesuffix(';')),server.BUILD_RULES)
+        p=self.player();slots=list(server.BUILD_RULES['slots'])
+        for set_id in ('phong','kim','nguyet','linh'):
+            for level in (0,10,25,45):
+                p['world']['equip']={slot:{**server.collection_item(f'rift-{set_id}-{slot}-{level}'),'uid':slot} for slot in slots}
+                server.valid_player(p)
+            result=server.collection_bonuses(p)
+            self.assertTrue(result)
+            if set_id=='linh':self.assertEqual((result['petPower'],result['petCooldown']),(.25,.2))
+            if set_id=='phong':self.assertAlmostEqual(server.player_attack(p),(8+25)*1.06)
+        p['world']['equip']={slot:{**server.collection_item(f'rift-{"phong" if i<4 else "kim"}-{slot}-0'),'uid':slot} for i,slot in enumerate(slots)}
+        mixed=server.collection_bonuses(p);self.assertEqual((mixed['atkPercent'],mixed['crit'],mixed['hpPercent']),(.06,.03,.1));self.assertEqual(mixed['skill'],0)
+        p['world']['equip']['vukhi']['atk']=999
+        with self.assertRaises(ValueError):server.valid_player(p)
+        p['world']['equip']['vukhi']={'id':'moc-kiem','uid':'fake','rarity':'pham','setId':'phong'}
+        with self.assertRaises(ValueError):server.valid_player(p)
+
+    def test_authenticated_pet_damage_cooldown_poison_frost_and_peer_metadata(self):
+        import time
+        cookie,csrf=self.register('pet_fighter');observer,ocsrf=self.register('pet_observer');p=self.player();q=self.player('Observer')
+        q['world']['map']='sword';self.assertEqual(self.request('/api/characters',{'csrf':ocsrf,'revision':0,'player':q},observer)[0],201)
+        revision=0
+        def frame(c=cookie,token=csrf,**extra):
+            time.sleep(.14)
+            status,data,_=self.request('/api/world',{'csrf':token,'map':'sword','x':1105,'y':490,'batch':server.secrets.token_hex(8),**extra},c)
+            self.assertEqual(status,200);return data
+        for species in ('BoNgua','Nhen','Doi'):
+            p['world'].update(pets=[{'id':'pet-one','species':species,'name':'Companion'}],activePet='pet-one')
+            self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':revision,'player':p},cookie)[0],201);revision+=1
+            initial=frame();mob_id=initial['mobs'][0]['id'];owner=next(v for v in server.PEERS.values() if v['name']==p['nm']);mob=next(m for m in server.ROOMS[server.room_for(owner)]['mobs'] if m['id']==mob_id)
+            with server.WORLD_LOCK:mob.update(hp=500,maxHp=500,dead=0);mob.pop('_petEffects',None);mob['petEffects']=[]
+            with server.connect() as db:db.execute('CREATE TABLE IF NOT EXISTS pet_skill_cooldowns(user_id INTEGER PRIMARY KEY,ready_at REAL NOT NULL,cast_id TEXT NOT NULL)');db.execute('DELETE FROM pet_skill_cooldowns')
+            spoof=frame(petCast={'id':'spoof','species':'Dragon','target':mob_id});self.assertEqual(next(m for m in spoof['mobs'] if m['id']==mob_id)['hp'],500)
+            cast={'id':'cast-'+species,'species':species,'target':mob_id}
+            response=frame(petCast=cast);hp=next(m for m in response['mobs'] if m['id']==mob_id)['hp']
+            if species!='Nhen':self.assertLess(hp,500)
+            else:
+                effect=mob['_petEffects'][owner['id']];effect['next']=time.monotonic()-5
+                server.tick_pet_effects(mob,time.monotonic(),server.room_for(owner));self.assertEqual(mob['hp'],470);self.assertNotIn(owner['id'],mob['_petEffects'])
+                hp=mob['hp']
+            duplicate=frame(petCast={**cast,'id':'second-'+species});self.assertEqual(next(m for m in duplicate['mobs'] if m['id']==mob_id)['hp'],hp)
+            if species=='Doi':
+                self.assertEqual(server.field_speed(mob),.7)
+                peer_view=frame(observer,ocsrf);peer=next(v for v in peer_view['players'] if v['name']==p['nm']);self.assertEqual(peer['petCast']['species'],'Doi')
+            # A fresh peer stream still cannot bypass the SQLite cooldown.
+            server.PEERS.pop(owner['id']);fresh=frame(petCast={**cast,'id':'fresh-'+species})
+            self.assertEqual(next(m for m in fresh['mobs'] if m['id']==mob_id)['hp'],hp)
+
     def test_enhancement_levels_set_tiers_and_pet_validation(self):
         player=self.player()
         slots=('vukhi','daobao','ngoc','gioi','giay','phapbao')

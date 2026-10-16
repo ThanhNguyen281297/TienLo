@@ -19,7 +19,7 @@
   document.addEventListener('focusin',event=>{if(event.target.matches('input,textarea,[contenteditable="true"]'))reset();});
   cv.addEventListener('pointerdown',event=>{if(event.pointerType==='touch'){ptr=null;event.stopImmediatePropagation();}},true);
 
-  const wheel=document.createElement('section');wheel.id='combat-wheel';wheel.setAttribute('aria-label','Kỹ năng chiến đấu');document.body.append(wheel);wheel.append(sb,$('basic-attack'));
+  const wheel=document.createElement('section');wheel.id='combat-wheel';wheel.setAttribute('aria-label','Kỹ năng chiến đấu');document.body.append(wheel);wheel.append(sb,$('basic-attack'));if($('pet-skill'))wheel.append($('pet-skill'));
   const dock=$('bt'),menu=document.createElement('section');menu.id='hud-more-menu';menu.hidden=true;menu.setAttribute('aria-label','Chức năng khác');document.body.append(menu);
   const buttons=[...dock.children];for(const button of buttons)menu.append(button);
   function button(id,label,handler){const b=document.createElement('button');b.id=id;b.type='button';b.onclick=handler;b.textContent=label;return b;}
@@ -52,7 +52,7 @@
     if(kind==='attack'){ctx.fillStyle='#e7cf8b';ctx.beginPath();ctx.moveTo(7,4);ctx.lineTo(15,8);ctx.lineTo(24,20);ctx.lineTo(20,24);ctx.lineTo(8,15);ctx.closePath();ctx.fill();line([[17,24],[24,17]]);line([[21,22],[27,28]]);line([[24,29],[29,24]]);}
     return 'url("'+canvas.toDataURL()+'")';
   }
-  const labels={'bag-button':['Túi đồ','bag'],'attr-button':['Thuộc tính','attrs'],'auto-button':['Auto','auto'],'hud-chat':['Chat','chat'],'hud-more':['Khác','more'],'bq':['Đả tọa','meditate'],'bb':['Đột phá','break'],'cultivation-info':['Tu luyện','realm'],'gm-skills':['GM','gm'],'hud-map':['Bản đồ','map'],'basic-attack':['Đánh','attack'],'rift-button':['Bí cảnh','map'],'pet-button':['Linh thú','pet'],'enhance-button':['Cường hóa','enhance']};
+  const labels={'bag-button':['Túi đồ','bag'],'attr-button':['Thuộc tính','attrs'],'auto-button':['Auto','auto'],'hud-chat':['Chat','chat'],'hud-more':['Khác','more'],'bq':['Đả tọa','meditate'],'bb':['Đột phá','break'],'cultivation-info':['Tu luyện','realm'],'gm-skills':['GM','gm'],'hud-map':['Bản đồ','map'],'basic-attack':['Đánh','attack'],'sets-button':['Bộ đồ','enhance'],'rift-button':['Bí cảnh','map'],'pet-button':['Linh thú','pet'],'enhance-button':['Cường hóa','enhance']};
   for(const [id,[label,kind]]of Object.entries(labels)){const b=$(id);if(!b)continue;b.dataset.hudLabel=label;b.setAttribute('aria-label',id==='basic-attack'?'Đánh thường':label);b.style.setProperty('--hud-icon',icon(kind));b.classList.add('hud-icon');}
   function refresh(){const ready=!!P.ap&&account.state.ready&&cr.style.display==='none'&&ttl.style.display==='none';document.body.classList.toggle('game-controls-ready',ready);document.body.classList.toggle('controls-paused',worldMap.dialog.isOpen());
     if(!ready||paused()||worldMap.dialog.isOpen()){reset();closeMenu();}

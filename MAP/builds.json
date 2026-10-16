@@ -1,0 +1,187 @@
+{
+  "sets": [
+    {
+      "id": "phong",
+      "name": "Kiếm Phong",
+      "color": "#83d9ff",
+      "description": "Áp sát và bộc phát",
+      "bonuses": {
+        "2": {
+          "atkPercent": 0.06
+        },
+        "4": {
+          "crit": 0.03
+        },
+        "6": {
+          "skill": 0.1
+        }
+      },
+      "effects": [
+        "2 món: Công +6%",
+        "4 món: Bạo kích +3%",
+        "6 món: Sát thương skill +10%"
+      ]
+    },
+    {
+      "id": "kim",
+      "name": "Kim Cang",
+      "color": "#edc67d",
+      "description": "Sinh tồn và chống chịu",
+      "bonuses": {
+        "2": {
+          "hpPercent": 0.1
+        },
+        "4": {
+          "armor": 8
+        },
+        "6": {
+          "dodge": 0.03
+        }
+      },
+      "effects": [
+        "2 món: HP +10%",
+        "4 món: Giáp +8",
+        "6 món: Né +3%"
+      ]
+    },
+    {
+      "id": "nguyet",
+      "name": "Nguyệt Ảnh",
+      "color": "#bbb0ff",
+      "description": "Linh lực và kỹ năng",
+      "bonuses": {
+        "2": {
+          "mpPercent": 0.15
+        },
+        "4": {
+          "skill": 0.08
+        },
+        "6": {
+          "crit": 0.03
+        }
+      },
+      "effects": [
+        "2 món: MP +15%",
+        "4 món: Sát thương skill +8%",
+        "6 món: Bạo kích +3%"
+      ]
+    },
+    {
+      "id": "linh",
+      "name": "Vạn Linh",
+      "color": "#a6e7aa",
+      "description": "Linh thú đồng hành",
+      "bonuses": {
+        "2": {
+          "hpPercent": 0.05
+        },
+        "4": {
+          "petPower": 0.25
+        },
+        "6": {
+          "petCooldown": 0.2
+        }
+      },
+      "effects": [
+        "2 món: HP +5%",
+        "4 món: Hiệu lực kỹ năng pet +25%",
+        "6 món: Hồi chiêu pet giảm 20%"
+      ]
+    }
+  ],
+  "slots": {
+    "vukhi": "Vũ Khí",
+    "daobao": "Đạo Bào",
+    "ngoc": "Linh Ngọc",
+    "gioi": "Linh Giới",
+    "giay": "Vân Hài",
+    "phapbao": "Pháp Bảo"
+  },
+  "baseStats": {
+    "vukhi": {
+      "atk": 3
+    },
+    "daobao": {
+      "hp": 25,
+      "armor": 2
+    },
+    "ngoc": {
+      "mp": 15,
+      "skill": 0.02
+    },
+    "gioi": {
+      "atk": 2,
+      "crit": 0.01
+    },
+    "giay": {
+      "hp": 15,
+      "dodge": 0.01
+    },
+    "phapbao": {
+      "hp": 15,
+      "mp": 10,
+      "armor": 1
+    }
+  },
+  "grades": [
+    {
+      "req": 0,
+      "scale": 1,
+      "rarity": "huyen"
+    },
+    {
+      "req": 10,
+      "scale": 2,
+      "rarity": "huyen"
+    },
+    {
+      "req": 25,
+      "scale": 3.5,
+      "rarity": "linh"
+    },
+    {
+      "req": 45,
+      "scale": 5,
+      "rarity": "tien"
+    }
+  ],
+  "pets": {
+    "BoNgua": {
+      "name": "Liêm Phong",
+      "cooldown": 12,
+      "power": 2.4,
+      "range": 260,
+      "color": "#a2ef8c",
+      "description": "Chém mục tiêu: 240% công."
+    },
+    "Tho": {
+      "name": "Nguyệt Quang",
+      "cooldown": 20,
+      "heal": 0.18,
+      "mana": 0.15,
+      "range": 0,
+      "color": "#b0ecff",
+      "description": "Hồi 18% HP và 15% MP tối đa."
+    },
+    "Nhen": {
+      "name": "Độc Vụ",
+      "cooldown": 16,
+      "power": 0.7,
+      "ticks": 5,
+      "range": 260,
+      "color": "#b8e781",
+      "description": "Trúng độc 5 giây: mỗi giây 70% công."
+    },
+    "Doi": {
+      "name": "Băng Tức",
+      "cooldown": 14,
+      "power": 0.9,
+      "radius": 70,
+      "slow": 0.7,
+      "duration": 3,
+      "range": 260,
+      "color": "#c4c4ff",
+      "description": "Vùng băng 90% công, làm chậm 30% trong 3 giây; boss giảm một nửa."
+    }
+  }
+}

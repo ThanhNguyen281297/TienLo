@@ -20,6 +20,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parent
 FARM_LAYOUT = json.loads((ROOT / 'MAP' / 'farm-layout.json').read_text(encoding='utf-8'))
 FIELD_RULES = json.loads((ROOT / 'MAP' / 'field-effects.json').read_text(encoding='utf-8'))
+BUILD_RULES = json.loads((ROOT / 'MAP' / 'builds.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
 SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
@@ -98,6 +99,10 @@ def valid_player(p):
         if not isinstance(item,dict) or not isinstance(item.get('id'),str) or not isinstance(item.get('uid'),str):
             raise ValueError('Vật phẩm không hợp lệ.')
         if type(item.get('enhance',0)) is not int or not 0<=item.get('enhance',0)<=15:raise ValueError('Cường hóa chỉ từ +0 đến +15.')
+        meta=collection_item(item['id'])
+        if item['id'].startswith('rift-') and (not meta or any(item.get(k)!=v for k,v in meta.items())):raise ValueError('Bộ trang bị không hợp lệ.')
+        if meta and any(item.get(k,0)!=meta.get(k,0) for k in ('atk','hp','mp','armor','crit','dodge','skill')):raise ValueError('Chỉ số bộ trang bị không hợp lệ.')
+        if item.get('setId') and not meta:raise ValueError('Bộ trang bị không hợp lệ.')
         if item.get('rarity') not in ('pham','huyen','linh','tien'):raise ValueError('Phẩm chất không hợp lệ.')
         for key in ('atk','hp','mp','armor','crit','dodge','skill','heal','mana','xp','price','req','qty'):
             if key in item and (type(item[key]) not in (int,float) or not math.isfinite(item[key]) or not 0<=item[key]<=10000):
@@ -131,6 +136,93 @@ def equipment_stats(player):
     multiplier=1+{9:.05,11:.1,13:.15,15:.2}.get(tier,0)
     attack=sum(max(0,min(100,item.get('atk',0)))*(1+.05*item.get('enhance',0)) for item in equipment.values() if isinstance(item,dict))
     return attack,multiplier,tier
+
+
+def collection_bonuses(player):
+    counts=defaultdict(int)
+    for slot,item in player.get('world',{}).get('equip',{}).items():
+        meta=collection_item((item or {}).get('id',''))
+        if meta and meta['slot']==slot:counts[meta['setId']]+=1
+    result=defaultdict(float)
+    for spec in BUILD_RULES['sets']:
+        for threshold,stats in spec['bonuses'].items():
+            if counts[spec['id']]>=int(threshold):
+                for key,value in stats.items():result[key]+=value
+    return result
+
+
+def collection_item(item_id):
+    match=re.fullmatch(r'rift-([a-z]+)-([a-z]+)-(0|10|25|45)',item_id)
+    if not match:return None
+    set_id,slot,level=match.groups()
+    if set_id not in {s['id'] for s in BUILD_RULES['sets']} or slot not in BUILD_RULES['slots']:return None
+    grade=next(g for g in BUILD_RULES['grades'] if g['req']==int(level))
+    stats={k:round(v*(1 if k in ('crit','dodge','skill') else grade['scale']),2) for k,v in BUILD_RULES['baseStats'][slot].items()}
+    return dict(id=item_id,setId=set_id,slot=slot,req=int(level),rarity=grade['rarity'],**stats)
+
+
+def player_attack(player):
+    level=player['r']*10+player['stage']-1
+    gear,multiplier,_=equipment_stats(player)
+    strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
+    return (8+level*1.3+strength*2+gear)*multiplier*(1+collection_bonuses(player).get('atkPercent',0))
+
+
+def damage_mob(mob,damage,owner,now,key):
+    if mob['dead']:return
+    mob['hp']=max(0,mob['hp']-max(1,round(damage)));mob['contributors'][owner]=now
+    if mob['hp']>0:return
+    mob['dead']=now+8
+    for contributor,stamp in mob['contributors'].items():
+        other=PEERS.get(contributor)
+        if other and room_for(other)==key and now-stamp<15:
+            EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':secrets.token_hex(12)})
+            EVENTS[contributor]=EVENTS[contributor][-100:]
+
+
+def tick_pet_effects(mob,now,key):
+    effects=mob.setdefault('_petEffects',{})
+    for owner,effect in list(effects.items()):
+        peer=PEERS.get(owner)
+        if not peer or room_for(peer)!=key or mob['dead'] or (peer.get('pet') or {}).get('id')!=effect.get('petId'):
+            effects.pop(owner,None);continue
+        if effect['kind']=='poison':
+            while effect['ticks']>0 and now>=effect['next'] and not mob['dead']:
+                damage_mob(mob,effect['power']*field_vulnerability(mob),owner,now,key)
+                effect['ticks']-=1;effect['next']+=1
+            if effect['ticks']==0:effects.pop(owner,None)
+        elif now>=effect['until']:effects.pop(owner,None)
+    mob['petEffects']=[{'kind':e['kind'],'slow':e.get('slow',1)} for e in effects.values()]
+
+
+def register_pet_cast(peer,body,player,now,mobs):
+    request=body.get('petCast')
+    if not isinstance(request,dict) or peer.get('paused'):return
+    cast_id=request.get('id')
+    if not isinstance(cast_id,str) or not 1<=len(cast_id)<=80 or cast_id==peer.get('lastPetCast'):return
+    world=player.get('world',{})
+    pet=next((v for v in world.get('pets',[]) if v['id']==world.get('activePet')),None)
+    if not pet or request.get('species')!=pet['species']:return
+    rule=BUILD_RULES['pets'][pet['species']];bonus=collection_bonuses(player)
+    target=next((m for m in mobs if m['id']==request.get('target') and not m['dead']),None)
+    if pet['species']!='Tho' and (not target or math.hypot(target['x']-peer['x'],target['y']-peer['y'])>rule['range']):return
+    uid=peer['id'];wall=time.time()
+    with connect() as db:
+        db.execute('CREATE TABLE IF NOT EXISTS pet_skill_cooldowns(user_id INTEGER PRIMARY KEY,ready_at REAL NOT NULL,cast_id TEXT NOT NULL)')
+        row=db.execute('SELECT * FROM pet_skill_cooldowns WHERE user_id=?',(uid,)).fetchone()
+        if row and (row['ready_at']>wall or row['cast_id']==cast_id):return
+        db.execute('INSERT INTO pet_skill_cooldowns VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,cast_id=excluded.cast_id',(uid,wall+rule['cooldown']*(1-bonus.get('petCooldown',0)),cast_id))
+    peer['lastPetCast']=cast_id;peer['petCast']={'id':cast_id,'species':pet['species'],'x':target['x'] if target else peer['x'],'y':target['y'] if target else peer['y']};peer['petCastAt']=now
+    if not target:return
+    power=player_attack(player)*rule['power']*(1+bonus.get('petPower',0));key=room_for(peer)
+    if pet['species']=='Nhen':
+        target.setdefault('_petEffects',{})[uid]={'kind':'poison','power':power,'ticks':5,'next':now+1,'petId':pet['id']}
+    elif pet['species']=='Doi':
+        for mob in mobs:
+            if not mob['dead'] and math.hypot(mob['x']-target['x'],mob['y']-target['y'])<=rule['radius']:
+                damage_mob(mob,power*field_vulnerability(mob),uid,now,key)
+                mob.setdefault('_petEffects',{})[uid]={'kind':'frost','petId':pet['id'],'slow':.85 if mob.get('elite') or mob['t']==2 else rule['slow'],'until':now+rule['duration']}
+    else:damage_mob(target,power*field_vulnerability(target),uid,now,key)
 
 
 def room_for(peer):
@@ -249,7 +341,7 @@ def field_attack_blocked(mob):
 
 def field_speed(mob):
     immobilized=any(effect['hard']>0 and effect['key']!='mysticSeal' for effect in mob.get('fieldEffects', []))
-    return 0 if immobilized else min([1]+[effect['slow'] for effect in mob.get('fieldEffects', [])])
+    return 0 if immobilized else min([1]+[effect['slow'] for effect in mob.get('fieldEffects', [])]+[effect.get('slow',1) for effect in mob.get('petEffects',[])])
 
 
 def field_outgoing(mob):
@@ -472,6 +564,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if isinstance(cast,dict) and type(cast.get('index')) is int and cast['index'] in range(4) and isinstance(cast.get('id'),str) and len(cast['id'])<64 and now-peer.get('castAt',0)>.3:
                 if all(type(cast.get(k)) in (int,float) and math.isfinite(cast[k]) and 0<=cast[k]<=2000 for k in ('x','y')):
                     peer['cast']={k:cast[k] for k in ('id','index','x','y')};peer['castAt']=now
+            peer['paused']=bool(body.get('paused'))
             register_skill_field(peer,body,now)
             PEERS[uid]=peer; key=room_for(peer)
             shared=scene in ('sword','moon','thunder','mystic','valley')
@@ -483,6 +576,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 fields=[dict(v['skillField'],owner=v['id']) for v in members if v.get('skillField',{}).get('until',0)>now and v['skillField']['room']==key]
                 for mob in mobs:
                     update_mob_fields(mob,fields,now,dt)
+                    tick_pet_effects(mob,now,key)
                     if not mob['dead']:
                         nearest=min(members,key=lambda v:math.hypot(v['x']-mob['x'],v['y']-mob['y']),default=None)
                         tx,ty=mob['hx'],mob['hy']
@@ -492,7 +586,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                             step=min(distance,45*dt*field_speed(mob));nx=mob['x']+(tx-mob['x'])/distance*step;ny=mob['y']+(ty-mob['y'])/distance*step
                             rx,ry=mob['campRX'],mob['campRY']; dx,dy=abs(nx-mob['campX'])/rx,abs(ny-mob['campY'])/ry; cut=min(.3,max(.14,24/ry))
                             if dx+dy<.96 and dx<1-cut-.025 and dy<1-cut-.025:mob['x'],mob['y']=nx,ny
-                    if mob['dead'] and now>=mob['dead']: mob['hp']=mob['maxHp'];mob['dead']=0;mob['contributors']={};mob.pop('_fieldExposure',None);mob['fieldEffects']=[]
+                    if mob['dead'] and now>=mob['dead']: mob['hp']=mob['maxHp'];mob['dead']=0;mob['contributors']={};mob.pop('_fieldExposure',None);mob['fieldEffects']=[];mob.pop('_petEffects',None);mob['petEffects']=[]
                 acks=body.get('ack',[])
                 if not isinstance(acks,list) or len(acks)>100: raise ValueError()
                 EVENTS[uid]=[e for e in EVENTS[uid] if e['eventId'] not in acks]
@@ -507,19 +601,11 @@ class GameHandler(SimpleHTTPRequestHandler):
                     if not mob or mob['dead'] or math.hypot(mob['x']-x,mob['y']-y)>550: continue
                     power=event.get('power',0)
                     if type(power) not in (int,float) or not math.isfinite(power) or power<=0: continue
-                    level=p['r']*10+p['stage']-1; attrs=p.get('world',{}).get('attrs',{}); equipment=p.get('world',{}).get('equip',{})
-                    gear_attack,set_multiplier,_=equipment_stats(p)
-                    attack=(8+level*1.3+max(0,min(1000,attrs.get('luc',0)))*2+gear_attack)*set_multiplier
-                    damage=max(1,round(min(power,attack*6)*field_vulnerability(mob))); mob['hp']=max(0,mob['hp']-damage); mob['contributors'][uid]=now; hit_times.append(now)
-                    if mob['hp']==0:
-                        mob['dead']=now+8
-                        for contributor,stamp in mob['contributors'].items():
-                            other=PEERS.get(contributor)
-                            if other and room_for(other)==key and now-stamp<15:
-                                EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':secrets.token_hex(12)})
-                                EVENTS[contributor]=EVENTS[contributor][-100:]
+                    attack=player_attack(p)
+                    damage_mob(mob,min(power,attack*6)*field_vulnerability(mob),uid,now,key);hit_times.append(now)
                 peer['hitTimes']=hit_times
-            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
+                register_pet_cast(peer,body,p,now,mobs)
+            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
             shapes=FARM_LAYOUT['main']
             rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1

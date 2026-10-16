@@ -6,7 +6,7 @@ let P={x:1000,y:1000,hp:100,mp:20,xp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,
 function saveCharacter(){if(window.saveLocalCharacter)window.saveLocalCharacter()}
 const cultivationLevel=()=>P.r*10+(P.stage||1)-1;
 const bonusStats=()=>{try{return window.bonusStats?window.bonusStats():{atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}catch(e){return {atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}};
-const mhp=()=>Math.round((100+cultivationLevel()*6+(bonusStats().hp||0))*(1+(bonusStats().setBonus||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(bonusStats().mp||0))*(1+(bonusStats().setBonus||0))),atk=()=>(8+cultivationLevel()*1.3+(bonusStats().atk||0))*(1+(bonusStats().setBonus||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
+const mhp=()=>Math.round((100+cultivationLevel()*6+(bonusStats().hp||0))*(1+(bonusStats().setBonus||0))*(1+(bonusStats().hpPercent||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(bonusStats().mp||0))*(1+(bonusStats().setBonus||0))*(1+(bonusStats().mpPercent||0))),atk=()=>(8+cultivationLevel()*1.3+(bonusStats().atk||0))*(1+(bonusStats().setBonus||0))*(1+(bonusStats().atkPercent||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
 let E=[],B=[],X=[],K={},ptr=null,W,H,tm=0,sv=0;
 function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight)));Z=1.8*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
 function gameCamera(vw=W/Z,vh=H/Z){return {x:P.x-vw/2,y:P.y-vh/2,vw,vh};}

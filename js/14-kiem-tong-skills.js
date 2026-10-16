@@ -123,7 +123,7 @@
   };
   cast=function(){if(isSword())skill(0);else legacyCast();};
   $('bs').onclick=()=>cast();
-  hit=function(enemy,power){legacyHit(enemy,isSword()&&inField(P)?power*1.25:power);};
+  hit=function(enemy,power){legacyHit(enemy,!window.petCombat?.dealing&&isSword()&&inField(P)?power*1.25:power);};
 
   function advance(dt) {
     for(let i=0;i<4;i++)state.cooldown[i]=Math.max(0,state.cooldown[i]-dt);

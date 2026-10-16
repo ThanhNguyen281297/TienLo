@@ -24,7 +24,7 @@
     if(busy||!account.state.ready||!P.ap||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
     if(lastMap!==scene){state.hits=[];state.players=[];state.fields=[];state.shared=false;retry=null;lastMap=scene;}
-    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,field:window.fieldEffects?.descriptor()??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;retry=batch;
+    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;state.petCast=null;retry=batch;
     try{
       const data=await account.api('/api/world',batch);retry=null;state.connected=true;chat.hidden=false;
       if(scene!==worldMap.state.scene)return;

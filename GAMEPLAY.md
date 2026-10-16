@@ -83,13 +83,13 @@ Màu viền: +1–8 xanh lá; +9–10 xanh dương; +11–13 cam; +14 đỏ; +15
 
 Full set là đủ sáu món đang mặc. Lấy cấp thấp nhất của sáu món: đạt +9/+11/+13/+15 nhận tương ứng +5%/+10%/+15%/+20%. Chỉ lấy mốc cao nhất, không cộng bốn mốc. Thưởng áp dụng công, tổng HP/MP, tổng giáp, bạo kích, né và tăng sát thương kỹ năng; giới hạn né/bạo hiện có vẫn áp dụng. Tháo hoặc thay món thấp hơn làm thưởng thay đổi ngay. Chỉ số gốc được giữ nguyên trong DB, cấp cường hóa lưu riêng để tránh nhân lại chỉ số khi đăng nhập.
 
-Mỗi nhân vật được nhận một lần bốn trứng: Linh Đường Lang, Nguyệt Thố, Huyết Nhện và Băng Dực Dơi. Bản lưu cũ cũng nhận quà một lần; túi đầy sẽ chờ ô trống thay vì xóa đồ. Ấp một trứng trong ba giây; trạng thái đang ấp, bộ sưu tập và pet xuất chiến được lưu cùng nhân vật. Một pet đi theo, tối đa 20 pet trong bộ sưu tập. Pet dùng sprite quái sẵn có với kích thước nhỏ, có idle/di chuyển và không tham gia chiến đấu ở phiên bản này. Người chơi online nhìn thấy pet và cấp cường hóa của nhau.
+Mỗi nhân vật được nhận một lần bốn trứng: Linh Đường Lang, Nguyệt Thố, Huyết Nhện và Băng Dực Dơi. Bản lưu cũ cũng nhận quà một lần; túi đầy sẽ chờ ô trống thay vì xóa đồ. Ấp một trứng trong ba giây; trạng thái đang ấp, bộ sưu tập và pet xuất chiến được lưu cùng nhân vật. Một pet đi theo, tối đa 20 pet trong bộ sưu tập. Pet dùng sprite quái sẵn có với kích thước nhỏ, có idle/di chuyển và kỹ năng chiến đấu mô tả ở phần Bộ trang bị và kỹ năng pet bên dưới. Người chơi online nhìn thấy pet và cấp cường hóa của nhau.
 
 ## Vân Hải Bí Cảnh (solo)
 
 Mở Khác → Bí cảnh sau khi nhập môn và đứng tại vùng an toàn. Dùng đài riêng như đấu trường nhưng không tiêu hao lượt đấu trường, không trộn quái/người chơi của thế giới chung. Đây là bản solo; tổ đội và boss thế giới chưa nằm trong tính năng này.
 
-Ba đợt gồm 4/6/8 yêu thú, mỗi đợt kết thúc chọn một phúc duyên: Kiếm Tâm (+15% sát thương), Kim Cang (-15% sát thương nhận, tối đa 45%), Hồi Xuân (hồi ngay 30% HP và thêm 1% HP/MP mỗi giây). Có thể chọn lặp; tất cả biến mất khi rời lượt. Độ khó khóa theo công, HP và cấp lúc vào. Auto tắt khi vào đợt/chọn phúc duyên; có thể chủ động bật lại.
+Ba đợt gồm 4/6/8 yêu thú, mỗi đợt kết thúc chọn một phúc duyên: Kiếm Tâm (+15% sát thương), Kim Cang (-15% sát thương nhận, tối đa 45%), Hồi Xuân (hồi ngay 30% HP và thêm 1% HP/MP mỗi giây). Có thể chọn lặp; tất cả biến mất khi rời lượt. Độ khó dùng công/HP cơ bản theo cấp khi vào, không tăng theo đồ mặc: trang bị tốt giúp vượt nhanh và chịu đòn tốt hơn. Auto tắt khi vào đợt/chọn phúc duyên; có thể chủ động bật lại.
 
 Hộ Pháp có hai giai đoạn, chuyển ở 50% HP, miễn sát thương 1,5 giây khi chuyển. Chiêu báo vùng đỏ trước 1,35 giây (giai đoạn 1) hoặc ba vùng lệch nhịp, báo trước 1,1 giây (giai đoạn 2). Đòn nổ gây 20%/25% HP tối đa trước giảm sát thương; di chuyển khỏi vùng hoặc dịch chuyển để né. Boss đứng yên và không đánh thường trong lúc vận chiêu. Sau chuỗi nổ, điểm yếu mở 1,5 giây, nhận thêm 25% sát thương.
 
@@ -104,3 +104,25 @@ Skill 2 thi triển thành công cấp cửa sổ né 0,22 giây cho cả bốn 
 Boss/thủ lĩnh local ngoài bí cảnh báo vùng đỏ trước 1,3 giây, dưới 50% HP báo trước 1,1 giây với vùng lớn hơn. Boss đứng vận chiêu, không đánh thường trong lúc vận hoặc hồi sức 0,85 giây. Đóng băng/choáng/phong ấn trong lúc vận ngắt chiêu. Boss bí cảnh dùng chung cách hiển thị cảnh báo và phản hồi né; hiệu ứng khống chế cứng cũng ngắt chuỗi nổ đang vận, mở điểm yếu 0,7 giây. Cảnh báo được khóa tại vị trí khi bắt đầu, không đuổi theo người chơi. Không tạo boss giả hay tự tính sát thương boss thay server trong map quái chung.
 
 Cân bằng đánh thường dùng một bảng duy nhất trong combatBalance: Kiếm 0,34 giây/đòn, tầm 82, sát thương combo 0,8/0,85/1/1,8× công; Liềm 0,44 giây, tầm 215, 0,75/0,85/1,25× công (còn đòn quay về); Thương 0,50 giây, tầm 115, 1,1/1,2/1,25/1,65× công; Quạt 0,50 giây, tầm 275, 0,75/0,9/1,25× công. Giữ cơ chế đòn kết, Lôi/Phù Ấn, AoE, trường khống chế, giảm sát thương và cooldown bốn skill đã có. Đây là lượt cân bằng đầu, chưa phải kết luận cân bằng PvP. Tu luyện và tooltip skill giải thích vai trò từng class.
+
+## Bộ trang bị và kỹ năng pet
+
+Bốn bộ cho mọi class, mỗi bộ đủ sáu slot; bốn bậc yêu cầu cấp 0/10/25/45, tổng cộng 96 template. Mốc 2/4/6 cộng dồn, đếm theo slot đang mặc, có thể phối 4+2 hoặc 2+2+2. Được trộn bậc trong cùng bộ. Thưởng bộ độc lập và nhân tiếp với thưởng full set cường hóa hiện có; không ghi đè chỉ số gốc. Giới hạn bạo/né cũ giữ nguyên.
+
+- Kiếm Phong: 2 món +6% tổng công; 4 món +3% bạo; 6 món +10% sát thương skill.
+- Kim Cang: 2 món +10% tổng HP; 4 món +8 giáp; 6 món +3% né.
+- Nguyệt Ảnh: 2 món +15% tổng MP; 4 món +8% sát thương skill; 6 món +3% bạo.
+- Vạn Linh: 2 món +5% tổng HP; 4 món +25% hiệu lực kỹ năng pet (cả hồi phục); 6 món -20% hồi chiêu pet.
+
+Khác → Bộ đồ: chọn bộ muốn săn, xem các mốc đang kích hoạt và đổi món. Bí cảnh khóa bộ săn khi vào; chiến thắng thưởng một món đúng bộ, đúng bậc cảnh giới lúc vào, ưu tiên các món chưa có trong túi/trên người. Ngoài rương trang bị còn có 3 mảnh bí cảnh mỗi lượt; 6 mảnh đổi một slot chỉ định của bộ đã chọn. Mảnh lưu SQLite cùng nhân vật. Túi đầy không tiêu mảnh; rương cũ vẫn chờ nhận và chặn vào lượt mới đến khi nhận. Các template độc quyền không được bán trong shop hoặc lẫn vào bảng rơi quái thường.
+
+Nút Pet phía trên cụm skill dùng kỹ năng linh thú đang xuất chiến. Trong Linh thú có mô tả kỹ năng và tùy chọn Pet tự dùng skill khi Auto. Auto tấn công pet chỉ hoạt động khi auto nhân vật bật, có mục tiêu ngoài vùng an toàn; Thỏ hồi phục khi HP <65% hoặc MP <25%.
+
+- Linh Đường Lang: Liêm Phong, chém đơn mục tiêu 240% công, hồi 12s.
+- Nguyệt Thố: Nguyệt Quang, hồi 18% HP và 15% MP tối đa, hồi 20s; không tiêu chiêu nếu cả hai đầy.
+- Huyết Nhện: Độc Vụ, năm nhịp độc, mỗi giây 70% công (tổng 350%), hồi 16s.
+- Băng Dực Dơi: Băng Tức, 90% công trong bán kính 70, chậm 30% trong 3s; boss/thủ lĩnh chậm 15%, hồi 14s.
+
+Tầm tấn công pet 260. Pet không tự bạo kích, không hưởng hệ số buff đánh của trường Kiếm/Quạt; vẫn chịu tác động yếu điểm mục tiêu. Hồi chiêu dùng chung giữa tất cả pet, lưu thời điểm sẵn sàng theo thời gian thực để đổi pet, thu hồi, chuyển map hoặc tải lại không reset. Hiệu ứng và độc local kết thúc khi đổi pet/rời trận; snapshot online công khai trạng thái độc/băng và sự kiện pet cho người khác.
+
+Quái chung: client gửi ID lần dùng và ID mục tiêu; server đọc pet đang xuất chiến trong bản lưu, kiểm tra loài, khoảng cách và trạng thái, tự tính sát thương/độc/băng theo catalog chung. SQLite có bảng pet_skill_cooldowns giữ hồi chiêu qua tái kết nối/restart, từ chối replay và đổi pet để spam. Pet gây chết quái đi qua cùng cơ chế contributor/reward/ack của đòn người chơi. Độc online tiếp tục khi mở UI, dừng nếu chủ đổi map/đổi pet hoặc rời thế giới. Hồi phục và trận solo dùng mô hình chỉ số client/lưu nhân vật hiện có.
