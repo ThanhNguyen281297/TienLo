@@ -137,7 +137,7 @@
     const p = progress();
     p.thangViFragments=(p.thangViFragments||0)+1;
     if(p.thangViFragments>=20){p.thangViFragments-=20;grantThangViDan(1,e);}
-    const isBoss = e.t === 2 || e.elite || e.name;
+    const isBoss = e.t === 2 || e.elite || e.boss || e.challenge;
     const valley = e.map === 'valley' || e.valley;
     const r = Math.random();
     // Boss/elite luôn rớt đồ xanh trở lên + chắc chắn 1 Thăng Vị Đan (30% thêm 1).
