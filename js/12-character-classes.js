@@ -226,8 +226,8 @@
       weaponEnergy(ctx,index,quality,attacking,true);
       ctx.restore();
     };
-    // Large back equipment stays behind the body for a readable silhouette.
-    drawBackItem();
+    // Facing the camera hides the back mount; facing away reveals it over the back.
+    if(dir!==1)drawBackItem();
     const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
     const fit = index === 2 && gender === 'Nam' ? spearMaleFit : null;
     const bodyHeight = fit ? fit.height : 42;
@@ -236,6 +236,13 @@
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
     const bodyImage=images[gender][direction],bodyWidth=bodyHeight*bodyImage.naturalWidth/(bodyImage.naturalHeight||1);
     window.equipmentProgression?.outline(ctx,bodyImage,x-bodyWidth/2,y-bob+footOffset-bodyHeight,bodyWidth,bodyHeight,bodyLevel||0);
+    if(dir===1){
+      drawBackItem();
+      // The mount covers the back, while the head and hair remain in front of it.
+      ctx.save();ctx.beginPath();ctx.rect(x-bodyWidth/2-2,y-bob+footOffset-bodyHeight-2,bodyWidth+4,bodyHeight*.4+2);ctx.clip();
+      sprite(ctx,bodyImage,x,y-bob+footOffset,bodyHeight);
+      ctx.restore();
+    }
     drawWeapon();
     ctx.restore();
   };
