@@ -115,8 +115,8 @@ fs.mkdirSync(artifacts, { recursive: true });
       assert.equal(facts.routes, 0); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' bridges connect every camp with walkable ground');
       assert.equal(facts.waterWalkable, false); assert(facts.stopWalkable); assert(Math.hypot(facts.stop.x - 200, facts.stop.y - 300) > 50, 'Movement stops at the land edge');
       assert.deepEqual(facts.camps, [
-        { id: 'north', x: 1000, y: 490, type: 0, count: 6 }, { id: 'east', x: 1640, y: 1100, type: 1, count: 6 },
-        { id: 'south', x: 1000, y: 1650, type: 4, count: 6 }, { id: 'west', x: 360, y: 1100, type: 3, count: 6 }
+        { id: 'north', x: 1000, y: 490, type: 0, count: 12 }, { id: 'east', x: 1640, y: 1100, type: 1, count: 12 },
+        { id: 'south', x: 1000, y: 1650, type: 4, count: 12 }, { id: 'west', x: 360, y: 1100, type: 3, count: 12 }
       ]);
       assert(facts.enemiesOnLand, 'Farm monsters occupy walkable, unsafe land belonging to their map');
       assert(facts.servicesOnLand, 'Mentor, teacher, teleport and arena services occupy accessible safe land');
@@ -166,7 +166,7 @@ fs.mkdirSync(artifacts, { recursive: true });
         await main.waitForFunction(() => worldMap.state.scene === 'arena', null, { polling: 50 });
         await main.evaluate(death => { if (death) { P.hp = -999; mapStep(.01); } else worldMap.leaveArena(); }, death);
         assert.deepEqual(await main.evaluate(() => ({ scene: worldMap.state.scene, map: P.world.map, x: P.x, y: P.y, enemies: E.length, arena: worldMap.arenaRun() })),
-          { scene: id, map: id, x: 1000, y: 1110, enemies: 24, arena: null }, (death ? 'Arena death' : 'Arena exit') + ' returns to ' + id);
+          { scene: id, map: id, x: 1000, y: 1110, enemies: 48, arena: null }, (death ? 'Arena death' : 'Arena exit') + ' returns to ' + id);
       }
       const mobile = await makePage('http://127.0.0.1:' + port, maps.findIndex(map => map.id === id), { width: 390, height: 844 });
       await snapshot(mobile, id, 'mobile');

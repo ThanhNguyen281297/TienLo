@@ -79,6 +79,19 @@ removed. `js/20b-map-structures.js` now loads only the wall panel/pier PNGs.
 Wall panels share one upright pier per joint, and follow the chamfered ground
 boundary. Collision blocks the removed tips and the void between islands.
 
+`js/20c-farm-portals.js` places paired formations inside the perimeter at each
+direction. Approach and press E (or the mobile interact button) to travel; the
+destination formation returns to the central courtyard. A short cooldown prevents
+an accidental immediate return. There are still no bridges or flight paths.
+
+Farm islands use radii 240 × 125, compared with the original 156 × 80 (about 2.4×
+the area). Each of the four camps has 12 monsters, 48 total per sect/realm room.
+Valley islands use 210 × 110 and 12 monsters each, 36 total. Home slots, geometry
+and server teleport validation share `MAP/farm-layout.json`; regenerate the
+file:// browser copy with `python tools/build_farm_layout.py` after editing it.
+The server accepts long teleports only between matching formation positions,
+and keeps monsters within their enlarged island bounds.
+
 `tests/map-structures.test.cjs` verifies closed walls, blocked former exits, mobile
 rendering, no loaded bridge artwork and no flight UI. Native bridge cutouts remain
 in the offline asset library for reuse, but are not loaded or rendered in game.

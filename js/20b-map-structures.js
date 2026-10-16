@@ -9,7 +9,7 @@
   function layout(){const scene=world.state.scene;if(cache.has(scene))return cache.get(scene);const walls=[],surfaces=[];
     if(world.isSectMap(scene)||scene==='valley'){
       const shape=world.sectLayouts[scene],valley=scene==='valley';surfaces.push({x:1000,y:1100,rx:shape.rx,ry:shape.ry});
-      for(const camp of valley?world.valleyMines:world.farmCamps)surfaces.push({x:camp.x,y:camp.y,rx:valley?150:156,ry:valley?78:80});
+      for(const camp of valley?world.valleyMines:world.farmCamps)surfaces.push({x:camp.x,y:camp.y,rx:valley?farmLayout.valley.rx:farmLayout.camp.rx,ry:valley?farmLayout.valley.ry:farmLayout.camp.ry});
       for(const surface of surfaces){const points=boundary(surface);for(let i=0;i<points.length;i++)walls.push(...splitWall(points[i],points[(i+1)%points.length]));}
     }else if(scene==='hub'){
       const c=world.city,points=[{x:c.left+12,y:c.top+25},{x:c.right-12,y:c.top+25},{x:c.right-12,y:c.bottom-12},{x:c.left+12,y:c.bottom-12}];

@@ -16,6 +16,34 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_expanded_farms_and_validated_two_way_portals(self):
+        import time
+        browser_source=(server.ROOT/'js/19c-farm-layout.js').read_text(encoding='utf-8')
+        self.assertEqual(json.loads(browser_source.split('window.farmLayout=',1)[1].strip().removesuffix(';')),server.FARM_LAYOUT)
+        for scene in server.FARM_LAYOUT['main']:
+            room=server.room_mobs(scene+':0');size=server.FARM_LAYOUT['valley' if scene=='valley' else 'camp']
+            self.assertEqual(len(room['mobs']),36 if scene=='valley' else 48)
+            self.assertEqual(len({m['id'] for m in room['mobs']}),len(room['mobs']))
+            for mob in room['mobs']:
+                self.assertLess(abs(mob['hx']-mob['campX'])/size['rx']+abs(mob['hy']-mob['campY'])/size['ry'],.9)
+            for a,b in server.farm_portal_routes(scene):
+                self.assertTrue(server.valid_farm_teleport(scene,{'x':a[0],'y':a[1]},b))
+                self.assertTrue(server.valid_farm_teleport(scene,{'x':b[0],'y':b[1]},a))
+                self.assertFalse(server.valid_farm_teleport(scene,{'x':100,'y':100},b))
+        cookie,csrf=self.register('portal_user')
+        self.assertEqual(self.request('/api/characters',{'csrf':csrf,'player':self.player(),'revision':0},cookie)[0],201)
+        a,b=server.farm_portal_routes('sword')[0]
+        def frame(point):
+            time.sleep(.15)
+            status,data,_=self.request('/api/world',{'csrf':csrf,'map':'sword','x':point[0],'y':point[1]},cookie)
+            self.assertEqual(status,200)
+            return data
+        frame(a)
+        result=frame(b);self.assertEqual((result['x'],result['y']),b)
+        result=frame((1500,800));self.assertEqual((result['x'],result['y']),b,'Arbitrary long jumps must remain blocked')
+        time.sleep(.8)
+        result=frame(a);self.assertEqual((result['x'],result['y']),a)
+
     def test_airborne_visual_metadata_is_bounded_and_cleared(self):
         import time
         one,csrf=self.register('flying_user');two,other_csrf=self.register('watching_user')

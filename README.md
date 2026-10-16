@@ -2,6 +2,11 @@
 
 Game tu tiên HTML5 Canvas: bốn phái, bản đồ tông môn, thành chung, farm hợp tác, đấu trường, tu luyện và trang bị.
 
+Đến trận truyền tống ở bốn hướng và nhấn **E** (điện thoại: nút tương tác) để sang
+bãi luyện công; trận bên kia đưa về sân tông môn. Mỗi bãi có 12 quái, tổng 48 quái
+chung cho mỗi phòng tông môn/cảnh giới. Bốn đảo luyện công đã được mở rộng, không
+có cầu hoặc khinh công. Linh Mạch Cốc có ba cặp trận và 36 quái.
+
 ## Chạy
 
 Cần Python 3.11+ và trình duyệt hiện đại. Không cần thư viện Python ngoài.

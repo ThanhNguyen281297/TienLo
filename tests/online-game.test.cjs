@@ -23,6 +23,25 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   await one.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Hai'));
   await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'));
   console.log('PASS two accounts see each other on shared map');
+  for(const id of ['north','east','south','west']){
+    const route=await one.evaluate(id=>{P.world.tutorial=true;P.hp=mhp();document.activeElement?.blur();const route=farmPortals.routes().find(r=>r.id===id);P.x=route.from.x;P.y=route.from.y;return route;},id);
+    await two.waitForFunction(route=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&Math.hypot(p.x-route.from.x,p.y-route.from.y)<3),route);
+    await one.keyboard.press('e');
+    await two.waitForFunction(route=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&Math.hypot(p.x-route.to.x,p.y-route.to.y)<3),route);
+    if(id==='north'){
+      const saved=await one.evaluate(async()=>{await account.flush();const result=await account.api('/api/characters');return result.character.player;});
+      assert(Math.hypot(saved.x-route.to.x,saved.y-route.to.y)<3,'Teleport destination is persisted to SQLite');
+    }
+    await one.waitForFunction(()=>farmPortals.cooldown===0&&worldMap.state.near?.farmPortal);await one.keyboard.press('e');
+    const localReturn=await one.evaluate(()=>({x:P.x,y:P.y,hp:P.hp,near:worldMap.state.near?.id,cd:farmPortals.cooldown,paused:paused()}));
+    assert(Math.hypot(localReturn.x-route.from.x,localReturn.y-route.from.y)<3,JSON.stringify({id,...localReturn}));
+    await two.waitForFunction(route=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&Math.hypot(p.x-route.from.x,p.y-route.from.y)<3),route);
+    await one.waitForFunction(()=>farmPortals.cooldown===0);
+  }
+  assert.equal(await one.evaluate(()=>E.filter(e=>e.network).length),48);
+  await one.evaluate(()=>{P.x=1000;P.y=1110;P.hp=mhp();});
+  console.log('PASS four authenticated E portals both ways, peer visibility, saved arrival and 48 shared monsters');
+
   await one.locator('#chat-input').fill('Xin chào <script>');await one.locator('#chat-form button').click();await two.waitForFunction(()=>document.getElementById('chat-messages').textContent.includes('Xin chào <script>'));
   assert.equal(await two.locator('#chat-messages script').count(),0);
   console.log('PASS chat safely renders text between accounts');
@@ -47,10 +66,15 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   assert.equal(await one.evaluate(()=>worldMap.progress().equip.vukhi),null);
   console.log('PASS 30 inventory cells, drag equip, drag unequip');
   await one.evaluate(()=>{worldMap.dialog.close();P.xp=need()*2;P.med=1;up(.016);});assert(await one.evaluate(()=>P.xp>=need()*2));
-  await one.evaluate(async()=>{P.med=0;P.hp=mhp();P.x=1105;P.y=490;worldMap.progress().bag=[];P.gold=137;await account.flush();});
+  const savedLocation=await one.evaluate(()=>{P.med=0;P.hp=mhp();const route=farmPortals.routes()[0];P.x=route.from.x;P.y=route.from.y;return route.to;});
+  await two.waitForFunction(()=>onlineWorld.state.players.some(p=>p.name==='Kiếm Một'&&Math.abs(p.x-1000)<3&&p.y>950&&p.y<1020));
+  await one.waitForFunction(()=>worldMap.state.near?.farmPortal&&!worldMap.state.near.reverse&&farmPortals.cooldown===0);
+  await one.keyboard.press('e');
+  await two.waitForFunction(p=>onlineWorld.state.players.some(peer=>peer.name==='Kiếm Một'&&Math.hypot(peer.x-p.x,peer.y-p.y)<3),savedLocation);
+  await one.evaluate(async()=>{worldMap.dialog.show('Kiểm tra lưu','Tạm dừng chiến đấu khi kiểm tra tải lại.');P.hp=mhp();worldMap.progress().bag=[];P.gold=137;await account.flush();});
   await one.reload({waitUntil:'domcontentloaded'});await one.waitForFunction(()=>account.state.ready&&P.ap);
   assert.equal(await one.evaluate(()=>P.nm),'Kiếm Một');assert.equal(await one.evaluate(()=>P.gold),137);
-  const restored=await one.evaluate(()=>({x:P.x,y:P.y,hp:P.hp,map:worldMap.state.scene}));assert(Math.abs(restored.x-1105)<5&&Math.abs(restored.y-490)<5,JSON.stringify(restored));
+  const restored=await one.evaluate(()=>({x:P.x,y:P.y,hp:P.hp,map:worldMap.state.scene}));assert(Math.abs(restored.x-savedLocation.x)<5&&Math.abs(restored.y-savedLocation.y)<5,JSON.stringify(restored));
   console.log('PASS database reload preserves character, gold and valid saved location; meditation keeps reserve XP');
   await one.evaluate(async()=>{worldMap.switchScene('hub',true);P.hp=mhp();P.gold=137;await account.flush();});
   await one.screenshot({path:path.join(artifacts,'online-world-desktop.png')});

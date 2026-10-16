@@ -18,6 +18,7 @@ from threading import RLock
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent
+FARM_LAYOUT = json.loads((ROOT / 'MAP' / 'farm-layout.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
 SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
@@ -116,21 +117,39 @@ def room_for(peer):
     return peer['map'] + ':' + str(peer.get('trainingRealm', 0))
 
 
+def farm_portal_routes(scene):
+    if scene not in FARM_LAYOUT['main']: return []
+    main_rx,main_ry=FARM_LAYOUT['main'][scene]; size=FARM_LAYOUT['valley' if scene=='valley' else 'camp']
+    result=[]
+    for camp in FARM_LAYOUT['mines' if scene=='valley' else 'camps']:
+        dx,dy=camp['x']-1000,camp['y']-1100
+        t=.62/(abs(dx)/main_rx+abs(dy)/main_ry);u=.66/(abs(dx)/size['rx']+abs(dy)/size['ry'])
+        result.append(((1000+dx*t,1100+dy*t),(camp['x']-dx*u,camp['y']-dy*u)))
+    return result
+
+
+def valid_farm_teleport(scene,previous,destination):
+    for a,b in farm_portal_routes(scene):
+        for start,end in ((a,b),(b,a)):
+            if math.hypot(previous['x']-start[0],previous['y']-start[1])<=62 and math.dist(destination,end)<=3:return True
+    return False
+
+
 def room_mobs(key):
     if key not in ROOMS:
         scene, rank = key.split(':'); rank = int(rank)
-        camps = [(1000,490,0,'north'),(1640,1100,1,'east'),(1000,1650,4,'south'),(360,1100,3,'west')]
-        if scene == 'valley': camps = [(1000,580,0,'vein-north'),(1500,1260,1,'vein-east'),(500,1260,3,'vein-west')]
+        camps = FARM_LAYOUT['mines' if scene=='valley' else 'camps']
+        size = FARM_LAYOUT['valley' if scene=='valley' else 'camp']
         base = {0:(20,10),1:(60,28),3:(40,18),4:(80,32)}
         mobs = []
-        for ci,(cx,cy,t,camp) in enumerate(camps):
+        for ci,entry in enumerate(camps):
+            cx,cy,t,camp = (entry[k] for k in ('x','y','t','id'))
             level=rank*10+([0,3,6,9][ci] if scene!='valley' else 0)
             hp=round(base[t][0]*(1+level*.11)*(1.15 if scene=='valley' else 1))
-            for slot in range(6):
-                a=slot*math.pi/3; spread=105+(slot%2)*5 if scene!='valley' else (45+slot*8)
-                x=cx+math.cos(a)*spread; y=cy+math.sin(a)*spread*.45
+            for slot,offset in enumerate(FARM_LAYOUT['slots'][:size['perCamp']]):
+                x=cx+offset['x']*size['rx']; y=cy+offset['y']*size['ry']
                 mobs.append(dict(id=f'{key}:{ci}:{slot}',t=t,x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,
-                    worldMap=True,network=True,map=scene,camp=camp,campX=cx,campY=cy,attackScale=(1+level*.04)*(1.15 if scene=='valley' else 1),
+                    worldMap=True,network=True,map=scene,camp=camp,campX=cx,campY=cy,campRX=size['rx'],campRY=size['ry'],attackScale=(1+level*.04)*(1.15 if scene=='valley' else 1),
                     xpReward=round(base[t][1]*(1+level*.08)*(1.2 if scene=='valley' else 1)),materialYield=(1+rank//3)*(2 if scene=='valley' else 1),contributors={}))
         ROOMS[key] = {'mobs':mobs,'updated':time.monotonic()}
     return ROOMS[key]
@@ -331,7 +350,10 @@ class GameHandler(SimpleHTTPRequestHandler):
             if not isinstance(stream,str) or len(stream)>80:raise ValueError()
             if previous.get('map')==scene and previous.get('stream','legacy')==stream:
                 delta=now-previous['seen']
-                if math.hypot(x-previous['x'],y-previous['y'])>max(240,delta*400) and math.hypot(x-1000,y-1100)>150: x,y=previous['x'],previous['y']
+                if math.hypot(x-previous['x'],y-previous['y'])>max(240,delta*400) and math.hypot(x-1000,y-1100)>150:
+                    if now-previous.get('portalAt',0)>=.8 and valid_farm_teleport(scene,previous,(x,y)):
+                        previous['portalAt']=now
+                    else:x,y=previous['x'],previous['y']
             rank=max(0,min(int(p['r']),int(p.get('world',{}).get('trainingRealm',0))))
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
             # Presentation only: height grants no speed exception or damage immunity.
@@ -358,7 +380,8 @@ class GameHandler(SimpleHTTPRequestHandler):
                         distance=math.hypot(tx-mob['x'],ty-mob['y'])
                         if distance>20:
                             step=min(distance,45*dt);nx=mob['x']+(tx-mob['x'])/distance*step;ny=mob['y']+(ty-mob['y'])/distance*step
-                            if abs((nx-mob['campX'])/150)+abs((ny-mob['campY'])/78)<1:mob['x'],mob['y']=nx,ny
+                            rx,ry=mob['campRX'],mob['campRY']; dx,dy=abs(nx-mob['campX'])/rx,abs(ny-mob['campY'])/ry; cut=min(.3,max(.14,24/ry))
+                            if dx+dy<.96 and dx<1-cut-.025 and dy<1-cut-.025:mob['x'],mob['y']=nx,ny
                     if mob['dead'] and now>=mob['dead']: mob['hp']=mob['maxHp'];mob['dead']=0;mob['contributors']={}
                 acks=body.get('ack',[])
                 if not isinstance(acks,list) or len(acks)>100: raise ValueError()
@@ -387,7 +410,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 peer['hitTimes']=hit_times
             peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
-            shapes={'sword':(305,143),'moon':(420,190),'thunder':(350,170),'mystic':(370,175),'valley':(420,210)}
+            shapes=FARM_LAYOUT['main']
             rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1
             if shared and not safe and now-peer.get('damageAt',0)>=1:
                 for m in mobs:

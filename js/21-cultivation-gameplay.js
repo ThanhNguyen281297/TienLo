@@ -11,7 +11,7 @@
   const eligible=i=>P.r>requirements[i].realm||(P.r===requirements[i].realm&&(P.stage||1)>=requirements[i].stage);
   const canUse=i=>Number.isInteger(i)&&i>=0&&i<4&&(!!window.gmTest?.enabled||(eligible(i)&&!!progress().learnedSkills[i]));
   function training(){if(!world.isSectMap(world.state.scene)||!world.isSafe(P))return msg('Chọn tầng luyện công tại Sư phụ ở sân tông môn.');const p=progress();dialog.show('Sư phụ · Tầng luyện công','Chọn cảnh giới đã đạt để luyện công. Tầng cao cho quái khỏe hơn và nhiều đạo hạnh / Linh Thạch hơn. Không tự tăng độ khó khi bạn tăng tầng.');
-    R.forEach((name,index)=>dialog.action(name+' · '+(index<=P.r?'Đã mở':'Chưa đạt'),()=>{if(index>P.r)return;p.trainingRealm=index;E=[];for(let i=0;i<24;i++)world.generateFarm(i);dialog.close();saveCharacter();msg('Luyện công ở tầng '+name+'.');},index>P.r));}
+    R.forEach((name,index)=>dialog.action(name+' · '+(index<=P.r?'Đã mở':'Chưa đạt'),()=>{if(index>P.r)return;p.trainingRealm=index;E=[];for(let i=0;i<(world.farmPopulation?.()||24);i++)world.generateFarm(i);dialog.close();saveCharacter();msg('Luyện công ở tầng '+name+'.');},index>P.r));}
   const originalFarm=world.generateFarm;world.generateFarm=function(index){originalFarm(index);const e=E[index];if(!e)return;const rank=Math.max(0,Math.min(P.r,Math.floor(progress().trainingRealm||0))),offset={north:0,east:3,south:6,west:9}[e.camp]||0,level=rank*10+offset;
     const valley=e.map==='valley'||e.valley||world.state.scene==='valley';
     e.maxHp=e.hp=Math.round(T[e.t].hp*(1+level*.11)*(valley?1.15:1));e.attackScale=(1+level*.04)*(valley?1.15:1);e.xpReward=Math.round(T[e.t].xp*(1+level*.08)*(valley?1.2:1));e.materialYield=(1+Math.floor(rank/3))*(valley?2:1);e.trainingRealm=rank;};

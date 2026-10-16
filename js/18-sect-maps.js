@@ -148,7 +148,7 @@ ctx.restore();
     world.state.scene=id;P.world.map=id;
     world.buildings.splice(0,world.buildings.length,...(id==='hub'?hubBuildings:clanBuildings(id)).map(b=>({...b})));
     world.services.splice(0,world.services.length,...(id==='hub'?hubServices:clanServices(id)).map(s=>({...s})));
-    E=enemyCache[id]||[];if(id!=='hub'&&enemyCache[id]===null){E=[];for(let i=0;i<24;i++)generate(i);enemyCache[id]=E;}
+    E=enemyCache[id]||[];if(id!=='hub'&&enemyCache[id]===null){E=[];for(let i=0;i<(world.farmPopulation?.()||24);i++)generate(i);enemyCache[id]=E;}
     classCombat.onRespawn();B.length=SP.length=V.length=LT.length=X.length=PT.length=0;
     P.x=maps[id].spawn.x;P.y=maps[id].spawn.y;P.med=0;P.sl=0;P.acd=.3;K={};ptr=null;
     kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;world.state.near=null;
