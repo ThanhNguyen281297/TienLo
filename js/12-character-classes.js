@@ -184,7 +184,11 @@
   // Nam Thương có búi tóc và dải áo lớn: tăng riêng thân ảnh để đầu/thân
   // nhìn cân với các phái khác. Neo đáy bàn chân theo từng ảnh 1122 × 1402.
   const spearMaleFit = { height: 52.5, feet: { truoc: 1339, sau: 1331, trai: 1353, phai: 1343 }, sourceHeight: 1402 };
-  window.characterNameHeight = ap => [105,109,117,111][classOf(ap)];
+  window.characterNameHeight = ap => {
+    const back=window.equipmentSystem?.backImage(ap),mount=back&&window.equipmentMotion?.profile(back);
+    const shield=ap===P.ap?window.equipmentSystem?.active():ap?.shieldState?.activeUntil>Date.now()/1000;
+    return Math.ceil(Math.max(classOf(ap)===2&&ap?.gender!=='Nu'?62:52,mount?24+mount.height*mount.mount+11:0,shield?84:0));
+  };
   drawChar = function (ctx, x, y, dir, facing, moving, phase, attacking, ap) {
     const index = classOf(ap), info = classes[index], images = assets[index];
     const direction = dir === 1 ? 'sau' : dir === 2 ? (facing < 0 ? 'trai' : 'phai') : 'truoc';
@@ -196,7 +200,7 @@
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,false);
     const back=window.equipmentSystem?.backImage(ap,images.lung)||(!window.equipmentSystem?images.lung:null);
-    // Fixed position and class angle; only the back accessory floats.
+    // The weapon keeps its class angle; the back mount follows the spine.
     const angle = [-.18,-.3,.12,-.2][index];
     const weapon = window.characterWeapon.position(index, x, y, bob);
     const wx = weapon.x, wy = weapon.y;
@@ -204,17 +208,7 @@
     const weaponColor=weaponTones[index];
     const drawBackItem = () => {
       if (!back||!ready(back)) return;
-      ctx.save();
-      const t=reducedWeaponMotion.matches?0:tm,height=[82,86,94,88][index];
-      const lift=Math.sin(t*1.8+index)*1.3;
-      // Anchor at the shoulder blades, on the far side in profile.
-      ctx.translate(x+(dir===2?-facing*11:0),y-10-bob+lift);
-      ctx.rotate(Math.sin(t*1.3+index)*.025);
-      ctx.scale((dir===2?.7:1)*(1+Math.sin(t*(index===2?2.5:1.7))*.025),1);
-      sprite(ctx,back,0,0,height);
-      const n=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.phapbao):(ap?.backEnhance||0);
-      window.equipmentProgression?.outline(ctx,back,-height*back.naturalWidth/back.naturalHeight/2,-height,height*back.naturalWidth/back.naturalHeight,height,n||0);
-      ctx.restore();
+      window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm);
     };
     const drawWeapon = () => {
       if ((ap===P.ap&&!gear)||(ap!==P.ap&&ap?.weaponId===null)||!ready(images.vukhi)) return;

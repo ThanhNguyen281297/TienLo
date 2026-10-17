@@ -47,6 +47,8 @@ Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ 
 
 Túi có icon, màu phẩm chất, preview nhân vật, sắp xếp và panel chi tiết. Vũ khí phát sáng mạnh hơn theo phẩm chất; skill/hit có vòng sáng và hạt theo phái. Giữ sprite/asset nguồn và phối cảnh bản đồ. Xem [GAMEPLAY.md](GAMEPLAY.md).
 
+Skill dùng đường khí uốn liên tục, quỹ đạo tụ lực–tung chiêu liền mạch và hạt theo thời gian mô phỏng. Pháp bảo đeo ở lưng có chuyển động cánh/dải và ánh sáng quét; buff thuẫn có lớp năng lượng chạy quanh nhân vật. Kiểm tra hình ảnh bằng `node tests/spell-actors.test.cjs` và `node tests/equipment-animation.test.cjs`; ảnh/video được ghi trong `tests/artifacts/`.
+
 ## Cấu trúc
 
 `index.html` nạp script theo thứ tự. Core → renderer → nhân vật → tài khoản → skill → ngắm → world → quái → arena → tiến trình → combo → túi → auto → online → hiệu ứng → hướng dẫn → khởi động. Các module còn bọc hàm toàn cục, nên cần giữ thứ tự.

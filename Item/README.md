@@ -20,6 +20,8 @@ Pháp bảo và hộ thuẫn luôn có năm dòng khác loại. Đồ mới có 
 
 Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25) trong 60 giây, hồi 180 giây từ khi dùng. Hồi chiêu lưu SQLite; tải lại, đổi thuẫn hay khởi động lại service không xóa hồi. Chết sẽ mất buff, vẫn giữ hồi chiêu. Hút máu/linh lực tính trên sát thương thực tế, không trên phần sát thương vượt HP quái hay lượt phát lại phần thưởng.
 
+`js/12b-equipment-motion.js` giữ điểm đeo pháp bảo ở giữa lưng, với điểm neo riêng cho 12 ảnh. Phần ngoài uốn nhẹ và ánh sáng quét theo alpha ảnh; khi quay lưng vẫn chừa đầu nhân vật. Buff thuẫn chia lớp sau/trước, có dải năng lượng chuyển động trên mặt cầu và hiệu ứng mở/tan theo thời hạn server. Ảnh gốc được giữ nguyên; bản render thu nhỏ được cache. Chế độ giảm chuyển động tắt chuyển động trang trí.
+
 ## Di chuyển dữ liệu
 
 `equipment.py` chuyển bản lưu cũ sang trang bị độc lập, giữ UID, đồ sở hữu, dòng tẩy luyện và cấp cường hóa đã lưu. Cường hóa cũ của đồ phải không còn tác dụng. Mảnh bí cảnh đổi 20 Linh Thạch/mảnh; mảnh Thăng Vị đổi 1 Linh Thạch/mảnh. Món bí cảnh chờ nhận được chuyển vào túi, hoặc hoàn Linh Thạch nếu túi đầy. JSON gốc được giữ trong bảng backup và bản sao DB trước deploy. Không còn tính năng bộ đồ hoặc đổi mảnh. Bí cảnh chỉ thưởng Linh Thạch.

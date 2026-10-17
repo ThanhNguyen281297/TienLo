@@ -74,6 +74,28 @@
     ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);
     renderArtwork(ctx,image,-image.naturalWidth*ratio/2,-image.naturalHeight*ratio/2,image.naturalWidth*ratio,image.naturalHeight*ratio);ctx.restore();
   }
+  // A tapered strip follows a continuous curve. Its outline, core and travelling
+  // sparks share that curve, so the effect bends instead of swapping pose images.
+  function flow(ctx,sect,point,width,alpha,clock=0){
+    if(alpha<=0)return;
+    const count=64,points=[],edges=[];
+    for(let n=0;n<=count;n++)points.push(point(n/count));
+    for(let n=0;n<=count;n++){
+      const p=points[n],a=points[Math.max(0,n-1)],b=points[Math.min(count,n+1)],d=Math.hypot(b.x-a.x,b.y-a.y)||1;
+      const w=width*Math.sin(Math.PI*n/count)**.7;
+      edges.push({x:-(b.y-a.y)/d*w,y:(b.x-a.x)/d*w});
+    }
+    ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha*=clamp(alpha);
+    const start=points[0],end=points[count],g=ctx.createLinearGradient(start.x,start.y,end.x,end.y);
+    g.addColorStop(0,colors[sect]+'00');g.addColorStop(.35,colors[sect]+'55');g.addColorStop(.8,colors[sect]+'aa');g.addColorStop(1,highlights[sect]+'00');
+    ctx.fillStyle=g;ctx.beginPath();
+    for(let n=0;n<=count;n++){const p=points[n],e=edges[n];n?ctx.lineTo(p.x+e.x,p.y+e.y):ctx.moveTo(p.x+e.x,p.y+e.y);}
+    for(let n=count;n>=0;n--){const p=points[n],e=edges[n];ctx.lineTo(p.x-e.x,p.y-e.y);}
+    ctx.closePath();ctx.fill();
+    ctx.globalCompositeOperation='lighter';ctx.lineWidth=.65;ctx.strokeStyle=g;ctx.beginPath();points.forEach((p,n)=>n?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
+    for(let n=0;n<2;n++){const u=(clock*.7+n*.5)%1,p=point(u);glint(ctx,sect,p.x,p.y,2.5,clock,Math.sin(u*Math.PI)*alpha*.7);}
+    ctx.restore();
+  }
   // Reconstruct the trail at past simulation times, rather than storing a frame
   // history. This stays identical at 30/60/120 Hz and allocates no particles.
   function orbit(ctx,sect,index,x,y,age,radius,size,count,alpha=1,flatten=.48){
@@ -122,8 +144,14 @@
     }
     ctx.restore();
     motes(ctx,sect,f.x,f.y-5,f.age,r*.9,fade*.4,10);
+    const pulse=(clock*.65)%1;
+    ribbon(ctx,sect,f.x,f.y,r*(.2+pulse*.8),r*(.2+pulse*.8)*.54,clock*.2,TAU-.05,fade*Math.sin(pulse*Math.PI)*.25);
   }
   function projectile(ctx,sect,x,y,angle,age,size=32,alpha=1){
+    const clock=reduced.matches?0:age;
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+    for(let n=0;n<2;n++)flow(ctx,sect,u=>({x:-size*2.3*(1-u),y:Math.sin((1-u)*5-clock*9+n*Math.PI)*size*.13*(1-u)}),size*(n?.055:.1),alpha*(n?.45:.8),clock+n*.3);
+    ctx.restore();
     light(ctx,sect,x,y,size*.65,alpha*.22);
     for(let n=0;n<3;n++){
       const p=(age*1.7+n*.33)%1,back=size*(.3+p*1.4),side=Math.sin(n*2.4+age*5)*size*.1;
@@ -131,7 +159,7 @@
     }
     if(sect===1){
       ribbon(ctx,sect,x,y,size*.58,size*.58,angle+age*4,2.5,alpha);
-      part(ctx,sect,0,x,y,size*1.45,size*1.45,angle+age*4,alpha);
+      part(ctx,sect,0,x,y,size*1.45,size*1.45,angle+age*4,alpha*.65);
       part(ctx,sect,0,x,y,size*1.2,size*1.2,angle+age*4-.3,alpha*.16);
     }else if(sect===3){
       ribbon(ctx,sect,x-Math.cos(angle)*size*.65,y-Math.sin(angle)*size*.65,size*.8,size*.12,Math.PI,Math.PI,alpha*.7,angle);
@@ -162,61 +190,51 @@
     const baseY=y+height*.32,clock=reduced.matches?0:age;
     field(ctx,sect,{x,y:baseY,radius:width*.43,age,duration},fade*.7);
     light(ctx,sect,x,baseY-height*.2,width*.52,fade*(.12+.22*charge));
-    if(age<hitAt){
-      motes(ctx,sect,x,baseY-12,age,width*.54,fade*.65,18);
-      if(sect===0){
-        for(let n=0;n<7;n++){
-          const a=n*TAU/7+clock*.65,r=width*(.28+.08*Math.sin(clock));
-          const px=x+Math.cos(a)*r,py=baseY-height*(.25+.3*charge)+Math.sin(a)*r*.24;
-          part(ctx,sect,1,px,py-12,54,14,Math.PI/2,fade*.32);
-          weapon(ctx,sect,px,py,46+charge*12,Math.sin(clock+n)*.06,fade*(.55+.25*Math.sin(a)));
-        }
-        for(let n=0;n<2;n++)ribbon(ctx,sect,x,baseY-height*.32,width*.33,height*.12,clock*1.4+n*Math.PI,2.8,fade*.65,-.15);
-        weapon(ctx,sect,x,baseY-height*.5*(1-smooth((charge-.84)/.16)),70+30*charge,0,fade*.8);
-      }else if(sect===1){
-        orbit(ctx,sect,0,x,baseY-height*.27,clock,width*(.15+.19*charge),width*.42,3,fade*.8,.65);
-        for(let n=0;n<3;n++)ribbon(ctx,sect,x,baseY-height*.27,width*.33,height*.24,-clock*1.6+n*TAU/3,1.8,fade*.8,n*.18);
-        light(ctx,sect,x,baseY-height*.27,width*.28,fade*.6);
-        part(ctx,sect,7,x,baseY-height*.27,width*.7,width*.7,-clock*.5,fade*.28);
-      }else if(sect===2){
-        // Separate wisps form a rising helix; their depth, pitch and width move.
-        for(let n=0;n<10;n++){
-          const v=(n/10+clock*.28)%1,a=v*TAU*2-clock*2.2;
-          const r=width*(.13+.13*v),px=x+Math.cos(a)*r,py=baseY-v*height*.85;
-          part(ctx,sect,2,px,py,52*(.7+v),34,Math.sin(a)*.6,fade*Math.sin(v*Math.PI)*(.35+.3*(Math.sin(a)+1)/2));
-        }
-        for(let n=0;n<4;n++)ribbon(ctx,sect,x,baseY-height*(.12+n*.16),width*(.2-n*.025),height*.08,clock*2.3+n*1.3,2.7,fade*.65,-.15);
-        weapon(ctx,sect,x,baseY-height*(.35+.12*charge)*(1-smooth((charge-.84)/.16)),height*.63,Math.PI,fade*.9);
-      }else{
-        orbit(ctx,sect,5,x,baseY-height*.25,clock,width*(.17+.2*charge),34,10,fade*.85,.65);
-        for(let n=0;n<3;n++)part(ctx,sect,0,x,baseY-height*.25,width*.6,width*.6,clock*.6+n*TAU/3,fade*.25);
-        for(let n=0;n<3;n++)ribbon(ctx,sect,x,baseY-height*.25,width*.37,height*.22,clock*.8+n*TAU/3,1.8,fade*.75,n*.17);
-        light(ctx,sect,x,baseY-height*.25,width*.23,fade*.4);
-        weapon(ctx,sect,x,baseY-height*.25,42,Math.sin(clock)*.12,fade*.7);
+    const flight=smooth(release/.55),bodyFade=fade*(1-smooth(release/.78));
+    motes(ctx,sect,x,baseY-12,age,width*.54,bodyFade*.4,12);
+    if(sect===0){
+      // The same swords descend from their charged orbit; no reset at impact.
+      for(let n=0;n<7;n++){
+        const a=n*TAU/7+clock*.65,r=width*(.22+.05*Math.sin(clock))*(1-flight*.8);
+        const px=x+Math.cos(a)*r,py=baseY-height*(.22+.3*charge)*(1-flight)+Math.sin(a)*r*.24;
+        flow(ctx,sect,u=>({x:px+Math.sin(u*4+clock+n)*6*(1-u),y:py-height*.45*(1-u)}),4,bodyFade*.7,clock+n*.13);
+        weapon(ctx,sect,px,py,40+charge*15,Math.sin(clock+n)*.06,bodyFade*(.65+.2*Math.sin(a)));
       }
+      for(let n=0;n<2;n++)ribbon(ctx,sect,x,baseY-height*.3*(1-flight),width*.33,height*.12,clock*1.4+n*Math.PI,2.8,bodyFade*.6,-.15);
+    }else if(sect===1){
+      const cy=baseY-height*.27*(1-flight),r=width*(.15+.18*charge+flight*.25);
+      for(let n=0;n<3;n++){
+        const a=n*TAU/3-clock*1.6;
+        flow(ctx,sect,u=>({x:x+Math.cos(a-u*2.6)*r,y:cy+Math.sin(a-u*2.6)*r*.6}),5,bodyFade*.8,clock+n*.3);
+        part(ctx,sect,0,x+Math.cos(a)*r,cy+Math.sin(a)*r*.6,width*.4,width*.4,a,bodyFade*.75);
+      }
+      light(ctx,sect,x,cy,width*.26,bodyFade*.4);
+    }else if(sect===2){
+      // Twin energy coils bend continuously around the spear in perspective.
+      for(let n=0;n<2;n++)flow(ctx,sect,u=>{
+        const a=u*TAU*1.8-clock*2.4+n*Math.PI,r=width*(.12+.1*u)*(1-flight*.5);
+        return{x:x+Math.cos(a)*r,y:baseY-u*height*.82*(1-flight)+Math.sin(a)*r*.28};
+      },7,bodyFade*.75,clock+n*.5);
+      weapon(ctx,sect,x,baseY-height*.4*(1-flight),height*.64,Math.PI,bodyFade*.9);
+      for(let n=0;n<3;n++)ribbon(ctx,sect,x,baseY-height*(.12+n*.19)*(1-flight),width*(.21-n*.035),height*.07,clock*2+n*1.3,2.5,bodyFade*.6);
     }else{
-      const flight=smooth(release/.35),spread=width*(1-flight)*.38;
-      if(sect===0||sect===2){
-        const count=sect===0?9:5;
-        for(let n=0;n<count;n++){
-          const delay=n/count*.18,p=clamp((release-delay)/.32),drop=1-(1-p)**3;
-          const px=x+(n-(count-1)/2)*spread*.38,py=baseY-height*.85*(1-drop);
-          part(ctx,sect,1,px,py-22,70,15,Math.PI/2,fade*(1-p)*.8);
-          weapon(ctx,sect,px,py,sect===0?62:85,sect===0?0:Math.PI,fade*(1-p));
-        }
-      }else{
-        const count=sect===1?3:12;
-        for(let n=0;n<count;n++){
-          const a=n*TAU/count+clock*(sect===1?-2:1),r=width*(.12+release*.55);
-          part(ctx,sect,sect===1?0:5,x+Math.cos(a)*r,baseY+Math.sin(a)*r*.52-release*12,sect===1?width*.55:25,sect===1?width*.55:44,a+release*2,fade*(1-release));
-        }
+      // Talismans ride separate silk-like paths instead of a rotating flat disk.
+      const cy=baseY-height*.25*(1-flight),r=width*(.19+.15*charge+flight*.27);
+      for(let n=0;n<10;n++){
+        const a=n*TAU/10+clock*.65,px=x+Math.cos(a)*r,py=cy+Math.sin(a)*r*.6;
+        flow(ctx,sect,u=>({x:x+Math.cos(a-(1-u)*1.2)*r*u,y:cy+Math.sin(a-(1-u)*1.2)*r*u*.6-Math.sin(u*Math.PI)*12}),2.7,bodyFade*.55,clock+n*.1);
+        part(ctx,sect,5,px,py,15,27,a+.3*Math.sin(clock+n),bodyFade*(.6+.2*Math.sin(a)));
       }
+      light(ctx,sect,x,cy,width*.22,bodyFade*.3);
+      weapon(ctx,sect,x,cy,38,Math.sin(clock)*.1,bodyFade*.7);
+    }
+    if(age>=hitAt){
       impact(ctx,sect,x,baseY,age-hitAt,width*.6,Math.min(.85,duration-hitAt));
       motes(ctx,sect,x,baseY,age-hitAt,width*.6,fade*.6,20,true);
     }
     return parts.length===8;
   }
-  window.spellActors={part,glint,field,projectile,impact,ultimate,weapon,light,ribbon,stats,get ready(){return parts.length===8;},atlas};
+  window.spellActors={part,glint,field,projectile,impact,ultimate,weapon,light,ribbon,flow,stats,get ready(){return parts.length===8;},atlas};
   // Keep icon rendering separate from in-world moving actors.
   skillSprites.animate=ultimate;
 })();
