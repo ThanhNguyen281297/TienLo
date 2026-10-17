@@ -1,0 +1,5420 @@
+{
+  "atlases": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "sprites": [
+    {
+      "id": "theme-10-001",
+      "src": "MAP/theme-sprites/10/theme-10-001.png",
+      "width": 652,
+      "height": 500,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        0,
+        0,
+        636,
+        484
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-002",
+      "src": "MAP/theme-sprites/10/theme-10-002.png",
+      "width": 441,
+      "height": 427,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        593,
+        0,
+        1018,
+        411
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-003",
+      "src": "MAP/theme-sprites/10/theme-10-003.png",
+      "width": 475,
+      "height": 439,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        985,
+        0,
+        1444,
+        423
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-004",
+      "src": "MAP/theme-sprites/10/theme-10-004.png",
+      "width": 478,
+      "height": 401,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        458,
+        343,
+        920,
+        728
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-005",
+      "src": "MAP/theme-sprites/10/theme-10-005.png",
+      "width": 539,
+      "height": 380,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        815,
+        372,
+        1338,
+        736
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-006",
+      "src": "MAP/theme-sprites/10/theme-10-006.png",
+      "width": 55,
+      "height": 75,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        879,
+        404,
+        918,
+        463
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-007",
+      "src": "MAP/theme-sprites/10/theme-10-007.png",
+      "width": 141,
+      "height": 359,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1323,
+        387,
+        1448,
+        730
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-008",
+      "src": "MAP/theme-sprites/10/theme-10-008.png",
+      "width": 348,
+      "height": 309,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        0,
+        420,
+        332,
+        713
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-009",
+      "src": "MAP/theme-sprites/10/theme-10-009.png",
+      "width": 96,
+      "height": 214,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        318,
+        486,
+        398,
+        684
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-010",
+      "src": "MAP/theme-sprites/10/theme-10-010.png",
+      "width": 139,
+      "height": 207,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        365,
+        426,
+        488,
+        617
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-011",
+      "src": "MAP/theme-sprites/10/theme-10-011.png",
+      "width": 53,
+      "height": 82,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1411,
+        421,
+        1448,
+        487
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-012",
+      "src": "MAP/theme-sprites/10/theme-10-012.png",
+      "width": 238,
+      "height": 345,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        958,
+        503,
+        1180,
+        832
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-013",
+      "src": "MAP/theme-sprites/10/theme-10-013.png",
+      "width": 55,
+      "height": 78,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1316,
+        546,
+        1355,
+        608
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-014",
+      "src": "MAP/theme-sprites/10/theme-10-014.png",
+      "width": 51,
+      "height": 74,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1412,
+        546,
+        1447,
+        604
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-015",
+      "src": "MAP/theme-sprites/10/theme-10-015.png",
+      "width": 107,
+      "height": 132,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        393,
+        565,
+        484,
+        681
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-016",
+      "src": "MAP/theme-sprites/10/theme-10-016.png",
+      "width": 103,
+      "height": 159,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1172,
+        575,
+        1259,
+        718
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-017",
+      "src": "MAP/theme-sprites/10/theme-10-017.png",
+      "width": 91,
+      "height": 150,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1253,
+        588,
+        1328,
+        722
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-018",
+      "src": "MAP/theme-sprites/10/theme-10-018.png",
+      "width": 220,
+      "height": 422,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        0,
+        664,
+        204,
+        1070
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-019",
+      "src": "MAP/theme-sprites/10/theme-10-019.png",
+      "width": 211,
+      "height": 244,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        161,
+        666,
+        356,
+        894
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-020",
+      "src": "MAP/theme-sprites/10/theme-10-020.png",
+      "width": 172,
+      "height": 226,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        354,
+        672,
+        510,
+        882
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-021",
+      "src": "MAP/theme-sprites/10/theme-10-021.png",
+      "width": 88,
+      "height": 150,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        509,
+        682,
+        581,
+        816
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-022",
+      "src": "MAP/theme-sprites/10/theme-10-022.png",
+      "width": 81,
+      "height": 140,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        594,
+        693,
+        659,
+        817
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-023",
+      "src": "MAP/theme-sprites/10/theme-10-023.png",
+      "width": 203,
+      "height": 168,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        651,
+        682,
+        838,
+        834
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-024",
+      "src": "MAP/theme-sprites/10/theme-10-024.png",
+      "width": 166,
+      "height": 170,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        829,
+        691,
+        979,
+        845
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-025",
+      "src": "MAP/theme-sprites/10/theme-10-025.png",
+      "width": 144,
+      "height": 147,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        299,
+        757,
+        427,
+        888
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-026",
+      "src": "MAP/theme-sprites/10/theme-10-026.png",
+      "width": 47,
+      "height": 71,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        494,
+        759,
+        525,
+        814
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-027",
+      "src": "MAP/theme-sprites/10/theme-10-027.png",
+      "width": 53,
+      "height": 77,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        566,
+        729,
+        603,
+        790
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-028",
+      "src": "MAP/theme-sprites/10/theme-10-028.png",
+      "width": 140,
+      "height": 104,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1056,
+        712,
+        1180,
+        800
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-029",
+      "src": "MAP/theme-sprites/10/theme-10-029.png",
+      "width": 124,
+      "height": 102,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1176,
+        711,
+        1284,
+        797
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-030",
+      "src": "MAP/theme-sprites/10/theme-10-030.png",
+      "width": 188,
+      "height": 155,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1276,
+        703,
+        1448,
+        842
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-031",
+      "src": "MAP/theme-sprites/10/theme-10-031.png",
+      "width": 83,
+      "height": 119,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        482,
+        809,
+        549,
+        912
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-032",
+      "src": "MAP/theme-sprites/10/theme-10-032.png",
+      "width": 111,
+      "height": 176,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        541,
+        787,
+        636,
+        947
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-033",
+      "src": "MAP/theme-sprites/10/theme-10-033.png",
+      "width": 42,
+      "height": 56,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        551,
+        773,
+        577,
+        813
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-034",
+      "src": "MAP/theme-sprites/10/theme-10-034.png",
+      "width": 87,
+      "height": 148,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        624,
+        777,
+        695,
+        909
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-035",
+      "src": "MAP/theme-sprites/10/theme-10-035.png",
+      "width": 59,
+      "height": 93,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        685,
+        836,
+        728,
+        913
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-036",
+      "src": "MAP/theme-sprites/10/theme-10-036.png",
+      "width": 64,
+      "height": 97,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        720,
+        809,
+        768,
+        890
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-037",
+      "src": "MAP/theme-sprites/10/theme-10-037.png",
+      "width": 75,
+      "height": 142,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        747,
+        837,
+        806,
+        963
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-038",
+      "src": "MAP/theme-sprites/10/theme-10-038.png",
+      "width": 117,
+      "height": 98,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        768,
+        776,
+        869,
+        858
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-039",
+      "src": "MAP/theme-sprites/10/theme-10-039.png",
+      "width": 208,
+      "height": 131,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        796,
+        835,
+        988,
+        950
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-040",
+      "src": "MAP/theme-sprites/10/theme-10-040.png",
+      "width": 118,
+      "height": 93,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        936,
+        802,
+        1038,
+        879
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-041",
+      "src": "MAP/theme-sprites/10/theme-10-041.png",
+      "width": 114,
+      "height": 92,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1038,
+        800,
+        1136,
+        876
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-042",
+      "src": "MAP/theme-sprites/10/theme-10-042.png",
+      "width": 196,
+      "height": 279,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1082,
+        823,
+        1262,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-043",
+      "src": "MAP/theme-sprites/10/theme-10-043.png",
+      "width": 97,
+      "height": 75,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1089,
+        780,
+        1170,
+        839
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-044",
+      "src": "MAP/theme-sprites/10/theme-10-044.png",
+      "width": 81,
+      "height": 70,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1166,
+        778,
+        1231,
+        832
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-045",
+      "src": "MAP/theme-sprites/10/theme-10-045.png",
+      "width": 107,
+      "height": 117,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1230,
+        773,
+        1321,
+        874
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-046",
+      "src": "MAP/theme-sprites/10/theme-10-046.png",
+      "width": 84,
+      "height": 116,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1317,
+        810,
+        1385,
+        910
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-047",
+      "src": "MAP/theme-sprites/10/theme-10-047.png",
+      "width": 76,
+      "height": 126,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1379,
+        826,
+        1439,
+        936
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-048",
+      "src": "MAP/theme-sprites/10/theme-10-048.png",
+      "width": 135,
+      "height": 204,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        188,
+        885,
+        307,
+        1073
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-049",
+      "src": "MAP/theme-sprites/10/theme-10-049.png",
+      "width": 108,
+      "height": 130,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        246,
+        891,
+        338,
+        1005
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-050",
+      "src": "MAP/theme-sprites/10/theme-10-050.png",
+      "width": 99,
+      "height": 121,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        331,
+        884,
+        414,
+        989
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-051",
+      "src": "MAP/theme-sprites/10/theme-10-051.png",
+      "width": 91,
+      "height": 120,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        409,
+        873,
+        484,
+        977
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-052",
+      "src": "MAP/theme-sprites/10/theme-10-052.png",
+      "width": 57,
+      "height": 67,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        623,
+        878,
+        664,
+        929
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-053",
+      "src": "MAP/theme-sprites/10/theme-10-053.png",
+      "width": 61,
+      "height": 84,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        661,
+        885,
+        706,
+        953
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-054",
+      "src": "MAP/theme-sprites/10/theme-10-054.png",
+      "width": 60,
+      "height": 94,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        705,
+        874,
+        749,
+        952
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-055",
+      "src": "MAP/theme-sprites/10/theme-10-055.png",
+      "width": 163,
+      "height": 102,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        978,
+        864,
+        1125,
+        950
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-056",
+      "src": "MAP/theme-sprites/10/theme-10-056.png",
+      "width": 216,
+      "height": 180,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1175,
+        909,
+        1375,
+        1073
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-057",
+      "src": "MAP/theme-sprites/10/theme-10-057.png",
+      "width": 87,
+      "height": 127,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1268,
+        855,
+        1339,
+        966
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-058",
+      "src": "MAP/theme-sprites/10/theme-10-058.png",
+      "width": 116,
+      "height": 138,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1307,
+        887,
+        1407,
+        1009
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-059",
+      "src": "MAP/theme-sprites/10/theme-10-059.png",
+      "width": 130,
+      "height": 131,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        294,
+        960,
+        408,
+        1075
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-060",
+      "src": "MAP/theme-sprites/10/theme-10-060.png",
+      "width": 83,
+      "height": 121,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        379,
+        950,
+        446,
+        1055
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-061",
+      "src": "MAP/theme-sprites/10/theme-10-061.png",
+      "width": 451,
+      "height": 185,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        428,
+        917,
+        863,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-10-062",
+      "src": "MAP/theme-sprites/10/theme-10-062.png",
+      "width": 105,
+      "height": 70,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        782,
+        937,
+        871,
+        991
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-063",
+      "src": "MAP/theme-sprites/10/theme-10-063.png",
+      "width": 155,
+      "height": 99,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        797,
+        945,
+        936,
+        1028
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-064",
+      "src": "MAP/theme-sprites/10/theme-10-064.png",
+      "width": 48,
+      "height": 54,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        798,
+        910,
+        830,
+        948
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-065",
+      "src": "MAP/theme-sprites/10/theme-10-065.png",
+      "width": 204,
+      "height": 177,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        932,
+        925,
+        1120,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-066",
+      "src": "MAP/theme-sprites/10/theme-10-066.png",
+      "width": 59,
+      "height": 83,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1404,
+        941,
+        1447,
+        1008
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-067",
+      "src": "MAP/theme-sprites/10/theme-10-067.png",
+      "width": 58,
+      "height": 39,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        536,
+        1049,
+        578,
+        1072
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-068",
+      "src": "MAP/theme-sprites/10/theme-10-068.png",
+      "width": 168,
+      "height": 86,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        852,
+        1016,
+        1004,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-10-069",
+      "src": "MAP/theme-sprites/10/theme-10-069.png",
+      "width": 79,
+      "height": 108,
+      "source": "MAP/theme-sources/asset10-alpha.png",
+      "original": "MAP/asset10.png",
+      "sourceBox": [
+        1371,
+        994,
+        1434,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-001",
+      "src": "MAP/theme-sprites/11/theme-11-001.png",
+      "width": 566,
+      "height": 604,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        0,
+        0,
+        550,
+        588
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-002",
+      "src": "MAP/theme-sprites/11/theme-11-002.png",
+      "width": 917,
+      "height": 427,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        534,
+        0,
+        1435,
+        411
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-003",
+      "src": "MAP/theme-sprites/11/theme-11-003.png",
+      "width": 49,
+      "height": 73,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        15,
+        134,
+        48,
+        191
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-004",
+      "src": "MAP/theme-sprites/11/theme-11-004.png",
+      "width": 61,
+      "height": 98,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        486,
+        102,
+        531,
+        184
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-005",
+      "src": "MAP/theme-sprites/11/theme-11-005.png",
+      "width": 57,
+      "height": 103,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        511,
+        130,
+        552,
+        217
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-006",
+      "src": "MAP/theme-sprites/11/theme-11-006.png",
+      "width": 32,
+      "height": 52,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        26,
+        190,
+        42,
+        226
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-007",
+      "src": "MAP/theme-sprites/11/theme-11-007.png",
+      "width": 67,
+      "height": 86,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1381,
+        231,
+        1432,
+        301
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-008",
+      "src": "MAP/theme-sprites/11/theme-11-008.png",
+      "width": 62,
+      "height": 82,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        0,
+        299,
+        46,
+        365
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-009",
+      "src": "MAP/theme-sprites/11/theme-11-009.png",
+      "width": 45,
+      "height": 78,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        508,
+        306,
+        537,
+        368
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-010",
+      "src": "MAP/theme-sprites/11/theme-11-010.png",
+      "width": 152,
+      "height": 223,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        306,
+        384,
+        442,
+        591
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-011",
+      "src": "MAP/theme-sprites/11/theme-11-011.png",
+      "width": 39,
+      "height": 61,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        319,
+        406,
+        342,
+        451
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-012",
+      "src": "MAP/theme-sprites/11/theme-11-012.png",
+      "width": 249,
+      "height": 280,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        427,
+        353,
+        660,
+        617
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-013",
+      "src": "MAP/theme-sprites/11/theme-11-013.png",
+      "width": 382,
+      "height": 340,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        544,
+        385,
+        910,
+        709
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-014",
+      "src": "MAP/theme-sprites/11/theme-11-014.png",
+      "width": 542,
+      "height": 545,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        733,
+        360,
+        1259,
+        889
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-015",
+      "src": "MAP/theme-sprites/11/theme-11-015.png",
+      "width": 145,
+      "height": 207,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        871,
+        377,
+        1000,
+        568
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-016",
+      "src": "MAP/theme-sprites/11/theme-11-016.png",
+      "width": 193,
+      "height": 252,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1249,
+        402,
+        1426,
+        638
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-017",
+      "src": "MAP/theme-sprites/11/theme-11-017.png",
+      "width": 74,
+      "height": 110,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1375,
+        396,
+        1433,
+        490
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-018",
+      "src": "MAP/theme-sprites/11/theme-11-018.png",
+      "width": 42,
+      "height": 51,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        320,
+        442,
+        346,
+        477
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-019",
+      "src": "MAP/theme-sprites/11/theme-11-019.png",
+      "width": 48,
+      "height": 78,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1239,
+        477,
+        1271,
+        539
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-020",
+      "src": "MAP/theme-sprites/11/theme-11-020.png",
+      "width": 68,
+      "height": 84,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1245,
+        429,
+        1297,
+        497
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-021",
+      "src": "MAP/theme-sprites/11/theme-11-021.png",
+      "width": 57,
+      "height": 92,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1406,
+        478,
+        1447,
+        554
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-022",
+      "src": "MAP/theme-sprites/11/theme-11-022.png",
+      "width": 306,
+      "height": 479,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        0,
+        583,
+        290,
+        1046
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-023",
+      "src": "MAP/theme-sprites/11/theme-11-023.png",
+      "width": 75,
+      "height": 63,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        121,
+        567,
+        180,
+        614
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-024",
+      "src": "MAP/theme-sprites/11/theme-11-024.png",
+      "width": 242,
+      "height": 141,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        135,
+        577,
+        361,
+        702
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-025",
+      "src": "MAP/theme-sprites/11/theme-11-025.png",
+      "width": 227,
+      "height": 147,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        339,
+        586,
+        550,
+        717
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-026",
+      "src": "MAP/theme-sprites/11/theme-11-026.png",
+      "width": 66,
+      "height": 125,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1034,
+        582,
+        1084,
+        691
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-027",
+      "src": "MAP/theme-sprites/11/theme-11-027.png",
+      "width": 87,
+      "height": 160,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1063,
+        594,
+        1134,
+        738
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-028",
+      "src": "MAP/theme-sprites/11/theme-11-028.png",
+      "width": 79,
+      "height": 147,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1119,
+        581,
+        1182,
+        712
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-029",
+      "src": "MAP/theme-sprites/11/theme-11-029.png",
+      "width": 96,
+      "height": 189,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1173,
+        572,
+        1253,
+        745
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-030",
+      "src": "MAP/theme-sprites/11/theme-11-030.png",
+      "width": 151,
+      "height": 173,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1245,
+        613,
+        1380,
+        770
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-031",
+      "src": "MAP/theme-sprites/11/theme-11-031.png",
+      "width": 98,
+      "height": 190,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1366,
+        607,
+        1448,
+        781
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-032",
+      "src": "MAP/theme-sprites/11/theme-11-032.png",
+      "width": 71,
+      "height": 69,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        127,
+        678,
+        182,
+        731
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-033",
+      "src": "MAP/theme-sprites/11/theme-11-033.png",
+      "width": 58,
+      "height": 79,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        164,
+        697,
+        206,
+        760
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-034",
+      "src": "MAP/theme-sprites/11/theme-11-034.png",
+      "width": 170,
+      "height": 115,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        200,
+        696,
+        354,
+        795
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-035",
+      "src": "MAP/theme-sprites/11/theme-11-035.png",
+      "width": 68,
+      "height": 73,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        320,
+        677,
+        372,
+        734
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-036",
+      "src": "MAP/theme-sprites/11/theme-11-036.png",
+      "width": 243,
+      "height": 217,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        365,
+        680,
+        592,
+        881
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-037",
+      "src": "MAP/theme-sprites/11/theme-11-037.png",
+      "width": 163,
+      "height": 154,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        587,
+        692,
+        734,
+        830
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-038",
+      "src": "MAP/theme-sprites/11/theme-11-038.png",
+      "width": 136,
+      "height": 124,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        668,
+        644,
+        788,
+        752
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-039",
+      "src": "MAP/theme-sprites/11/theme-11-039.png",
+      "width": 109,
+      "height": 118,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        986,
+        677,
+        1079,
+        779
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-040",
+      "src": "MAP/theme-sprites/11/theme-11-040.png",
+      "width": 66,
+      "height": 102,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        964,
+        711,
+        1014,
+        797
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-041",
+      "src": "MAP/theme-sprites/11/theme-11-041.png",
+      "width": 84,
+      "height": 128,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1032,
+        765,
+        1100,
+        877
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-042",
+      "src": "MAP/theme-sprites/11/theme-11-042.png",
+      "width": 125,
+      "height": 133,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1093,
+        704,
+        1202,
+        821
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-043",
+      "src": "MAP/theme-sprites/11/theme-11-043.png",
+      "width": 176,
+      "height": 152,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1190,
+        733,
+        1350,
+        869
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-044",
+      "src": "MAP/theme-sprites/11/theme-11-044.png",
+      "width": 54,
+      "height": 74,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        0,
+        839,
+        38,
+        897
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-045",
+      "src": "MAP/theme-sprites/11/theme-11-045.png",
+      "width": 177,
+      "height": 319,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        231,
+        783,
+        392,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-046",
+      "src": "MAP/theme-sprites/11/theme-11-046.png",
+      "width": 100,
+      "height": 163,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        311,
+        777,
+        395,
+        924
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-047",
+      "src": "MAP/theme-sprites/11/theme-11-047.png",
+      "width": 75,
+      "height": 82,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        484,
+        821,
+        543,
+        887
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-048",
+      "src": "MAP/theme-sprites/11/theme-11-048.png",
+      "width": 181,
+      "height": 162,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        525,
+        810,
+        690,
+        956
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-049",
+      "src": "MAP/theme-sprites/11/theme-11-049.png",
+      "width": 52,
+      "height": 51,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        543,
+        814,
+        579,
+        849
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-050",
+      "src": "MAP/theme-sprites/11/theme-11-050.png",
+      "width": 74,
+      "height": 83,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        561,
+        776,
+        619,
+        843
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-051",
+      "src": "MAP/theme-sprites/11/theme-11-051.png",
+      "width": 87,
+      "height": 134,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        688,
+        809,
+        759,
+        927
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-052",
+      "src": "MAP/theme-sprites/11/theme-11-052.png",
+      "width": 158,
+      "height": 124,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        896,
+        777,
+        1038,
+        885
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-053",
+      "src": "MAP/theme-sprites/11/theme-11-053.png",
+      "width": 144,
+      "height": 113,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1094,
+        797,
+        1222,
+        894
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-054",
+      "src": "MAP/theme-sprites/11/theme-11-054.png",
+      "width": 147,
+      "height": 193,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1187,
+        827,
+        1318,
+        1004
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-055",
+      "src": "MAP/theme-sprites/11/theme-11-055.png",
+      "width": 117,
+      "height": 121,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1346,
+        774,
+        1447,
+        879
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-056",
+      "src": "MAP/theme-sprites/11/theme-11-056.png",
+      "width": 119,
+      "height": 203,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        0,
+        899,
+        103,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-057",
+      "src": "MAP/theme-sprites/11/theme-11-057.png",
+      "width": 107,
+      "height": 100,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        379,
+        858,
+        470,
+        942
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-058",
+      "src": "MAP/theme-sprites/11/theme-11-058.png",
+      "width": 66,
+      "height": 78,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        465,
+        880,
+        515,
+        942
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-059",
+      "src": "MAP/theme-sprites/11/theme-11-059.png",
+      "width": 118,
+      "height": 93,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        637,
+        903,
+        739,
+        980
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-060",
+      "src": "MAP/theme-sprites/11/theme-11-060.png",
+      "width": 125,
+      "height": 202,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        708,
+        900,
+        817,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-061",
+      "src": "MAP/theme-sprites/11/theme-11-061.png",
+      "width": 129,
+      "height": 102,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        786,
+        888,
+        899,
+        974
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-062",
+      "src": "MAP/theme-sprites/11/theme-11-062.png",
+      "width": 85,
+      "height": 98,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        883,
+        883,
+        952,
+        965
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-063",
+      "src": "MAP/theme-sprites/11/theme-11-063.png",
+      "width": 61,
+      "height": 79,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        949,
+        879,
+        994,
+        942
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-064",
+      "src": "MAP/theme-sprites/11/theme-11-064.png",
+      "width": 90,
+      "height": 99,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        990,
+        872,
+        1064,
+        955
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-065",
+      "src": "MAP/theme-sprites/11/theme-11-065.png",
+      "width": 150,
+      "height": 90,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1070,
+        866,
+        1204,
+        940
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-066",
+      "src": "MAP/theme-sprites/11/theme-11-066.png",
+      "width": 152,
+      "height": 171,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1312,
+        855,
+        1448,
+        1010
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-067",
+      "src": "MAP/theme-sprites/11/theme-11-067.png",
+      "width": 136,
+      "height": 177,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        75,
+        925,
+        195,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-068",
+      "src": "MAP/theme-sprites/11/theme-11-068.png",
+      "width": 81,
+      "height": 138,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        172,
+        964,
+        237,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-069",
+      "src": "MAP/theme-sprites/11/theme-11-069.png",
+      "width": 41,
+      "height": 72,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        320,
+        938,
+        345,
+        994
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-070",
+      "src": "MAP/theme-sprites/11/theme-11-070.png",
+      "width": 42,
+      "height": 64,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        382,
+        945,
+        408,
+        993
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-071",
+      "src": "MAP/theme-sprites/11/theme-11-071.png",
+      "width": 50,
+      "height": 63,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        403,
+        958,
+        437,
+        1005
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-072",
+      "src": "MAP/theme-sprites/11/theme-11-072.png",
+      "width": 334,
+      "height": 179,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        429,
+        923,
+        747,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-073",
+      "src": "MAP/theme-sprites/11/theme-11-073.png",
+      "width": 61,
+      "height": 59,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        588,
+        920,
+        633,
+        963
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-074",
+      "src": "MAP/theme-sprites/11/theme-11-074.png",
+      "width": 115,
+      "height": 86,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        795,
+        970,
+        894,
+        1040
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-075",
+      "src": "MAP/theme-sprites/11/theme-11-075.png",
+      "width": 324,
+      "height": 101,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        885,
+        927,
+        1193,
+        1012
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-11-076",
+      "src": "MAP/theme-sprites/11/theme-11-076.png",
+      "width": 140,
+      "height": 79,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1140,
+        976,
+        1264,
+        1039
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-077",
+      "src": "MAP/theme-sprites/11/theme-11-077.png",
+      "width": 57,
+      "height": 71,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        368,
+        1031,
+        409,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-078",
+      "src": "MAP/theme-sprites/11/theme-11-078.png",
+      "width": 47,
+      "height": 64,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        373,
+        988,
+        404,
+        1036
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-079",
+      "src": "MAP/theme-sprites/11/theme-11-079.png",
+      "width": 47,
+      "height": 67,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        400,
+        1015,
+        431,
+        1066
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-080",
+      "src": "MAP/theme-sprites/11/theme-11-080.png",
+      "width": 62,
+      "height": 113,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        428,
+        989,
+        474,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-081",
+      "src": "MAP/theme-sprites/11/theme-11-081.png",
+      "width": 306,
+      "height": 104,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        805,
+        998,
+        1095,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-11-082",
+      "src": "MAP/theme-sprites/11/theme-11-082.png",
+      "width": 418,
+      "height": 113,
+      "source": "MAP/theme-sources/asset11-alpha.png",
+      "original": "MAP/asset11.png",
+      "sourceBox": [
+        1046,
+        989,
+        1448,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-001",
+      "src": "MAP/theme-sprites/12/theme-12-001.png",
+      "width": 953,
+      "height": 793,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        0,
+        0,
+        937,
+        777
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-002",
+      "src": "MAP/theme-sprites/12/theme-12-002.png",
+      "width": 447,
+      "height": 408,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        526,
+        0,
+        957,
+        392
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-003",
+      "src": "MAP/theme-sprites/12/theme-12-003.png",
+      "width": 551,
+      "height": 636,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        912,
+        0,
+        1447,
+        620
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-004",
+      "src": "MAP/theme-sprites/12/theme-12-004.png",
+      "width": 179,
+      "height": 159,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        565,
+        545,
+        728,
+        688
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-005",
+      "src": "MAP/theme-sprites/12/theme-12-005.png",
+      "width": 125,
+      "height": 172,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1162,
+        546,
+        1271,
+        702
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-006",
+      "src": "MAP/theme-sprites/12/theme-12-006.png",
+      "width": 124,
+      "height": 93,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        477,
+        562,
+        585,
+        639
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-007",
+      "src": "MAP/theme-sprites/12/theme-12-007.png",
+      "width": 177,
+      "height": 133,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        719,
+        584,
+        880,
+        701
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-008",
+      "src": "MAP/theme-sprites/12/theme-12-008.png",
+      "width": 317,
+      "height": 147,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        865,
+        568,
+        1166,
+        699
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-009",
+      "src": "MAP/theme-sprites/12/theme-12-009.png",
+      "width": 108,
+      "height": 156,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1252,
+        606,
+        1344,
+        746
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-010",
+      "src": "MAP/theme-sprites/12/theme-12-010.png",
+      "width": 141,
+      "height": 164,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1323,
+        577,
+        1448,
+        725
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-011",
+      "src": "MAP/theme-sprites/12/theme-12-011.png",
+      "width": 108,
+      "height": 123,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        0,
+        634,
+        92,
+        741
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-012",
+      "src": "MAP/theme-sprites/12/theme-12-012.png",
+      "width": 389,
+      "height": 459,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        0,
+        643,
+        373,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-013",
+      "src": "MAP/theme-sprites/12/theme-12-013.png",
+      "width": 197,
+      "height": 346,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        258,
+        636,
+        439,
+        966
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-014",
+      "src": "MAP/theme-sprites/12/theme-12-014.png",
+      "width": 180,
+      "height": 167,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        673,
+        649,
+        837,
+        800
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-015",
+      "src": "MAP/theme-sprites/12/theme-12-015.png",
+      "width": 146,
+      "height": 136,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        792,
+        652,
+        922,
+        772
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-016",
+      "src": "MAP/theme-sprites/12/theme-12-016.png",
+      "width": 119,
+      "height": 92,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        917,
+        646,
+        1020,
+        722
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-017",
+      "src": "MAP/theme-sprites/12/theme-12-017.png",
+      "width": 142,
+      "height": 154,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        993,
+        692,
+        1119,
+        830
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-018",
+      "src": "MAP/theme-sprites/12/theme-12-018.png",
+      "width": 129,
+      "height": 159,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1085,
+        657,
+        1198,
+        800
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-019",
+      "src": "MAP/theme-sprites/12/theme-12-019.png",
+      "width": 102,
+      "height": 151,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1356,
+        676,
+        1442,
+        811
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-020",
+      "src": "MAP/theme-sprites/12/theme-12-020.png",
+      "width": 132,
+      "height": 104,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        15,
+        726,
+        131,
+        814
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-021",
+      "src": "MAP/theme-sprites/12/theme-12-021.png",
+      "width": 73,
+      "height": 89,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        415,
+        706,
+        472,
+        779
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-022",
+      "src": "MAP/theme-sprites/12/theme-12-022.png",
+      "width": 139,
+      "height": 261,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        431,
+        724,
+        554,
+        969
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-023",
+      "src": "MAP/theme-sprites/12/theme-12-023.png",
+      "width": 114,
+      "height": 211,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        550,
+        747,
+        648,
+        942
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-024",
+      "src": "MAP/theme-sprites/12/theme-12-024.png",
+      "width": 113,
+      "height": 99,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        606,
+        704,
+        703,
+        787
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-025",
+      "src": "MAP/theme-sprites/12/theme-12-025.png",
+      "width": 125,
+      "height": 110,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        893,
+        719,
+        1002,
+        813
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-026",
+      "src": "MAP/theme-sprites/12/theme-12-026.png",
+      "width": 127,
+      "height": 159,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1176,
+        700,
+        1287,
+        843
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-027",
+      "src": "MAP/theme-sprites/12/theme-12-027.png",
+      "width": 190,
+      "height": 202,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1259,
+        742,
+        1433,
+        928
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-028",
+      "src": "MAP/theme-sprites/12/theme-12-028.png",
+      "width": 111,
+      "height": 159,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        630,
+        779,
+        725,
+        922
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-029",
+      "src": "MAP/theme-sprites/12/theme-12-029.png",
+      "width": 85,
+      "height": 118,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        686,
+        775,
+        755,
+        877
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-030",
+      "src": "MAP/theme-sprites/12/theme-12-030.png",
+      "width": 136,
+      "height": 171,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        723,
+        787,
+        843,
+        942
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-031",
+      "src": "MAP/theme-sprites/12/theme-12-031.png",
+      "width": 321,
+      "height": 234,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        817,
+        788,
+        1122,
+        1006
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-032",
+      "src": "MAP/theme-sprites/12/theme-12-032.png",
+      "width": 141,
+      "height": 108,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1089,
+        795,
+        1214,
+        887
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-033",
+      "src": "MAP/theme-sprites/12/theme-12-033.png",
+      "width": 101,
+      "height": 78,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1176,
+        837,
+        1261,
+        899
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-034",
+      "src": "MAP/theme-sprites/12/theme-12-034.png",
+      "width": 43,
+      "height": 126,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        334,
+        842,
+        361,
+        952
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-035",
+      "src": "MAP/theme-sprites/12/theme-12-035.png",
+      "width": 353,
+      "height": 232,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1107,
+        870,
+        1444,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-036",
+      "src": "MAP/theme-sprites/12/theme-12-036.png",
+      "width": 106,
+      "height": 72,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1357,
+        907,
+        1447,
+        963
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-037",
+      "src": "MAP/theme-sprites/12/theme-12-037.png",
+      "width": 196,
+      "height": 169,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        327,
+        933,
+        507,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-038",
+      "src": "MAP/theme-sprites/12/theme-12-038.png",
+      "width": 175,
+      "height": 179,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        492,
+        923,
+        651,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-039",
+      "src": "MAP/theme-sprites/12/theme-12-039.png",
+      "width": 133,
+      "height": 176,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        596,
+        913,
+        713,
+        1073
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-040",
+      "src": "MAP/theme-sprites/12/theme-12-040.png",
+      "width": 148,
+      "height": 170,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        678,
+        932,
+        810,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-12-041",
+      "src": "MAP/theme-sprites/12/theme-12-041.png",
+      "width": 426,
+      "height": 147,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        799,
+        955,
+        1209,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-12-042",
+      "src": "MAP/theme-sprites/12/theme-12-042.png",
+      "width": 262,
+      "height": 124,
+      "source": "MAP/theme-sources/asset12-alpha.png",
+      "original": "MAP/asset12.png",
+      "sourceBox": [
+        1040,
+        919,
+        1286,
+        1027
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-001",
+      "src": "MAP/theme-sprites/13/theme-13-001.png",
+      "width": 720,
+      "height": 848,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        0,
+        0,
+        704,
+        832
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-13-002",
+      "src": "MAP/theme-sprites/13/theme-13-002.png",
+      "width": 378,
+      "height": 418,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        650,
+        0,
+        1012,
+        402
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-13-003",
+      "src": "MAP/theme-sprites/13/theme-13-003.png",
+      "width": 464,
+      "height": 406,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        1000,
+        0,
+        1448,
+        390
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-13-004",
+      "src": "MAP/theme-sprites/13/theme-13-004.png",
+      "width": 829,
+      "height": 741,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        635,
+        361,
+        1448,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-13-005",
+      "src": "MAP/theme-sprites/13/theme-13-005.png",
+      "width": 434,
+      "height": 474,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        172,
+        628,
+        590,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-13-006",
+      "src": "MAP/theme-sprites/13/theme-13-006.png",
+      "width": 208,
+      "height": 259,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        553,
+        630,
+        745,
+        873
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-007",
+      "src": "MAP/theme-sprites/13/theme-13-007.png",
+      "width": 163,
+      "height": 310,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        0,
+        792,
+        147,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-008",
+      "src": "MAP/theme-sprites/13/theme-13-008.png",
+      "width": 159,
+      "height": 234,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        124,
+        815,
+        267,
+        1033
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-009",
+      "src": "MAP/theme-sprites/13/theme-13-009.png",
+      "width": 105,
+      "height": 232,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        261,
+        808,
+        350,
+        1024
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-010",
+      "src": "MAP/theme-sprites/13/theme-13-010.png",
+      "width": 198,
+      "height": 279,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        436,
+        823,
+        618,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-011",
+      "src": "MAP/theme-sprites/13/theme-13-011.png",
+      "width": 64,
+      "height": 167,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        400,
+        860,
+        448,
+        1011
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-012",
+      "src": "MAP/theme-sprites/13/theme-13-012.png",
+      "width": 134,
+      "height": 193,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        553,
+        909,
+        671,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-013",
+      "src": "MAP/theme-sprites/13/theme-13-013.png",
+      "width": 69,
+      "height": 98,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        1144,
+        867,
+        1197,
+        949
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-014",
+      "src": "MAP/theme-sprites/13/theme-13-014.png",
+      "width": 78,
+      "height": 96,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        1184,
+        905,
+        1246,
+        985
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-015",
+      "src": "MAP/theme-sprites/13/theme-13-015.png",
+      "width": 74,
+      "height": 113,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        1382,
+        865,
+        1440,
+        962
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-016",
+      "src": "MAP/theme-sprites/13/theme-13-016.png",
+      "width": 95,
+      "height": 128,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        111,
+        974,
+        190,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-017",
+      "src": "MAP/theme-sprites/13/theme-13-017.png",
+      "width": 55,
+      "height": 125,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        435,
+        923,
+        474,
+        1032
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-13-018",
+      "src": "MAP/theme-sprites/13/theme-13-018.png",
+      "width": 63,
+      "height": 84,
+      "source": "MAP/theme-sources/asset13-alpha.png",
+      "original": "MAP/asset13.png",
+      "sourceBox": [
+        720,
+        990,
+        767,
+        1058
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-001",
+      "src": "MAP/theme-sprites/14/theme-14-001.png",
+      "width": 758,
+      "height": 728,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        0,
+        0,
+        742,
+        712
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-14-002",
+      "src": "MAP/theme-sprites/14/theme-14-002.png",
+      "width": 455,
+      "height": 409,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        526,
+        0,
+        965,
+        393
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-14-003",
+      "src": "MAP/theme-sprites/14/theme-14-003.png",
+      "width": 77,
+      "height": 105,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        563,
+        21,
+        624,
+        110
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-004",
+      "src": "MAP/theme-sprites/14/theme-14-004.png",
+      "width": 52,
+      "height": 83,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        898,
+        58,
+        934,
+        125
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-005",
+      "src": "MAP/theme-sprites/14/theme-14-005.png",
+      "width": 335,
+      "height": 331,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        928,
+        0,
+        1247,
+        315
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-14-006",
+      "src": "MAP/theme-sprites/14/theme-14-006.png",
+      "width": 279,
+      "height": 375,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1185,
+        18,
+        1448,
+        377
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-14-007",
+      "src": "MAP/theme-sprites/14/theme-14-007.png",
+      "width": 115,
+      "height": 138,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        947,
+        276,
+        1046,
+        398
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-008",
+      "src": "MAP/theme-sprites/14/theme-14-008.png",
+      "width": 427,
+      "height": 440,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        685,
+        338,
+        1096,
+        762
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-14-009",
+      "src": "MAP/theme-sprites/14/theme-14-009.png",
+      "width": 278,
+      "height": 278,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        978,
+        308,
+        1240,
+        570
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-010",
+      "src": "MAP/theme-sprites/14/theme-14-010.png",
+      "width": 166,
+      "height": 270,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1298,
+        337,
+        1448,
+        591
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-011",
+      "src": "MAP/theme-sprites/14/theme-14-011.png",
+      "width": 119,
+      "height": 189,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1229,
+        372,
+        1332,
+        545
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-012",
+      "src": "MAP/theme-sprites/14/theme-14-012.png",
+      "width": 80,
+      "height": 184,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        0,
+        540,
+        64,
+        708
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-013",
+      "src": "MAP/theme-sprites/14/theme-14-013.png",
+      "width": 69,
+      "height": 128,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        235,
+        534,
+        288,
+        646
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-014",
+      "src": "MAP/theme-sprites/14/theme-14-014.png",
+      "width": 206,
+      "height": 189,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1058,
+        548,
+        1248,
+        721
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-015",
+      "src": "MAP/theme-sprites/14/theme-14-015.png",
+      "width": 148,
+      "height": 147,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1191,
+        522,
+        1323,
+        653
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-016",
+      "src": "MAP/theme-sprites/14/theme-14-016.png",
+      "width": 62,
+      "height": 125,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        54,
+        563,
+        100,
+        672
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-017",
+      "src": "MAP/theme-sprites/14/theme-14-017.png",
+      "width": 99,
+      "height": 246,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        93,
+        569,
+        176,
+        799
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-018",
+      "src": "MAP/theme-sprites/14/theme-14-018.png",
+      "width": 87,
+      "height": 212,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        158,
+        580,
+        229,
+        776
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-019",
+      "src": "MAP/theme-sprites/14/theme-14-019.png",
+      "width": 77,
+      "height": 179,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        214,
+        613,
+        275,
+        776
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-020",
+      "src": "MAP/theme-sprites/14/theme-14-020.png",
+      "width": 222,
+      "height": 245,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        277,
+        569,
+        483,
+        798
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-021",
+      "src": "MAP/theme-sprites/14/theme-14-021.png",
+      "width": 142,
+      "height": 135,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1321,
+        572,
+        1447,
+        691
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-022",
+      "src": "MAP/theme-sprites/14/theme-14-022.png",
+      "width": 83,
+      "height": 157,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        41,
+        671,
+        108,
+        812
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-023",
+      "src": "MAP/theme-sprites/14/theme-14-023.png",
+      "width": 63,
+      "height": 147,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        265,
+        644,
+        312,
+        775
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-024",
+      "src": "MAP/theme-sprites/14/theme-14-024.png",
+      "width": 90,
+      "height": 141,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        306,
+        670,
+        380,
+        795
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-025",
+      "src": "MAP/theme-sprites/14/theme-14-025.png",
+      "width": 119,
+      "height": 132,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        423,
+        682,
+        526,
+        798
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-026",
+      "src": "MAP/theme-sprites/14/theme-14-026.png",
+      "width": 137,
+      "height": 141,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        519,
+        695,
+        640,
+        820
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-027",
+      "src": "MAP/theme-sprites/14/theme-14-027.png",
+      "width": 92,
+      "height": 136,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        624,
+        663,
+        700,
+        783
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-028",
+      "src": "MAP/theme-sprites/14/theme-14-028.png",
+      "width": 172,
+      "height": 225,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        649,
+        631,
+        805,
+        840
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-029",
+      "src": "MAP/theme-sprites/14/theme-14-029.png",
+      "width": 207,
+      "height": 146,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        784,
+        665,
+        975,
+        795
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-030",
+      "src": "MAP/theme-sprites/14/theme-14-030.png",
+      "width": 132,
+      "height": 126,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1121,
+        677,
+        1237,
+        787
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-031",
+      "src": "MAP/theme-sprites/14/theme-14-031.png",
+      "width": 160,
+      "height": 191,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1220,
+        638,
+        1364,
+        813
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-032",
+      "src": "MAP/theme-sprites/14/theme-14-032.png",
+      "width": 135,
+      "height": 153,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1328,
+        664,
+        1447,
+        801
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-033",
+      "src": "MAP/theme-sprites/14/theme-14-033.png",
+      "width": 69,
+      "height": 117,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        0,
+        703,
+        53,
+        804
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-034",
+      "src": "MAP/theme-sprites/14/theme-14-034.png",
+      "width": 188,
+      "height": 194,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        150,
+        761,
+        322,
+        939
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-035",
+      "src": "MAP/theme-sprites/14/theme-14-035.png",
+      "width": 150,
+      "height": 169,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        792,
+        763,
+        926,
+        916
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-036",
+      "src": "MAP/theme-sprites/14/theme-14-036.png",
+      "width": 197,
+      "height": 159,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        900,
+        751,
+        1081,
+        894
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-037",
+      "src": "MAP/theme-sprites/14/theme-14-037.png",
+      "width": 112,
+      "height": 105,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1032,
+        727,
+        1128,
+        816
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-038",
+      "src": "MAP/theme-sprites/14/theme-14-038.png",
+      "width": 163,
+      "height": 145,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1080,
+        764,
+        1227,
+        893
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-039",
+      "src": "MAP/theme-sprites/14/theme-14-039.png",
+      "width": 150,
+      "height": 303,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        0,
+        799,
+        134,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-040",
+      "src": "MAP/theme-sprites/14/theme-14-040.png",
+      "width": 96,
+      "height": 139,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        91,
+        795,
+        171,
+        918
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-041",
+      "src": "MAP/theme-sprites/14/theme-14-041.png",
+      "width": 193,
+      "height": 165,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        312,
+        782,
+        489,
+        931
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-042",
+      "src": "MAP/theme-sprites/14/theme-14-042.png",
+      "width": 155,
+      "height": 167,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        462,
+        789,
+        601,
+        940
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-043",
+      "src": "MAP/theme-sprites/14/theme-14-043.png",
+      "width": 405,
+      "height": 297,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        529,
+        805,
+        918,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-14-044",
+      "src": "MAP/theme-sprites/14/theme-14-044.png",
+      "width": 143,
+      "height": 135,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        678,
+        825,
+        805,
+        944
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-045",
+      "src": "MAP/theme-sprites/14/theme-14-045.png",
+      "width": 102,
+      "height": 76,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1032,
+        827,
+        1118,
+        887
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-046",
+      "src": "MAP/theme-sprites/14/theme-14-046.png",
+      "width": 100,
+      "height": 106,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1210,
+        780,
+        1294,
+        870
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-047",
+      "src": "MAP/theme-sprites/14/theme-14-047.png",
+      "width": 121,
+      "height": 107,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1282,
+        787,
+        1387,
+        878
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-048",
+      "src": "MAP/theme-sprites/14/theme-14-048.png",
+      "width": 86,
+      "height": 106,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1378,
+        771,
+        1448,
+        861
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-049",
+      "src": "MAP/theme-sprites/14/theme-14-049.png",
+      "width": 143,
+      "height": 193,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        96,
+        909,
+        223,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-050",
+      "src": "MAP/theme-sprites/14/theme-14-050.png",
+      "width": 62,
+      "height": 93,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        284,
+        859,
+        330,
+        936
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-051",
+      "src": "MAP/theme-sprites/14/theme-14-051.png",
+      "width": 72,
+      "height": 86,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        314,
+        903,
+        370,
+        973
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-052",
+      "src": "MAP/theme-sprites/14/theme-14-052.png",
+      "width": 80,
+      "height": 61,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        773,
+        896,
+        837,
+        941
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-053",
+      "src": "MAP/theme-sprites/14/theme-14-053.png",
+      "width": 91,
+      "height": 80,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        835,
+        906,
+        910,
+        970
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-054",
+      "src": "MAP/theme-sprites/14/theme-14-054.png",
+      "width": 98,
+      "height": 86,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        899,
+        891,
+        981,
+        961
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-055",
+      "src": "MAP/theme-sprites/14/theme-14-055.png",
+      "width": 115,
+      "height": 100,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        968,
+        875,
+        1067,
+        959
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-056",
+      "src": "MAP/theme-sprites/14/theme-14-056.png",
+      "width": 89,
+      "height": 66,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1054,
+        876,
+        1127,
+        926
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-057",
+      "src": "MAP/theme-sprites/14/theme-14-057.png",
+      "width": 98,
+      "height": 69,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1124,
+        884,
+        1206,
+        937
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-058",
+      "src": "MAP/theme-sprites/14/theme-14-058.png",
+      "width": 91,
+      "height": 78,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1200,
+        864,
+        1275,
+        926
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-059",
+      "src": "MAP/theme-sprites/14/theme-14-059.png",
+      "width": 74,
+      "height": 106,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1252,
+        901,
+        1310,
+        991
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-060",
+      "src": "MAP/theme-sprites/14/theme-14-060.png",
+      "width": 54,
+      "height": 55,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1264,
+        863,
+        1302,
+        902
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-061",
+      "src": "MAP/theme-sprites/14/theme-14-061.png",
+      "width": 63,
+      "height": 67,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1292,
+        874,
+        1339,
+        925
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-062",
+      "src": "MAP/theme-sprites/14/theme-14-062.png",
+      "width": 51,
+      "height": 67,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1334,
+        871,
+        1369,
+        922
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-063",
+      "src": "MAP/theme-sprites/14/theme-14-063.png",
+      "width": 101,
+      "height": 87,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1363,
+        856,
+        1448,
+        927
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-064",
+      "src": "MAP/theme-sprites/14/theme-14-064.png",
+      "width": 138,
+      "height": 177,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        212,
+        925,
+        334,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-065",
+      "src": "MAP/theme-sprites/14/theme-14-065.png",
+      "width": 168,
+      "height": 137,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        279,
+        965,
+        431,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-066",
+      "src": "MAP/theme-sprites/14/theme-14-066.png",
+      "width": 175,
+      "height": 104,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        353,
+        917,
+        512,
+        1005
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-067",
+      "src": "MAP/theme-sprites/14/theme-14-067.png",
+      "width": 61,
+      "height": 98,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        510,
+        941,
+        555,
+        1023
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-068",
+      "src": "MAP/theme-sprites/14/theme-14-068.png",
+      "width": 132,
+      "height": 75,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        876,
+        951,
+        992,
+        1010
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-069",
+      "src": "MAP/theme-sprites/14/theme-14-069.png",
+      "width": 311,
+      "height": 187,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        983,
+        915,
+        1278,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-070",
+      "src": "MAP/theme-sprites/14/theme-14-070.png",
+      "width": 150,
+      "height": 181,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1258,
+        921,
+        1392,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-071",
+      "src": "MAP/theme-sprites/14/theme-14-071.png",
+      "width": 96,
+      "height": 139,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        1368,
+        922,
+        1448,
+        1045
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-072",
+      "src": "MAP/theme-sprites/14/theme-14-072.png",
+      "width": 122,
+      "height": 121,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        427,
+        981,
+        533,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-073",
+      "src": "MAP/theme-sprites/14/theme-14-073.png",
+      "width": 226,
+      "height": 64,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        728,
+        1038,
+        938,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-14-074",
+      "src": "MAP/theme-sprites/14/theme-14-074.png",
+      "width": 107,
+      "height": 98,
+      "source": "MAP/theme-sources/asset14-alpha.png",
+      "original": "MAP/asset14.png",
+      "sourceBox": [
+        912,
+        1004,
+        1003,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-001",
+      "src": "MAP/theme-sprites/15/theme-15-001.png",
+      "width": 1464,
+      "height": 684,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        0,
+        0,
+        1448,
+        668
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-15-002",
+      "src": "MAP/theme-sprites/15/theme-15-002.png",
+      "width": 44,
+      "height": 62,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        600,
+        112,
+        628,
+        158
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-003",
+      "src": "MAP/theme-sprites/15/theme-15-003.png",
+      "width": 184,
+      "height": 248,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1280,
+        380,
+        1448,
+        612
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-004",
+      "src": "MAP/theme-sprites/15/theme-15-004.png",
+      "width": 75,
+      "height": 104,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1128,
+        520,
+        1187,
+        608
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-005",
+      "src": "MAP/theme-sprites/15/theme-15-005.png",
+      "width": 423,
+      "height": 318,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        0,
+        608,
+        407,
+        910
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-15-006",
+      "src": "MAP/theme-sprites/15/theme-15-006.png",
+      "width": 314,
+      "height": 200,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        293,
+        618,
+        591,
+        802
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-007",
+      "src": "MAP/theme-sprites/15/theme-15-007.png",
+      "width": 286,
+      "height": 221,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        557,
+        608,
+        827,
+        813
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-008",
+      "src": "MAP/theme-sprites/15/theme-15-008.png",
+      "width": 156,
+      "height": 189,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1006,
+        595,
+        1146,
+        768
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-009",
+      "src": "MAP/theme-sprites/15/theme-15-009.png",
+      "width": 419,
+      "height": 520,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1045,
+        582,
+        1448,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-15-010",
+      "src": "MAP/theme-sprites/15/theme-15-010.png",
+      "width": 63,
+      "height": 79,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1295,
+        600,
+        1342,
+        663
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-011",
+      "src": "MAP/theme-sprites/15/theme-15-011.png",
+      "width": 245,
+      "height": 151,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        810,
+        638,
+        1039,
+        773
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-012",
+      "src": "MAP/theme-sprites/15/theme-15-012.png",
+      "width": 110,
+      "height": 340,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        0,
+        748,
+        94,
+        1072
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-15-013",
+      "src": "MAP/theme-sprites/15/theme-15-013.png",
+      "width": 89,
+      "height": 186,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        86,
+        740,
+        159,
+        910
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-014",
+      "src": "MAP/theme-sprites/15/theme-15-014.png",
+      "width": 59,
+      "height": 142,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        152,
+        768,
+        195,
+        894
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-015",
+      "src": "MAP/theme-sprites/15/theme-15-015.png",
+      "width": 84,
+      "height": 185,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        204,
+        742,
+        272,
+        911
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-016",
+      "src": "MAP/theme-sprites/15/theme-15-016.png",
+      "width": 111,
+      "height": 83,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        468,
+        751,
+        563,
+        818
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-017",
+      "src": "MAP/theme-sprites/15/theme-15-017.png",
+      "width": 247,
+      "height": 186,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        726,
+        757,
+        957,
+        927
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-018",
+      "src": "MAP/theme-sprites/15/theme-15-018.png",
+      "width": 117,
+      "height": 128,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        742,
+        701,
+        843,
+        813
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-019",
+      "src": "MAP/theme-sprites/15/theme-15-019.png",
+      "width": 129,
+      "height": 90,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        875,
+        730,
+        988,
+        804
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-020",
+      "src": "MAP/theme-sprites/15/theme-15-020.png",
+      "width": 116,
+      "height": 80,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        987,
+        740,
+        1087,
+        804
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-021",
+      "src": "MAP/theme-sprites/15/theme-15-021.png",
+      "width": 112,
+      "height": 92,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1086,
+        739,
+        1182,
+        815
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-022",
+      "src": "MAP/theme-sprites/15/theme-15-022.png",
+      "width": 49,
+      "height": 108,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        181,
+        803,
+        214,
+        895
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-023",
+      "src": "MAP/theme-sprites/15/theme-15-023.png",
+      "width": 93,
+      "height": 101,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        374,
+        807,
+        451,
+        892
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-024",
+      "src": "MAP/theme-sprites/15/theme-15-024.png",
+      "width": 66,
+      "height": 125,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        435,
+        776,
+        485,
+        885
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-025",
+      "src": "MAP/theme-sprites/15/theme-15-025.png",
+      "width": 231,
+      "height": 191,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        462,
+        804,
+        677,
+        979
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-026",
+      "src": "MAP/theme-sprites/15/theme-15-026.png",
+      "width": 92,
+      "height": 92,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        470,
+        810,
+        546,
+        886
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-027",
+      "src": "MAP/theme-sprites/15/theme-15-027.png",
+      "width": 88,
+      "height": 101,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        608,
+        807,
+        680,
+        892
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-028",
+      "src": "MAP/theme-sprites/15/theme-15-028.png",
+      "width": 87,
+      "height": 147,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        676,
+        771,
+        747,
+        902
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-029",
+      "src": "MAP/theme-sprites/15/theme-15-029.png",
+      "width": 169,
+      "height": 213,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        922,
+        801,
+        1075,
+        998
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-030",
+      "src": "MAP/theme-sprites/15/theme-15-030.png",
+      "width": 81,
+      "height": 110,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        948,
+        777,
+        1013,
+        871
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-031",
+      "src": "MAP/theme-sprites/15/theme-15-031.png",
+      "width": 92,
+      "height": 111,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1050,
+        791,
+        1126,
+        886
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-032",
+      "src": "MAP/theme-sprites/15/theme-15-032.png",
+      "width": 57,
+      "height": 55,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1236,
+        779,
+        1277,
+        818
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-033",
+      "src": "MAP/theme-sprites/15/theme-15-033.png",
+      "width": 61,
+      "height": 97,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        1403,
+        797,
+        1448,
+        878
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-034",
+      "src": "MAP/theme-sprites/15/theme-15-034.png",
+      "width": 74,
+      "height": 182,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        66,
+        892,
+        124,
+        1058
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-035",
+      "src": "MAP/theme-sprites/15/theme-15-035.png",
+      "width": 149,
+      "height": 193,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        114,
+        897,
+        247,
+        1074
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-036",
+      "src": "MAP/theme-sprites/15/theme-15-036.png",
+      "width": 241,
+      "height": 139,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        188,
+        888,
+        413,
+        1011
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-037",
+      "src": "MAP/theme-sprites/15/theme-15-037.png",
+      "width": 65,
+      "height": 58,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        327,
+        904,
+        376,
+        946
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-038",
+      "src": "MAP/theme-sprites/15/theme-15-038.png",
+      "width": 181,
+      "height": 91,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        373,
+        879,
+        538,
+        954
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-039",
+      "src": "MAP/theme-sprites/15/theme-15-039.png",
+      "width": 84,
+      "height": 115,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        695,
+        882,
+        763,
+        981
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-040",
+      "src": "MAP/theme-sprites/15/theme-15-040.png",
+      "width": 77,
+      "height": 106,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        762,
+        894,
+        823,
+        984
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-041",
+      "src": "MAP/theme-sprites/15/theme-15-041.png",
+      "width": 70,
+      "height": 73,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        850,
+        902,
+        904,
+        959
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-042",
+      "src": "MAP/theme-sprites/15/theme-15-042.png",
+      "width": 55,
+      "height": 91,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        895,
+        906,
+        934,
+        981
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-043",
+      "src": "MAP/theme-sprites/15/theme-15-043.png",
+      "width": 96,
+      "height": 90,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        406,
+        929,
+        486,
+        1003
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-044",
+      "src": "MAP/theme-sprites/15/theme-15-044.png",
+      "width": 351,
+      "height": 178,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        419,
+        924,
+        754,
+        1086
+      ],
+      "padding": 8,
+      "kind": "compound"
+    },
+    {
+      "id": "theme-15-045",
+      "src": "MAP/theme-sprites/15/theme-15-045.png",
+      "width": 147,
+      "height": 140,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        725,
+        952,
+        856,
+        1076
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-046",
+      "src": "MAP/theme-sprites/15/theme-15-046.png",
+      "width": 60,
+      "height": 73,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        815,
+        915,
+        859,
+        972
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-047",
+      "src": "MAP/theme-sprites/15/theme-15-047.png",
+      "width": 77,
+      "height": 101,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        852,
+        957,
+        913,
+        1042
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-048",
+      "src": "MAP/theme-sprites/15/theme-15-048.png",
+      "width": 128,
+      "height": 126,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        866,
+        976,
+        978,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-049",
+      "src": "MAP/theme-sprites/15/theme-15-049.png",
+      "width": 103,
+      "height": 94,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        239,
+        992,
+        326,
+        1070
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-050",
+      "src": "MAP/theme-sprites/15/theme-15-050.png",
+      "width": 120,
+      "height": 93,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        319,
+        995,
+        423,
+        1072
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-051",
+      "src": "MAP/theme-sprites/15/theme-15-051.png",
+      "width": 56,
+      "height": 63,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        405,
+        980,
+        445,
+        1027
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-052",
+      "src": "MAP/theme-sprites/15/theme-15-052.png",
+      "width": 58,
+      "height": 83,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        831,
+        1011,
+        873,
+        1078
+      ],
+      "padding": 8,
+      "kind": "prop"
+    },
+    {
+      "id": "theme-15-053",
+      "src": "MAP/theme-sprites/15/theme-15-053.png",
+      "width": 148,
+      "height": 116,
+      "source": "MAP/theme-sources/asset15-alpha.png",
+      "original": "MAP/asset15.png",
+      "sourceBox": [
+        964,
+        986,
+        1096,
+        1086
+      ],
+      "padding": 8,
+      "kind": "prop"
+    }
+  ]
+}

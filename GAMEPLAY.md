@@ -1,5 +1,11 @@
 # Thiết kế gameplay Tiên Lộ Online
 
+## Chủ đề map từ asset 10–15
+
+Đã cập nhật cảnh quan cho Vạn Kiếm/Thiên Vân (cổ ngọc), Nguyệt Hồ (liên hoa), Lôi Vân (băng tinh), Thiên Cơ/Linh Mạch (linh mộc), đấu trường (hỏa điện) và chiến trường boss (ma vực). Bí cảnh solo dùng cổ tích ngọc. Dùng sprite PNG đã tách alpha và giữ nguyên các cụm kiến trúc dính nhau; các cụm lớn nằm sau địa hình, cây/trụ nhỏ dùng các ô trang trí sẵn có. Ánh sáng vách đảo được cache theo chủ đề. Nền vẫn lát từng viên; tọa độ online, vị trí quái, va chạm và cặp truyền tống không đổi. Bỏ hồ sen cũ chồng vào trận truyền tống Linh Mạch.
+
+Thư viện 338 sprite/cụm: `MAP/theme-sprites/index.html`. Nguồn RGB gốc giữ nguyên; bản alpha và quy trình ImageGen ghi tại `MAP/theme-sources/README.md`. Renderer chỉ tải những PNG được chọn cho map/khung nhìn đang dùng.
+
 Không có gameplay tốt nhất cho mọi nhóm người chơi. Hướng phù hợp với source này là **ARPG tu tiên hợp tác**, chơi được một mình nhưng gặp đạo hữu sẽ có lợi: combo rõ, skill chủ động, tiến trình có mục tiêu và trang bị có lựa chọn.
 
 Thiết kế tham khảo cách hướng dẫn theo mốc của [Guild Wars 2 New Player Guide](https://www.guildwars2.com/en/new-player-guide/) và chiến đấu hợp tác ngoài thế giới của [Guild Wars 2 Combat](https://www.guildwars2.com/en/the-game/combat/). Các con số dưới đây là lựa chọn riêng của Tiên Lộ, chưa phải kết quả cân bằng qua dữ liệu người chơi.

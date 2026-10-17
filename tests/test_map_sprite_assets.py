@@ -8,6 +8,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MapSprites(unittest.TestCase):
+    def test_six_new_theme_exports(self):
+        manifest=json.loads((ROOT/'MAP/theme-sprites/manifest.json').read_text())
+        self.assertEqual(manifest['atlases'],list(range(10,16)))
+        self.assertEqual(len({s['original'] for s in manifest['sprites']}),6)
+        self.assertGreater(len(manifest['sprites']),300)
+        for r in manifest['sprites']:
+            data=(ROOT/r['src']).read_bytes()
+            self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
+            self.assertEqual(data[25],6)
+            self.assertEqual(struct.unpack('>II',data[16:24]),(r['width'],r['height']))
+
     def test_nine_atlas_exports_and_new_hd_terrain(self):
         manifest=json.loads((ROOT/'MAP/atlas-sprites/manifest.json').read_text())
         self.assertEqual(manifest['atlases'],9)

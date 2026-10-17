@@ -1,5 +1,22 @@
 # Tiên Lộ sprite workflow
 
+## Theme atlases 10–15
+
+New RGB source sheets are retained unchanged. Built-in ImageGen alpha edits live
+in `MAP/theme-sources`; prompts/provenance are documented there. Native component
+exports (338) live in `MAP/theme-sprites`, with an independent manifest and local
+gallery `MAP/theme-sprites/index.html`. Rebuild with
+`python tools/extract_theme_atlases.py`; verify with
+`python tests/test_theme_assets.py` (Pillow/numpy/scipy for export, Pillow/numpy
+for reconstruction). Original nine-atlas tests are unchanged.
+
+`js/20d-map-themes.js` maps blue crystal to thunder, jade antiquity to sword/hub,
+lotus blossom to moon, green ancient forest to mystic/valley, fire temple to arena,
+and magma to world boss. The solo rift uses jade ruins. Large compounds are
+background scenery; reviewed small props share the existing depth/bounds code.
+No new bridges, flight, static image floors, mob spawns or network rooms are added.
+The valley pond that overlapped the home portal has been removed.
+
 ## Nine original map atlases
 
 Open `MAP/atlas-sprites/index.html` to browse all nine atlases as **534 native PNG

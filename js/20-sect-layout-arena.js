@@ -64,11 +64,11 @@
       // Keep the original stone corners; paving ends before all four tips.
       ctx.save();ctx.beginPath();ctx.rect(x-rx*1.4,y-ry*2,rx*2.8,ry*5);
       pavedOutline(ctx,x,y,rx,ry);ctx.clip('evenodd');
-      renderArtwork(ctx,highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);ctx.restore();
+      renderArtwork(ctx,world.mapThemes?.terrainFor(highIsland)||highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);ctx.restore();
     }else{
       ctx.save();ctx.fillStyle='#40545c';ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry+depth);ctx.closePath();ctx.fill();ctx.restore();
     }
-    ctx.save();ctx.beginPath();pavedOutline(ctx,x,y,rx,ry);ctx.clip();stonePaving.draw(ctx,{x,y,rx,ry},floorView);ctx.restore();
+    ctx.save();ctx.beginPath();pavedOutline(ctx,x,y,rx,ry);ctx.clip();stonePaving.draw(ctx,{x,y,rx,ry},floorView);world.mapThemes?.finishDeck(ctx,x,y,rx,ry);ctx.restore();
   }
   function rail(ctx,route,sides=[-1,1]){const image=world.asset('bridgeRail');if(!ready(image))return;
     for(const side of sides){const edge=route.map((p,i)=>{const normal=(a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l=Math.hypot(dx,dy)||1;return {x:-dy/l,y:dx/l};};const before=normal(route[Math.max(0,i-1)],route[Math.max(1,i)]),after=normal(route[Math.min(i,route.length-2)],route[Math.min(i+1,route.length-1)]);const dot=before.x*after.x+before.y*after.y,factor=side*25/Math.max(.5,1+dot);return {x:p.x+(before.x+after.x)*factor,y:p.y+(before.y+after.y)*factor};});
@@ -80,8 +80,9 @@
       [point(x-38,y+ry-14),point(x-rx+35,y+18)],[point(x-rx+35,y-18),point(x-30,y-ry+14)]].forEach(edge=>rail(ctx,edge,[0]));
   }
   function sky(ctx,cx,cy,vw,vh){const l=layout(),gradient=ctx.createLinearGradient(0,cy,0,cy+vh);gradient.addColorStop(0,l.sky);gradient.addColorStop(1,world.state.scene==='mystic'?'#35564b':l.sky);ctx.fillStyle=gradient;ctx.fillRect(cx,cy,vw,vh);
-    const theme=themes[world.state.scene];if(theme)for(const [key,x,y,width]of theme.satellites)terrainArt(ctx,key,x,y,width,.42,.65);
-    for(const [key,x,y,width]of districts[world.state.scene]||[]){ctx.save();ctx.globalAlpha=.72;world.sprite(ctx,key,x,y,width);ctx.restore();}
+    const themed=world.mapThemes?.drawBackdrop(ctx,cx,cy,vw,vh);
+    const theme=themes[world.state.scene];if(!themed&&theme)for(const [key,x,y,width]of theme.satellites)terrainArt(ctx,key,x,y,width,.42,.65);
+    if(!themed)for(const [key,x,y,width]of districts[world.state.scene]||[]){ctx.save();ctx.globalAlpha=.72;world.sprite(ctx,key,x,y,width);ctx.restore();}
     // Two distant parallax layers. Simulation time freezes with dialogs and pause.
     const clock=world.environmentClock||0;
     if(ready(modules.cloud))for(let i=0;i<10;i++){const far=i<5,span=2600,speed=far?2.5:5.5,x=((i*437+clock*speed)%span)-300+cx*(far?.08:.035),y=230+(i*269)%1680+Math.sin(i*2+clock*.035)*8;const width=far?380:250;ctx.save();ctx.globalAlpha=far?.16:.25;renderArtwork(ctx,modules.cloud,x,y,width,width*modules.cloud.naturalHeight/modules.cloud.naturalWidth);ctx.restore();}
@@ -108,7 +109,7 @@
   decor.thunder.push({key:'crystalPillar',x:1220,y:1100,w:22});
   decor.mystic.push({key:'lotusPond',x:750,y:1120,w:70},{key:'lotusPond',x:1250,y:1120,w:70});
   world.mapDecorations=decor;
-  const valleyDecor=[{key:'pineTree',x:740,y:1105,w:82},{key:'pineTree',x:1260,y:1105,w:82},{key:'crystalPillar',x:1000,y:620,w:34},{key:'crystalPillar',x:1500,y:1300,w:30},{key:'crystalPillar',x:500,y:1300,w:30},{key:'lotusPond',x:850,y:1210,w:95},{key:'lotusPond',x:1150,y:1210,w:95}];
+  const valleyDecor=[{key:'pineTree',x:740,y:1105,w:82},{key:'pineTree',x:1260,y:1105,w:82},{key:'crystalPillar',x:1000,y:620,w:34},{key:'crystalPillar',x:1500,y:1300,w:30},{key:'crystalPillar',x:500,y:1300,w:30},{key:'lotusPond',x:1150,y:1210,w:95}];
   function paintGround(ctx,cx,cy,vw,vh){floorView={x:cx-2,y:cy-2,width:vw+4,height:vh+4};ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
     if(world.state.scene==='hub'){hubFloor(ctx,cx,cy,vw,vh);ctx.restore();return;}
     sky(ctx,cx,cy,vw,vh);
@@ -170,7 +171,7 @@
     return;
   }
     for(const e of window.creatureArt?.corpses||[])items.push([e.y,()=>mon(e)]);
-    const decorations=isValley()?valleyDecor:clan()?decor[world.state.scene]:[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
+    const decorations=isValley()?valleyDecor:clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
     for(const b of [...world.buildings,...decorations])if(b.x>cx-b.w&&b.x<cx+vw+b.w&&b.y>cy-40&&b.y<cy+vh+b.w)items.push([b.y,()=>world.sprite(g,b.key,b.x,b.y,b.w)]);
     for(const s of world.services)if(s.npc)items.push([s.y,()=>{const index=world.sectMaps[world.state.scene]?.classIndex||0,image=actorBodies[index];if(ready(image)){const h=index===2?52.5:42,w=h*image.naturalWidth/image.naturalHeight;g.drawImage(image,s.x-w/2,s.y-h,w,h);}}]);
   };
@@ -178,7 +179,7 @@
     if(world.state.scene==='hub'){const c=world.city,w=c.right-c.left+120,h=c.bottom-c.top+120,zoom=size/Math.max(w,h);ctx.translate((size-w*zoom)/2,(size-h*zoom)/2);ctx.scale(zoom,zoom);ctx.translate(-c.left+60,-c.top+60);}
     else ctx.scale(size/M,size/M);
     paintGround(ctx,0,0,M,M);world.drawGroundDetails(ctx,0,0,M,M);
-    const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
+    const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
     [...world.buildings.filter(b=>!b.ground),...decorations].sort((a,b)=>a.y-b.y).forEach(d=>world.sprite(ctx,d.key,d.x,d.y,d.w));
     ctx.font='bold 28px Georgia,serif';ctx.textAlign='center';ctx.fillStyle='#f9e7b6';ctx.strokeStyle='#15272b';ctx.lineWidth=5;
     if(isValley())valleyMines.forEach(c=>{ctx.strokeText(c.name,c.x,c.y+125);ctx.fillText(c.name,c.x,c.y+125);});
