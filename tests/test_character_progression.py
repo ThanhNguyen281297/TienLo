@@ -38,5 +38,30 @@ class CharacterProgressionTest(unittest.TestCase):
         self.assertEqual((p['level'],p['levelXp']),(10,400))
         self.assertAlmostEqual(server.player_attack(p),8+12*1.3+9*.8)
 
+    def test_attribute_migration_and_once_only_level_grants(self):
+        p=self.player();p.update(level=20,levelXp=0)
+        p['world'].update(attrs=dict(luc=8,the=2,nhanh=0,linh=0),attrPoints=5)
+        progression.normalize(p)
+        self.assertEqual(p['world']['attrPoints'],47)
+        original=copy.deepcopy(p);progression.normalize(p);self.assertEqual(p,original)
+        p['world']['attrPoints']-=4;p['world']['attrs']['luc']+=4
+        p['level']=23;progression.normalize(p)
+        self.assertEqual(p['world']['attrPoints'],52)
+        p.update(r=10,stage=10);progression.normalize(p)
+        self.assertEqual(p['world']['attrPoints'],52)
+        p['world'].pop('attributeLevel');p['world']['attrPoints']=200
+        progression.normalize(p);self.assertEqual(p['world']['attrPoints'],200)
+
+    def test_skill_milestones_ignore_cultivation_and_old_learn_flags(self):
+        p=self.player();p.update(r=14,stage=10,level=1,levelXp=0)
+        for rank in (1,9,10,19,20,29,30,39,40,200):
+            p['level']=rank;p['world']['learnedSkills']=[True]*4;progression.normalize(p)
+            self.assertEqual(p['world']['learnedSkills'],[rank>=n for n in (10,20,30,40)])
+
+    def test_attribute_payload_validation(self):
+        for field,value in [('attrPoints',-1),('attrPoints',True),('attrPoints',1.5),('attributeLevel',0),('attributeLevel',2),('attributeLevel',True),('attrs',dict(luc=1001)),('attrs',dict(fake=1))]:
+            p=self.player();p.update(level=1,levelXp=0);p['world'][field]=value
+            with self.subTest(field=field,value=value),self.assertRaises(ValueError):server.valid_player(p)
+
 
 if __name__=='__main__':unittest.main()

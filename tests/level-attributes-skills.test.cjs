@@ -1,0 +1,28 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{spawn}=require('node:child_process');
+const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
+(async()=>{
+ const temp=fs.mkdtempSync(path.join(os.tmpdir(),'tienlo-points-')),server=spawn('python',['-u','-c','import server; from functools import partial; server.init_db(); s=server.GameServer(("127.0.0.1",0),partial(server.GameHandler,directory=str(server.ROOT))); print(s.server_port,flush=True); s.serve_forever()'],{windowsHide:true,env:{...process.env,TIENLO_DB:path.join(temp,'test.sqlite3'),TIENLO_QUIET:'1'},stdio:['ignore','pipe','pipe']});let browser;
+ try{
+  const port=await new Promise((r,j)=>{server.stdout.once('data',d=>r(Number(String(d).trim())));server.once('exit',()=>j(Error('Server stopped')));});browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-proxy-server']});const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:'+port,{waitUntil:'load'});await page.locator('[data-mode=register]').click();await page.locator('#account-name').fill('attribute_test');await page.locator('#account-password').fill('test-password-123');await page.locator('.account-submit').click();await page.waitForFunction(()=>account.state.ready);await page.locator('#nm').fill('Diem Cap');await page.locator('#ok').click();await page.waitForFunction(()=>P.ap);
+  assert.deepEqual(await page.evaluate(()=>[P.world.attrPoints,P.world.attributeLevel,...P.world.learnedSkills]),[0,1,false,false,false,false]);
+  await page.evaluate(()=>{gainExperience(257);worldMap.travel('hub');P.world.tutorial=true;P.gold=10000;});
+  assert.deepEqual(await page.evaluate(()=>[P.level,P.world.attrPoints,P.world.attributeLevel]),[3,6,3]);
+  const before=await page.evaluate(()=>{const n=P.world.attrPoints;P.xp=need();brk();P.stage=10;P.xp=need();P.world.breakthroughPills=1;P.world.thangViDan=1;brk();return[n,P.world.attrPoints,P.r,P.stage];});assert.deepEqual(before,[6,6,1,1]);
+  await page.evaluate(()=>inventory.openAttrs());await page.locator('#attribute-luc').fill('4');await page.locator('#attribute-the').fill('3');assert(await page.locator('#attribute-allocation>button').isDisabled());await page.locator('#attribute-the').fill('2');assert(await page.locator('#attribute-allocation>button').isEnabled());
+  await page.locator('#attribute-luc').fill('-1');assert(await page.locator('#attribute-allocation>button').isDisabled());await page.locator('#attribute-luc').fill('1.5');assert(await page.locator('#attribute-allocation>button').isDisabled());await page.locator('#attribute-luc').fill('4');await page.locator('#attribute-allocation>button').click();
+  assert.deepEqual(await page.evaluate(()=>[P.world.attrPoints,P.world.attrs.luc,P.world.attrs.the]),[0,4,2]);assert(await page.evaluate(()=>account.flush()));await page.reload({waitUntil:'load'});await page.waitForFunction(()=>account.state.ready&&P.ap);assert.deepEqual(await page.evaluate(()=>[P.level,P.world.attrPoints,P.world.attrs.luc,P.world.attrs.the,P.world.attributeLevel]),[3,0,4,2,3]);
+  const milestones=await page.evaluate(()=>{
+   const result=[];gmTest.enabled=false;worldMap.dialog.close();
+   for(let sect=0;sect<4;sect++)for(const level of [9,10,19,20,29,30,39,40]){
+    classCombat.onRespawn();P.ap.w=sect;P.level=level;P.r=level<10?14:0;P.stage=1;P.mp=9999;characterProgression.normalize();hud();
+    result.push({sect,level,learned:P.world.learnedSkills.slice(),usable:[0,1,2,3].map(i=>cultivation.canUse(i)),buttons:[...sb.children].map(b=>!b.disabled)});
+   }return result;
+  });
+  for(const row of milestones){const expected=[10,20,30,40].map(n=>row.level>=n);assert.deepEqual(row.learned,expected);assert.deepEqual(row.usable,expected);assert.deepEqual(row.buttons,expected,'Button gates: class '+row.sect+' level '+row.level);}
+  // Cross multiple milestones in one EXP grant, and never grant again on refresh.
+  const multi=await page.evaluate(()=>{P.ap.w=0;P.r=0;P.level=9;P.levelXp=0;P.world.attributeLevel=9;P.world.attrPoints=0;P.world.attrs={luc:0,the:0,nhanh:0,linh:0};const xp=Array.from({length:12},(_,i)=>characterProgression.required(9+i)).reduce((a,b)=>a+b,0);gainExperience(xp);const points=P.world.attrPoints;for(let i=0;i<5;i++){characterProgression.normalize();hud();}return[P.level,points,P.world.attrPoints,P.world.learnedSkills];});assert.deepEqual(multi,[21,36,36,[true,true,false,false]]);
+  await page.evaluate(()=>inventory.openAttrs());await page.locator('#attribute-linh').fill('3');await page.getByRole('button',{name:'Cộng tối đa Lực',exact:true}).click();assert.equal(await page.locator('#attribute-luc').inputValue(),'33');assert.equal(await page.locator('#attribute-linh').inputValue(),'3');await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(__dirname,'artifacts/level-attribute-allocation-mobile.png')});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('#attribute-allocation>button').click();assert.deepEqual(await page.evaluate(()=>[P.world.attrPoints,P.world.attrs.luc,P.world.attrs.linh]),[0,33,3]);assert(await page.evaluate(()=>account.flush()));
+  assert.deepEqual(errors,[]);console.log('PASS level +3, no cultivation points, bulk input validation/max/mobile, SQLite reload, all 4 classes at 8 milestone boundaries, multi-level grant exactly once');
+ }finally{await browser?.close();server.kill();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

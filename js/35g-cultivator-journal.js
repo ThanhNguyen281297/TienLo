@@ -26,8 +26,8 @@
     d.show('Tiên Đồ · Hoạt động','Chọn hoạt động → chiến đấu → nhận thưởng.');menu();
     const grid=document.createElement('div');grid.className='visual-grid';grid.id='activity-grid';$('world-content').append(grid);
     if(run){card('Đang trong thử thách','Hoàn thành hoặc rời lượt hiện tại trước khi vào hoạt động khác.','Mở menu không kết thúc lượt.');button('Trở lại chiến đấu',d.close);return;}
-    const learned=p.learnedSkills||[],next=cultivation.requirements.findIndex((_,i)=>!learned[i]);
-    const main=card('Hành trình chính',!p.tutorial?'Di chuyển quanh sân và gặp Sư phụ để nhập môn.':next>=0?'Chiêu tiếp theo: '+combatNames[P.ap.w][next]+' · cần '+R[cultivation.requirements[next].realm]+' '+cultivation.requirements[next].stage+'.':'Đã học đủ bốn kỹ năng. Tiếp tục luyện kỹ năng, cường hóa trang bị và phối hợp đạo hữu.',
+    const next=cultivation.requirements.findIndex((_,i)=>!cultivation.eligible(i));
+    const main=card('Hành trình chính',!p.tutorial?'Di chuyển quanh sân và gặp Sư phụ để nhập môn.':next>=0?'Chiêu tiếp theo: '+combatNames[P.ap.w][next]+' · tự mở ở cấp '+cultivation.requirements[next].level+'.':'Đã mở đủ bốn kỹ năng. Tiếp tục nâng kỹ năng, cường hóa trang bị và phối hợp đạo hữu.',
       'Cấp '+characterLevel()+' · '+cultivation.realmName()+' · Tu vi '+Math.floor(P.xp)+'/'+need(),inventory.openAttrs,'Thuộc tính');
     if(next>=0&&p.tutorial)button('Tới Truyền Công Các',trainer,main).disabled=!safe;
     const q=p.sectQuest||{status:'none',kills:0};

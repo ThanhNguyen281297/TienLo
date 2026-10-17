@@ -3,7 +3,8 @@
 ## Cấp nhân vật và tu vi — 18/10/2026
 
 - Level 1–200 tự tăng bằng EXP từ quái và phần thưởng nhiệm vụ; giữ toàn bộ EXP dư qua nhiều cấp. Cấp cuối không tích thêm EXP. Cần `100 + 45n + 12n²` EXP, với `n = cấp−1`: cấp 1 cần 100, cấp 2 cần 157, cấp 10 cần 1.477, cấp 50 cần 31.117 EXP. Mỗi cấp +6 HP, +2 MP, +0,8 Công gốc; server tính HP/Công theo cùng công thức.
-- Tu vi vẫn là 15 cảnh giới × 10 tầng và luật học skill/trang bị hiện tại. `P.xp` là đạo hạnh tu vi, `P.levelXp` là EXP level; tăng tầng không tiêu EXP level. Đả tọa/Tu Vi Đan chỉ tăng đạo hạnh. Bí cảnh vẫn chỉ thưởng Linh Thạch, không cho EXP khi hạ quái trong lượt.
+- Tu vi vẫn là 15 cảnh giới × 10 tầng. `P.xp` là đạo hạnh tu vi, `P.levelXp` là EXP level; tăng tầng không tiêu EXP level. Đả tọa/Tu Vi Đan chỉ tăng đạo hạnh. Bí cảnh vẫn chỉ thưởng Linh Thạch, không cho EXP khi hạ quái trong lượt.
+- Mỗi level +3 điểm thuộc tính. Tăng tầng/đột phá không cấp điểm. Nhập số điểm cho bốn thuộc tính rồi cộng một lần; Tối đa tính phần còn lại sau các dòng khác. Không chấp nhận số âm, thập phân hoặc vượt ngân sách. Bản lưu cũ giữ điểm đã cộng/điểm dư và bù phần thiếu so với `3×(level−1)`; mốc nhận điểm lưu cùng DB để không cộng lặp.
 - Nhân vật cũ được thêm level bằng `r×10 + stage`, EXP level 0, giữ nguyên cảnh giới, tầng, đạo hạnh và trang bị. Đọc bản lưu cũ không tự ghi DB; lần lưu hợp lệ tiếp theo bổ sung hai trường. Nhân vật mới bắt đầu level 1/EXP 0, túi và trang bị trống.
 - HUD có EXP và tu vi riêng. Skill dùng từng bộ phận ảnh chuyển động độc lập: kiếm lao xuống, nguyệt nhận xoay/chém, rồng có chuỗi 28 khớp và phượng đập cánh bằng khớp vai/khuỷu; pháp trận triệu hồi vũ khí hoặc phù quanh biên. Thời điểm gây sát thương, hồi chiêu và outline dịch chuyển giữ luật chiến đấu hiện có.
 
@@ -24,7 +25,7 @@ Thiết kế tham khảo cách hướng dẫn theo mốc của [Guild Wars 2 New
 Thay phần lớn đoạn mô tả thường trực bằng sprite hiện có, thẻ hoạt động, ô thưởng, thanh tiến độ và nút hành động. Chi tiết đầy đủ vẫn có trong phần mở rộng; xác nhận rời đội/chuyển quyền và chi phí không bị giấu. Không thay asset map, chiến đấu hoặc dữ liệu nhân vật khi đổi giao diện.
 
 - Hoạt động: hai cột, hình khu vực, thưởng dạng chip, tiến độ đạo hạnh/nhiệm vụ. HUD chỉ giữ mục tiêu ngắn, chạm mở bảng.
-- Học chiêu: icon từ sprite đúng class, MP/cooldown, điều kiện cảnh giới, học hoặc nâng cấp và thanh 0–3.
+- Kỹ năng: icon từ sprite đúng class, MP/cooldown, mốc level mở chiêu và thanh nâng cấp 0–3.
 - Cường hóa: hình từng món, cấp 0–15, chỉ số hiện tại, giá cấp tiếp theo; không đủ nguyên liệu thì khóa nút. Thành công có thông báo hình trang bị.
 - Linh thú: chọn trứng bằng hình, chọn pet bằng thẻ, tên kỹ năng/cooldown ngắn. Chạm Chi tiết xem tác dụng pet đang chọn.
 - Boss/bí cảnh: hình boss và thưởng, luật đóng góp/né đòn mở trong Chi tiết. Trạng thái hồi sinh và quyền nhận rương vẫn từ server.
@@ -46,7 +47,7 @@ Hướng tiếp theo từ khảo sát: mở rộng nhiệm vụ kể chuyện d�
 
 ## Vòng chơi đã triển khai
 
-Đăng ký → chọn phái → túi và trang bị trống → gặp Sư phụ → farm và nhiệm vụ nhập môn → Phàm Nhân 3 → học skill trong thành → chọn thuộc tính/trang bị → luyện đan/tăng tầng → farm cùng đạo hữu → thử đấu trường.
+Đăng ký → chọn phái → túi và trang bị trống → gặp Sư phụ → farm và nhiệm vụ nhập môn → cấp 10 mở chiêu đầu → cộng điểm/trang bị → cấp 20/30/40 mở các chiêu tiếp → luyện đan/tăng tầng → farm cùng đạo hữu → thử đấu trường.
 
 Khung Tiên Đồ hiển thị mục tiêu hiện tại. Túi cơ bản 30 ô (tối đa 70 với nhẫn trữ vật) và tám ô trang bị hỗ trợ kéo thả/chạm. Nhân vật mới không nhận trang bị, thuốc hay trứng pet. Mua đồ tại Bảo Khí Các, nhặt từ quái ngoài bí cảnh hoặc dùng kho GM để thử.
 
@@ -59,13 +60,13 @@ Khung Tiên Đồ hiển thị mục tiêu hiện tại. Túi cơ bản 30 ô (t
 | Lôi Thương Tông | Áp sát, tích ấn, kích nổ | Tích ấn trước chiêu lớn, tận dụng trận tăng tốc đánh |
 | Thiên Cơ Môn | Tầm xa, phù, trận và phong ấn | Giữ khoảng cách, đặt vùng khống chế để nối combo |
 
-Đánh thường dùng ngay, không tốn mana; chọn mục tiêu bằng chạm/Tab và bật/tắt F. Skill phải học riêng, có mana/cooldown. Auto Z dành cho farm; kiểm tra cao hơn nên yêu cầu di chuyển và chọn thời điểm dùng chiêu.
+Đánh thường dùng ngay, không tốn mana; chọn mục tiêu bằng chạm/Tab và bật/tắt F. Skill tự mở theo level, có mana/cooldown. Auto Z dành cho farm; kiểm tra cao hơn nên yêu cầu di chuyển và chọn thời điểm dùng chiêu.
 
 ## Tu luyện và kinh tế hiện tại
 
 15 cảnh giới, mỗi cảnh giới 10 tầng, tổng 150 tầng. Tầng 1–9 dùng đạo hạnh và Linh Thạch để tăng; tầng 10 cần một Đột Phá Đan và r+1 Thăng Vị Đan để sang cảnh giới mới. Đạo Tổ 10 là giới hạn. Không có đột phá ngẫu nhiên làm mất tiến độ.
 
-Đạo hạnh dự trữ tối đa ba lần yêu cầu hiện tại, nhất quán giữa đánh quái, đả tọa, đan và nhận thưởng. Tăng tầng tiêu thụ phần đã dùng. Tăng tầng cấp ba điểm thuộc tính, đột phá năm điểm.
+Đạo hạnh dự trữ tối đa ba lần yêu cầu hiện tại, nhất quán giữa đánh quái, đả tọa, đan và nhận thưởng. Tăng tầng tiêu thụ phần đã dùng. Điểm thuộc tính chỉ nhận khi lên level nhân vật.
 
 Thăng Vị Đan rơi ngẫu nhiên: quái thường 1,5%, Linh Mạch Cốc 2,5%, đấu trường 2%; thủ lĩnh chắc chắn ít nhất một. Không tích mảnh. Trang bị quái ngoài bí cảnh rơi đúng class hoặc thuộc bốn ô dùng chung.
 
@@ -75,12 +76,12 @@ Tám ô: vũ khí, đạo bào, hộ thối, giày, pháp bảo, hộ thuẫn, n
 
 | Ô | Điều kiện | Phí |
 |---|---|---|
-| 1 | Phàm Nhân 3 | 15 Linh Thạch |
-| 2 | Luyện Khí 1 | 50 Linh Thạch |
-| 3 | Trúc Cơ 1 | 120 Linh Thạch |
-| 4 | Kim Đan 1 | 250 Linh Thạch |
+| 1 | Cấp 10 | Tự mở miễn phí |
+| 2 | Cấp 20 | Tự mở miễn phí |
+| 3 | Cấp 30 | Tự mở miễn phí |
+| 4 | Cấp 40 | Tự mở miễn phí |
 
-Học tại Truyền Công Các ở Thiên Vân Thành. Tu luyện tối đa ba cấp, mỗi cấp +8% sát thương; phí 30/60/90 Linh Thạch. Đủ cảnh giới không tự mở kỹ năng.
+Chiêu tự mở theo level cho cả bốn class, không phụ thuộc tu vi hay phí học. Truyền Công Các nâng kỹ năng tối đa ba cấp, mỗi cấp +8% sát thương; phí 30/60/90 Linh Thạch. GM vẫn mở thử cả bốn chiêu khi chưa đủ level.
 
 ## Hợp tác và thử thách
 

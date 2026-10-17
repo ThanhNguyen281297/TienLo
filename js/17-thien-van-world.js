@@ -218,7 +218,7 @@
   };
   const originalDraw=dr;
   dr=function(){originalDraw();if(previousPaused())return;const {x:cx,y:cy}=gameCamera();g.save();g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);
-    for(const s of services){const y=s.y-(s.npc?(window.creatureArt?.npcHeight(s)||36)+7:10);if(Math.abs(s.x-P.x)>W/Z||y<cy+45||y>cy+H/Z-65)continue;drawWorldLabel(g,s.name,s.x,y,s.color,7.5);
+    for(const s of services){const y=s.y+(s.farmPortal?18:12);if(Math.abs(s.x-P.x)>W/Z||y<cy||y>cy+H/Z)continue;drawWorldCaption(g,serviceCaption(s),s.x,y,s.color);
       if(state.near===s){g.strokeStyle='#f3db9b';g.lineWidth=1;g.beginPath();g.ellipse(s.x,s.y+3,18,7,0,0,Math.PI*2);g.stroke();}}
     g.restore();
   };
@@ -244,5 +244,9 @@
     .world-overview{position:static;width:min(100%,300px);height:auto;aspect-ratio:1;margin:auto;border:1px solid #768f87;border-radius:10px;image-rendering:auto}
     @media(max-width:700px){#world-minimap{width:82px;height:82px;right:8px;top:8px}#world-region{top:96px;right:8px;font-size:10px;max-width:130px}#world-guide{top:172px;left:8px;width:160px;padding:9px;font-size:10px}#world-guide b{font-size:11px}#world-interact{bottom:260px;font-size:12px}#world-dialog{padding:12px}#world-dialog section{padding:22px;max-height:90vh}}
   `;document.head.appendChild(css);
-  window.worldMap={state,regions,services,buildings,isSafe,queueActors,drawGroundDetails,resolve,travel,interact,openMap,progress,atlases,definitions,sprite,spriteBounds,asset:isolate,city:CITY,preloadSprites,npc,rebuild,stopArena,updateInterface,dialog:{show,close,line,action,isOpen:()=>dialogOpen}};updateInterface();
+  function serviceCaption(s){
+    if(s.farmPortal)return s.reverse?'Về đài':'Bãi '+s.route.name.split(' · ')[0];
+    return {quest:'Nhiệm vụ',shop:'Bảo khí',forge:'Luyện khí',teleport:'Truyền tống',arena:'Đấu trường',boss:'Đấu trường',rank:'Bảng xếp hạng',skills:'Truyền công',sectSkills:'Truyền công',mentor:'Sư phụ','valley-info':'Linh mạch'}[s.id]||s.name.split(' · ')[0];
+  }
+  window.worldMap={state,regions,services,buildings,isSafe,queueActors,drawGroundDetails,resolve,travel,interact,openMap,progress,atlases,definitions,sprite,spriteBounds,asset:isolate,city:CITY,preloadSprites,npc,rebuild,stopArena,updateInterface,serviceCaption,dialog:{show,close,line,action,isOpen:()=>dialogOpen}};updateInterface();
 })();

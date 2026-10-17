@@ -97,8 +97,14 @@ def valid_player(p):
     if not isinstance(world, dict) or world.get('map', 'sword') not in MAPS or not isinstance(world.get('bag', []), list) or len(world.get('bag', [])) > equipment_rules.capacity(world):
         raise ValueError('Túi đồ hoặc bản đồ không hợp lệ.')
     attrs=world.get('attrs',{})
-    if not isinstance(attrs,dict) or any(type(v) is not int or not 0<=v<=1000 for v in attrs.values()):
+    if not isinstance(attrs,dict) or set(attrs)-set(progression.ATTRIBUTES) or any(type(v) is not int or not 0<=v<=1000 for v in attrs.values()):
         raise ValueError('Thuộc tính không hợp lệ.')
+    points=world.get('attrPoints',0)
+    if type(points) is not int or not 0<=points<=100000:
+        raise ValueError('Điểm thuộc tính không hợp lệ.')
+    credited=world.get('attributeLevel')
+    if credited is not None and (type(credited) is not int or not 1<=credited<=progression.level(p)):
+        raise ValueError('Mốc nhận điểm thuộc tính không hợp lệ.')
     equipment=world.get('equip',{})
     if not isinstance(equipment,dict) or set(equipment)-set(equipment_rules.RULES['slots']):
         raise ValueError('Ô trang bị không hợp lệ.')

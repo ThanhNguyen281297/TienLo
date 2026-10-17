@@ -229,21 +229,29 @@
     linh: { name: 'Linh', desc: '+8 linh lực, +0.5% skill / điểm' }
   };
   function openAttrs() {
+    characterProgression.normalize();
     const p = progress(), b = window.bonusStats();
-    dialog.show('Thuộc tính · Cấp '+characterLevel()+' · ' + (window.cultivation ? cultivation.realmName() : ''), 'Tăng tầng +3 điểm, đột phá +5 điểm. Điểm còn: ' + p.attrPoints);
+    dialog.show('Thuộc tính · Cấp '+characterLevel()+' · ' + (window.cultivation ? cultivation.realmName() : ''), 'Mỗi level +3 điểm. Điểm còn: ' + p.attrPoints);
     dialog.line('EXP '+P.levelXp+'/'+characterProgression.required(characterLevel())+' · Tu vi '+Math.floor(P.xp)+'/'+need());
     dialog.line('Công ' + Math.round(atk()) + ' · Máu ' + mhp() + ' · Linh ' + mmp() + ' · Bạo ' + Math.round(b.crit * 100) + '% · Né ' + Math.round(b.dodge * 100) + '% · Skill +' + Math.round(b.skill * 100) + '%');
     dialog.line('Hút máu '+((b.lifesteal||0)*100).toFixed(2)+'% · Hút linh lực '+((b.manasteal||0)*100).toFixed(2)+'% · Kháng '+((b.resist||0)*100).toFixed(2)+'% · Hồi máu '+(b.regen||0).toFixed(2)+'/s');
+    const form=document.createElement('form'),inputs={},status=document.createElement('output'),apply=document.createElement('button');
+    form.id='attribute-allocation';status.setAttribute('aria-live','polite');apply.type='submit';apply.textContent='Cộng điểm';
+    const amount=key=>Number(inputs[key].value),total=()=>Object.keys(inputs).reduce((n,key)=>n+amount(key),0);
+    function refreshDraft(){const sum=total(),valid=Object.entries(inputs).every(([key,input])=>input.value!==''&&Number.isInteger(amount(key))&&amount(key)>=0&&amount(key)<=1000-(p.attrs[key]||0));
+      status.textContent=!valid?'Nhập số nguyên không âm.':sum>p.attrPoints?'Vượt '+(sum-p.attrPoints)+' điểm hiện có.':'Dùng '+sum+' · Còn '+(p.attrPoints-sum)+' điểm';
+      apply.disabled=!valid||sum<=0||sum>p.attrPoints;}
     for (const key of ['luc', 'the', 'nhanh', 'linh']) {
-      const info = ATTR_INFO[key];
-      dialog.line(info.name + ' ' + (p.attrs[key] || 0) + ' · ' + info.desc);
-      dialog.action('+' + info.name + ' (1 điểm)', () => {
-        if (p.attrPoints <= 0) return msg('Hết điểm. Tăng tầng/đột phá để nhận thêm.');
-        p.attrPoints--; p.attrs[key]++;
-        P.hp = Math.min(mhp(), P.hp + 20); P.mp = Math.min(mmp(), P.mp + 10);
-        saveCharacter(); openAttrs();
-      }, p.attrPoints <= 0);
+      const info=ATTR_INFO[key],row=document.createElement('div'),label=document.createElement('label'),value=document.createElement('b'),hint=document.createElement('small'),input=document.createElement('input'),max=document.createElement('button');
+      row.className='attribute-row';input.type='number';input.id='attribute-'+key;input.name=key;input.min=0;input.max=Math.min(p.attrPoints,1000-(p.attrs[key]||0));input.step=1;input.value='0';input.inputMode='numeric';input.required=true;input.disabled=p.attrPoints<=0;inputs[key]=input;
+      label.htmlFor=input.id;value.textContent=info.name+' · '+(p.attrs[key]||0);hint.textContent=info.desc;label.append(value,hint);input.setAttribute('aria-label','Điểm cộng '+info.name);input.oninput=refreshDraft;
+      max.type='button';max.textContent='Tối đa';max.disabled=input.disabled;max.setAttribute('aria-label','Cộng tối đa '+info.name);max.onclick=()=>{const other=total()-amount(key);input.value=String(Math.max(0,Math.min(1000-(p.attrs[key]||0),p.attrPoints-(Number.isFinite(other)?other:0))));refreshDraft();};
+      row.append(label,input,max);form.append(row);
     }
+    form.append(status,apply);$('world-content').append(form);refreshDraft();
+    form.onsubmit=event=>{event.preventDefault();refreshDraft();if(apply.disabled||!form.reportValidity())return;
+      const sum=total(),health=mhp(),mana=mmp();for(const key of Object.keys(inputs))p.attrs[key]=(p.attrs[key]||0)+amount(key);p.attrPoints-=sum;
+      P.hp=Math.min(mhp(),P.hp+Math.max(0,mhp()-health));P.mp=Math.min(mmp(),P.mp+Math.max(0,mmp()-mana));saveCharacter();openAttrs();};
     dialog.action('Mở túi đồ', openBag);
   }
   let selectedUid=null;

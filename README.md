@@ -37,11 +37,15 @@ Thấy người chơi khác cùng bản đồ, chat và biểu cảm. Quái farm
 ## Điều khiển
 
 - WASD/mũi tên/chạm kéo: di chuyển; Tab/chạm quái: chọn mục tiêu; F: đánh thường; Z: auto.
-- 1–4/Space: skill; chuột/chạm kéo nút skill để ngắm. Skill cần học tại Truyền Công Các.
-- Q: đả tọa; B: tăng tầng/đột phá tại vùng an toàn; C: tu luyện; M: bản đồ; E: tương tác NPC.
+- 1–4/Space: skill; chuột/chạm kéo nút skill để ngắm. Tự mở ở cấp 10/20/30/40; nâng chiêu tại Truyền Công Các.
+- Q: đả tọa; B: tăng tầng/đột phá tại vùng an toàn; M: bản đồ; E: tương tác NPC.
 - I: túi cơ bản 30 ô, nhẫn trữ vật mở thêm tối đa 40 ô; U: thuộc tính. Kéo đồ vào tám ô trang bị, kéo về ô túi trống để tháo. Trên mobile kéo bằng chạm hoặc chọn đồ rồi nhấn Trang bị.
 
 ## Gameplay và hình ảnh
+
+Mỗi lần lên level nhận 3 điểm thuộc tính; tăng tầng/đột phá không cấp điểm. Nhập số điểm cho từng dòng rồi Cộng điểm một lần, hoặc chọn Tối đa. Nhân vật cũ giữ điểm đã cộng và điểm dư, chỉ bù phần thiếu tới `3 × (level − 1)`; mốc `world.attributeLevel` chống nhận lặp khi tải lại. Bốn chiêu tự mở miễn phí ở cấp 10/20/30/40 cho mọi class, độc lập với tu vi. Truyền Công Các chỉ nâng chiêu đã mở. Kiểm tra bằng `node tests/level-attributes-skills.test.cjs` và `python tests/test_character_progression.py`.
+
+Tên dịch vụ/NPC là chữ nhỏ dưới chân, không có mô tả trên đầu. `js/32b-living-world.js` giữ nguyên công trình, va chạm và đường truyền tống; tách chuyển động tán cây, gợn nước, lửa lò/đèn, linh khí theo bãi luyện và mây tiền cảnh. Tắt chuyển động khi pause hoặc reduced-motion. Buff thuẫn tăng sắc độ và độ đậm, giữ mặt nhân vật ở lớp trước. Kiểm tra bằng `node tests/living-world.test.cjs`, `node tests/map-themes.test.cjs` và `node tests/equipment-animation.test.cjs`.
 
 Cấp nhân vật (1–200) và tu vi tách riêng. Đánh quái/nhận thưởng nhiệm vụ cho EXP tự lên cấp, giữ EXP dư; EXP cần cho cấp tiếp theo là `100 + 45×(cấp−1) + 12×(cấp−1)²`. Mỗi cấp thêm 6 HP, 2 MP và 0,8 Công gốc. Tu vi vẫn giữ 15 cảnh giới × 10 tầng, dùng đạo hạnh, Linh Thạch và đan để tăng tầng/đột phá. Đả tọa và Tu Vi Đan chỉ tăng tu vi. Nhân vật cũ giữ nguyên tu vi/đạo hạnh; level khởi tạo bằng `cảnh giới×10 + tầng`, EXP level bằng 0. Hai thanh EXP/tu vi hiện trên HUD.
 
@@ -53,7 +57,7 @@ Skill dùng đường khí uốn liên tục, quỹ đạo tụ lực–tung chi
 
 Skill dùng các bộ phận ảnh riêng: từng kiếm/nguyệt nhận bay độc lập; thân rồng có 28 khớp theo đường đầu rồng; phượng có khớp vai/khuỷu, đập cánh, lao xuống và tỏa phù. Điểm lao trúng khớp thời điểm gây sát thương. Lớp ảnh nguyên con đung đưa đã được gỡ khỏi renderer. Nguồn ImageGen và prompt tại [Skill/VFX/rig-parts-v3.prompt.md](Skill/VFX/rig-parts-v3.prompt.md). Vũ khí đeo thu nhỏ 19%, thuẫn 21% để thân nhân vật dễ nhìn.
 
-Kiếm/Liềm bổ sung [bộ ảnh chuyển động riêng](Skill/VFX/sword-moon-parts-v4.prompt.md): 30 kiếm rơi thành sáu đợt, đại kiếm kết liễu, hai nhịp nguyệt trảm, bão nguyệt nhận, nguyệt thực và vỡ trăng. `node tests/four-class-skills.test.cjs` thử đủ 16 nút skill của bốn class, icon/tên, hiệu ứng và sát thương khi đã học chiêu, không bật GM.
+Kiếm/Liềm bổ sung [bộ ảnh chuyển động riêng](Skill/VFX/sword-moon-parts-v4.prompt.md): 30 kiếm rơi thành sáu đợt, đại kiếm kết liễu, hai nhịp nguyệt trảm, bão nguyệt nhận, nguyệt thực và vỡ trăng. `node tests/four-class-skills.test.cjs` thử đủ 16 nút skill của bốn class, icon/tên, hiệu ứng và sát thương ở cấp 40/Phàm Nhân 1, không bật GM.
 
 ## Cấu trúc
 

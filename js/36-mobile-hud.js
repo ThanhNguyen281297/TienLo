@@ -58,7 +58,7 @@
   function refresh(){const ready=!!P.ap&&account.state.ready&&cr.style.display==='none'&&ttl.style.display==='none';document.body.classList.toggle('game-controls-ready',ready);document.body.classList.toggle('controls-paused',worldMap.dialog.isOpen());
     if(!ready||paused()||worldMap.dialog.isOpen()){reset();closeMenu();}
     const attacking=!!cultivation.basicSelection?.().attacking;$('basic-attack').setAttribute('aria-pressed',String(attacking));$('auto-button').setAttribute('aria-pressed',String(autoCombat.state.enabled));
-    const combat=getClassCombatSafe();[...sb.children].forEach((b,i)=>{const cd=Math.max(0,combat.state.cooldown?.[i]||0);b.dataset.cooldown=cd>.05?String(Math.ceil(cd)):'';});
+    const combat=getClassCombatSafe();[...sb.children].forEach((b,i)=>{const cd=Math.max(0,combat.state.cooldown?.[i]||0);b.dataset.cooldown=cd>.05?String(Math.ceil(cd)):'';b.dataset.unlockLevel=cultivation.requirements[i].level;});
   }
   const update=up;up=function(dt){if(paused()||worldMap.dialog.isOpen())reset();update(dt);refresh();};
   const create=$('ok').onclick;$('ok').onclick=function(...args){const result=create(...args);refresh();return result;};

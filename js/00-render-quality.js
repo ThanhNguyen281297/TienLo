@@ -35,4 +35,9 @@
     ctx.beginPath();ctx.roundRect(x-width/2,y-height/2,width,height,3);ctx.fill();ctx.stroke();
     ctx.fillStyle=color;ctx.fillText(text,x,y+.2);ctx.restore();
   };
+  // Ground captions have no panel, faction dot or second description line.
+  window.drawWorldCaption=function(ctx,text,x,y,color='#e0e7da',size=6.5){
+    ctx.save();ctx.font='500 '+size+'px Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+    ctx.strokeStyle='rgba(9,24,30,.85)';ctx.lineWidth=1.5;ctx.strokeText(text,x,y);ctx.fillStyle=color;ctx.fillText(text,x,y);ctx.restore();
+  };
 })();

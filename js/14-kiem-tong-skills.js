@@ -113,7 +113,7 @@
   skill=function(index) {
     if(!isSword())return legacySkill(index);
     if(paused()||!Number.isInteger(index)||index<0||index>3||state.dash)return;
-    if(!window.gmTest?.enabled&&P.r<index)return msg('Cần đạt '+R[index]+' để dùng '+NAMES[index]+'.');
+    if(!window.gmTest?.enabled&&characterLevel()<characterProgression.SKILL_LEVELS[index])return msg(NAMES[index]+' mở ở cấp '+characterProgression.SKILL_LEVELS[index]+'.');
     if(state.cooldown[index]>0||P.mp<MANA[index])return;
     if(state.ultimate)return msg('Đang thi triển Vạn Kiếm Quy Tông.');
     if((index===0||index===2)&&state.flying.length)return msg('Chờ phi kiếm trở về để thi triển.');
