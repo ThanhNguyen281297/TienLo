@@ -395,22 +395,6 @@
     if (k === 'i' && !e.repeat) openBag();
     if (k === 'u' && !e.repeat) openAttrs();
   });
-  // Nối vào màn Tu luyện (C) để dễ phát hiện tính năng mới.
-  try {
-    if (window.cultivation && cultivation.overview) {
-      const baseOverview = cultivation.overview;
-      cultivation.overview = function () {
-        baseOverview();
-        try {
-          const p = progress(), b = window.bonusStats();
-          dialog.line('Thuộc tính: ' + p.attrPoints + ' điểm còn · Lực' + p.attrs.luc + ' Thể' + p.attrs.the + ' Nhanh' + p.attrs.nhanh + ' Linh' + p.attrs.linh);
-          dialog.line('Trang bị: Công+' + b.atk + ' Máu+' + b.hp + ' Giáp+' + b.armor + ' · Túi ' + p.bag.length + '/30');
-          dialog.action('Mở túi đồ (I)', openBag);
-          dialog.action('Bảng thuộc tính (U)', openAttrs);
-        } catch (e) {}
-      };
-    }
-  } catch (e) {}
   const style = document.createElement('style');
   style.textContent = '#bag-button,#attr-button{border-color:#7fd8c4}#world-content .world-line{white-space:normal}';
   document.head.appendChild(style);

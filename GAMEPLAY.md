@@ -170,3 +170,7 @@ Thái Cổ Chiến Trường là map boss chung mọi cảnh giới/tầng luy�
 Mỗi người cần đóng góp min(1% HP boss, 6× công hiện tại), tối đa 300; cả sát thương pet/độc được tính. Phải còn sống, ở chiến trường, online và gây sát thương trong 60 giây cuối khi boss chết. Người đủ điều kiện nhận một rương: 250 Linh Thạch +60 Linh Nguyên +5 mảnh bí cảnh; không giành đòn cuối. HP, encounter, đóng góp và thời điểm tái xuất lưu SQLite; restart không làm boss hồi đầy hoặc nhân đôi rương. Boss tái xuất sau 5 phút tính từ khi bị hạ, có bảng đếm ngược.
 
 Rương boss lưu riêng đến khi nhận tại vùng an toàn. Các thao tác nhận rương, nhận nhiệm vụ, đóng góp/lập môn khóa transaction, kiểm tra revision và mã thao tác; cập nhật nhân vật và đánh dấu đã nhận trong cùng giao dịch. Client lưu xong rồi tạm khóa autosave, nhận snapshot/revision mới từ server và đồng bộ lại trước khi tiếp tục. Dữ liệu quái mạng đang về trong lúc giao dịch sẽ chờ frame kế tiếp để tránh ghi đè phần thưởng.
+
+## Gỡ mục giao diện theo yêu cầu
+
+Đã bỏ Bách khoa, toàn bộ tra cứu/phân trang và nút Tu luyện (C), gỡ liên kết và phím tắt C. Tiên Đồ chuyển nút xem tu luyện thành Thuộc tính. Tiến trình tăng tầng/đột phá, học và nâng kỹ năng tại NPC vẫn hoạt động với dữ liệu cũ. Các mô tả Bách khoa ở phần lịch sử phía trên không còn áp dụng cho bản hiện tại.
