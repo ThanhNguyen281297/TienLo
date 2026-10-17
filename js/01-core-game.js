@@ -6,7 +6,7 @@ let P={x:1000,y:1000,hp:100,mp:20,xp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,
 function saveCharacter(){if(window.saveLocalCharacter)window.saveLocalCharacter()}
 const cultivationLevel=()=>P.r*10+(P.stage||1)-1;
 const bonusStats=()=>{try{return window.bonusStats?window.bonusStats():{atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}catch(e){return {atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}};
-const mhp=()=>Math.round((100+cultivationLevel()*6+(bonusStats().hp||0))*(1+(bonusStats().setBonus||0))*(1+(bonusStats().hpPercent||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(bonusStats().mp||0))*(1+(bonusStats().setBonus||0))*(1+(bonusStats().mpPercent||0))),atk=()=>(8+cultivationLevel()*1.3+(bonusStats().atk||0))*(1+(bonusStats().setBonus||0))*(1+(bonusStats().atkPercent||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
+const mhp=()=>Math.round((100+cultivationLevel()*6+(bonusStats().hp||0))*(1+(bonusStats().hpPercent||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(bonusStats().mp||0))*(1+(bonusStats().mpPercent||0))),atk=()=>(8+cultivationLevel()*1.3+(bonusStats().atk||0))*(1+(bonusStats().atkPercent||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
 let E=[],B=[],X=[],K={},ptr=null,W,H,tm=0,sv=0;
 function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight)));Z=1.8*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
 function gameCamera(vw=W/Z,vh=H/Z){return {x:P.x-vw/2,y:P.y-vh/2,vw,vh};}
@@ -18,7 +18,7 @@ for(let i=0;i<32;i++)spawn(i);
 const fx=(x,y,t,c)=>{X.push({x,y,t,c,l:.9,vx:((X.length%3)-1)*5,strong:typeof t==='number'&&t>atk()*1.5});if(X.length>64)X.shift();};
 const near=r=>{let b=null,bd=r*r;for(const e of E){if(e.dead)continue;const d=(e.x-P.x)**2+(e.y-P.y)**2;if(d<bd){bd=d;b=e}}return b};
 function hit(e,v){const k=T[e.t];v=Math.round(v);e.hp-=v;fx(e.x,e.y-k.s,v,'#ffd27a');
- if(e.hp<=0){e.dead=8;const experience=e.xpReward??k.xp;P.xp=Math.min(need()*3,P.xp+experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
+ if(e.hp<=0){e.dead=8;if(e.rift)return;const experience=e.xpReward??k.xp;P.xp=Math.min(need()*3,P.xp+experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
 function cast(){if(P.scd>0||P.mp<10)return;const e=near(320);let vx=P.f,vy=0;
  if(e){const d=Math.hypot(e.x-P.x,e.y-P.y)||1;vx=(e.x-P.x)/d;vy=(e.y-P.y)/d}
  P.mp-=10;P.scd=1;B.push({x:P.x,y:P.y-8,vx:vx*280,vy:vy*280,l:1.2})}

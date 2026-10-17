@@ -63,7 +63,7 @@ class OnlineServerTest(unittest.TestCase):
             for _ in range(20):server.community.record_kill(db,{uid,mid})
         self.assertEqual(self.request('/api/community',cookie=owner[0])[1]['guild']['tasks']['kills'],20)
         claimed=self.social_action(member,'task_claim',task='kills');self.assertEqual(claimed[0],200)
-        self.assertEqual(claimed[1]['character']['player']['world']['riftShards'],1)
+        self.assertNotIn('riftShards',claimed[1]['character']['player']['world'])
         self.assertEqual(self.social_action(member,'task_claim',task='kills')[0],409)
         self.assertEqual(self.social_action(member,'guild_kick',target=uid)[0],409)
         stale=self.social_action(owner,'guild_donate',revision=0);self.assertEqual(stale[0],409);self.assertTrue(stale[1]['conflict'])
@@ -124,26 +124,20 @@ class OnlineServerTest(unittest.TestCase):
         self.assertEqual(self.social_action(a,'reward_claim',id=chest[0]['id'])[0],409)
         self.assertEqual(self.social_action(watcher,'reward_claim',id=chest[0]['id'])[0],409)
 
-    def test_collection_catalog_stats_mixed_sets_and_validation(self):
-        source=(server.ROOT/'js/24b-build-catalog.js').read_text(encoding='utf-8')
-        self.assertEqual(json.loads(source.split('window.buildCatalog=',1)[1].strip().removesuffix(';')),server.BUILD_RULES)
-        p=self.player();slots=list(server.BUILD_RULES['slots'])
-        for set_id in ('phong','kim','nguyet','linh'):
-            for level in (0,10,25,45):
-                p['world']['equip']={slot:{**server.collection_item(f'rift-{set_id}-{slot}-{level}'),'uid':slot} for slot in slots}
-                for item in p['world']['equip'].values():
-                    if server.equipment_rules.pool(item):item['affixes']=server.equipment_rules.defaults(item)
-                server.valid_player(p)
-            result=server.collection_bonuses(p)
-            self.assertTrue(result)
-            if set_id=='linh':self.assertEqual((result['petPower'],result['petCooldown']),(.25,.2))
-            if set_id=='phong':self.assertAlmostEqual(server.player_attack(p),(8+30)*1.07)
-        p['world']['equip']={slot:{**server.collection_item(f'rift-{"phong" if i<4 else "kim"}-{slot}-0'),'uid':slot} for i,slot in enumerate(slots)}
-        mixed=server.collection_bonuses(p);self.assertEqual((mixed['atkPercent'],mixed['crit'],mixed['hpPercent']),(.06,.03,.1));self.assertEqual(mixed['skill'],0)
-        p['world']['equip']['vukhi']['atk']=999
+    def test_class_equipment_validation_and_retired_sets(self):
+        p=self.player();server.equipment_rules.normalize(p)
+        for cls in range(4):
+            p['ap']['w']=cls
+            for template in server.equipment_rules.RULES['classGear']:
+                p['world']['equip']={template['slot']:{**template,'uid':'test-item'}}
+                if template['classIndex']==cls:server.valid_player(p)
+                else:
+                    with self.assertRaises(ValueError):server.valid_player(p)
+        p['world']['equip']={'vukhi':dict(id='rift-phong-vukhi-0',slot='vukhi',setId='phong',uid='old',rarity='pham')}
         with self.assertRaises(ValueError):server.valid_player(p)
-        p['world']['equip']['vukhi']={'id':'moc-kiem','uid':'fake','rarity':'pham','setId':'phong'}
-        with self.assertRaises(ValueError):server.valid_player(p)
+        source=(server.ROOT/'index.html').read_text(encoding='utf-8')
+        self.assertNotIn('25c-equipment-sets.js',source)
+        self.assertNotIn('24b-build-catalog.js',source)
 
     def test_authenticated_pet_damage_cooldown_poison_frost_and_peer_metadata(self):
         import time
@@ -186,16 +180,16 @@ class OnlineServerTest(unittest.TestCase):
 
     def test_enhancement_levels_set_tiers_and_pet_validation(self):
         player=self.player()
-        slots=server.equipment_rules.RULES['combatSlots']
-        player['world']['equip']={slot:dict(id=slot,uid=slot,slot=slot,rarity='pham',atk=2,enhance=0) for slot in slots}
-        for item in player['world']['equip'].values():
-            if server.equipment_rules.pool(item):item['affixes']=server.equipment_rules.defaults(item)
-        for level,tier,multiplier in [(0,0,1),(8,0,1),(9,9,1.05),(11,11,1.1),(13,13,1.15),(14,13,1.15),(15,15,1.2)]:
+        player['world']['equip']={}
+        for slot in server.equipment_rules.RULES['enhanceSlots']:
+            template=next(t for t in server.equipment_rules.RULES['classGear'] if t['slot']==slot and t['req']==0 and t['classIndex']==0)
+            player['world']['equip'][slot]=dict(template,uid=slot,enhance=0)
+        for level in (0,8,9,11,13,14,15):
             for item in player['world']['equip'].values():item['enhance']=level
             server.valid_player(player)
-            attack,bonus,actual_tier=server.equipment_stats(player)
-            self.assertEqual((actual_tier,bonus),(tier,multiplier))
-            self.assertAlmostEqual(attack,12*(1+.05*level))
+            attack,bonus,tier=server.equipment_stats(player)
+            self.assertEqual((tier,bonus),(0,1))
+            self.assertAlmostEqual(attack,3*(1+.05*level))
         player['world']['equip']['giay']=None
         self.assertEqual(server.equipment_stats(player)[1],1)
         for invalid in (16,-1,1.5,True):

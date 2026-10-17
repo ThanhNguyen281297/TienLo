@@ -10,7 +10,11 @@
 
 ## Quy tắc
 
-Tám ô trang bị: vũ khí, áo, chân, giày, pháp bảo, hộ thuẫn, nhẫn và pháp trận. Sáu món chiến đấu tính bộ bí cảnh/cường hóa; nhẫn và pháp trận là ô riêng. Pháp bảo, hộ thuẫn, pháp trận và nhẫn không giới hạn class; yêu cầu cấp của món đồ vẫn áp dụng. Hình lưng, thuẫn, pháp trận và chi tiết nhẫn ở tay theo món đang mặc, kể cả khi người chơi khác nhìn thấy. `classIndex` trong catalog chỉ ghi nguồn kiểu dáng ảnh, không khóa class. Nhẫn chỉ thêm 10/20/30/40 ô cho túi mặc định 30 ô, không tăng công hoặc bạo kích. Không thể tháo/đổi nhẫn nếu túi vượt sức chứa mới.
+Bốn ô trái: vũ khí, đạo bào, hộ thối, giày; có `classIndex` bắt buộc khớp class người mang. Có 60 template riêng (15 mỗi class) và chỉ những món này được cường hóa +15, không có thưởng full set. Class yêu cầu hiện trong chi tiết món và kho GM.
+
+Bốn ô phải: pháp bảo lưng, hộ thuẫn, nhẫn trữ vật và pháp trận; dùng chung cho mọi class, không cường hóa. Chỉ `classIndex` của bốn ô này ghi kiểu ảnh gốc. Nhẫn thêm 10/20/30/40 ô cho túi 30 ô; không thể tháo nếu túi không đủ chỗ. Pháp bảo, thuẫn và pháp trận hiển thị theo món đang mặc.
+
+Nhân vật mới không có đồ, thuốc hay trứng trong túi và không mặc món nào. Bật GM mở kho 94 vật phẩm, lọc/tìm và lấy đồ hoặc mặc thử. GM bỏ yêu cầu cấp để thử, vẫn giữ giới hạn class của bốn ô trái.
 
 Pháp bảo và hộ thuẫn luôn có năm dòng khác loại. Đồ mới có năm dòng tối thiểu; tẩy luyện tiêu 60 Linh Thạch và 12 Linh Nguyên, server chọn lại cả năm dòng. Số phần trăm trong JSON là basis point: `100` = 1%. Dòng cố định dùng số nguyên, riêng hồi sinh lực chia 100 HP/giây. Dòng tẩy luyện không nhân theo cường hóa. Tổng né giới hạn 20%, bạo kích 35%, kháng sát thương 15%.
 
@@ -18,7 +22,7 @@ Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25)
 
 ## Di chuyển dữ liệu
 
-`equipment.py` chuyển dữ liệu một lần khi khởi động: nhẫn bộ bí cảnh cũ sang hộ thối, linh ngọc cũ sang thuẫn, pháp bảo cũ sang lưng theo class. Giữ UID và cường hóa; tặng lại ô pháp trận để giữ hình cũ. JSON gốc được giữ trong bảng `equipment_migration_backup`. Đồ/phôi mới nằm trong rương giữ nguyên số lượng, không xóa đồ vì thiếu ô.
+`equipment.py` chuyển bản lưu cũ sang trang bị độc lập, giữ UID, đồ sở hữu, dòng tẩy luyện và cấp cường hóa đã lưu. Cường hóa cũ của đồ phải không còn tác dụng. Mảnh bí cảnh đổi 20 Linh Thạch/mảnh; mảnh Thăng Vị đổi 1 Linh Thạch/mảnh. Món bí cảnh chờ nhận được chuyển vào túi, hoặc hoàn Linh Thạch nếu túi đầy. JSON gốc được giữ trong bảng backup và bản sao DB trước deploy. Không còn tính năng bộ đồ hoặc đổi mảnh. Bí cảnh chỉ thưởng Linh Thạch.
 
 Toàn bộ asset chia bốn gốc `Character`, `Map`, `Item`, `Skill`, phân biệt chữ hoa/thường trên Ubuntu. Không xóa atlas, ảnh nguồn hoặc video người dùng cung cấp. Chỉ bỏ hai icon ngọc/đỉnh đã hết vai trò và các thư mục trống sau khi chuyển.
 

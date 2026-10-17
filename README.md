@@ -43,7 +43,7 @@ Thấy người chơi khác cùng bản đồ, chat và biểu cảm. Quái farm
 
 ## Gameplay và hình ảnh
 
-Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới nhận đồ cơ bản và thuốc. Mục tiêu tiên đồ hướng dẫn gặp Sư phụ, tăng tầng, học skill và đột phá. Mỗi 20 quái nhận một Thăng Vị Đan qua tích mảnh, bên cạnh drop ngẫu nhiên/thủ lĩnh; giữ tiến độ dù chưa gặp may.
+Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới bắt đầu với túi và tám ô trang bị trống. Bật GM mở kho 94 vật phẩm để lấy/mặc thử; bốn ô trái cần đúng class, bốn ô phải dùng chung. Chỉ bốn ô trái cường hóa +15. Bí cảnh chỉ thưởng Linh Thạch; bộ trang bị và các loại mảnh đã được gỡ.
 
 Túi có icon, màu phẩm chất, preview nhân vật, sắp xếp và panel chi tiết. Vũ khí phát sáng mạnh hơn theo phẩm chất; skill/hit có vòng sáng và hạt theo phái. Giữ sprite/asset nguồn và phối cảnh bản đồ. Xem [GAMEPLAY.md](GAMEPLAY.md).
 

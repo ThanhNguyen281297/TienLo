@@ -217,7 +217,7 @@
       ctx.restore();
     };
     const drawWeapon = () => {
-      if (!ready(images.vukhi)) return;
+      if ((ap===P.ap&&!gear)||(ap!==P.ap&&ap?.weaponId===null)||!ready(images.vukhi)) return;
       ctx.save();
       ctx.translate(wx, wy);
       ctx.rotate(angle);

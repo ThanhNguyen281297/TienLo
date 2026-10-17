@@ -9,7 +9,7 @@
   $('bt').appendChild(button);
   button.onclick=()=>{
     if(!P.ap)return;
-    gmTest.enabled=!gmTest.enabled;button.setAttribute('aria-pressed',String(gmTest.enabled));
+    gmTest.enabled=!gmTest.enabled;window.dispatchEvent(new CustomEvent('tienlo-gm-change',{detail:{enabled:gmTest.enabled}}));button.setAttribute('aria-pressed',String(gmTest.enabled));
     button.textContent=gmTest.enabled?'GM · Đang test · Tắt':'GM · Test skill';
     getClassCombat().state.cooldown.fill(0);P.mp=gmTest.enabled?Math.max(mmp(),...combatMana[P.ap.w]):Math.min(P.mp,mmp());cultivation.refresh();
     msg(gmTest.enabled?'GM Test: mở tạm 4 skill, hồi linh lực, không chờ hồi chiêu; tăng tầng, đột phá và cường hóa miễn phí.':'Đã tắt GM Test, khôi phục điều kiện kỹ năng và chi phí tu luyện, cường hóa.');

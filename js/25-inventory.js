@@ -10,24 +10,12 @@
   };
   // id, slot/type, chỉ số, yêu cầu cultivationLevel, giá mua.
   const TEMPLATES = [
-    { id: 'moc-kiem', slot: 'vukhi', name: 'Mộc Kiếm', rarity: 'pham', atk: 3, price: 20, req: 0, desc: 'Kiếm gỗ cho tân thủ.' },
-    { id: 'huyen-kiem', slot: 'vukhi', name: 'Huyền Thiết Kiếm', rarity: 'huyen', atk: 8, hp: 20, price: 80, req: 10, desc: 'Rèn từ huyền thiết.' },
-    { id: 'linh-kiem', slot: 'vukhi', name: 'Linh Quang Kiếm', rarity: 'linh', atk: 15, crit: 0.03, price: 200, req: 25, desc: 'Ẩn chứa linh quang.' },
-    { id: 'tien-kiem', slot: 'vukhi', name: 'Cửu Tiêu Tiên Kiếm', rarity: 'tien', atk: 28, crit: 0.06, skill: 0.08, price: 500, req: 45, desc: 'Tiên kiếm lôi vân.' },
-    { id: 'vai-bao', slot: 'daobao', name: 'Vải Bố Đạo Bào', rarity: 'pham', armor: 2, hp: 20, price: 20, req: 0, desc: 'Đạo bào thô sơ.' },
-    { id: 'huyen-bao', slot: 'daobao', name: 'Huyền Tơ Đạo Bào', rarity: 'huyen', armor: 4, hp: 60, price: 90, req: 10, desc: 'Mềm mà chắc.' },
-    { id: 'linh-giap', slot: 'daobao', name: 'Linh Quang Giáp', rarity: 'linh', armor: 7, hp: 120, dodge: 0.02, price: 220, req: 25, desc: 'Hộ thể linh quang.' },
-    { id: 'tien-y', slot: 'daobao', name: 'Thiên Tằm Tiên Y', rarity: 'tien', armor: 12, hp: 220, dodge: 0.04, price: 550, req: 45, desc: 'Tiên y bất hoại.' },
-    { id: 'vai-giay', slot: 'giay', name: 'Vải Bố Hài', rarity: 'pham', hp: 15, dodge: 0.01, price: 15, req: 0, desc: 'Nhẹ chân.' },
-    { id: 'than-hanh-ngoa', slot: 'giay', name: 'Thần Hành Ngoa', rarity: 'huyen', hp: 40, dodge: 0.025, price: 70, req: 10, desc: 'Đi như gió.' },
-    { id: 'dang-van-ngoa', slot: 'giay', name: 'Đằng Vân Ngoa', rarity: 'linh', hp: 90, dodge: 0.04, price: 190, req: 25, desc: 'Cưỡi mây.' },
-    { id: 'hoi-huyet-dan', type: 'consume', name: 'Hồi Huyết Đan', rarity: 'pham', price: 12, heal: 80, desc: 'Hồi 80 khí huyết.' },
-    { id: 'hoi-linh-dan', type: 'consume', name: 'Hồi Linh Đan', rarity: 'pham', price: 12, mana: 40, desc: 'Hồi 40 linh lực.' },
-    { id: 'tu-vi-dan', type: 'consume', name: 'Tu Vi Đan', rarity: 'huyen', price: 25, xp: 30, desc: '+30 đạo hạnh.' }
+    {id:'hoi-huyet-dan',type:'consume',name:'Hồi Huyết Đan',rarity:'pham',price:12,heal:80,desc:'Hồi 80 khí huyết.'},
+    {id:'hoi-linh-dan',type:'consume',name:'Hồi Linh Đan',rarity:'pham',price:12,mana:40,desc:'Hồi 40 linh lực.'},
+    {id:'tu-vi-dan',type:'consume',name:'Tu Vi Đan',rarity:'huyen',price:25,xp:30,desc:'+30 đạo hạnh.'}
   ];
   for(const [species,name] of [['BoNgua','Linh Đường Lang'],['Tho','Nguyệt Thố'],['Nhen','Huyết Nhện'],['Doi','Băng Dực Dơi']])TEMPLATES.push({id:'egg-'+species,type:'egg',species,name:'Trứng '+name,rarity:'huyen',price:0,desc:'Ấp để nở linh thú '+name+'.'});
   TEMPLATES.push(...equipmentData.templates);
-  for(const [i,req]of [0,10,25,45].entries())TEMPLATES.push({id:'chan-'+i,slot:'chan',name:['Thanh Vân Hộ Thối','Huyền Tơ Hộ Thối','Linh Quang Hộ Thối','Thiên Tằm Hộ Thối'][i],rarity:['pham','huyen','linh','tien'][i],req,armor:1+i*2,hp:15+i*25,price:20+i*90,desc:'Bảo vệ đôi chân khi giao chiến.'});
   const BY_ID = Object.fromEntries(TEMPLATES.map(t => [t.id, t]));
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'it-' + Date.now() + '-' + Math.floor(Math.random() * 1e9));
 
@@ -40,17 +28,16 @@
     return P.ap?equipmentData.normalize(p):p;
   }
   function makeItem(id, qty = 1) {
-    const t = BY_ID[id];
+    const t = BY_ID[equipmentData.canonicalId(id)];
     if (!t) return null;
     const item = Object.assign({}, t);
-    const wi=['moc-kiem','huyen-kiem','linh-kiem','tien-kiem'].indexOf(id);if(wi>=0)item.name=equipmentRules.weaponNames[P.ap?.w||0][wi];
     item.uid = uid();
     if(equipmentData.pool(item).length)item.affixes=equipmentData.defaults(item);
     if (['consume','egg'].includes(item.type)) item.qty = qty;
     return item;
   }
   function addItem(id, qty = 1) {
-    const p = progress(), t = BY_ID[id];
+    const p = progress(), t = BY_ID[equipmentData.canonicalId(id)];
     if (!t) return null;
     if (['consume','egg'].includes(t.type)) {
       const found = p.bag.find(i => i.id === id);
@@ -93,8 +80,7 @@
         atk += window.equipmentProgression?equipmentProgression.stat(it,'atk'):(it.atk||0); hp += window.equipmentProgression?equipmentProgression.stat(it,'hp'):(it.hp||0); mp += window.equipmentProgression?equipmentProgression.stat(it,'mp'):(it.mp||0); armor += window.equipmentProgression?equipmentProgression.stat(it,'armor'):(it.armor||0);
         crit += window.equipmentProgression?equipmentProgression.stat(it,'crit'):(it.crit||0); dodge += window.equipmentProgression?equipmentProgression.stat(it,'dodge'):(it.dodge||0); skill += window.equipmentProgression?equipmentProgression.stat(it,'skill'):(it.skill||0);
       }
-      const setBonus=window.equipmentProgression?.setInfo(p.equip).bonus||0;
-      return { atk, hp, mp, armor, crit: Math.min(0.35, crit*(1+setBonus)), dodge: Math.min(0.2, dodge*(1+setBonus)), skill:skill*(1+setBonus),setBonus };
+      return { atk, hp, mp, armor, crit: Math.min(0.35, crit), dodge: Math.min(0.2, dodge), skill };
     } catch (e) { return { atk: 0, hp: 0, mp: 0, armor: 0, crit: 0, dodge: 0, skill: 0 }; }
   };
   // Linh + đồ tăng sát thương skill, cộng dồn với tu luyện 8%/cấp.
@@ -130,15 +116,14 @@
     msg('Nhặt được ' + n + ' Thăng Vị Đan! (đang có ' + p.thangViDan + ')');
   }
   function rollDrop(e, arena = false) {
+    if(e.rift)return;
     const p = progress();
-    p.thangViFragments=(p.thangViFragments||0)+1;
-    if(p.thangViFragments>=20){p.thangViFragments-=20;grantThangViDan(1,e);}
     const isBoss = e.t === 2 || e.elite || e.boss || e.challenge;
     const valley = e.map === 'valley' || e.valley;
     const r = Math.random();
     // Boss/elite luôn rớt đồ xanh trở lên + chắc chắn 1 Thăng Vị Đan (30% thêm 1).
     if (isBoss) {
-      const available=TEMPLATES.filter(t=>t.source!=='rift'&&t.slot&&t.req<=cultivationLevel()+10);
+      const available=TEMPLATES.filter(t=>t.slot&&(t.classIndex===undefined||equipmentRules.sharedSlots.includes(t.slot)||t.classIndex===P.ap.w)&&t.req<=cultivationLevel()+10);
       const tier=Math.max(...available.map(t=>({pham:0,huyen:1,linh:2,tien:3}[t.rarity])));
       const pool=available.filter(t=>({pham:0,huyen:1,linh:2,tien:3}[t.rarity])===tier).map(t=>t.id);
       const id = pool[Math.floor(Math.random() * pool.length)];
@@ -159,7 +144,7 @@
       if (item) fx(e.x, e.y - 34, '+1 ' + item.name, '#d9e6e6');
     } else if (r < consumeRate + equipRate) {
       const lvl = typeof cultivationLevel === 'function' ? cultivationLevel() : 0;
-      const pool = TEMPLATES.filter(t => t.source!=='rift' && t.slot && (t.rarity === 'pham' || (t.rarity === 'huyen' && lvl >= 5)));
+      const pool = TEMPLATES.filter(t => t.slot && (t.classIndex===undefined||equipmentRules.sharedSlots.includes(t.slot)||t.classIndex===P.ap.w) && (t.rarity === 'pham' || (t.rarity === 'huyen' && lvl >= 5)));
       const pick = pool[Math.floor(Math.random() * pool.length)];
       if (pick && lvl >= (pick.req || 0)) {
         const item = addItem(pick.id);
@@ -174,7 +159,7 @@
     const item = p.bag[idx];
     if (!item.slot) return msg('Vật phẩm này không trang bị được.');
     const lvl = typeof cultivationLevel === 'function' ? cultivationLevel() : 0;
-    if (lvl < (item.req || 0)) return msg('Cần cấp ' + item.req + ' để mặc ' + item.name + '.');
+    if (!window.gmTest?.enabled && lvl < (item.req || 0)) return msg('Cần cấp ' + item.req + ' để mặc ' + item.name + '.');
     if(!equipmentRules.sharedSlots.includes(item.slot)&&item.classIndex!==undefined&&item.classIndex!==P.ap.w)return msg('Trang bị thuộc tông môn khác.');
     const nextCapacity=item.slot==='gioi'?30+(equipmentData.byId.get(item.id)?.capacity||0):equipmentData.capacity(p);
     if(p.bag.length-1+(p.equip[item.slot]?1:0)>nextCapacity)return msg('Nhẫn mới không đủ sức chứa. Hãy dọn túi trước.');
@@ -217,8 +202,8 @@
     saveCharacter(); openBag(); msg('Bán ' + item.name + ' +' + price + ' ◈.');
   }
   function buyItem(id, reopen = true) {
-    const t = BY_ID[id];
-    if (!t || t.source==='rift') return;
+    const t = BY_ID[equipmentData.canonicalId(id)];
+    if (!t) return;
     const lvl = typeof cultivationLevel === 'function' ? cultivationLevel() : 0;
     if (lvl < (t.req || 0)) return msg('Cần cấp ' + t.req + '.');
     if (P.gold < t.price) return msg('Cần ' + t.price + ' ◈.');
@@ -353,9 +338,10 @@
       details.replaceChildren();const name=document.createElement('h4');name.textContent=item.name+(equipmentProgression.level(item)?' +'+equipmentProgression.level(item):'');name.style.color=RARITY[item.rarity].color;const desc=document.createElement('p');desc.textContent=(equipmentData.byId.get(item.id)?.desc||item.desc||'')+' · '+statText(item);details.append(name,desc);
       const actions=document.createElement('div');actions.className='item-actions';details.append(actions);
       function action(label,fn){const button=document.createElement('button');button.textContent=label;button.onclick=fn;actions.append(button);}
+      if(equipmentRules.classSlots.includes(item.slot)){const requirement=document.createElement('p');requirement.className='item-class-requirement';requirement.textContent='Class yêu cầu: '+equipmentRules.classes[item.classIndex];requirement.style.color=item.classIndex===P.ap.w?'#9de0bd':'#ff9f9f';details.append(requirement);}
       window.equipmentSystem?.describe(details,item);
       if(equipmentData.pool(item).length)action('Tẩy luyện · 60 ◈ / 12 LN',()=>equipmentSystem.reforge(item.uid));
-      if(item.slot&&item.slot!=='gioi')action('Cường hóa +'+equipmentProgression.level(item),()=>{if(equipmentProgression.enhance(item.uid))openBag();});
+      if(equipmentRules.enhanceSlots.includes(item.slot))action('Cường hóa +'+equipmentProgression.level(item),()=>{if(equipmentProgression.enhance(item.uid))openBag();});
       if(item.type==='egg')action('Ấp trứng',()=>spiritPets.startHatch(item.uid));
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
@@ -366,14 +352,12 @@
     const resources=document.createElement('div');resources.className='bag-resources';resources.textContent='Linh Nguyên '+(p.essence||0)+' · Đột Phá Đan '+(p.breakthroughPills||0)+' · Thăng Vị Đan '+(p.thangViDan||0);bag.append(resources);
     const shop=document.createElement('div');shop.className='quick-shop';bag.append(shop);
     ['hoi-huyet-dan','hoi-linh-dan'].forEach(id=>{const t=BY_ID[id],button=document.createElement('button');button.textContent=t.name+' · '+t.price+' ◈';button.onclick=()=>buyItem(id);button.disabled=P.gold<t.price;shop.append(button);});
-    const set=equipmentProgression.setInfo();dialog.line('Cường hóa full set: '+(set.tier?'+'+set.tier+' · +'+Math.round(set.bonus*100)+'%':'cần đủ 6 món +9 / +11 / +13 / +15'));
-    if(window.equipmentSets){for(const build of equipmentSets.info().filter(s=>s.count))dialog.line(build.name+' '+build.count+'/6 · '+build.effects.filter((_,i)=>build.count>=[2,4,6][i]).join(' · '));dialog.action('Bộ trang bị và đổi mảnh',equipmentSets.open);}
     dialog.action('Cường hóa trang bị',equipmentProgression.open);dialog.action('Linh thú',()=>spiritPets.open());
     dialog.action('Thuộc tính (U)',openAttrs);
   }
   function openShopEquip() {
     // Gọi từ Bảo Khí Các: giữ dialog gốc, thêm quầy đồ mới.
-    dialog.line('--- Quầy pháp bảo (mới) ---');
+    dialog.line('Trang bị đúng class và đồ dùng chung');
     TEMPLATES.filter(t => t.slot && t.source!=='rift').forEach(t => {
       const wi=['moc-kiem','huyen-kiem','linh-kiem','tien-kiem'].indexOf(t.id),name=wi<0?t.name:equipmentRules.weaponNames[P.ap.w][wi];
       if(!equipmentRules.sharedSlots.includes(t.slot)&&t.classIndex!==undefined&&t.classIndex!==P.ap.w)return;

@@ -84,7 +84,8 @@ def leave(db,uid,kind):
 
 def apply_reward(player,payload):
     player['gold']=min(10**9,player['gold']+payload.get('gold',0));world=player.setdefault('world',{})
-    for key in ('essence','riftShards'):world[key]=min(10**9,world.get(key,0)+payload.get(key,0))
+    if payload.get('riftShards',0)>0:player['gold']=min(10**9,player['gold']+int(payload['riftShards'])*20)
+    for key in ('essence',):world[key]=min(10**9,world.get(key,0)+payload.get(key,0))
 
 
 def safe(player):
@@ -166,7 +167,7 @@ def action(db,uid,body,peers):
         daily=db.execute('SELECT * FROM guild_daily WHERE guild_id=? AND day=?',(guild['id'],today)).fetchone()
         if not daily or daily[task]<(20 if task=='kills' else 1):raise ValueError('Nhiệm vụ chưa hoàn thành.')
         if db.execute('SELECT 1 FROM guild_claims WHERE user_id=? AND day=? AND task=?',(uid,today,task)).fetchone():raise ValueError('Đã nhận thưởng hôm nay, kể cả khi đổi tông môn.')
-        apply_reward(player,{'gold':80,'essence':20,'riftShards':1} if task=='kills' else {'gold':150,'essence':30,'riftShards':2});db.execute('INSERT INTO guild_claims VALUES(?,?,?)',(uid,today,task))
+        apply_reward(player,{'gold':80,'essence':20} if task=='kills' else {'gold':150,'essence':30});db.execute('INSERT INTO guild_claims VALUES(?,?,?)',(uid,today,task))
     elif op=='reward_claim':
         reward=db.execute('SELECT * FROM community_rewards WHERE id=? AND user_id=? AND claimed=0',(body.get('id'),uid)).fetchone()
         if not reward:raise ValueError('Rương đã nhận hoặc không thuộc về bạn.')
@@ -214,7 +215,7 @@ def boss_victory(db,mob,peers):
     now=time.monotonic();wall=time.time();eligible={uid for uid,damage in mob['_damage'].items() if damage>=min(math.ceil(mob['maxHp']*.01),math.ceil(peers.get(uid,{}).get('attack',8)*6)) and wall-mob['_lastDamage'].get(uid,0)<60 and uid in peers and peers[uid]['map']=='worldboss' and now-peers[uid]['seen']<15 and peers[uid].get('hp',1)>0}
     first=db.execute('INSERT OR IGNORE INTO world_boss_completions VALUES(?)',(mob['encounter'],)).rowcount
     if not first:return
-    for uid in eligible:db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma',json.dumps({'gold':250,'essence':60,'riftShards':5}),wall))
+    for uid in eligible:db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma',json.dumps({'gold':250,'essence':60}),wall))
     record_kill(db,eligible,True);mob.pop('_cast',None);mob['respawnAt']=wall+300;save_boss(db,mob)
 
 

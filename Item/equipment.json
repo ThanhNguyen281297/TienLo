@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "slots": {
     "vukhi": "Vũ khí",
     "daobao": "Đạo bào",
@@ -14,9 +14,7 @@
     "vukhi",
     "daobao",
     "chan",
-    "giay",
-    "phapbao",
-    "ngoc"
+    "giay"
   ],
   "reforge": {
     "gold": 60,
@@ -550,5 +548,925 @@
       "back": "back-class-3",
       "shield": 1
     }
+  },
+  "classSlots": [
+    "vukhi",
+    "daobao",
+    "chan",
+    "giay"
+  ],
+  "enhanceSlots": [
+    "vukhi",
+    "daobao",
+    "chan",
+    "giay"
+  ],
+  "classes": [
+    "Kiếm Tông",
+    "Minh Nguyệt Tông",
+    "Lôi Thương Tông",
+    "Thiên Cơ Môn"
+  ],
+  "classGear": [
+    {
+      "id": "moc-kiem-class-0",
+      "slot": "vukhi",
+      "name": "Mộc Kiếm",
+      "rarity": "pham",
+      "atk": 3,
+      "price": 20,
+      "req": 0,
+      "desc": "Kiếm gỗ cho tân thủ.",
+      "baseId": "moc-kiem",
+      "classIndex": 0,
+      "art": "Item/VuKhi/Kiem.png"
+    },
+    {
+      "id": "huyen-kiem-class-0",
+      "slot": "vukhi",
+      "name": "Huyền Thiết Kiếm",
+      "rarity": "huyen",
+      "atk": 8,
+      "hp": 20,
+      "price": 80,
+      "req": 10,
+      "desc": "Rèn từ huyền thiết.",
+      "baseId": "huyen-kiem",
+      "classIndex": 0,
+      "art": "Item/VuKhi/Kiem.png"
+    },
+    {
+      "id": "linh-kiem-class-0",
+      "slot": "vukhi",
+      "name": "Linh Quang Kiếm",
+      "rarity": "linh",
+      "atk": 15,
+      "crit": 0.03,
+      "price": 200,
+      "req": 25,
+      "desc": "Ẩn chứa linh quang.",
+      "baseId": "linh-kiem",
+      "classIndex": 0,
+      "art": "Item/VuKhi/Kiem.png"
+    },
+    {
+      "id": "tien-kiem-class-0",
+      "slot": "vukhi",
+      "name": "Cửu Tiêu Tiên Kiếm",
+      "rarity": "tien",
+      "atk": 28,
+      "crit": 0.06,
+      "skill": 0.08,
+      "price": 500,
+      "req": 45,
+      "desc": "Tiên kiếm lôi vân.",
+      "baseId": "tien-kiem",
+      "classIndex": 0,
+      "art": "Item/VuKhi/Kiem.png"
+    },
+    {
+      "id": "vai-bao-class-0",
+      "slot": "daobao",
+      "name": "Kiếm Tông · Vải Bố Đạo Bào",
+      "rarity": "pham",
+      "armor": 2,
+      "hp": 20,
+      "price": 20,
+      "req": 0,
+      "desc": "Đạo bào thô sơ.",
+      "baseId": "vai-bao",
+      "classIndex": 0
+    },
+    {
+      "id": "huyen-bao-class-0",
+      "slot": "daobao",
+      "name": "Kiếm Tông · Huyền Tơ Đạo Bào",
+      "rarity": "huyen",
+      "armor": 4,
+      "hp": 60,
+      "price": 90,
+      "req": 10,
+      "desc": "Mềm mà chắc.",
+      "baseId": "huyen-bao",
+      "classIndex": 0
+    },
+    {
+      "id": "linh-giap-class-0",
+      "slot": "daobao",
+      "name": "Kiếm Tông · Linh Quang Giáp",
+      "rarity": "linh",
+      "armor": 7,
+      "hp": 120,
+      "dodge": 0.02,
+      "price": 220,
+      "req": 25,
+      "desc": "Hộ thể linh quang.",
+      "baseId": "linh-giap",
+      "classIndex": 0
+    },
+    {
+      "id": "tien-y-class-0",
+      "slot": "daobao",
+      "name": "Kiếm Tông · Thiên Tằm Tiên Y",
+      "rarity": "tien",
+      "armor": 12,
+      "hp": 220,
+      "dodge": 0.04,
+      "price": 550,
+      "req": 45,
+      "desc": "Tiên y bất hoại.",
+      "baseId": "tien-y",
+      "classIndex": 0
+    },
+    {
+      "id": "vai-giay-class-0",
+      "slot": "giay",
+      "name": "Kiếm Tông · Vải Bố Hài",
+      "rarity": "pham",
+      "hp": 15,
+      "dodge": 0.01,
+      "price": 15,
+      "req": 0,
+      "desc": "Nhẹ chân.",
+      "baseId": "vai-giay",
+      "classIndex": 0
+    },
+    {
+      "id": "than-hanh-ngoa-class-0",
+      "slot": "giay",
+      "name": "Kiếm Tông · Thần Hành Ngoa",
+      "rarity": "huyen",
+      "hp": 40,
+      "dodge": 0.025,
+      "price": 70,
+      "req": 10,
+      "desc": "Đi như gió.",
+      "baseId": "than-hanh-ngoa",
+      "classIndex": 0
+    },
+    {
+      "id": "dang-van-ngoa-class-0",
+      "slot": "giay",
+      "name": "Kiếm Tông · Đằng Vân Ngoa",
+      "rarity": "linh",
+      "hp": 90,
+      "dodge": 0.04,
+      "price": 190,
+      "req": 25,
+      "desc": "Cưỡi mây.",
+      "baseId": "dang-van-ngoa",
+      "classIndex": 0
+    },
+    {
+      "id": "chan-0-class-0",
+      "slot": "chan",
+      "name": "Kiếm Tông · Thanh Vân Hộ Thối",
+      "rarity": "pham",
+      "req": 0,
+      "armor": 1,
+      "hp": 15,
+      "price": 20,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-0",
+      "classIndex": 0
+    },
+    {
+      "id": "chan-1-class-0",
+      "slot": "chan",
+      "name": "Kiếm Tông · Huyền Tơ Hộ Thối",
+      "rarity": "huyen",
+      "req": 10,
+      "armor": 3,
+      "hp": 40,
+      "price": 110,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-1",
+      "classIndex": 0
+    },
+    {
+      "id": "chan-2-class-0",
+      "slot": "chan",
+      "name": "Kiếm Tông · Linh Quang Hộ Thối",
+      "rarity": "linh",
+      "req": 25,
+      "armor": 5,
+      "hp": 65,
+      "price": 200,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-2",
+      "classIndex": 0
+    },
+    {
+      "id": "chan-3-class-0",
+      "slot": "chan",
+      "name": "Kiếm Tông · Thiên Tằm Hộ Thối",
+      "rarity": "tien",
+      "req": 45,
+      "armor": 7,
+      "hp": 90,
+      "price": 290,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-3",
+      "classIndex": 0
+    },
+    {
+      "id": "moc-kiem-class-1",
+      "slot": "vukhi",
+      "name": "Thanh Nguyệt Liềm",
+      "rarity": "pham",
+      "atk": 3,
+      "price": 20,
+      "req": 0,
+      "desc": "Kiếm gỗ cho tân thủ.",
+      "baseId": "moc-kiem",
+      "classIndex": 1,
+      "art": "Item/VuKhi/Liem.png"
+    },
+    {
+      "id": "huyen-kiem-class-1",
+      "slot": "vukhi",
+      "name": "Huyền Băng Liềm",
+      "rarity": "huyen",
+      "atk": 8,
+      "hp": 20,
+      "price": 80,
+      "req": 10,
+      "desc": "Rèn từ huyền thiết.",
+      "baseId": "huyen-kiem",
+      "classIndex": 1,
+      "art": "Item/VuKhi/Liem.png"
+    },
+    {
+      "id": "linh-kiem-class-1",
+      "slot": "vukhi",
+      "name": "Nguyệt Ảnh Liềm",
+      "rarity": "linh",
+      "atk": 15,
+      "crit": 0.03,
+      "price": 200,
+      "req": 25,
+      "desc": "Ẩn chứa linh quang.",
+      "baseId": "linh-kiem",
+      "classIndex": 1,
+      "art": "Item/VuKhi/Liem.png"
+    },
+    {
+      "id": "tien-kiem-class-1",
+      "slot": "vukhi",
+      "name": "Minh Nguyệt Tiên Liềm",
+      "rarity": "tien",
+      "atk": 28,
+      "crit": 0.06,
+      "skill": 0.08,
+      "price": 500,
+      "req": 45,
+      "desc": "Tiên kiếm lôi vân.",
+      "baseId": "tien-kiem",
+      "classIndex": 1,
+      "art": "Item/VuKhi/Liem.png"
+    },
+    {
+      "id": "vai-bao-class-1",
+      "slot": "daobao",
+      "name": "Minh Nguyệt Tông · Vải Bố Đạo Bào",
+      "rarity": "pham",
+      "armor": 2,
+      "hp": 20,
+      "price": 20,
+      "req": 0,
+      "desc": "Đạo bào thô sơ.",
+      "baseId": "vai-bao",
+      "classIndex": 1
+    },
+    {
+      "id": "huyen-bao-class-1",
+      "slot": "daobao",
+      "name": "Minh Nguyệt Tông · Huyền Tơ Đạo Bào",
+      "rarity": "huyen",
+      "armor": 4,
+      "hp": 60,
+      "price": 90,
+      "req": 10,
+      "desc": "Mềm mà chắc.",
+      "baseId": "huyen-bao",
+      "classIndex": 1
+    },
+    {
+      "id": "linh-giap-class-1",
+      "slot": "daobao",
+      "name": "Minh Nguyệt Tông · Linh Quang Giáp",
+      "rarity": "linh",
+      "armor": 7,
+      "hp": 120,
+      "dodge": 0.02,
+      "price": 220,
+      "req": 25,
+      "desc": "Hộ thể linh quang.",
+      "baseId": "linh-giap",
+      "classIndex": 1
+    },
+    {
+      "id": "tien-y-class-1",
+      "slot": "daobao",
+      "name": "Minh Nguyệt Tông · Thiên Tằm Tiên Y",
+      "rarity": "tien",
+      "armor": 12,
+      "hp": 220,
+      "dodge": 0.04,
+      "price": 550,
+      "req": 45,
+      "desc": "Tiên y bất hoại.",
+      "baseId": "tien-y",
+      "classIndex": 1
+    },
+    {
+      "id": "vai-giay-class-1",
+      "slot": "giay",
+      "name": "Minh Nguyệt Tông · Vải Bố Hài",
+      "rarity": "pham",
+      "hp": 15,
+      "dodge": 0.01,
+      "price": 15,
+      "req": 0,
+      "desc": "Nhẹ chân.",
+      "baseId": "vai-giay",
+      "classIndex": 1
+    },
+    {
+      "id": "than-hanh-ngoa-class-1",
+      "slot": "giay",
+      "name": "Minh Nguyệt Tông · Thần Hành Ngoa",
+      "rarity": "huyen",
+      "hp": 40,
+      "dodge": 0.025,
+      "price": 70,
+      "req": 10,
+      "desc": "Đi như gió.",
+      "baseId": "than-hanh-ngoa",
+      "classIndex": 1
+    },
+    {
+      "id": "dang-van-ngoa-class-1",
+      "slot": "giay",
+      "name": "Minh Nguyệt Tông · Đằng Vân Ngoa",
+      "rarity": "linh",
+      "hp": 90,
+      "dodge": 0.04,
+      "price": 190,
+      "req": 25,
+      "desc": "Cưỡi mây.",
+      "baseId": "dang-van-ngoa",
+      "classIndex": 1
+    },
+    {
+      "id": "chan-0-class-1",
+      "slot": "chan",
+      "name": "Minh Nguyệt Tông · Thanh Vân Hộ Thối",
+      "rarity": "pham",
+      "req": 0,
+      "armor": 1,
+      "hp": 15,
+      "price": 20,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-0",
+      "classIndex": 1
+    },
+    {
+      "id": "chan-1-class-1",
+      "slot": "chan",
+      "name": "Minh Nguyệt Tông · Huyền Tơ Hộ Thối",
+      "rarity": "huyen",
+      "req": 10,
+      "armor": 3,
+      "hp": 40,
+      "price": 110,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-1",
+      "classIndex": 1
+    },
+    {
+      "id": "chan-2-class-1",
+      "slot": "chan",
+      "name": "Minh Nguyệt Tông · Linh Quang Hộ Thối",
+      "rarity": "linh",
+      "req": 25,
+      "armor": 5,
+      "hp": 65,
+      "price": 200,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-2",
+      "classIndex": 1
+    },
+    {
+      "id": "chan-3-class-1",
+      "slot": "chan",
+      "name": "Minh Nguyệt Tông · Thiên Tằm Hộ Thối",
+      "rarity": "tien",
+      "req": 45,
+      "armor": 7,
+      "hp": 90,
+      "price": 290,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-3",
+      "classIndex": 1
+    },
+    {
+      "id": "moc-kiem-class-2",
+      "slot": "vukhi",
+      "name": "Trúc Thương",
+      "rarity": "pham",
+      "atk": 3,
+      "price": 20,
+      "req": 0,
+      "desc": "Kiếm gỗ cho tân thủ.",
+      "baseId": "moc-kiem",
+      "classIndex": 2,
+      "art": "Item/VuKhi/Thuong.png"
+    },
+    {
+      "id": "huyen-kiem-class-2",
+      "slot": "vukhi",
+      "name": "Huyền Thiết Thương",
+      "rarity": "huyen",
+      "atk": 8,
+      "hp": 20,
+      "price": 80,
+      "req": 10,
+      "desc": "Rèn từ huyền thiết.",
+      "baseId": "huyen-kiem",
+      "classIndex": 2,
+      "art": "Item/VuKhi/Thuong.png"
+    },
+    {
+      "id": "linh-kiem-class-2",
+      "slot": "vukhi",
+      "name": "Lôi Quang Thương",
+      "rarity": "linh",
+      "atk": 15,
+      "crit": 0.03,
+      "price": 200,
+      "req": 25,
+      "desc": "Ẩn chứa linh quang.",
+      "baseId": "linh-kiem",
+      "classIndex": 2,
+      "art": "Item/VuKhi/Thuong.png"
+    },
+    {
+      "id": "tien-kiem-class-2",
+      "slot": "vukhi",
+      "name": "Cửu Tiêu Lôi Thương",
+      "rarity": "tien",
+      "atk": 28,
+      "crit": 0.06,
+      "skill": 0.08,
+      "price": 500,
+      "req": 45,
+      "desc": "Tiên kiếm lôi vân.",
+      "baseId": "tien-kiem",
+      "classIndex": 2,
+      "art": "Item/VuKhi/Thuong.png"
+    },
+    {
+      "id": "vai-bao-class-2",
+      "slot": "daobao",
+      "name": "Lôi Thương Tông · Vải Bố Đạo Bào",
+      "rarity": "pham",
+      "armor": 2,
+      "hp": 20,
+      "price": 20,
+      "req": 0,
+      "desc": "Đạo bào thô sơ.",
+      "baseId": "vai-bao",
+      "classIndex": 2
+    },
+    {
+      "id": "huyen-bao-class-2",
+      "slot": "daobao",
+      "name": "Lôi Thương Tông · Huyền Tơ Đạo Bào",
+      "rarity": "huyen",
+      "armor": 4,
+      "hp": 60,
+      "price": 90,
+      "req": 10,
+      "desc": "Mềm mà chắc.",
+      "baseId": "huyen-bao",
+      "classIndex": 2
+    },
+    {
+      "id": "linh-giap-class-2",
+      "slot": "daobao",
+      "name": "Lôi Thương Tông · Linh Quang Giáp",
+      "rarity": "linh",
+      "armor": 7,
+      "hp": 120,
+      "dodge": 0.02,
+      "price": 220,
+      "req": 25,
+      "desc": "Hộ thể linh quang.",
+      "baseId": "linh-giap",
+      "classIndex": 2
+    },
+    {
+      "id": "tien-y-class-2",
+      "slot": "daobao",
+      "name": "Lôi Thương Tông · Thiên Tằm Tiên Y",
+      "rarity": "tien",
+      "armor": 12,
+      "hp": 220,
+      "dodge": 0.04,
+      "price": 550,
+      "req": 45,
+      "desc": "Tiên y bất hoại.",
+      "baseId": "tien-y",
+      "classIndex": 2
+    },
+    {
+      "id": "vai-giay-class-2",
+      "slot": "giay",
+      "name": "Lôi Thương Tông · Vải Bố Hài",
+      "rarity": "pham",
+      "hp": 15,
+      "dodge": 0.01,
+      "price": 15,
+      "req": 0,
+      "desc": "Nhẹ chân.",
+      "baseId": "vai-giay",
+      "classIndex": 2
+    },
+    {
+      "id": "than-hanh-ngoa-class-2",
+      "slot": "giay",
+      "name": "Lôi Thương Tông · Thần Hành Ngoa",
+      "rarity": "huyen",
+      "hp": 40,
+      "dodge": 0.025,
+      "price": 70,
+      "req": 10,
+      "desc": "Đi như gió.",
+      "baseId": "than-hanh-ngoa",
+      "classIndex": 2
+    },
+    {
+      "id": "dang-van-ngoa-class-2",
+      "slot": "giay",
+      "name": "Lôi Thương Tông · Đằng Vân Ngoa",
+      "rarity": "linh",
+      "hp": 90,
+      "dodge": 0.04,
+      "price": 190,
+      "req": 25,
+      "desc": "Cưỡi mây.",
+      "baseId": "dang-van-ngoa",
+      "classIndex": 2
+    },
+    {
+      "id": "chan-0-class-2",
+      "slot": "chan",
+      "name": "Lôi Thương Tông · Thanh Vân Hộ Thối",
+      "rarity": "pham",
+      "req": 0,
+      "armor": 1,
+      "hp": 15,
+      "price": 20,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-0",
+      "classIndex": 2
+    },
+    {
+      "id": "chan-1-class-2",
+      "slot": "chan",
+      "name": "Lôi Thương Tông · Huyền Tơ Hộ Thối",
+      "rarity": "huyen",
+      "req": 10,
+      "armor": 3,
+      "hp": 40,
+      "price": 110,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-1",
+      "classIndex": 2
+    },
+    {
+      "id": "chan-2-class-2",
+      "slot": "chan",
+      "name": "Lôi Thương Tông · Linh Quang Hộ Thối",
+      "rarity": "linh",
+      "req": 25,
+      "armor": 5,
+      "hp": 65,
+      "price": 200,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-2",
+      "classIndex": 2
+    },
+    {
+      "id": "chan-3-class-2",
+      "slot": "chan",
+      "name": "Lôi Thương Tông · Thiên Tằm Hộ Thối",
+      "rarity": "tien",
+      "req": 45,
+      "armor": 7,
+      "hp": 90,
+      "price": 290,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-3",
+      "classIndex": 2
+    },
+    {
+      "id": "moc-kiem-class-3",
+      "slot": "vukhi",
+      "name": "Thanh Trúc Phiến",
+      "rarity": "pham",
+      "atk": 3,
+      "price": 20,
+      "req": 0,
+      "desc": "Kiếm gỗ cho tân thủ.",
+      "baseId": "moc-kiem",
+      "classIndex": 3,
+      "art": "Item/VuKhi/Quat.png"
+    },
+    {
+      "id": "huyen-kiem-class-3",
+      "slot": "vukhi",
+      "name": "Huyền Phong Phiến",
+      "rarity": "huyen",
+      "atk": 8,
+      "hp": 20,
+      "price": 80,
+      "req": 10,
+      "desc": "Rèn từ huyền thiết.",
+      "baseId": "huyen-kiem",
+      "classIndex": 3,
+      "art": "Item/VuKhi/Quat.png"
+    },
+    {
+      "id": "linh-kiem-class-3",
+      "slot": "vukhi",
+      "name": "Linh Vũ Phiến",
+      "rarity": "linh",
+      "atk": 15,
+      "crit": 0.03,
+      "price": 200,
+      "req": 25,
+      "desc": "Ẩn chứa linh quang.",
+      "baseId": "linh-kiem",
+      "classIndex": 3,
+      "art": "Item/VuKhi/Quat.png"
+    },
+    {
+      "id": "tien-kiem-class-3",
+      "slot": "vukhi",
+      "name": "Thiên Cơ Tiên Phiến",
+      "rarity": "tien",
+      "atk": 28,
+      "crit": 0.06,
+      "skill": 0.08,
+      "price": 500,
+      "req": 45,
+      "desc": "Tiên kiếm lôi vân.",
+      "baseId": "tien-kiem",
+      "classIndex": 3,
+      "art": "Item/VuKhi/Quat.png"
+    },
+    {
+      "id": "vai-bao-class-3",
+      "slot": "daobao",
+      "name": "Thiên Cơ Môn · Vải Bố Đạo Bào",
+      "rarity": "pham",
+      "armor": 2,
+      "hp": 20,
+      "price": 20,
+      "req": 0,
+      "desc": "Đạo bào thô sơ.",
+      "baseId": "vai-bao",
+      "classIndex": 3
+    },
+    {
+      "id": "huyen-bao-class-3",
+      "slot": "daobao",
+      "name": "Thiên Cơ Môn · Huyền Tơ Đạo Bào",
+      "rarity": "huyen",
+      "armor": 4,
+      "hp": 60,
+      "price": 90,
+      "req": 10,
+      "desc": "Mềm mà chắc.",
+      "baseId": "huyen-bao",
+      "classIndex": 3
+    },
+    {
+      "id": "linh-giap-class-3",
+      "slot": "daobao",
+      "name": "Thiên Cơ Môn · Linh Quang Giáp",
+      "rarity": "linh",
+      "armor": 7,
+      "hp": 120,
+      "dodge": 0.02,
+      "price": 220,
+      "req": 25,
+      "desc": "Hộ thể linh quang.",
+      "baseId": "linh-giap",
+      "classIndex": 3
+    },
+    {
+      "id": "tien-y-class-3",
+      "slot": "daobao",
+      "name": "Thiên Cơ Môn · Thiên Tằm Tiên Y",
+      "rarity": "tien",
+      "armor": 12,
+      "hp": 220,
+      "dodge": 0.04,
+      "price": 550,
+      "req": 45,
+      "desc": "Tiên y bất hoại.",
+      "baseId": "tien-y",
+      "classIndex": 3
+    },
+    {
+      "id": "vai-giay-class-3",
+      "slot": "giay",
+      "name": "Thiên Cơ Môn · Vải Bố Hài",
+      "rarity": "pham",
+      "hp": 15,
+      "dodge": 0.01,
+      "price": 15,
+      "req": 0,
+      "desc": "Nhẹ chân.",
+      "baseId": "vai-giay",
+      "classIndex": 3
+    },
+    {
+      "id": "than-hanh-ngoa-class-3",
+      "slot": "giay",
+      "name": "Thiên Cơ Môn · Thần Hành Ngoa",
+      "rarity": "huyen",
+      "hp": 40,
+      "dodge": 0.025,
+      "price": 70,
+      "req": 10,
+      "desc": "Đi như gió.",
+      "baseId": "than-hanh-ngoa",
+      "classIndex": 3
+    },
+    {
+      "id": "dang-van-ngoa-class-3",
+      "slot": "giay",
+      "name": "Thiên Cơ Môn · Đằng Vân Ngoa",
+      "rarity": "linh",
+      "hp": 90,
+      "dodge": 0.04,
+      "price": 190,
+      "req": 25,
+      "desc": "Cưỡi mây.",
+      "baseId": "dang-van-ngoa",
+      "classIndex": 3
+    },
+    {
+      "id": "chan-0-class-3",
+      "slot": "chan",
+      "name": "Thiên Cơ Môn · Thanh Vân Hộ Thối",
+      "rarity": "pham",
+      "req": 0,
+      "armor": 1,
+      "hp": 15,
+      "price": 20,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-0",
+      "classIndex": 3
+    },
+    {
+      "id": "chan-1-class-3",
+      "slot": "chan",
+      "name": "Thiên Cơ Môn · Huyền Tơ Hộ Thối",
+      "rarity": "huyen",
+      "req": 10,
+      "armor": 3,
+      "hp": 40,
+      "price": 110,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-1",
+      "classIndex": 3
+    },
+    {
+      "id": "chan-2-class-3",
+      "slot": "chan",
+      "name": "Thiên Cơ Môn · Linh Quang Hộ Thối",
+      "rarity": "linh",
+      "req": 25,
+      "armor": 5,
+      "hp": 65,
+      "price": 200,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-2",
+      "classIndex": 3
+    },
+    {
+      "id": "chan-3-class-3",
+      "slot": "chan",
+      "name": "Thiên Cơ Môn · Thiên Tằm Hộ Thối",
+      "rarity": "tien",
+      "req": 45,
+      "armor": 7,
+      "hp": 90,
+      "price": 290,
+      "desc": "Bảo vệ đôi chân khi giao chiến.",
+      "baseId": "chan-3",
+      "classIndex": 3
+    }
+  ],
+  "legacyCollection": {
+    "slots": {
+      "vukhi": "Vũ khí",
+      "daobao": "Đạo bào",
+      "ngoc": "Hộ thuẫn",
+      "chan": "Hộ thối",
+      "giay": "Giày",
+      "phapbao": "Pháp bảo"
+    },
+    "baseStats": {
+      "vukhi": {
+        "atk": 3
+      },
+      "daobao": {
+        "hp": 25,
+        "armor": 2
+      },
+      "ngoc": {
+        "armor": 2,
+        "hp": 15
+      },
+      "giay": {
+        "hp": 15,
+        "dodge": 0.01
+      },
+      "phapbao": {
+        "atk": 3
+      },
+      "chan": {
+        "hp": 15,
+        "armor": 1
+      }
+    },
+    "grades": [
+      {
+        "req": 0,
+        "scale": 1,
+        "rarity": "huyen"
+      },
+      {
+        "req": 10,
+        "scale": 2,
+        "rarity": "huyen"
+      },
+      {
+        "req": 25,
+        "scale": 3.5,
+        "rarity": "linh"
+      },
+      {
+        "req": 45,
+        "scale": 5,
+        "rarity": "tien"
+      }
+    ],
+    "sets": [
+      {
+        "id": "phong"
+      },
+      {
+        "id": "kim"
+      },
+      {
+        "id": "nguyet"
+      },
+      {
+        "id": "linh"
+      }
+    ]
+  },
+  "legacySlotTiers": {
+    "vukhi": [
+      "moc-kiem",
+      "huyen-kiem",
+      "linh-kiem",
+      "tien-kiem"
+    ],
+    "daobao": [
+      "vai-bao",
+      "huyen-bao",
+      "linh-giap",
+      "tien-y"
+    ],
+    "chan": [
+      "chan-0",
+      "chan-1",
+      "chan-2",
+      "chan-3"
+    ],
+    "giay": [
+      "vai-giay",
+      "than-hanh-ngoa",
+      "dang-van-ngoa",
+      "dang-van-ngoa"
+    ]
   }
 }

@@ -11,11 +11,10 @@
     if(title==='Hành trình chính')ui.meter(Math.floor(P.xp),need(),'Đạo hạnh',body);
     else if(title==='Bài tập nhập môn'){const q=p.sectQuest||{};ui.meter(q.status==='claimed'?3:q.kills||0,3,'Yêu thú',body);ui.chips([['◈',35],['Đạo hạnh',20]],body);}
     else if(title.includes('Linh Mạch'))ui.chips([['Linh Nguyên','×2'],['Đạo hạnh','+20%']],body);
-    else if(title.includes('Bí Cảnh'))ui.chips([['◈',120+level*4],['Mảnh',3],['Đồ bộ',1]],body);
+    else if(title.includes('Bí Cảnh'))ui.chips([['◈',120+level*4]],body);
     else if(title.includes('Đấu trường'))ui.chips([['Lượt/ngày',2],['Đợt',30],['◈',300]],body);
-    else if(title.includes('Huyết Ma'))ui.chips([['◈',250],['Linh Nguyên',60],['Mảnh',5]],body);
+    else if(title.includes('Huyết Ma'))ui.chips([['◈',250],['Linh Nguyên',60]],body);
     else if(title.includes('Tông môn'))ui.chips([['Đội','4'],['Nhiệm vụ/ngày',2]],body);
-    else if(title.includes('trang bị'))ui.meter(p.riftShards||0,6,'Mảnh đổi món',body);
     body.append(ui.node('p','visual-note',status));
     if(action)ui.action(body,label,action,disabled);ui.details(text,body);return body;
   }
@@ -28,20 +27,20 @@
     const grid=document.createElement('div');grid.className='visual-grid';grid.id='activity-grid';$('world-content').append(grid);
     if(run){card('Đang trong thử thách','Hoàn thành hoặc rời lượt hiện tại trước khi vào hoạt động khác.','Mở menu không kết thúc lượt.');button('Trở lại chiến đấu',d.close);return;}
     const learned=p.learnedSkills||[],next=cultivation.requirements.findIndex((_,i)=>!learned[i]);
-    const main=card('Hành trình chính',!p.tutorial?'Di chuyển quanh sân và gặp Sư phụ để nhập môn.':next>=0?'Chiêu tiếp theo: '+combatNames[P.ap.w][next]+' · cần '+R[cultivation.requirements[next].realm]+' '+cultivation.requirements[next].stage+'.':'Đã học đủ bốn kỹ năng. Tiếp tục luyện kỹ năng, săn bộ đồ và phối hợp đạo hữu.',
+    const main=card('Hành trình chính',!p.tutorial?'Di chuyển quanh sân và gặp Sư phụ để nhập môn.':next>=0?'Chiêu tiếp theo: '+combatNames[P.ap.w][next]+' · cần '+R[cultivation.requirements[next].realm]+' '+cultivation.requirements[next].stage+'.':'Đã học đủ bốn kỹ năng. Tiếp tục luyện kỹ năng, cường hóa trang bị và phối hợp đạo hữu.',
       cultivation.realmName()+' · Đạo hạnh '+Math.floor(P.xp)+'/'+need(),inventory.openAttrs,'Thuộc tính');
     if(next>=0&&p.tutorial)button('Tới Truyền Công Các',trainer,main).disabled=!safe;
     const q=p.sectQuest||{status:'none',kills:0};
     card('Bài tập nhập môn','Hạ 3 yêu thú sau khi nhận bài từ Sư phụ. Thưởng 35 Linh Thạch +20 đạo hạnh.',q.status==='claimed'?'Đã nhận thưởng':q.status==='active'?'Tiến độ '+Math.min(3,q.kills||0)+'/3':'Chưa nhận bài tập',()=>{const home=world.sectMapFor(P.ap.w);if(world.state.scene!==home)travel(home);if(world.state.scene===home)world.handleService('mentor');},'Gặp Sư phụ',!safe);
     card('Luyện công · Linh Mạch Cốc','Quái cho Linh Nguyên x2, đạo hạnh nhiều hơn 20%, nhưng khỏe hơn 15%. Dùng nguyên liệu luyện đan và cường hóa.',p.tutorial?'Đã mở · quái chung, có thể tổ đội':'Cần hoàn thành nhập môn',()=>travel('valley'),'Đến Linh Mạch Cốc',!p.tutorial||!safe);
     const level=cultivationLevel();
-    card('Vân Hải Bí Cảnh','3 đợt + Hộ Pháp. Thắng: '+(120+level*4)+' Linh Thạch, '+(30+Math.floor(level/2))+' Linh Nguyên, 1 Đột Phá Đan, 3 mảnh và 1 món bộ.','Đang săn '+equipmentSets.focus().name+' · '+(p.riftClears||0)+' lần thắng'+(p.riftPendingItem?' · Có trang bị chờ nhận':''),spiritRift.open,'Xem bí cảnh',!safe||!p.tutorial);
+    card('Vân Hải Bí Cảnh','3 đợt + Hộ Pháp. Thắng: '+(120+level*4)+' Linh Thạch.',(p.riftClears||0)+' lần thắng',spiritRift.open,'Xem bí cảnh',!safe||!p.tutorial);
     card('Đấu trường · 30 lượt','2 lượt/ngày; vào là tiêu lượt. Mỗi 5 lượt có thủ lĩnh; hoàn thành thêm 300 Linh Thạch.','Đã thắng '+(p.arenaClears||0)+' lần',()=>world.openArena(),'Kiểm tra lượt',!safe||!p.tutorial);
     const boss=communityGame.state.boss||communityGame.state.social?.worldBoss;
-    card('Boss thế giới · Huyết Ma','Hợp lực, né vùng đỏ và góp đủ sát thương. Mỗi người đủ điều kiện nhận rương 250 Linh Thạch +60 Linh Nguyên +5 mảnh.',boss?(boss.respawn>0?'Tái xuất sau '+Math.ceil(boss.respawn)+' giây':'Đang xuất hiện · '+Math.ceil(boss.hp)+'/'+boss.maxHp+' HP'):'Mở chi tiết để cập nhật trạng thái boss',()=>communityGame.open('boss'),'Boss & Rương',!p.tutorial);
+    card('Boss thế giới · Huyết Ma','Hợp lực, né vùng đỏ và góp đủ sát thương. Mỗi người đủ điều kiện nhận rương 250 Linh Thạch +60 Linh Nguyên.',boss?(boss.respawn>0?'Tái xuất sau '+Math.ceil(boss.respawn)+' giây':'Đang xuất hiện · '+Math.ceil(boss.hp)+'/'+boss.maxHp+' HP'):'Mở chi tiết để cập nhật trạng thái boss',()=>communityGame.open('boss'),'Boss & Rương',!p.tutorial);
     const guild=communityGame.state.social?.guild;
     card('Tổ đội & Tông môn','Lập đội tối đa 4 người. Nhiệm vụ tông môn mỗi ngày: 20 quái chung và 1 boss thế giới; nhận thưởng tại nơi an toàn.',guild?guild.name+' · Hôm nay '+guild.tasks.kills+'/20 quái · '+guild.tasks.bosses+'/1 boss':'Chưa có tông môn hoặc đang cập nhật',()=>communityGame.open(),'Mở Đạo hữu');
-    card('Mục tiêu trang bị','Chọn một bộ để săn; đủ 6 mảnh đổi đúng slot còn thiếu. Thưởng bộ 2/4/6 món có thể phối; full cường hóa +9/+11/+13/+15 thêm 5/10/15/20%.',(p.riftShards||0)+' mảnh bí cảnh · Túi '+p.bag.length+'/'+equipmentData.capacity(p),equipmentSets.open,'Chọn bộ & Đổi món');
+    card('Trang bị','4 ô trái theo class và cường hóa +15. 4 ô phải dùng chung; pháp bảo và thuẫn được tẩy luyện.','Túi '+p.bag.length+'/'+equipmentData.capacity(p),inventory.openBag,'Mở hành trang');
   }
   function openAuto(){if(!P.ap||paused())return;const settings=autoCombat.plans(),plan=settings[settings.active];
     d.show('Chiến pháp · Combo Auto','Chạm chiêu để bật/tắt · ↑ ↓ để xếp combo.');menu();

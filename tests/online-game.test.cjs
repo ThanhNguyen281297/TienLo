@@ -57,11 +57,11 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   for(const page of [one,two])assert(await page.evaluate(id=>networkVisualHits.some(h=>h.id===id&&h.damage>0),id),'Shared HP snapshots trigger real damage VFX on both clients');
   for(const page of [one,two])assert(await page.evaluate(()=>X.every(popup=>popup.t!==1)),'Reward bookkeeping must not add fake one-point damage, even at the popup limit');
   console.log('PASS shared monster HP, cooperative kill rewards');
-  await one.evaluate(()=>{P.x=1000;P.y=1100;worldMap.dialog.close();inventory.openBag();});
-  assert.equal(await one.locator('.bag-grid .item-cell').count(),30);assert.equal(await one.locator('[data-equip-slot]').count(),6);
-  const source=one.locator('.bag-grid .item-cell').filter({has:one.locator('img')}).first();
+  await one.evaluate(()=>{P.x=1000;P.y=1100;worldMap.dialog.close();inventory.addItem('moc-kiem');inventory.openBag();});
+  assert.equal(await one.locator('.bag-grid .item-cell').count(),30);assert.equal(await one.locator('[data-equip-slot]').count(),8);
+  const source=one.locator('[data-item-id="moc-kiem-class-0"]').first();
   await source.dragTo(one.locator('[data-equip-slot="vukhi"]'));
-  assert.equal(await one.evaluate(()=>worldMap.progress().equip.vukhi.id),'moc-kiem');
+  assert.equal(await one.evaluate(()=>worldMap.progress().equip.vukhi.id),'moc-kiem-class-0');
   await one.screenshot({path:path.join(artifacts,'online-inventory-desktop.png')});
   await one.locator('[data-equip-slot="vukhi"]').dragTo(one.locator('[data-bag-cell="29"]'));
   assert.equal(await one.evaluate(()=>worldMap.progress().equip.vukhi),null);
@@ -92,7 +92,7 @@ const root=path.resolve(__dirname,'..'),artifacts=path.join(__dirname,'artifacts
   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[start]});
   for(let i=1;i<=10;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start.x+(end.x-start.x)*i/10,y:start.y+(end.y-start.y)*i/10}]});
   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-  await phone.waitForFunction(()=>worldMap.progress().equip.vukhi?.id==='moc-kiem');
+  await phone.waitForFunction(()=>worldMap.progress().equip.vukhi?.id===equipmentData.canonicalId('moc-kiem'));
   console.log('PASS real mobile touch drag equips the correct slot');
 
   assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);

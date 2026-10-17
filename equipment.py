@@ -2,12 +2,13 @@
 import json
 import community
 import secrets
+import re
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 RULES = json.loads((ROOT/'Item'/'equipment.json').read_text(encoding='utf-8'))
-TEMPLATES = {t['id']: t for group in ('rings','shields','backs','formations') for t in RULES[group]}
+TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations') for t in RULES[group]}
 STAT_KEYS = ('atk','hp','mp','armor','crit','dodge','skill')
 
 def pool(item):
@@ -27,52 +28,69 @@ def capacity(world):
     meta=TEMPLATES.get(ring.get('id'),{})
     return 30+(meta.get('capacity',0) if meta.get('slot')=='gioi' else 0)
 
-def normalize(player, collection):
-    """One-time migration. Preserve UIDs, enhancements and every owned item."""
+def legacy_collection(item_id):
+    match=re.fullmatch(r'rift-([a-z]+)-([a-z]+)-(0|10|25|45)',item_id)
+    if not match:return None
+    set_id,slot,level=match.groups();legacy=RULES['legacyCollection']
+    slot='chan' if slot=='gioi' else slot
+    if set_id not in {t['id'] for t in legacy['sets']} or slot not in legacy['slots']:return None
+    grade=next(g for g in legacy['grades'] if g['req']==int(level))
+    stats={k:round(v*(1 if k in ('crit','dodge','skill') else grade['scale']),2) for k,v in legacy['baseStats'][slot].items()}
+    return dict(id=item_id,setId=set_id,slot=slot,req=int(level),rarity=grade['rarity'],**stats)
+
+
+def canonical_id(item_id, cls):
+    if item_id in TEMPLATES:return item_id
+    if item_id in {t['baseId'] for t in RULES['classGear']}:return item_id+'-class-'+str(cls)
+    if item_id in ('thach-ngoc','tu-linh-ngoc','minh-nguyet-ngoc'):return 'shield-'+str(1+('thach-ngoc','tu-linh-ngoc','minh-nguyet-ngoc').index(item_id))
+    if item_id in ('ho-tam-kinh','tu-linh-chau','cuu-chuyen-dinh'):return 'back-class-'+str(cls)
+    meta=legacy_collection(item_id)
+    if not meta:return item_id
+    if meta['slot'] in RULES['classSlots']:
+        tier=(0,10,25,45).index(meta['req'])
+        return RULES['legacySlotTiers'][meta['slot']][tier]+'-class-'+str(cls)
+    style=RULES['collectionAppearance'][meta['setId']]
+    return style['back'] if meta['slot']=='phapbao' else 'shield-'+str(style['shield'])
+
+
+def normalize(player, collection=None):
+    """Migrate owned gear, never grant starting items. Keep UIDs and reforge lines."""
     if not isinstance(player.get('ap'),dict) or not isinstance(player.get('world',{}),dict):return False
-    w=player.setdefault('world',{}); equip=w.setdefault('equip',{});w.setdefault('bag',[])
+    w=player.setdefault('world',{});equip=w.setdefault('equip',{});w.setdefault('bag',[])
     if not isinstance(equip,dict) or not isinstance(w['bag'],list) or any(not isinstance(i,dict) for i in w['bag']+[i for i in equip.values() if i is not None]):return False
-    if w.get('equipmentVersion',0)>=3:return False
-    if w.get('equipmentVersion',0)>=2:
-        for item in items(player):
-            if item.get('art') in RULES['assetAliases']:item['art']=RULES['assetAliases'][item['art']]
-        w['equipmentVersion']=3
-        return True
-    cls=player.get('ap',{}).get('w',0)
+    if w.get('equipmentVersion',0)>=4:return False
+    cls=player['ap'].get('w')
     if type(cls) is not int or cls not in range(4):return False
     oldring=equip.get('gioi')
     if oldring and isinstance(oldring.get('id'),str) and oldring['id'].startswith('rift-'):
         equip['chan']=oldring;equip['gioi']=None
-    for item in items(player):
+    def convert(item):
         iid=item.get('id','')
-        if iid in ('moc-kiem','huyen-kiem','linh-kiem','tien-kiem'):item['name']=RULES['weaponNames'][cls][('moc-kiem','huyen-kiem','linh-kiem','tien-kiem').index(iid)]
-        if not isinstance(iid,str):continue
-        if iid.startswith('rift-'):
-            iid=iid.replace('-gioi-','-chan-');item['id']=iid
-            meta=collection(iid)
-            if meta:
-                for key in STAT_KEYS:item.pop(key,None)
-                item.update(meta)
-                if isinstance(item.get('name'),str):item['name']=item['name'].replace('Nhẫn','Hộ thối').replace('Linh ngọc','Hộ thuẫn')
-        elif iid in ('thach-ngoc','tu-linh-ngoc','minh-nguyet-ngoc'):
-            meta=TEMPLATES['shield-'+str(1+('thach-ngoc','tu-linh-ngoc','minh-nguyet-ngoc').index(iid))]
-            for key in STAT_KEYS:item.pop(key,None)
+        if not isinstance(iid,str):return
+        meta=TEMPLATES.get(canonical_id(iid,cls))
+        if meta:
+            for key in (*STAT_KEYS,'classIndex','art','capacity','variant','setId','source','baseId'):item.pop(key,None)
             item.update(meta)
-        elif iid in ('ho-tam-kinh','tu-linh-chau','cuu-chuyen-dinh'):
-            for key in STAT_KEYS:item.pop(key,None)
-            item.update(TEMPLATES['back-class-'+str(cls)])
-        elif iid in TEMPLATES:
-            for key in STAT_KEYS:item.pop(key,None)
-            item.update(TEMPLATES[iid])
-        if pool(item):item['affixes']=defaults(item)
-    # These two graphics were previously always visible, so preserve the look.
-    for slot,iid in [('phapbao','back-class-'+str(cls)),('phaptran','formation-'+str(cls))]:
-        if not equip.get(slot):
-            equip[slot]=dict(TEMPLATES[iid],uid=secrets.token_hex(16))
-            if pool(equip[slot]):equip[slot]['affixes']=defaults(equip[slot])
+            if pool(item) and not item.get('affixes'):item['affixes']=defaults(item)
+        else:
+            item.pop('setId',None);item.pop('source',None)
+    for item in items(player):convert(item)
+    pending=w.get('riftPendingItem')
+    if isinstance(pending,str):
+        item=dict(id=pending,uid=secrets.token_hex(16));convert(item)
+        if item['id'] in TEMPLATES:
+            if len(w['bag'])<capacity(w):w['bag'].append(item)
+            else:player['gold']=min(10**9,player.get('gold',0)+max(1,item.get('price',60)))
+    fragments=w.pop('thangViFragments',0)
+    if type(fragments) is int and fragments>0:player['gold']=min(10**9,player.get('gold',0)+fragments)
+    shards=w.get('riftShards',0)
+    if type(shards) is int and shards>0:
+        converted=min(10**9,shards*20);player['gold']=min(10**9,player.get('gold',0)+converted);w['retiredShardGold']=w.get('retiredShardGold',0)+converted
+    for key in ('riftShards','riftFocus','riftPendingItem'):w.pop(key,None)
     for slot in RULES['slots']:equip.setdefault(slot,None)
-    w['equipmentVersion']=3
+    w['equipmentVersion']=4
     return True
+
 
 def validate(player, db=None, owner=None):
     w=player.get('world',{}); equip=w.get('equip',{})
@@ -84,9 +102,9 @@ def validate(player, db=None, owner=None):
         seen.add(uid)
         meta=TEMPLATES.get(item.get('id'))
         if meta:
-            for key in ('slot','classIndex','capacity','variant','art',*STAT_KEYS):
+            for key in ('slot','classIndex','capacity','variant','art','req','rarity','price',*STAT_KEYS):
                 if item.get(key,0)!=meta.get(key,0):raise ValueError('Chỉ số trang bị không hợp lệ.')
-        elif item.get('slot') in ('gioi','phaptran'):raise ValueError('Trang bị tiện ích không hợp lệ.')
+        elif item.get('slot') in RULES['slots']:raise ValueError('Trang bị tiện ích không hợp lệ.')
         allowed=pool(item)
         if not allowed:
             if item.get('affixes'):raise ValueError('Trang bị không có dòng tẩy luyện.')
@@ -114,6 +132,7 @@ def bonuses(player):
 def init_db(db, collection):
     db.executescript('''CREATE TABLE IF NOT EXISTS equipment_rolls(user_id INTEGER NOT NULL REFERENCES users(id),item_uid TEXT NOT NULL,item_id TEXT NOT NULL,lines TEXT NOT NULL,PRIMARY KEY(user_id,item_uid));
     CREATE TABLE IF NOT EXISTS shield_cooldowns(user_id INTEGER PRIMARY KEY REFERENCES users(id),ready_at REAL NOT NULL,active_until REAL NOT NULL,source_uid TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS equipment_migration_versions(user_id INTEGER NOT NULL,revision INTEGER NOT NULL,player TEXT NOT NULL,PRIMARY KEY(user_id,revision));
     CREATE TABLE IF NOT EXISTS equipment_ops(user_id INTEGER NOT NULL,op_id TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(user_id,op_id));''')
     for row in db.execute('SELECT * FROM characters').fetchall():
         player=json.loads(row['player'])
@@ -121,6 +140,9 @@ def init_db(db, collection):
             # Original JSON stays recoverable alongside the migrated character.
             db.execute('CREATE TABLE IF NOT EXISTS equipment_migration_backup(user_id INTEGER PRIMARY KEY,player TEXT NOT NULL,revision INTEGER NOT NULL)')
             db.execute('INSERT OR IGNORE INTO equipment_migration_backup VALUES(?,?,?)',(row['user_id'],row['player'],row['revision']))
+            db.execute('INSERT OR IGNORE INTO equipment_migration_versions VALUES(?,?,?)',(row['user_id'],row['revision'],row['player']))
+            for item in items(player):
+                db.execute('UPDATE equipment_rolls SET item_id=? WHERE user_id=? AND item_uid=?',(item['id'],row['user_id'],item['uid']))
             db.execute('UPDATE characters SET player=?,revision=revision+1 WHERE user_id=?',(json.dumps(player,ensure_ascii=False),row['user_id']))
 
 def shield_variant(item):

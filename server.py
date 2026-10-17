@@ -22,7 +22,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parent
 FARM_LAYOUT = json.loads((ROOT / 'Map' / 'farm-layout.json').read_text(encoding='utf-8'))
 FIELD_RULES = json.loads((ROOT / 'Map' / 'field-effects.json').read_text(encoding='utf-8'))
-BUILD_RULES = json.loads((ROOT / 'Map' / 'builds.json').read_text(encoding='utf-8'))
+PET_RULES = json.loads((ROOT / 'Item' / 'pet-skills.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
 SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
@@ -104,10 +104,7 @@ def valid_player(p):
         if not isinstance(item,dict) or not isinstance(item.get('id'),str) or not isinstance(item.get('uid'),str):
             raise ValueError('Vật phẩm không hợp lệ.')
         if type(item.get('enhance',0)) is not int or not 0<=item.get('enhance',0)<=15:raise ValueError('Cường hóa chỉ từ +0 đến +15.')
-        meta=collection_item(item['id'])
-        if item['id'].startswith('rift-') and (not meta or any(item.get(k)!=v for k,v in meta.items())):raise ValueError('Bộ trang bị không hợp lệ.')
-        if meta and any(item.get(k,0)!=meta.get(k,0) for k in ('atk','hp','mp','armor','crit','dodge','skill')):raise ValueError('Chỉ số bộ trang bị không hợp lệ.')
-        if item.get('setId') and not meta:raise ValueError('Bộ trang bị không hợp lệ.')
+        if item['id'].startswith('rift-') or item.get('setId'):raise ValueError('Bộ trang bị đã ngừng sử dụng.')
         if item.get('rarity') not in ('pham','huyen','linh','tien'):raise ValueError('Phẩm chất không hợp lệ.')
         for key in ('atk','hp','mp','armor','crit','dodge','skill','heal','mana','xp','price','req','qty'):
             if key in item and (type(item[key]) not in (int,float) or not math.isfinite(item[key]) or not 0<=item[key]<=10000):
@@ -135,50 +132,27 @@ def valid_player(p):
 
 
 def equipment_stats(player):
-    equipment=player.get('world',{}).get('equip',{})
-    slots=equipment_rules.RULES['combatSlots']
-    minimum=min((equipment.get(slot) or {}).get('enhance',0) for slot in slots)
-    tier=next((value for value in (15,13,11,9) if minimum>=value),0)
-    multiplier=1+{9:.05,11:.1,13:.15,15:.2}.get(tier,0)
-    attack=sum(max(0,min(100,item.get('atk',0)))*(1+.05*item.get('enhance',0)) for item in equipment.values() if isinstance(item,dict))
-    return attack,multiplier,tier
+    gear=player.get('world',{}).get('equip',{})
+    attack=sum(max(0,min(100,item.get('atk',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in gear.items() if isinstance(item,dict))
+    return attack,1,0
 
 
-def collection_bonuses(player):
-    counts=defaultdict(int)
-    for slot,item in player.get('world',{}).get('equip',{}).items():
-        meta=collection_item((item or {}).get('id',''))
-        if meta and meta['slot']==slot:counts[meta['setId']]+=1
-    result=defaultdict(float)
-    for spec in BUILD_RULES['sets']:
-        for threshold,stats in spec['bonuses'].items():
-            if counts[spec['id']]>=int(threshold):
-                for key,value in stats.items():result[key]+=value
-    return result
-
-
-def collection_item(item_id):
-    match=re.fullmatch(r'rift-([a-z]+)-([a-z]+)-(0|10|25|45)',item_id)
-    if not match:return None
-    set_id,slot,level=match.groups()
-    if set_id not in {s['id'] for s in BUILD_RULES['sets']} or slot not in BUILD_RULES['slots']:return None
-    grade=next(g for g in BUILD_RULES['grades'] if g['req']==int(level))
-    stats={k:round(v*(1 if k in ('crit','dodge','skill') else grade['scale']),2) for k,v in BUILD_RULES['baseStats'][slot].items()}
-    return dict(id=item_id,setId=set_id,slot=slot,req=int(level),rarity=grade['rarity'],**stats)
+# Kept only to decode old saves during the equipment migration.
+def collection_item(item_id):return equipment_rules.legacy_collection(item_id)
 
 
 def player_attack(player):
     level=player['r']*10+player['stage']-1
     gear,multiplier,_=equipment_stats(player)
     strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
-    return (8+level*1.3+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0))*multiplier*(1+collection_bonuses(player).get('atkPercent',0)+equipment_rules.bonuses(player).get('attackPercent',0))
+    return (8+level*1.3+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0))*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
 
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
-    hp=sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0)) for item in equipment.values() if isinstance(item,dict))
+    hp=sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
-    return round((100+(player['r']*10+player['stage']-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+collection_bonuses(player).get('hpPercent',0)+equipment_rules.bonuses(player).get('hpPercent',0)))
+    return round((100+(player['r']*10+player['stage']-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
 
 
 def damage_mob(mob,damage,owner,now,key):
@@ -232,7 +206,7 @@ def register_pet_cast(peer,body,player,now,mobs):
     world=player.get('world',{})
     pet=next((v for v in world.get('pets',[]) if v['id']==world.get('activePet')),None)
     if not pet or request.get('species')!=pet['species']:return
-    rule=BUILD_RULES['pets'][pet['species']];bonus=collection_bonuses(player)
+    rule=PET_RULES[pet['species']]
     target=next((m for m in mobs if m['id']==request.get('target') and not m['dead']),None)
     if pet['species']!='Tho' and (not target or math.hypot(target['x']-peer['x'],target['y']-peer['y'])>rule['range']):return
     uid=peer['id'];wall=time.time()
@@ -240,10 +214,10 @@ def register_pet_cast(peer,body,player,now,mobs):
         db.execute('CREATE TABLE IF NOT EXISTS pet_skill_cooldowns(user_id INTEGER PRIMARY KEY,ready_at REAL NOT NULL,cast_id TEXT NOT NULL)')
         row=db.execute('SELECT * FROM pet_skill_cooldowns WHERE user_id=?',(uid,)).fetchone()
         if row and (row['ready_at']>wall or row['cast_id']==cast_id):return
-        db.execute('INSERT INTO pet_skill_cooldowns VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,cast_id=excluded.cast_id',(uid,wall+rule['cooldown']*(1-bonus.get('petCooldown',0)),cast_id))
+        db.execute('INSERT INTO pet_skill_cooldowns VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,cast_id=excluded.cast_id',(uid,wall+rule['cooldown'],cast_id))
     peer['lastPetCast']=cast_id;peer['petCast']={'id':cast_id,'species':pet['species'],'x':target['x'] if target else peer['x'],'y':target['y'] if target else peer['y']};peer['petCastAt']=now
     if not target:return
-    power=player_attack(player)*rule['power']*(1+bonus.get('petPower',0));key=room_for(peer)
+    power=player_attack(player)*rule['power'];key=room_for(peer)
     if pet['species']=='Nhen':
         target.setdefault('_petEffects',{})[uid]={'kind':'poison','power':power,'ticks':5,'next':now+1,'petId':pet['id']}
     elif pet['species']=='Doi':
@@ -622,7 +596,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
-            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi')]})
+            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi')]})
             with connect() as shield_db:peer['ap']['shieldState']=equipment_rules.shield_state(shield_db,uid,p)
             ack_sustain=body.get('ackSustain',[])
             if not isinstance(ack_sustain,list) or len(ack_sustain)>100:raise ValueError()

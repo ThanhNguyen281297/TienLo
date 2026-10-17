@@ -17,3 +17,6 @@
 #shield-skill.shield-active{box-shadow:0 0 14px #78d5bf}
 #shield-skill:disabled{opacity:.7}
 @media(max-width:700px){.paper-doll{height:280px}.gear-slot.gear-0,.gear-slot.gear-4{top:0}.gear-slot.gear-1,.gear-slot.gear-5{top:70px}.gear-slot.gear-2,.gear-slot.gear-6{top:140px}.gear-slot.gear-3,.gear-slot.gear-7{top:210px}.gear-preview{height:280px!important}}
+.gm-catalog-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.gm-catalog-tools input,.gm-catalog-tools select{max-width:100%;box-sizing:border-box;padding:10px;border:1px solid #607c80;border-radius:6px;background:#102731;color:#d8e7dd}.gm-catalog-tools input{flex:1;min-width:150px}.gm-catalog .visual-action{min-height:34px}.gm-catalog .item-class-requirement{font-size:11px;color:#9de0bd}
+
+#gm-equipment-button[hidden]{display:none!important}

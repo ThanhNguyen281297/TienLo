@@ -33,7 +33,7 @@ class EquipmentTest(unittest.TestCase):
         exact={p.relative_to(server.ROOT).as_posix() for folder in ('Item','Character','Map','Skill') for p in (server.ROOT/folder).rglob('*') if p.is_file()}
         for meta in equipment.TEMPLATES.values():
             if meta.get('art'):self.assertIn(meta['art'],exact)
-        self.assertEqual(len(equipment.RULES['combatSlots']),6)
+        self.assertEqual(len(equipment.RULES['combatSlots']),4)
         self.assertEqual(len(equipment.RULES['slots']),8)
     def test_public_nginx_allows_current_asset_roots(self):
         config=(server.ROOT/'deploy/nginx.conf').read_text(encoding='utf-8')
@@ -43,13 +43,14 @@ class EquipmentTest(unittest.TestCase):
             self.assertRegex('/'+root+'/example.png',match[1])
     def test_v2_asset_move_preserves_reforged_lines_and_enhancement(self):
         equipment.normalize(self.player,server.collection_item)
+        self.player['world']['equip']['phapbao']=self.make('back-class-0')
         item=self.player['world']['equip']['phapbao'];item['enhance']=15
         item['affixes']=[dict(key=r['key'],value=r['max']) for r in equipment.RULES['offense'][-5:]]
         original=copy.deepcopy(item);item['art']='Item/PhapBao/Class/Kiem.png'
         self.player['world']['equipmentVersion']=2
         self.assertTrue(equipment.normalize(self.player,server.collection_item))
         self.assertEqual(item,original)
-        self.assertEqual(self.player['world']['equipmentVersion'],3)
+        self.assertEqual(self.player['world']['equipmentVersion'],4)
         self.assertFalse(equipment.normalize(self.player,server.collection_item))
     def test_migrate_old_collection_ring_gem_and_back_without_losing_items(self):
         old=copy.deepcopy(self.player);old['ap']['w']=3
@@ -59,11 +60,11 @@ class EquipmentTest(unittest.TestCase):
             'phapbao':dict(id='ho-tam-kinh',slot='phapbao',uid='old-back',rarity='huyen',armor=3,enhance=15)}
         old['world']['bag']=[dict(id='moc-kiem',slot='vukhi',name='Sword',uid='sword',rarity='pham',atk=3)]
         self.insert(old);server.init_db();p=self.saved();equip=p['world']['equip']
-        self.assertEqual((equip['chan']['id'],equip['chan']['uid'],equip['chan']['enhance']),('rift-phong-chan-10','old-ring',13))
+        self.assertEqual((equip['chan']['id'],equip['chan']['uid'],equip['chan']['enhance']),('chan-1-class-3','old-ring',13))
         self.assertIsNone(equip['gioi']);self.assertEqual(equipment.capacity(p['world']),30)
         self.assertEqual((equip['ngoc']['id'],equip['ngoc']['enhance']),('shield-1',9))
         self.assertEqual((equip['phapbao']['id'],equip['phapbao']['enhance']),('back-class-3',15))
-        self.assertEqual(equip['phaptran']['classIndex'],3);self.assertEqual([i['uid'] for i in p['world']['bag']],[i['uid'] for i in old['world']['bag']])
+        self.assertIsNone(equip['phaptran']);self.assertEqual([i['uid'] for i in p['world']['bag']],[i['uid'] for i in old['world']['bag']])
         server.valid_player(p)
         with server.connect() as db:
             self.assertEqual(json.loads(db.execute('SELECT player FROM equipment_migration_backup').fetchone()[0]),old)
@@ -73,7 +74,7 @@ class EquipmentTest(unittest.TestCase):
         equipment.normalize(self.player,server.collection_item)
         p=self.player;p['world']['equip']['gioi']=self.make('dong-gioi')
         self.assertEqual(equipment.capacity(p['world']),40)
-        p['world']['bag']=[dict(id='moc-kiem',slot='vukhi',uid=str(i),rarity='pham',atk=3) for i in range(40)]
+        p['world']['bag']=[dict(self.make('moc-kiem-class-0'),uid=str(i)) for i in range(40)]
         server.valid_player(p);p['world']['equip']['gioi']=None
         with self.assertRaises(ValueError):server.valid_player(p)
         p['world']['bag']=[];p['world']['equip']['gioi']=self.make('dong-gioi');p['world']['equip']['gioi']['capacity']=999
@@ -98,8 +99,50 @@ class EquipmentTest(unittest.TestCase):
                     state=equipment.shield_state(db,1,self.player)
                 self.assertEqual(state['variant'],style['shield'])
                 self.assertEqual(state['buff'],equipment.TEMPLATES['shield-'+str(style['shield'])]['buff'])
+    def test_new_character_has_no_bag_items_or_equipped_gear(self):
+        equipment.normalize(self.player)
+        self.assertEqual(self.player['world']['bag'],[])
+        self.assertTrue(all(i is None for i in self.player['world']['equip'].values()))
+        self.insert();server.init_db();self.assertEqual(self.saved()['world']['bag'],[])
+        self.assertTrue(all(i is None for i in self.saved()['world']['equip'].values()))
+    def test_left_gear_requires_its_class_and_has_canonical_stats(self):
+        equipment.normalize(self.player)
+        for cls in range(4):
+            self.player['ap']['w']=cls
+            for meta in equipment.RULES['classGear']:
+                self.player['world']['equip']={k:None for k in equipment.RULES['slots']}
+                self.player['world']['equip'][meta['slot']]=self.make(meta['id'])
+                if meta['classIndex']==cls:server.valid_player(self.player)
+                else:
+                    with self.assertRaises(ValueError):server.valid_player(self.player)
+        self.player['ap']['w']=0;self.player['world']['equip']={k:None for k in equipment.RULES['slots']}
+        self.player['world']['bag']=[self.make('moc-kiem-class-0')];self.player['world']['bag'][0]['atk']=999
+        with self.assertRaises(ValueError):server.valid_player(self.player)
+    def test_retired_shards_and_pending_item_are_migrated_once(self):
+        self.player['world'].update(equipmentVersion=3,riftShards=7,riftFocus='kim',riftPendingItem='rift-kim-ngoc-10')
+        self.insert();server.init_db();p=self.saved();self.assertEqual(p['gold'],1140)
+        self.assertEqual(p['world']['bag'][0]['id'],'shield-6')
+        self.assertFalse(any(k in p['world'] for k in ('riftShards','riftFocus','riftPendingItem')))
+        server.init_db();self.assertEqual(self.saved(),p)
+    def test_right_slots_never_gain_enhancement_stats(self):
+        equipment.normalize(self.player)
+        for item_id in ('back-class-0','shield-1','formation-0','dong-gioi'):
+            item=self.make(item_id);self.player['world']['equip'][item['slot']]=item
+        before=(server.player_attack(self.player),server.player_max_hp(self.player))
+        for item in self.player['world']['equip'].values():
+            if item:item['enhance']=15
+        self.assertEqual((server.player_attack(self.player),server.player_max_hp(self.player)),before)
+    def test_collection_reforge_survives_id_migration(self):
+        old=self.make('shield-6','old-shield');old.update(id='rift-kim-ngoc-10',slot='ngoc',setId='kim',source='rift')
+        old['affixes']=[dict(key=r['key'],value=r['max']) for r in equipment.RULES['defense'][:5]]
+        self.player['world'].update(equipmentVersion=3,equip={'ngoc':old})
+        self.insert()
+        with server.connect() as db:db.execute('INSERT INTO equipment_rolls VALUES(?,?,?,?)',(1,old['uid'],old['id'],json.dumps(old['affixes'])))
+        server.init_db();p=self.saved();self.assertEqual(p['world']['equip']['ngoc']['id'],'shield-6')
+        self.assertEqual(p['world']['equip']['ngoc']['affixes'],old['affixes'])
+        with server.connect() as db:equipment.validate(p,db,1)
     def test_reforge_transaction_replay_and_tamper_protection(self):
-        equipment.normalize(self.player,server.collection_item);self.insert()
+        equipment.normalize(self.player,server.collection_item);self.player['world']['equip']['phapbao']=self.make('back-class-0');self.insert()
         uid=self.player['world']['equip']['phapbao']['uid']
         request=dict(action='reforge',uid=uid,opId='operation-1',revision=1)
         with server.connect() as db:result=equipment.action(db,1,request)
