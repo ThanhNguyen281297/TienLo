@@ -11,13 +11,13 @@
   if(!item?.slot)return false;const next=level(item)+1;if(next>15){msg('Trang bị đã đạt tối đa +15.');return false;}
   const price=cost(next),free=!!window.gmTest?.enabled;
   if(!free&&(P.gold<price.gold||(p.essence||0)<price.essence)){msg('Cần '+price.gold+' Linh Thạch và '+price.essence+' Linh Nguyên.');return false;}
-  if(!free){P.gold-=price.gold;p.essence-=price.essence;}item.enhance=next;saveCharacter();msg(item.name+' đã cường hóa +'+next+(free?' · GM miễn phí.':'.'));return true;
+  if(!free){P.gold-=price.gold;p.essence-=price.essence;}item.enhance=next;saveCharacter();msg(item.name+' đã cường hóa +'+next+(free?' · GM miễn phí.':'.'));window.dispatchEvent(new CustomEvent('tienlo-item-success',{detail:{name:item.name,caption:'CƯỜNG HÓA THÀNH CÔNG · +'+next,src:inventory.itemIcon(item)}}));return true;
  }
  function decorate(button,item){const n=level(item);if(!n)return;button.classList.add('enhanced-item');button.style.setProperty('--enhance-color',color(n));button.style.setProperty('border-color',color(n),'important');const badge=document.createElement('span');badge.className='enhance-badge';badge.textContent='+'+n;button.append(badge);}
- function open(){const p=inventory.progress(),d=worldMap.dialog;d.show('Luyện Khí Phường · Cường hóa +15','Tối đa +15 · Mỗi cấp tăng 5% chỉ số gốc của món đồ · Thành công 100%'+(gmTest.enabled?' · GM: miễn phí.':'.'));
-  const set=setInfo();d.line('Full set 6 món: +9 / +11 / +13 / +15 tăng 5% / 10% / 15% / 20% chỉ số tổng. Hiện tại: '+(set.tier?'+'+set.tier+' · +'+Math.round(set.bonus*100)+'%':'chưa đủ bộ'));
+ function open(){const p=inventory.progress(),d=worldMap.dialog,ui=visualUI;d.show('Luyện Khí Phường · Cường hóa +15','Chọn trang bị để nâng cấp · Thành công 100%');
+  const set=setInfo();ui.chips([['◈',P.gold],['Linh Nguyên',p.essence||0],['Bộ','+'+set.tier],['Thưởng',Math.round(set.bonus*100)+'%']],$('world-content'));ui.details('Mỗi cấp +5% chỉ số gốc. Full 6 món +9/+11/+13/+15: thêm 5/10/15/20% chỉ số tổng.',$('world-content'));
   const items=[...Object.values(p.equip).filter(Boolean),...p.bag.filter(i=>i.slot)];if(!items.length)d.line('Chưa có trang bị. Mở túi đồ hoặc mua ở Bảo Khí Các.');
-  for(const item of items){const n=level(item),price=cost(n+1);d.action(item.name+' +'+n+' → '+(n===15?'Đã tối đa':('+'+(n+1)+' · '+(gmTest.enabled?'GM miễn phí':price.gold+' ◈ + '+price.essence+' Linh Nguyên'))),()=>{if(enhance(item.uid))open();},n===15);}
+  const grid=ui.node('div','visual-grid');$('world-content').append(grid);for(const item of items){const n=level(item),price=cost(n+1),{body}=ui.panel(item.name,inventory.itemIcon(item),grid);ui.meter(n,15,'Cường hóa',body);ui.chips(Object.entries({atk:'Công',hp:'HP',mp:'MP',armor:'Giáp'}).filter(([key])=>item[key]).slice(0,2).map(([key,label])=>[label,stat(item,key)]),body);ui.action(body,n===15?'Đã tối đa':'Nâng +'+(n+1)+' · '+(gmTest.enabled?'GM':price.gold+' ◈ / '+price.essence+' LN'),()=>{if(enhance(item.uid))open();},n===15||(!gmTest.enabled&&(P.gold<price.gold||(p.essence||0)<price.essence)));}
   d.action('Mở túi đồ',inventory.openBag);
  }
  const masks=new WeakMap(),scratches=new WeakMap();

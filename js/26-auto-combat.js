@@ -88,7 +88,10 @@
     const priority=plan().priority;
     const filtered=priority==='mobs'?candidates.filter(c=>!isBoss(c.e)):candidates;
     filtered.sort((a,b)=>priority==='boss'?(Number(isBoss(b.e))-Number(isBoss(a.e))||a.d-b.d):priority==='weak'?(a.e.hp/Math.max(1,a.e.maxHp||a.e.hp)-b.e.hp/Math.max(1,b.e.maxHp||b.e.hp)||a.d-b.d):a.d-b.d);
-    return filtered[0]?.e||null;
+    const best=filtered[0],selected=window.cultivation?.basicSelection()?.target,current=filtered.find(c=>c.e===selected);
+    // Keep a target through small distance changes so movement does not reset combos.
+    if(best&&current&&(priority==='nearest'||(priority==='boss'&&isBoss(current.e)===isBoss(best.e)))&&Math.sqrt(current.d)<=Math.sqrt(best.d)*1.2+20)return current.e;
+    return best?.e||null;
   }
   function face(point) {
     const dx = point.x - P.x, dy = point.y - P.y;

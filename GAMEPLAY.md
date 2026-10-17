@@ -4,6 +4,20 @@ Không có gameplay tốt nhất cho mọi nhóm người chơi. Hướng phù h
 
 Thiết kế tham khảo cách hướng dẫn theo mốc của [Guild Wars 2 New Player Guide](https://www.guildwars2.com/en/new-player-guide/) và chiến đấu hợp tác ngoài thế giới của [Guild Wars 2 Combat](https://www.guildwars2.com/en/the-game/combat/). Các con số dưới đây là lựa chọn riêng của Tiên Lộ, chưa phải kết quả cân bằng qua dữ liệu người chơi.
 
+## Giao diện thiên về thao tác — 17/10/2026
+
+Thay phần lớn đoạn mô tả thường trực bằng sprite hiện có, thẻ hoạt động, ô thưởng, thanh tiến độ và nút hành động. Chi tiết đầy đủ vẫn có trong phần mở rộng; xác nhận rời đội/chuyển quyền và chi phí không bị giấu. Không thay asset map, chiến đấu hoặc dữ liệu nhân vật khi đổi giao diện.
+
+- Hoạt động: hai cột, hình khu vực, thưởng dạng chip, tiến độ đạo hạnh/nhiệm vụ/mảnh. HUD chỉ giữ mục tiêu ngắn, chạm mở bảng.
+- Học chiêu: icon từ sprite đúng class, MP/cooldown, điều kiện cảnh giới, học hoặc nâng cấp và thanh 0–3.
+- Cường hóa: hình từng món, cấp 0–15, chỉ số hiện tại, giá cấp tiếp theo; không đủ nguyên liệu thì khóa nút. Thành công có thông báo hình trang bị.
+- Bộ đồ: bốn thẻ bộ, tiến độ 0–6, mốc 2/4/6; sáu ô đổi món có icon. Giữ chặn đổi bộ săn giữa lượt bí cảnh và giữ kiểm tra túi đầy.
+- Linh thú: chọn trứng bằng hình, chọn pet bằng thẻ, tên kỹ năng/cooldown ngắn. Chạm Chi tiết xem tác dụng pet đang chọn.
+- Boss/bí cảnh: hình boss và thưởng, luật đóng góp/né đòn mở trong Chi tiết. Trạng thái hồi sinh và quyền nhận rương vẫn từ server.
+- Bách khoa: 12 mục/trang, icon và chỉ số chính, tìm không dấu, chi tiết/nguồn nhận mở theo từng mục; đổi bộ lọc/từ khóa quay về trang đầu.
+
+Sửa auto giữ mục tiêu khi khoảng cách chỉ thay đổi nhỏ, tránh liên tục reset combo. Ưu tiên boss và bộ lọc quái vẫn được tôn trọng. Callback nhận thưởng nhập môn/Hộ thành kiểm tra lại trạng thái và số quái trước khi phát, tránh cộng lần nữa khi gọi lại nút cũ. Đây là kiểm tra tính đúng đắn phía client, không thay thế lộ trình server xác thực toàn bộ kinh tế.
+
 ## Tham khảo gameplay và sổ tay mới
 
 Ngày 16/10/2026, xem trực tiếp tài khoản Phàm Nhân tại [Tu Tiên 2D](https://tutien2d.com/?choi): nhiệm vụ nhiều bước, auto có bộ combo và ưu tiên mục tiêu, bí tịch có điều kiện học, bảng hoạt động/lịch boss, bản đồ mô tả khu vực, công thức rèn chỉ rõ nguyên liệu thiếu. Các hoạt động cấp cao bị khóa theo cảnh giới; chưa kiểm chứng thực chiến của chúng. Chỉ tham khảo cấu trúc, không dùng code hay asset của trang này.
