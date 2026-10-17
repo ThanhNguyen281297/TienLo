@@ -215,7 +215,7 @@
       ctx.save();
       ctx.translate(wx, wy);
       ctx.rotate(angle);
-      ctx.scale(1.4,1.4);
+    ctx.scale(1.14,1.14);
       weaponEnergy(ctx,index,quality,attacking,false);
       ctx.shadowColor = weaponColor;
       ctx.shadowBlur = attacking ? 7 : 3+quality*.5;

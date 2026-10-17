@@ -162,8 +162,8 @@ ctx.restore();
       dialog.action('Hoàn tất hướng dẫn · +10 Linh Thạch',()=>{p.tutorial=true;P.gold+=10;P.hp=mhp();P.mp=mmp();saveCharacter();dialog.close();msg('Đã nhập môn. Tới Truyền Tống Trận phía tây nam để sang Thiên Vân Thành học kỹ năng.');},!world.state.guideMove);
     }
     if(!p.sectQuest)p.sectQuest={status:'none',kills:0};
-    const q=p.sectQuest;if(q.status==='none'){dialog.line('Bài tập nhập môn: hạ 3 yêu thú tại bốn bãi luyện công. Thưởng 35 Linh Thạch và 20 đạo hạnh.');dialog.action('Nhận bài tập nhập môn',()=>{q.status='active';q.kills=0;saveCharacter();mentor();});}
-    else if(q.status==='active'){dialog.line('Yêu thú: '+q.kills+'/3.');dialog.action('Nhận thưởng nhập môn',()=>{if(q.status!=='active'||q.kills<3)return;q.status='claimed';P.gold+=35;P.xp=Math.min(need()*3,P.xp+20);saveCharacter();mentor();},q.kills<3);}
+    const q=p.sectQuest;if(q.status==='none'){dialog.line('Bài tập nhập môn: hạ 3 yêu thú tại bốn bãi luyện công. Thưởng 35 Linh Thạch, 20 EXP và 20 tu vi.');dialog.action('Nhận bài tập nhập môn',()=>{q.status='active';q.kills=0;saveCharacter();mentor();});}
+    else if(q.status==='active'){dialog.line('Yêu thú: '+q.kills+'/3.');dialog.action('Nhận thưởng nhập môn',()=>{if(q.status!=='active'||q.kills<3)return;q.status='claimed';P.gold+=35;gainExperience(20);saveCharacter();mentor();},q.kills<3);}
     else dialog.line('Đã hoàn thành bài tập nhập môn. Hãy tới Thiên Vân Thành nhận nhiệm vụ Hộ thành.');
   }
   function teach(){const p=world.progress(),owner=scene()==='sword'?0:1,names=P.ap.w===0?['Phi Kiếm Quyết','Kiếm Ảnh Bộ','Bát Quái Kiếm Trận','Vạn Kiếm Quy Tông']:['Tam Nguyệt Trảm','Nguyệt Ảnh Bộ','Nguyệt Luân Trận','Minh Nguyệt Giáng Thế'];

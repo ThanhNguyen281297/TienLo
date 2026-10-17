@@ -8,7 +8,7 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
   const page=await browser.newPage({viewport:{width:1280,height:800}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>requestAnimationFrame=()=>0);await require('./test-account.cjs')(page);
   await page.goto('http://127.0.0.1:'+port,{waitUntil:'networkidle'});
-  await page.waitForFunction(()=>spellActors.ready);
+  await page.waitForFunction(()=>spellActors.ready&&spellImagery.ready);
   const result=await page.evaluate(()=>{
    const c=document.createElement('canvas');c.width=400;c.height=320;const g=c.getContext('2d',{willReadFrequently:true});
    const original=skillSprites.draw;skillSprites.draw=()=>{throw Error('World effects must not dissolve whole finished illustrations');};
@@ -20,6 +20,14 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    }
    const summaries=[];
    for(let sect=0;sect<4;sect++){
+    const subjectFrames=[];
+    for(let n=0;n<24;n++){
+     g.clearRect(0,0,400,320);spellImagery.draw(g,sect,200,160,180,200,n/60+.5);
+     const p=g.getImageData(0,0,400,320).data;let h=2166136261;
+     for(let i=0;i<p.length;i+=4)h=Math.imul(h^p[i]^p[i+3],16777619);
+     subjectFrames.push(h>>>0);
+    }
+    if(new Set(subjectFrames).size!==24)throw Error('Illustrated subject is static for class '+sect);
     const samples=[];for(let n=0;n<45;n++)samples.push(render(sect,.4+n/60));
     if(new Set(samples.map(s=>s.hash)).size!==samples.length)throw Error('Frozen animation for class '+sect);
     if(samples.some(s=>s.lit<100))throw Error('Missing visible texture for class '+sect);

@@ -230,7 +230,8 @@
   };
   function openAttrs() {
     const p = progress(), b = window.bonusStats();
-    dialog.show('Thuộc tính · ' + (window.cultivation ? cultivation.realmName() : ''), 'Tăng tầng +3 điểm, đột phá +5 điểm. Điểm còn: ' + p.attrPoints);
+    dialog.show('Thuộc tính · Cấp '+characterLevel()+' · ' + (window.cultivation ? cultivation.realmName() : ''), 'Tăng tầng +3 điểm, đột phá +5 điểm. Điểm còn: ' + p.attrPoints);
+    dialog.line('EXP '+P.levelXp+'/'+characterProgression.required(characterLevel())+' · Tu vi '+Math.floor(P.xp)+'/'+need());
     dialog.line('Công ' + Math.round(atk()) + ' · Máu ' + mhp() + ' · Linh ' + mmp() + ' · Bạo ' + Math.round(b.crit * 100) + '% · Né ' + Math.round(b.dodge * 100) + '% · Skill +' + Math.round(b.skill * 100) + '%');
     dialog.line('Hút máu '+((b.lifesteal||0)*100).toFixed(2)+'% · Hút linh lực '+((b.manasteal||0)*100).toFixed(2)+'% · Kháng '+((b.resist||0)*100).toFixed(2)+'% · Hồi máu '+(b.regen||0).toFixed(2)+'/s');
     for (const key of ['luc', 'the', 'nhanh', 'linh']) {

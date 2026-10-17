@@ -16,6 +16,20 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_level_legacy_read_and_persistence_preserve_cultivation(self):
+        cookie,csrf=self.register('legacy_level');p=self.player();p.update(r=4,stage=7,xp=321)
+        self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':0,'player':p},cookie)[0],201)
+        with server.connect() as db:
+            row=db.execute('SELECT user_id,player FROM characters').fetchone();legacy=json.loads(row['player']);legacy.pop('level');legacy.pop('levelXp')
+            db.execute('UPDATE characters SET player=? WHERE user_id=?',(json.dumps(legacy),row['user_id']))
+        character=self.request('/api/characters',cookie=cookie)[1]['character'];loaded=character['player']
+        self.assertEqual((loaded['level'],loaded['levelXp'],loaded['r'],loaded['stage'],loaded['xp']),(47,0,4,7,321))
+        with server.connect() as db:self.assertNotIn('level',json.loads(db.execute('SELECT player FROM characters').fetchone()[0]))
+        loaded.update(level=48,levelXp=123)
+        self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':character['revision'],'player':loaded},cookie)[0],201)
+        server.init_db();saved=self.request('/api/characters',cookie=cookie)[1]['character']['player']
+        self.assertEqual((saved['level'],saved['levelXp'],saved['r'],saved['stage'],saved['xp']),(48,123,4,7,321))
+
     def social_user(self,name,realm=0):
         cookie,csrf=self.register(name);p=self.player(name);p.update(gold=1000,r=realm,x=1000,y=1100);p['world']['map']='hub'
         self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':0,'player':p},cookie)[0],201)

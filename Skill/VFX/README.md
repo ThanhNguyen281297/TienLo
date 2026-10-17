@@ -1,8 +1,10 @@
 # Layered spirit VFX
 
+The current illustrated subject layer is [class-spirit-actors-v2.png](class-spirit-actors-v2.png), generated with built-in ImageGen. [Its prompts and renderer notes](class-spirit-actors-v2.prompt.md) describe the sword array, crescent lotus, dragon and phoenix. This layer and the existing class formation paintings now sit above the subtle components described below. The complete subjects bend continuously; they do not dissolve between six pose paintings.
+
 `spirit-components-v1.png` is an RGBA atlas generated with the built-in ImageGen tool, with a second pass to restore transparent padding. Existing Kiem/Liem/Thuong/Quat skill illustrations supplied the visual direction; existing weapon PNGs supply the moving weapon actors.
 
-The atlas is a 4-column, 2-row grid. In row order: crescent, streak, wisp, star, seal, petal, impact, shockwave. `js/11c-spell-actors.js` separates the complete cells into cached canvas sprites, tints them per class, and animates each actor in simulation time. No frame sequence of whole spell illustrations is used for in-world ultimates, fields or projectiles. Existing six-pose assets remain the icon/gallery source. The existing outline-only teleport remains unchanged.
+The atlas is a 4-column, 2-row grid. In row order: crescent, streak, wisp, star, seal, petal, impact, shockwave. `js/11c-spell-actors.js` separates the complete cells into cached canvas sprites, tints them per class, and animates each actor in simulation time. No frame sequence of whole spell illustrations is used for in-world ultimates, fields or projectiles. Existing six-pose assets supply icons/gallery and the selected formation paintings used by the v2 layer. The existing outline-only teleport remains unchanged.
 
 ## Generation prompt
 

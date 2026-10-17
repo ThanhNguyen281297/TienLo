@@ -1,5 +1,14 @@
 # Thiết kế gameplay Tiên Lộ Online
 
+## Cấp nhân vật và tu vi — 18/10/2026
+
+- Level 1–200 tự tăng bằng EXP từ quái và phần thưởng nhiệm vụ; giữ toàn bộ EXP dư qua nhiều cấp. Cấp cuối không tích thêm EXP. Cần `100 + 45n + 12n²` EXP, với `n = cấp−1`: cấp 1 cần 100, cấp 2 cần 157, cấp 10 cần 1.477, cấp 50 cần 31.117 EXP. Mỗi cấp +6 HP, +2 MP, +0,8 Công gốc; server tính HP/Công theo cùng công thức.
+- Tu vi vẫn là 15 cảnh giới × 10 tầng và luật học skill/trang bị hiện tại. `P.xp` là đạo hạnh tu vi, `P.levelXp` là EXP level; tăng tầng không tiêu EXP level. Đả tọa/Tu Vi Đan chỉ tăng đạo hạnh. Bí cảnh vẫn chỉ thưởng Linh Thạch, không cho EXP khi hạ quái trong lượt.
+- Nhân vật cũ được thêm level bằng `r×10 + stage`, EXP level 0, giữ nguyên cảnh giới, tầng, đạo hạnh và trang bị. Đọc bản lưu cũ không tự ghi DB; lần lưu hợp lệ tiếp theo bổ sung hai trường. Nhân vật mới bắt đầu level 1/EXP 0, túi và trang bị trống.
+- HUD có EXP và tu vi riêng. Skill dùng sprite chủ thể mới, có biến dạng liên tục cho thân rồng/cánh phượng và chuyển động tụ lực–phóng chiêu; pháp trận dùng tranh riêng đúng class. Thời điểm gây sát thương, hồi chiêu và outline dịch chuyển giữ luật chiến đấu hiện có.
+
+Kiểm thử tiến trình: `python tests/test_character_progression.py`, `node tests/character-level.test.cjs`, `node tests/cultivation-gameplay.test.cjs`. Đây vẫn là hệ tiến trình do client báo về, server kiểm tra phạm vi/cấu trúc và dùng số đã lưu cho chiến đấu online; chưa phải mô phỏng toàn bộ EXP trên server.
+
 ## Chủ đề map từ asset 10–15
 
 Đã cập nhật cảnh quan cho Vạn Kiếm/Thiên Vân (cổ ngọc), Nguyệt Hồ (liên hoa), Lôi Vân (băng tinh), Thiên Cơ/Linh Mạch (linh mộc), đấu trường (hỏa điện) và chiến trường boss (ma vực). Bí cảnh solo dùng cổ tích ngọc. Dùng sprite PNG đã tách alpha và giữ nguyên các cụm kiến trúc dính nhau; các cụm lớn nằm sau địa hình, cây/trụ nhỏ dùng các ô trang trí sẵn có. Ánh sáng vách đảo được cache theo chủ đề. Nền vẫn lát từng viên; tọa độ online, vị trí quái, va chạm và cặp truyền tống không đổi. Bỏ hồ sen cũ chồng vào trận truyền tống Linh Mạch.

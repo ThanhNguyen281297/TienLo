@@ -23,6 +23,7 @@
       const saved=structuredClone(character.player),sx=saved.x,sy=saved.y;
       classCombat.onRespawn();window.basicCombat?.reset();window.autoCombat?.toggle(false);
       for(const key of Object.keys(P))delete P[key];Object.assign(P,{x:1000,y:1100,hp:100,mp:20,xp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,sl:0,mv:false,dir:0,ap:null,nm:''},saved);
+      characterProgression.normalize(P);
       K={};ptr=null;cr.style.display='none';ttl.style.display='none';worldMap.dialog.close();
       let map=P.world?.map||worldMap.sectMapFor(P.ap.w);
       if(map==='arena'||!worldMap.sectMaps[map])map=worldMap.sectMapFor(P.ap.w);

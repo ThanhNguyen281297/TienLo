@@ -1,12 +1,14 @@
 const cv=document.getElementById('c'),g=cv.getContext('2d'),$=id=>document.getElementById(id);
 const M=2000;let Z=1.8;const R=['Phàm Nhân','Luyện Khí','Trúc Cơ','Kim Đan','Nguyên Anh','Hóa Thần','Luyện Hư','Hợp Thể','Đại Thừa','Độ Kiếp','Chân Tiên','Kim Tiên','Thái Ất','Đại La','Đạo Tổ'],RC=['#8b7d6b','#5fb3a1','#4a78b5','#d9a441','#b0566f','#8a5cc2','#65a1d5','#a1b474','#e2bd72','#e183bb','#d2eafa','#ffd574','#ad9beb','#fae4ab','#fff4db'];
 const T=[{n:'Bọ Ngựa',hp:20,at:4,xp:10,c:'#7fa650',s:10},{n:'Sói Yêu',hp:60,at:9,xp:28,c:'#7a7f88',s:13},{n:'Hổ Yêu',hp:320,at:20,xp:180,c:'#c9792e',s:22}];
-let P={x:1000,y:1000,hp:100,mp:20,xp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,sl:0,mv:false,dir:0,ap:null,nm:''};
+let P={x:1000,y:1000,hp:100,mp:20,xp:0,level:1,levelXp:0,r:0,stage:1,gold:0,f:1,med:0,acd:0,scd:0,sl:0,mv:false,dir:0,ap:null,nm:''};
 // Module tài khoản tải bản lưu từ server sau khi đăng nhập.
 function saveCharacter(){if(window.saveLocalCharacter)window.saveLocalCharacter()}
 const cultivationLevel=()=>P.r*10+(P.stage||1)-1;
 const bonusStats=()=>{try{return window.bonusStats?window.bonusStats():{atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}catch(e){return {atk:0,hp:0,mp:0,armor:0,crit:0,dodge:0,skill:0};}};
-const mhp=()=>Math.round((100+cultivationLevel()*6+(bonusStats().hp||0))*(1+(bonusStats().hpPercent||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(bonusStats().mp||0))*(1+(bonusStats().mpPercent||0))),atk=()=>(8+cultivationLevel()*1.3+(bonusStats().atk||0))*(1+(bonusStats().atkPercent||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
+const characterLevel=()=>Math.max(1,Math.min(200,P.level??(cultivationLevel()+1)));
+const mhp=()=>Math.round((100+cultivationLevel()*6+(characterLevel()-1)*6+(bonusStats().hp||0))*(1+(bonusStats().hpPercent||0))),mmp=()=>Math.round((20+cultivationLevel()*3+(characterLevel()-1)*2+(bonusStats().mp||0))*(1+(bonusStats().mpPercent||0))),atk=()=>(8+cultivationLevel()*1.3+(characterLevel()-1)*.8+(bonusStats().atk||0))*(1+(bonusStats().atkPercent||0)),need=()=>Math.round(40+cultivationLevel()*12+cultivationLevel()**2*.4),cost=()=>Math.round(12+(P.r+1)*8+(P.stage||1)*2);
+function gainExperience(amount){window.characterProgression?.gain(amount);}
 let E=[],B=[],X=[],K={},ptr=null,W,H,tm=0,sv=0;
 function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight)));Z=1.8*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
 function gameCamera(vw=W/Z,vh=H/Z){return {x:P.x-vw/2,y:P.y-vh/2,vw,vh};}
@@ -17,8 +19,8 @@ function spawn(i){const a=Math.random()*6.28,d=Math.random(),t=d<.5?0:d<.88?1:2;
 for(let i=0;i<32;i++)spawn(i);
 const fx=(x,y,t,c)=>{X.push({x,y,t,c,l:.9,vx:((X.length%3)-1)*5,strong:typeof t==='number'&&t>atk()*1.5});if(X.length>64)X.shift();};
 const near=r=>{let b=null,bd=r*r;for(const e of E){if(e.dead)continue;const d=(e.x-P.x)**2+(e.y-P.y)**2;if(d<bd){bd=d;b=e}}return b};
-function hit(e,v){const k=T[e.t];v=Math.round(v);e.hp-=v;fx(e.x,e.y-k.s,v,'#ffd27a');
- if(e.hp<=0){e.dead=8;if(e.rift)return;const experience=e.xpReward??k.xp;P.xp=Math.min(need()*3,P.xp+experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
+function hit(e,v){if(e.dead||e.hp<=0)return;const k=T[e.t];v=Math.round(v);e.hp-=v;fx(e.x,e.y-k.s,v,'#ffd27a');
+ if(e.hp<=0){e.dead=8;if(e.rift)return;const experience=e.xpReward??k.xp;gainExperience(experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
 function cast(){if(P.scd>0||P.mp<10)return;const e=near(320);let vx=P.f,vy=0;
  if(e){const d=Math.hypot(e.x-P.x,e.y-P.y)||1;vx=(e.x-P.x)/d;vy=(e.y-P.y)/d}
  P.mp-=10;P.scd=1;B.push({x:P.x,y:P.y-8,vx:vx*280,vy:vy*280,l:1.2})}
@@ -62,8 +64,7 @@ function up(dt){
  sv+=dt;if(sv>5){sv=0;saveCharacter()}
  hud()}
 function hud(){$('rn').textContent=R[P.r]+(P.med?' · đả tọa':'');$('gd').textContent='◈ '+P.gold;
- $('hp').firstChild.style.width=P.hp/mhp()*100+'%';$('mp').firstChild.style.width=P.mp/mmp()*100+'%';$('xp').firstChild.style.width=P.xp/need()*100+'%';
- $('st').textContent='Khí Huyết '+Math.ceil(P.hp)+'/'+mhp()+' · Linh Lực '+Math.floor(P.mp)+'/'+mmp()+' · Đạo Hạnh '+Math.floor(P.xp)+'/'+need();
+ $('hp').firstChild.style.width=P.hp/mhp()*100+'%';$('mp').firstChild.style.width=P.mp/mmp()*100+'%';window.characterProgression?.refreshHud();
  $('bb').disabled=P.r>=5||P.xp<need();$('bb').textContent='Đột Phá (B) · '+cost()+' ◈'}
 // Renderer đăng ký bởi module cảnh trước khi khởi động game.
 let dr;

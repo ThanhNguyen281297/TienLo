@@ -1,6 +1,7 @@
 """Tiên Lộ: SQLite accounts, sessions, characters and shared online maps. Python 3.11+."""
 import community
 import equipment as equipment_rules
+import progression
 import hashlib
 import hmac
 import json
@@ -91,6 +92,7 @@ def valid_player(p):
             raise ValueError('Chỉ số nhân vật không hợp lệ: ' + key)
         if key in ('r','stage','gold') and value != int(value):
             raise ValueError('Chỉ số nguyên không hợp lệ.')
+    progression.validate(p)
     world = p.get('world', {})
     if not isinstance(world, dict) or world.get('map', 'sword') not in MAPS or not isinstance(world.get('bag', []), list) or len(world.get('bag', [])) > equipment_rules.capacity(world):
         raise ValueError('Túi đồ hoặc bản đồ không hợp lệ.')
@@ -145,14 +147,14 @@ def player_attack(player):
     level=player['r']*10+player['stage']-1
     gear,multiplier,_=equipment_stats(player)
     strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
-    return (8+level*1.3+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0))*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
+    return (8+level*1.3+(progression.level(player)-1)*.8+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0))*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
 
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
     hp=sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
-    return round((100+(player['r']*10+player['stage']-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
+    return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
 
 
 def damage_mob(mob,damage,owner,now,key):
@@ -415,7 +417,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if not user: return self.reply(401,{'error':'Vui lòng đăng nhập.'})
             if path=='/api/characters':
                 with connect() as db: row=db.execute('SELECT * FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
-                return self.reply(200,{'character':{'id':row['id'],'player':json.loads(row['player']),'revision':row['revision']} if row else None})
+                return self.reply(200,{'character':{'id':row['id'],'player':progression.normalize(json.loads(row['player'])),'revision':row['revision']} if row else None})
             if path=='/api/equipment': return self.equipment(user)
             if path=='/api/community': return self.community(user)
             if path=='/api/arena': return self.arena(user,False)
@@ -522,6 +524,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         player=body.get('player')
         if isinstance(player,dict):equipment_rules.normalize(player,collection_item)
         valid_player(player)
+        progression.normalize(player)
         uid=user['user_id']; revision=body.get('revision',0)
         if type(revision) is not int: raise ValueError()
         with DB_LOCK, connect() as db:

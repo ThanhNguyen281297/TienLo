@@ -8,9 +8,9 @@
     const ui=visualUI,p=world.progress(),level=cultivationLevel();
     const key=title.includes('Bí Cảnh')?'portal':title.includes('Đấu trường')?'arena':title.includes('Huyết Ma')?'tower':title.includes('Tông môn')?'palace':title.includes('trang bị')?'forge':title.includes('Linh Mạch')?'garden':title.includes('nhập môn')?'school':'statue';
     const {card:box,body}=ui.panel(title,'Map/sprites/'+key+'.png',$('activity-grid')||$('world-content'));
-    if(title==='Hành trình chính')ui.meter(Math.floor(P.xp),need(),'Đạo hạnh',body);
-    else if(title==='Bài tập nhập môn'){const q=p.sectQuest||{};ui.meter(q.status==='claimed'?3:q.kills||0,3,'Yêu thú',body);ui.chips([['◈',35],['Đạo hạnh',20]],body);}
-    else if(title.includes('Linh Mạch'))ui.chips([['Linh Nguyên','×2'],['Đạo hạnh','+20%']],body);
+    if(title==='Hành trình chính'){ui.meter(P.levelXp,characterProgression.required(characterLevel()),'EXP · Cấp '+characterLevel(),body);ui.meter(Math.floor(P.xp),need(),'Tu vi',body);}
+    else if(title==='Bài tập nhập môn'){const q=p.sectQuest||{};ui.meter(q.status==='claimed'?3:q.kills||0,3,'Yêu thú',body);ui.chips([['◈',35],['EXP',20],['Tu vi',20]],body);}
+    else if(title.includes('Linh Mạch'))ui.chips([['Linh Nguyên','×2'],['EXP / tu vi','+20%']],body);
     else if(title.includes('Bí Cảnh'))ui.chips([['◈',120+level*4]],body);
     else if(title.includes('Đấu trường'))ui.chips([['Lượt/ngày',2],['Đợt',30],['◈',300]],body);
     else if(title.includes('Huyết Ma'))ui.chips([['◈',250],['Linh Nguyên',60]],body);
@@ -28,11 +28,11 @@
     if(run){card('Đang trong thử thách','Hoàn thành hoặc rời lượt hiện tại trước khi vào hoạt động khác.','Mở menu không kết thúc lượt.');button('Trở lại chiến đấu',d.close);return;}
     const learned=p.learnedSkills||[],next=cultivation.requirements.findIndex((_,i)=>!learned[i]);
     const main=card('Hành trình chính',!p.tutorial?'Di chuyển quanh sân và gặp Sư phụ để nhập môn.':next>=0?'Chiêu tiếp theo: '+combatNames[P.ap.w][next]+' · cần '+R[cultivation.requirements[next].realm]+' '+cultivation.requirements[next].stage+'.':'Đã học đủ bốn kỹ năng. Tiếp tục luyện kỹ năng, cường hóa trang bị và phối hợp đạo hữu.',
-      cultivation.realmName()+' · Đạo hạnh '+Math.floor(P.xp)+'/'+need(),inventory.openAttrs,'Thuộc tính');
+      'Cấp '+characterLevel()+' · '+cultivation.realmName()+' · Tu vi '+Math.floor(P.xp)+'/'+need(),inventory.openAttrs,'Thuộc tính');
     if(next>=0&&p.tutorial)button('Tới Truyền Công Các',trainer,main).disabled=!safe;
     const q=p.sectQuest||{status:'none',kills:0};
-    card('Bài tập nhập môn','Hạ 3 yêu thú sau khi nhận bài từ Sư phụ. Thưởng 35 Linh Thạch +20 đạo hạnh.',q.status==='claimed'?'Đã nhận thưởng':q.status==='active'?'Tiến độ '+Math.min(3,q.kills||0)+'/3':'Chưa nhận bài tập',()=>{const home=world.sectMapFor(P.ap.w);if(world.state.scene!==home)travel(home);if(world.state.scene===home)world.handleService('mentor');},'Gặp Sư phụ',!safe);
-    card('Luyện công · Linh Mạch Cốc','Quái cho Linh Nguyên x2, đạo hạnh nhiều hơn 20%, nhưng khỏe hơn 15%. Dùng nguyên liệu luyện đan và cường hóa.',p.tutorial?'Đã mở · quái chung, có thể tổ đội':'Cần hoàn thành nhập môn',()=>travel('valley'),'Đến Linh Mạch Cốc',!p.tutorial||!safe);
+    card('Bài tập nhập môn','Hạ 3 yêu thú sau khi nhận bài từ Sư phụ. Thưởng 35 Linh Thạch, 20 EXP và 20 tu vi.',q.status==='claimed'?'Đã nhận thưởng':q.status==='active'?'Tiến độ '+Math.min(3,q.kills||0)+'/3':'Chưa nhận bài tập',()=>{const home=world.sectMapFor(P.ap.w);if(world.state.scene!==home)travel(home);if(world.state.scene===home)world.handleService('mentor');},'Gặp Sư phụ',!safe);
+    card('Luyện công · Linh Mạch Cốc','Quái cho Linh Nguyên x2, EXP và tu vi nhiều hơn 20%, nhưng khỏe hơn 15%. Dùng nguyên liệu luyện đan và cường hóa.',p.tutorial?'Đã mở · quái chung, có thể tổ đội':'Cần hoàn thành nhập môn',()=>travel('valley'),'Đến Linh Mạch Cốc',!p.tutorial||!safe);
     const level=cultivationLevel();
     card('Vân Hải Bí Cảnh','3 đợt + Hộ Pháp. Thắng: '+(120+level*4)+' Linh Thạch.',(p.riftClears||0)+' lần thắng',spiritRift.open,'Xem bí cảnh',!safe||!p.tutorial);
     card('Đấu trường · 30 lượt','2 lượt/ngày; vào là tiêu lượt. Mỗi 5 lượt có thủ lĩnh; hoàn thành thêm 300 Linh Thạch.','Đã thắng '+(p.arenaClears||0)+' lần',()=>world.openArena(),'Kiểm tra lượt',!safe||!p.tutorial);

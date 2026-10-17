@@ -26,13 +26,14 @@ jobs:
         run: |
           python tests/test_online_server.py
           python tests/test_equipment.py
+          python tests/test_character_progression.py
           python tests/test_release_stamp.py
           python tests/test_map_sprite_assets.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done
           for file in deploy/*.sh; do bash -n "$file"; done
-          python -m compileall -q server.py community.py equipment.py deploy tests
+          python -m compileall -q server.py community.py equipment.py progression.py deploy tests
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
@@ -73,7 +74,7 @@ jobs:
           $RSYNC_RSH "$destination" "sudo -n /usr/local/sbin/tienlo-activate $GITHUB_SHA"
       - name: Verify public HTTPS assets through Nginx
         run: |
-          for asset in Character/Kiem/Nam/truoc.png Map/sprites/pineTree.png Item/VuKhi/Kiem.png Item/PhapBao/9.png Item/PhapTran/5.png Item/Thuan/1.png Item/BuffThuan/4.png Skill/Class/manifest.json; do
+          for asset in Character/Kiem/Nam/truoc.png Map/sprites/pineTree.png Item/VuKhi/Kiem.png Item/PhapBao/9.png Item/PhapTran/5.png Item/Thuan/1.png Item/BuffThuan/4.png Skill/Class/manifest.json Skill/VFX/class-spirit-actors-v2.png; do
             curl --resolve "mkt.ddnsfree.com:443:$DEPLOY_HOST" --fail --silent --show-error \
               --retry 2 --retry-delay 3 --max-time 20 \
               "https://mkt.ddnsfree.com/$asset?v=$GITHUB_SHA" -o /dev/null

@@ -148,8 +148,8 @@
   function line(text){const p=document.createElement('p');p.className='world-line';p.textContent=text;$('world-content').appendChild(p);}
   function pay(amount,change,reopen){if(P.gold<amount){line('Cần thêm '+(amount-P.gold)+' Linh Thạch.');return;}P.gold-=amount;change();saveCharacter();reopen();}
   function openQuest(){const p=progress();show('Vân Châu · Hộ thành','Yêu thú xuất hiện bên ngoài thành. Hãy giúp bảo vệ các tuyến đường.');
-    if(p.quest==='none'){line('Nhiệm vụ: hạ 5 yêu thú ngoài thành. Thưởng 80 Linh Thạch và 40 đạo hạnh.');action('Nhận nhiệm vụ',()=>{p.quest='active';p.questKills=0;saveCharacter();openQuest();});}
-    else if(p.quest==='active'){line('Đã hạ '+p.questKills+'/5 yêu thú.');action('Nhận thưởng',()=>{if(p.quest!=='active'||p.questKills<5)return;p.quest='claimed';P.gold+=80;P.xp=Math.min(need()*3,P.xp+40);saveCharacter();openQuest();},p.questKills<5);}
+    if(p.quest==='none'){line('Nhiệm vụ: hạ 5 yêu thú ngoài thành. Thưởng 80 Linh Thạch, 40 EXP và 40 tu vi.');action('Nhận nhiệm vụ',()=>{p.quest='active';p.questKills=0;saveCharacter();openQuest();});}
+    else if(p.quest==='active'){line('Đã hạ '+p.questKills+'/5 yêu thú.');action('Nhận thưởng',()=>{if(p.quest!=='active'||p.questKills<5)return;p.quest='claimed';P.gold+=80;gainExperience(40);saveCharacter();openQuest();},p.questKills<5);}
     else line('Đã hoàn thành Hộ thành. Cảm ơn đạo hữu đã bảo vệ Thiên Vân Thành.');
     if(!p.tutorial&&state.guideMove&&state.guideSkill){action('Hoàn tất hướng dẫn · +10 Linh Thạch',()=>{p.tutorial=true;P.gold+=10;P.x=HUB.x;P.y=HUB.y;P.hp=mhp();P.mp=mmp();saveCharacter();close();msg('Chào mừng đến Thiên Vân Thành! Hãy nhận nhiệm vụ và khám phá các tông môn.');});}
   }
