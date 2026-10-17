@@ -53,6 +53,8 @@ Skill dùng đường khí uốn liên tục, quỹ đạo tụ lực–tung chi
 
 Skill dùng các bộ phận ảnh riêng: từng kiếm/nguyệt nhận bay độc lập; thân rồng có 28 khớp theo đường đầu rồng; phượng có khớp vai/khuỷu, đập cánh, lao xuống và tỏa phù. Điểm lao trúng khớp thời điểm gây sát thương. Lớp ảnh nguyên con đung đưa đã được gỡ khỏi renderer. Nguồn ImageGen và prompt tại [Skill/VFX/rig-parts-v3.prompt.md](Skill/VFX/rig-parts-v3.prompt.md). Vũ khí đeo thu nhỏ 19%, thuẫn 21% để thân nhân vật dễ nhìn.
 
+Kiếm/Liềm bổ sung [bộ ảnh chuyển động riêng](Skill/VFX/sword-moon-parts-v4.prompt.md): 30 kiếm rơi thành sáu đợt, đại kiếm kết liễu, hai nhịp nguyệt trảm, bão nguyệt nhận, nguyệt thực và vỡ trăng. `node tests/four-class-skills.test.cjs` thử đủ 16 nút skill của bốn class, icon/tên, hiệu ứng và sát thương khi đã học chiêu, không bật GM.
+
 ## Cấu trúc
 
 `index.html` nạp script theo thứ tự. Core → renderer → nhân vật → tài khoản → skill → ngắm → world → quái → arena → tiến trình → combo → túi → auto → online → hiệu ứng → hướng dẫn → khởi động. Các module còn bọc hàm toàn cục, nên cần giữ thứ tự.

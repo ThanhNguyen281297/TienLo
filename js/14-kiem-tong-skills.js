@@ -31,7 +31,7 @@
   }
 
   function blade(ctx,x,y,length,rotation=0,alpha=1) {
-    spellActors.projectile(ctx,0,x,y,rotation,tm,length,alpha);
+    spellActors.projectile(ctx,0,x,y,rotation+Math.PI/2,tm,length,alpha);
   }
   function camera() {
     const vw=W/Z,vh=H/Z;
@@ -197,6 +197,7 @@
 
   }
   function drawField(ctx,field) {
+    if(window.spellImagery?.ownsFieldActors?.(0)){spellActors.field(ctx,0,field,.9);return;}
     const spawn=clamp(field.age/.35,0,1),fade=clamp((field.duration-field.age)/.35,0,1);
     drawRing(ctx,field,field.radius*(.6+.4*spawn),fade*.9);
     spellMotion.formation(ctx,0,field,fade);

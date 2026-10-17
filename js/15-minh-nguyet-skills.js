@@ -170,6 +170,7 @@
   up=function(dt){previousUp(dt);if(!active()||paused())return;advance(dt);refreshUI();};
 
   function drawRing(ctx,zone,alpha=1){
+    if(window.spellImagery?.ownsFieldActors?.(1)){spellActors.field(ctx,1,zone,alpha);return;}
     spellMotion.formation(ctx,1,zone,alpha);
     spellActors.field(ctx,1,zone,alpha);
     // Hai lớp khí dạng elip xoay ngược chiều; giữa là Nguyệt Luân phát sáng.
@@ -187,7 +188,6 @@
   function drawGround(ctx){
     if(!active())return;
     if(state.field){const f=state.field,alpha=clamp(f.age/.3,0,1)*clamp((f.duration-f.age)/.4,0,1);drawRing(ctx,f,alpha*.85);}
-    const u=state.ultimate;if(u)drawRing(ctx,{...u,radius:u.radius*(.6+.4*clamp(u.age/.6,0,1))},clamp((u.duration-u.age)/.5,0,1)*.9);
   }
   function drawFlying(ctx){
     for(const b of state.flying){
@@ -203,13 +203,13 @@
     if(ghost.exploded){const p=clamp((ghost.age-.5)/.5,0,1);ctx.save();ctx.globalAlpha=(1-p)*.8;ctx.strokeStyle=COLOR;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(ghost.x,ghost.y,48*p,28*p,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
   }
   function drawUltimate(ctx,u){
-    const t=u.age,duration=u.duration||4,dark=t>=3.05&&t<3.25;
+    const t=u.age,duration=u.duration||4;
     spellMotion.charge(ctx,1,u.x,u.y-25,t,.65);
-    skillSprites.animate(ctx,1,3,t,duration,u.x,u.y-58,190,200,3.25,dark?.18:.9);
+    skillSprites.animate(ctx,1,3,t,duration,u.x,u.y-58,190,200,3.25,.9);
     if(t>=3.25)spellMotion.impact(ctx,1,u.x,u.y,t-3.25,u.radius,.7);
   }
   function drawEffects(ctx){
-    if(state.field){const f=state.field;for(let slot=0;slot<3;slot++)if(!state.flying.some(b=>b.slot===slot)){
+    if(state.field&&!window.spellImagery?.ownsFieldActors?.(1)){const f=state.field;for(let slot=0;slot<3;slot++)if(!state.flying.some(b=>b.slot===slot)){
       const p=orbit(slot,f),progress=clamp(f.age/.35,0,1);
       moonBlade(ctx,f.source.x+(p.x-f.source.x)*progress,f.source.y-20+(p.y-18-f.source.y+20)*progress,slot,f.age*2);
     }}

@@ -46,8 +46,15 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    if(Math.hypot(dragonImpact.x,dragonImpact.y)>1e-6)throw Error('Dragon head must dive to the impact point at hit time');
    const before=joint(spellImagery.pose(2,1.6999,3,1.7),'head').angle,after=joint(spellImagery.pose(2,1.74,3,1.7),'head').angle;
    if(Math.abs(Math.atan2(Math.sin(after-before),Math.cos(after-before)))>.15)throw Error('Dragon turns abruptly across impact');
-   const swords=spellImagery.pose(0,1.7,3,1.7).nodes;
-   if(swords.some(n=>Math.hypot(n.x,n.y)>1e-6))throw Error('Sword impact does not meet the damage time');
+   const finisher=joint(spellImagery.pose(0,1.7,3,1.7),'finisher');
+   if(!finisher||Math.hypot(finisher.x,finisher.y)>1e-6)throw Error('Sword impact does not meet the damage time');
+   for(let wave=0;wave<6;wave++){
+    const at=spellImagery.timelines[0].waves[wave],p=spellImagery.pose(0,at,3.1,2.05);
+    const blades=p.nodes.filter(n=>n.id.startsWith('rain-'+wave+'-'));
+    if(blades.length!==5||blades.some(n=>Math.abs(n.y)>.001))throw Error('Missing five-sword wave '+wave);
+   }
+   const eclipse=spellImagery.pose(1,3.15,4.25,3.25),burst=spellImagery.pose(1,3.5,4.25,3.25);
+   if(eclipse.phase!=='eclipse'||burst.phase!=='dissipate')throw Error('Missing moon eclipse/shatter phases');
    for(let sect=0;sect<4;sect++)if(spellImagery.pose(sect,3,3,1.7).nodes.length)throw Error('Finished cast leaves actors behind');
    skillSprites.draw=original;
    document.getElementById('actor-proof')?.remove();const proof=document.createElement('canvas');proof.id='actor-proof';proof.width=1280;proof.height=800;proof.style.cssText='position:fixed;inset:0;z-index:99999;width:1280px;height:800px';document.body.appendChild(proof);

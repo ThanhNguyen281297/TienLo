@@ -1,5 +1,7 @@
 # Layered spirit VFX
 
+Kiếm and Liềm use [sword-moon-parts-v4.png](sword-moon-parts-v4.png) through `js/11e-sword-moon-animation.js`: separate material blades, six sword-rain waves, moon storm, eclipse and shattering. [Source prompt and timings](sword-moon-parts-v4.prompt.md). Thương and Quạt continue to use the v3 rigs below. All sixteen skills are covered by `tests/four-class-skills.test.cjs`.
+
 The active renderer uses [rig-parts-v3.png](rig-parts-v3.png), generated with built-in ImageGen. [Prompts and animation notes](rig-parts-v3.prompt.md) describe the separate head, scales, claws, wing bones, feathers and talismans. Casts use articulated joints and independent trajectories. The previous v2 full-creature painting is retained as a source reference and is not loaded by the game.
 
 `spirit-components-v1.png` is an RGBA atlas generated with the built-in ImageGen tool, with a second pass to restore transparent padding. Existing Kiem/Liem/Thuong/Quat skill illustrations supplied the visual direction; existing weapon PNGs supply the moving weapon actors.
