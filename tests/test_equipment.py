@@ -69,7 +69,7 @@ class EquipmentTest(unittest.TestCase):
             self.assertEqual(json.loads(db.execute('SELECT player FROM equipment_migration_backup').fetchone()[0]),old)
             self.assertEqual(db.execute('SELECT revision FROM characters').fetchone()[0],2)
         server.init_db();self.assertEqual(self.saved(),p)
-    def test_ring_capacity_and_class_restrictions(self):
+    def test_ring_capacity_and_shared_class_equipment(self):
         equipment.normalize(self.player,server.collection_item)
         p=self.player;p['world']['equip']['gioi']=self.make('dong-gioi')
         self.assertEqual(equipment.capacity(p['world']),40)
@@ -79,7 +79,25 @@ class EquipmentTest(unittest.TestCase):
         p['world']['bag']=[];p['world']['equip']['gioi']=self.make('dong-gioi');p['world']['equip']['gioi']['capacity']=999
         with self.assertRaises(ValueError):server.valid_player(p)
         p['world']['equip']['gioi']=None;p['world']['equip']['phapbao']=self.make('back-class-1')
+        server.valid_player(p)
+        for cls in range(4):
+            p['ap']['w']=cls
+            for group in ('backs','shields','formations','rings'):
+                for meta in equipment.RULES[group]:
+                    p['world']['equip'][meta['slot']]=self.make(meta['id'])
+                    server.valid_player(p)
+        p['world']['equip']['ngoc']=self.make('back-class-0')
         with self.assertRaises(ValueError):server.valid_player(p)
+    def test_collection_shields_have_item_specific_appearance(self):
+        equipment.normalize(self.player,server.collection_item)
+        for cls in range(4):
+            self.player['ap']['w']=cls
+            for set_id,style in equipment.RULES['collectionAppearance'].items():
+                self.player['world']['equip']['ngoc']=dict(server.collection_item(f'rift-{set_id}-ngoc-0'),uid='set-shield')
+                with server.connect() as db:
+                    state=equipment.shield_state(db,1,self.player)
+                self.assertEqual(state['variant'],style['shield'])
+                self.assertEqual(state['buff'],equipment.TEMPLATES['shield-'+str(style['shield'])]['buff'])
     def test_reforge_transaction_replay_and_tamper_protection(self):
         equipment.normalize(self.player,server.collection_item);self.insert()
         uid=self.player['world']['equip']['phapbao']['uid']

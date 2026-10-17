@@ -175,7 +175,7 @@
     if (!item.slot) return msg('Vật phẩm này không trang bị được.');
     const lvl = typeof cultivationLevel === 'function' ? cultivationLevel() : 0;
     if (lvl < (item.req || 0)) return msg('Cần cấp ' + item.req + ' để mặc ' + item.name + '.');
-    if(item.classIndex!==undefined&&item.classIndex!==P.ap.w)return msg('Trang bị thuộc tông môn khác.');
+    if(!equipmentRules.sharedSlots.includes(item.slot)&&item.classIndex!==undefined&&item.classIndex!==P.ap.w)return msg('Trang bị thuộc tông môn khác.');
     const nextCapacity=item.slot==='gioi'?30+(equipmentData.byId.get(item.id)?.capacity||0):equipmentData.capacity(p);
     if(p.bag.length-1+(p.equip[item.slot]?1:0)>nextCapacity)return msg('Nhẫn mới không đủ sức chứa. Hãy dọn túi trước.');
     p.bag.splice(idx, 1);
@@ -262,6 +262,7 @@
   }
   let selectedUid=null;
   function itemIcon(item,slot) {
+    const wornArt=equipmentData.appearance(item);if(wornArt)return artworkURL(wornArt);
     if(item?.art)return artworkURL(item.art);
     if(item?.slot==='ngoc'||slot==='ngoc')return artworkURL('Item/Thuan/'+(item?.variant||1)+'.png');
     if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
@@ -349,7 +350,7 @@
     });
     const details=document.createElement('div');details.className='item-details';details.setAttribute('aria-live','polite');bag.append(details);
     function showDetails(item,equipped){
-      details.replaceChildren();const name=document.createElement('h4');name.textContent=item.name+(equipmentProgression.level(item)?' +'+equipmentProgression.level(item):'');name.style.color=RARITY[item.rarity].color;const desc=document.createElement('p');desc.textContent=item.desc+' · '+statText(item);details.append(name,desc);
+      details.replaceChildren();const name=document.createElement('h4');name.textContent=item.name+(equipmentProgression.level(item)?' +'+equipmentProgression.level(item):'');name.style.color=RARITY[item.rarity].color;const desc=document.createElement('p');desc.textContent=(equipmentData.byId.get(item.id)?.desc||item.desc||'')+' · '+statText(item);details.append(name,desc);
       const actions=document.createElement('div');actions.className='item-actions';details.append(actions);
       function action(label,fn){const button=document.createElement('button');button.textContent=label;button.onclick=fn;actions.append(button);}
       window.equipmentSystem?.describe(details,item);
@@ -375,7 +376,7 @@
     dialog.line('--- Quầy pháp bảo (mới) ---');
     TEMPLATES.filter(t => t.slot && t.source!=='rift').forEach(t => {
       const wi=['moc-kiem','huyen-kiem','linh-kiem','tien-kiem'].indexOf(t.id),name=wi<0?t.name:equipmentRules.weaponNames[P.ap.w][wi];
-      if(t.classIndex!==undefined&&t.classIndex!==P.ap.w)return;
+      if(!equipmentRules.sharedSlots.includes(t.slot)&&t.classIndex!==undefined&&t.classIndex!==P.ap.w)return;
       dialog.action(name + ' [' + RARITY[t.rarity].name + '] · ' + t.price + ' ◈ · ' + statText(t), () => buyItem(t.id, false), P.gold < t.price);
     });
   }

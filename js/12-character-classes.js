@@ -246,6 +246,7 @@
     if(dir===1)drawBackItem();
     drawWeapon();
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,true);
+    window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,true);
     ctx.restore();
   };

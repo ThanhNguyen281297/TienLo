@@ -22,6 +22,13 @@
   for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;
   p.equipmentVersion=3;return p;
  }
+ function shieldVariant(item){const meta=byId.get(item?.id),style=item?.id?.startsWith('rift-')?rules.collectionAppearance[item.setId]:null;return meta?.variant||style?.shield||1;}
+ function appearance(item){if(!item)return null;const meta=byId.get(item.id),style=item.id?.startsWith('rift-')?rules.collectionAppearance[item.setId]:null;
+  if(item.slot==='ngoc')return 'Item/Thuan/'+shieldVariant(item)+'.png';
+  if(item.slot==='gioi')return 'Item/Nhan/gioi.png';
+  if(item.slot==='phapbao'&&style)return byId.get(style.back).art;
+  return meta?.art||null;
+ }
  function affixStats(p){const out={};for(const item of Object.values(p.equip||{})){if(!item)continue;for(const line of item.affixes||[]){const rule=pool(item).find(r=>r.key===line.key);if(rule)out[line.key]=(out[line.key]||0)+line.value/(rule.percent?10000:rule.key==='regen'?100:1);}}return out;}
- window.equipmentData={rules,templates,byId,pool,defaults,capacity,normalize,affixStats};
+ window.equipmentData={rules,templates,byId,pool,defaults,capacity,normalize,affixStats,collection,appearance,shieldVariant};
 })();

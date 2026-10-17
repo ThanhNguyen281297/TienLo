@@ -100,7 +100,7 @@ def validate(player, db=None, owner=None):
             expected=json.loads(roll['lines']) if roll else defaults(item)
             if (roll and roll['item_id']!=item['id']) or lines!=expected:raise ValueError('Dòng tẩy luyện phải do server cấp.')
     for slot,item in equip.items():
-        if item and (item.get('slot')!=slot or item.get('classIndex',player['ap']['w'])!=player['ap']['w']):raise ValueError('Trang bị không phù hợp ô hoặc class.')
+        if item and (item.get('slot')!=slot or (slot not in RULES['sharedSlots'] and item.get('classIndex',player['ap']['w'])!=player['ap']['w'])):raise ValueError('Trang bị không phù hợp ô hoặc class.')
 
 def bonuses(player):
     result={}
@@ -123,12 +123,17 @@ def init_db(db, collection):
             db.execute('INSERT OR IGNORE INTO equipment_migration_backup VALUES(?,?,?)',(row['user_id'],row['player'],row['revision']))
             db.execute('UPDATE characters SET player=?,revision=revision+1 WHERE user_id=?',(json.dumps(player,ensure_ascii=False),row['user_id']))
 
+def shield_variant(item):
+    meta=TEMPLATES.get(item.get('id'),{})
+    style=RULES['collectionAppearance'].get(item.get('setId'),{}) if item.get('id','').startswith('rift-') else {}
+    return meta.get('variant',style.get('shield',1))
+
+
 def shield_state(db, owner, player):
     row=db.execute('SELECT * FROM shield_cooldowns WHERE user_id=?',(owner,)).fetchone()
     item=player.get('world',{}).get('equip',{}).get('ngoc') or {}
     now=time.time();active=bool(row and row['source_uid']==item.get('uid') and player.get('hp',0)>0 and row['active_until']>now)
-    meta=TEMPLATES.get(item.get('id'),{})
-    variant=meta.get('variant',1)
+    variant=shield_variant(item)
     buff=TEMPLATES.get('shield-'+str(variant),{}).get('buff',1)
     return dict(now=now,readyAt=row['ready_at'] if row else 0,activeUntil=row['active_until'] if active else 0,sourceUid=item.get('uid'),variant=variant,buff=buff)
 

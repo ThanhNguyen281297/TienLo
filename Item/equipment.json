@@ -402,7 +402,7 @@
       "req": 0,
       "rarity": "pham",
       "art": "Item/PhapTran/5.png",
-      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+      "desc": "Pháp trận dưới chân, mọi tông môn đều trang bị được."
     },
     {
       "id": "formation-1",
@@ -414,7 +414,7 @@
       "req": 0,
       "rarity": "pham",
       "art": "Item/PhapTran/6.png",
-      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+      "desc": "Pháp trận dưới chân, mọi tông môn đều trang bị được."
     },
     {
       "id": "formation-2",
@@ -426,7 +426,7 @@
       "req": 0,
       "rarity": "pham",
       "art": "Item/PhapTran/8.png",
-      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+      "desc": "Pháp trận dưới chân, mọi tông môn đều trang bị được."
     },
     {
       "id": "formation-3",
@@ -438,7 +438,7 @@
       "req": 0,
       "rarity": "pham",
       "art": "Item/PhapTran/7.png",
-      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+      "desc": "Pháp trận dưới chân, mọi tông môn đều trang bị được."
     }
   ],
   "rings": [
@@ -526,5 +526,29 @@
     "Item/VuKhi/Class/Liem.png": "Item/VuKhi/Liem.png",
     "Item/VuKhi/Class/Quat.png": "Item/VuKhi/Quat.png",
     "Item/VuKhi/Class/Thuong.png": "Item/VuKhi/Thuong.png"
+  },
+  "sharedSlots": [
+    "phapbao",
+    "ngoc",
+    "phaptran",
+    "gioi"
+  ],
+  "collectionAppearance": {
+    "phong": {
+      "back": "back-class-0",
+      "shield": 5
+    },
+    "kim": {
+      "back": "back-class-2",
+      "shield": 6
+    },
+    "nguyet": {
+      "back": "back-class-1",
+      "shield": 2
+    },
+    "linh": {
+      "back": "back-class-3",
+      "shield": 1
+    }
   }
 }
