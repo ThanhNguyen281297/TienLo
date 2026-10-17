@@ -6,7 +6,7 @@
  const capacity=p=>30+(byId.get(p?.equip?.gioi?.id)?.capacity||0);
  const collection=id=>{const m=/^rift-([a-z]+)-([a-z]+)-(0|10|25|45)$/.exec(id);if(!m)return null;const set=buildCatalog.sets.find(s=>s.id===m[1]),grade=buildCatalog.grades.find(g=>g.req===Number(m[3])),slot=m[2];if(!set||!grade||!buildCatalog.baseStats[slot])return null;const stats={};for(const [k,v]of Object.entries(buildCatalog.baseStats[slot]))stats[k]=Math.round(v*(['crit','dodge','skill'].includes(k)?1:grade.scale)*100)/100;return{id,setId:set.id,slot,req:grade.req,rarity:grade.rarity,...stats};};
  function normalize(p,cls=P.ap?.w||0){
-  p.bag??=[];p.equip??={};if(p.equipmentVersion>=2)return p;
+  p.bag??=[];p.equip??={};if(p.equipmentVersion>=2){if(p.equipmentVersion<3){for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)])if(item.art)item.art=rules.assetAliases[item.art]||item.art;p.equipmentVersion=3;}return p;}
   if(p.equip.gioi?.id.startsWith('rift-')){p.equip.chan=p.equip.gioi;p.equip.gioi=null;}
   for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)]){
    let id=item.id,meta;
@@ -20,7 +20,7 @@
   }
   for(const [slot,id]of [['phapbao','back-class-'+cls],['phaptran','formation-'+cls]])if(!p.equip[slot]){const item={...byId.get(id),uid:crypto.randomUUID()};if(pool(item).length)item.affixes=defaults(item);p.equip[slot]=item;}
   for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;
-  p.equipmentVersion=2;return p;
+  p.equipmentVersion=3;return p;
  }
  function affixStats(p){const out={};for(const item of Object.values(p.equip||{})){if(!item)continue;for(const line of item.affixes||[]){const rule=pool(item).find(r=>r.key===line.key);if(rule)out[line.key]=(out[line.key]||0)+line.value/(rule.percent?10000:rule.key==='regen'?100:1);}}return out;}
  window.equipmentData={rules,templates,byId,pool,defaults,capacity,normalize,affixStats};

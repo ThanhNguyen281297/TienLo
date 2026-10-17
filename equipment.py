@@ -32,7 +32,12 @@ def normalize(player, collection):
     if not isinstance(player.get('ap'),dict) or not isinstance(player.get('world',{}),dict):return False
     w=player.setdefault('world',{}); equip=w.setdefault('equip',{});w.setdefault('bag',[])
     if not isinstance(equip,dict) or not isinstance(w['bag'],list) or any(not isinstance(i,dict) for i in w['bag']+[i for i in equip.values() if i is not None]):return False
-    if w.get('equipmentVersion',0)>=2:return False
+    if w.get('equipmentVersion',0)>=3:return False
+    if w.get('equipmentVersion',0)>=2:
+        for item in items(player):
+            if item.get('art') in RULES['assetAliases']:item['art']=RULES['assetAliases'][item['art']]
+        w['equipmentVersion']=3
+        return True
     cls=player.get('ap',{}).get('w',0)
     if type(cls) is not int or cls not in range(4):return False
     oldring=equip.get('gioi')
@@ -66,7 +71,7 @@ def normalize(player, collection):
             equip[slot]=dict(TEMPLATES[iid],uid=secrets.token_hex(16))
             if pool(equip[slot]):equip[slot]['affixes']=defaults(equip[slot])
     for slot in RULES['slots']:equip.setdefault(slot,None)
-    w['equipmentVersion']=2
+    w['equipmentVersion']=3
     return True
 
 def validate(player, db=None, owner=None):

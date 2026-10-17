@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "slots": {
     "vukhi": "Vũ khí",
     "daobao": "Đạo bào",
@@ -255,7 +255,7 @@
       "price": 90,
       "req": 0,
       "rarity": "huyen",
-      "art": "Item/PhapBao/Class/Kiem.png",
+      "art": "Item/PhapBao/9.png",
       "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
     },
     {
@@ -267,7 +267,7 @@
       "price": 90,
       "req": 0,
       "rarity": "huyen",
-      "art": "Item/PhapBao/Class/Liem.png",
+      "art": "Item/PhapBao/10.png",
       "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
     },
     {
@@ -279,7 +279,7 @@
       "price": 90,
       "req": 0,
       "rarity": "huyen",
-      "art": "Item/PhapBao/Class/Thuong.png",
+      "art": "Item/PhapBao/12.png",
       "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
     },
     {
@@ -291,7 +291,7 @@
       "price": 90,
       "req": 0,
       "rarity": "huyen",
-      "art": "Item/PhapBao/Class/Quat.png",
+      "art": "Item/PhapBao/11.png",
       "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
     },
     {
@@ -401,7 +401,7 @@
       "price": 40,
       "req": 0,
       "rarity": "pham",
-      "art": "Item/PhapTran/Class/Kiem.png",
+      "art": "Item/PhapTran/5.png",
       "desc": "Pháp trận dưới chân dành riêng cho tông môn."
     },
     {
@@ -413,7 +413,7 @@
       "price": 40,
       "req": 0,
       "rarity": "pham",
-      "art": "Item/PhapTran/Class/Liem.png",
+      "art": "Item/PhapTran/6.png",
       "desc": "Pháp trận dưới chân dành riêng cho tông môn."
     },
     {
@@ -425,7 +425,7 @@
       "price": 40,
       "req": 0,
       "rarity": "pham",
-      "art": "Item/PhapTran/Class/Thuong.png",
+      "art": "Item/PhapTran/8.png",
       "desc": "Pháp trận dưới chân dành riêng cho tông môn."
     },
     {
@@ -437,7 +437,7 @@
       "price": 40,
       "req": 0,
       "rarity": "pham",
-      "art": "Item/PhapTran/Class/Quat.png",
+      "art": "Item/PhapTran/7.png",
       "desc": "Pháp trận dưới chân dành riêng cho tông môn."
     }
   ],
@@ -508,5 +508,23 @@
       "Linh Vũ Phiến",
       "Thiên Cơ Tiên Phiến"
     ]
-  ]
+  ],
+  "assetAliases": {
+    "Item/PhapBao/Class/Kiem.png": "Item/PhapBao/9.png",
+    "Item/PhapBao/Class/Liem.png": "Item/PhapBao/10.png",
+    "Item/PhapBao/Class/Quat.png": "Item/PhapBao/11.png",
+    "Item/PhapBao/Class/Thuong.png": "Item/PhapBao/12.png",
+    "Item/PhapTran/Class/Kiem.png": "Item/PhapTran/5.png",
+    "Item/PhapTran/Class/Liem.png": "Item/PhapTran/6.png",
+    "Item/PhapTran/Class/Quat.png": "Item/PhapTran/7.png",
+    "Item/PhapTran/Class/Thuong.png": "Item/PhapTran/8.png",
+    "Item/PhapTran/Sources/1.png": "Item/PhapTran/1.png",
+    "Item/PhapTran/Sources/2.png": "Item/PhapTran/2.png",
+    "Item/PhapTran/Sources/3.png": "Item/PhapTran/3.png",
+    "Item/PhapTran/Sources/4.png": "Item/PhapTran/4.png",
+    "Item/VuKhi/Class/Kiem.png": "Item/VuKhi/Kiem.png",
+    "Item/VuKhi/Class/Liem.png": "Item/VuKhi/Liem.png",
+    "Item/VuKhi/Class/Quat.png": "Item/VuKhi/Quat.png",
+    "Item/VuKhi/Class/Thuong.png": "Item/VuKhi/Thuong.png"
+  }
 }

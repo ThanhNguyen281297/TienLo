@@ -17,7 +17,7 @@
   };
   atlas.src=artworkURL('Skill/VFX/spirit-components-v1.png');
   for(const folder of ['Kiem','Liem','Thuong','Quat']){
-    const image=new Image();image.src=artworkURL('Item/VuKhi/Class/'+folder+'.png');weapons.push(image);
+    const image=new Image();image.src=artworkURL('Item/VuKhi/'+folder+'.png');weapons.push(image);
   }
   function texture(sect,index){
     const key=sect+':'+index;if(tints.has(key))return tints.get(key);

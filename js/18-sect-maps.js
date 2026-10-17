@@ -25,10 +25,10 @@
     waterfall:[3,.017,.760,.155,.238],moonFall:[0,.843,.754,.155,.241]
   });
   world.preloadSprites();
-  const swordImage=new Image();swordImage.src='Item/VuKhi/Class/Kiem.png';
-  const moonWeapon=new Image();moonWeapon.src='Item/VuKhi/Class/Liem.png';
-  const swordRing=new Image();swordRing.src='Item/PhapTran/Class/Kiem.png';
-  const moonRing=new Image();moonRing.src='Item/PhapTran/Class/Liem.png';
+  const swordImage=new Image();swordImage.src='Item/VuKhi/Kiem.png';
+  const moonWeapon=new Image();moonWeapon.src='Item/VuKhi/Liem.png';
+  const swordRing=new Image();swordRing.src='Item/PhapTran/5.png';
+  const moonRing=new Image();moonRing.src='Item/PhapTran/6.png';
   const moonArt=new Image();moonArt.src='Skill/Legacy/Liem/minhnguyetgiangthe.png';
   const npcBodies=[new Image(),new Image()];npcBodies[0].src='Character/Kiem/Nam/truoc.png';npcBodies[1].src='Character/Liem/Nam/truoc.png';
   const ready=i=>i.complete&&i.naturalWidth>0;

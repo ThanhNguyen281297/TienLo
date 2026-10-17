@@ -17,8 +17,8 @@
     const img=new Image();img.onload=()=>refreshUI(true);img.onerror=()=>msg('Không tải được ảnh kỹ năng: '+name+'.png');
     img.src='Skill/Class/Liem/'+name+'/01.png';return img;
   });
-  const physical=new Image();physical.src='Item/VuKhi/Class/Liem.png';
-  const ring=new Image();ring.src='Item/PhapTran/Class/Liem.png';
+  const physical=new Image();physical.src='Item/VuKhi/Liem.png';
+  const ring=new Image();ring.src='Item/PhapTran/6.png';
   const bodies={Nam:{},Nu:{}};for(const gender of ['Nam','Nu'])for(const name of ['truoc','sau','trai','phai']){bodies[gender][name]=new Image();bodies[gender][name].src='Character/Liem/'+gender+'/'+name+'.png';}
   const ready=img=>img.complete&&img.naturalWidth>0;
   function crop(ctx,img,rect,x,y,w,h,angle=0,alpha=1){

@@ -93,7 +93,7 @@ for sect in ('Kiem', 'Liem', 'Thuong', 'Quat'):
         for path in sorted((ROOT / 'Character' / sect / kind).glob('*.png')):
             catalog['characters'].append(record(path.relative_to(ROOT).as_posix(), f'{sect}/{kind}/{path.stem}'))
 for path in sorted((ROOT / 'Item').rglob('*.png')):
-    if 'Sources' not in path.parts:catalog['items'].append(record(path.relative_to(ROOT).as_posix(),path.relative_to(ROOT/'Item').with_suffix('').as_posix()))
+    if not (path.parent.name=='PhapTran' and path.stem in ('1','2','3','4')):catalog['items'].append(record(path.relative_to(ROOT).as_posix(),path.relative_to(ROOT/'Item').with_suffix('').as_posix()))
 for path in sorted((ROOT / 'Character/NPC').glob('*.png')):
     catalog['npcs'].append(record(path.relative_to(ROOT).as_posix()))
 

@@ -1,6 +1,7 @@
 """Equipment migration, bounded server rolls and persistent shield clocks."""
 import copy
 import json
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -34,6 +35,22 @@ class EquipmentTest(unittest.TestCase):
             if meta.get('art'):self.assertIn(meta['art'],exact)
         self.assertEqual(len(equipment.RULES['combatSlots']),6)
         self.assertEqual(len(equipment.RULES['slots']),8)
+    def test_public_nginx_allows_current_asset_roots(self):
+        config=(server.ROOT/'deploy/nginx.conf').read_text(encoding='utf-8')
+        match=re.search(r'location ~ (\^/\([^\n]+\)/)',config)
+        self.assertIsNotNone(match)
+        for root in ('js','css','Character','Map','Item','Skill'):
+            self.assertRegex('/'+root+'/example.png',match[1])
+    def test_v2_asset_move_preserves_reforged_lines_and_enhancement(self):
+        equipment.normalize(self.player,server.collection_item)
+        item=self.player['world']['equip']['phapbao'];item['enhance']=15
+        item['affixes']=[dict(key=r['key'],value=r['max']) for r in equipment.RULES['offense'][-5:]]
+        original=copy.deepcopy(item);item['art']='Item/PhapBao/Class/Kiem.png'
+        self.player['world']['equipmentVersion']=2
+        self.assertTrue(equipment.normalize(self.player,server.collection_item))
+        self.assertEqual(item,original)
+        self.assertEqual(self.player['world']['equipmentVersion'],3)
+        self.assertFalse(equipment.normalize(self.player,server.collection_item))
     def test_migrate_old_collection_ring_gem_and_back_without_losing_items(self):
         old=copy.deepcopy(self.player);old['ap']['w']=3
         old['world']['equip']={

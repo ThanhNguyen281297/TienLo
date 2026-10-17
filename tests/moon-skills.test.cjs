@@ -33,7 +33,7 @@ fs.mkdirSync(output,{recursive:true});
         return images.filter(src=>src.includes('/Character/')).map(src=>new URL(src).pathname);};
       E.push(enemyTest('crossing',1200,1100));moonCombat.state.aim={x:1200,y:1100};skill(0);
     });
-    assert.deepEqual(await page.evaluate(()=>equipmentCheck().sort()),['/Item/PhapBao/Class/Liem.png','/Character/Liem/Nam/truoc.png','/Item/PhapTran/Class/Liem.png','/Item/VuKhi/Class/Liem.png'].sort(),'Original back equipment remains during skills, with one orbiting weapon');
+    assert.deepEqual(await page.evaluate(()=>equipmentCheck().sort()),['/Item/PhapBao/10.png','/Character/Liem/Nam/truoc.png','/Item/PhapTran/6.png','/Item/VuKhi/Liem.png'].sort(),'Original back equipment remains during skills, with one orbiting weapon');
     assert(await page.evaluate(()=>{const w=characterWeapon.position(1);return moonCombat.state.flying.every(b=>Math.abs(b.x-w.x)<.001&&Math.abs(b.y-20-w.y)<.001);}), 'All three skill blades launch from the orbiting weapon');
     await page.evaluate(()=>stepTest(.28));
     const paths=await page.evaluate(()=>moonCombat.state.flying.map(b=>({slot:b.slot,x:b.x,y:b.y})));

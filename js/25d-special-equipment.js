@@ -1,7 +1,7 @@
 /* Equipment effects. Reforges and shield clocks are issued by the server. */
 (function(){
  const data=equipmentData,rules=data.rules,images=new Map();
- function image(src){if(!images.has(src)){const img=new Image();img.src=artworkURL(src);images.set(src,img);}return images.get(src);}
+ function image(src){src=rules.assetAliases[src]||src;if(!images.has(src)){const img=new Image();img.src=artworkURL(src);images.set(src,img);}return images.get(src);}
  let state={readyAt:0,activeUntil:0},offset=0,busy=false;
  const now=()=>Date.now()/1000+offset;
  function receive(value){if(!value)return;state=value;offset=value.now-Date.now()/1000;}
@@ -23,7 +23,7 @@
  addEventListener('tienlo-auth',async()=>{try{receive((await account.api('/api/equipment')).shield);}catch{}});
  let wasAlive=true;const update=up;up=function(dt){const result=update(dt);if(!P.ap||!account.state.ready)return result;refresh();if(P.hp<=0){if(wasAlive)state.activeUntil=0;wasAlive=false;}else{wasAlive=true;if(!paused()&&!worldMap.dialog.isOpen())P.hp=Math.min(mhp(),P.hp+bonusStats().regen*dt);}return result;};
  function gear(ap,slot,remoteKey){if(ap===P.ap)return P.world?.equip?.[slot];return ap?.[remoteKey]?data.byId.get(ap[remoteKey])||{variant:1}:null;}
- function backImage(ap,fallback){const item=gear(ap,'phapbao','backId');if(ap===P.ap)return item?image(item.art||'Item/PhapBao/Class/'+characterClasses[ap.w].folder+'.png'):null;if(ap?.backId!==undefined)return item?image(item.art||'Item/PhapBao/Class/'+characterClasses[ap.w].folder+'.png'):null;return fallback;}
+ function backImage(ap,fallback){const item=gear(ap,'phapbao','backId');if(ap===P.ap)return item?image(item.art||characterEquipmentArt(ap.w,'lung')):null;if(ap?.backId!==undefined)return item?image(item.art||characterEquipmentArt(ap.w,'lung')):null;return fallback;}
  function formationImage(ap,fallback){const item=gear(ap,'phaptran','formationId');if(ap===P.ap)return item?image(item.art):null;if(ap?.formationId!==undefined)return item?image(item.art):null;return fallback;}
  function drawShield(ctx,x,y,dir,facing,ap,front){const item=gear(ap,'ngoc','shieldId');if(!item||(dir===1)===front)return;const img=image('Item/Thuan/'+(item.variant||1)+'.png');if(!img.complete||!img.naturalWidth)return;const w=29,h=29,side=-1;ctx.save();ctx.translate(x+side*(dir===2?17:20),y-19);ctx.scale(dir===2?.72:1,1);ctx.drawImage(img,-w/2,-h/2,w,h);ctx.restore();}
  function drawBuff(ctx,x,y,ap,front){const buff=ap===P.ap?state:ap?.shieldState;if(!buff||buff.activeUntil<=now()||(ap===P.ap&&!active()))return;const img=image('Item/BuffThuan/'+(buff.buff||1)+'.png');if(!img.complete||!img.naturalWidth)return;ctx.save();ctx.globalAlpha=(front?.18:.48)*(1+Math.sin(tm*2)*.06);ctx.drawImage(img,x-46,y-74,92,92);ctx.restore();}

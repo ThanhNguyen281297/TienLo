@@ -1,10 +1,10 @@
 # Trang bị Tiên Lộ
 
 - `Ao`, `Chan`, `Giay`: icon áo, hộ thối và giày. Hộ thối hiện dùng cùng nét vẽ icon đạo bào; không thay sprite thân nhân vật.
-- `VuKhi/Class`: vũ khí của Kiếm, Liềm, Thương, Quạt.
-- `PhapBao/Class`: bốn pháp bảo lưng gốc; `PhapBao/1..8.png`: các pháp bảo mở rộng, có giới hạn class.
+- `VuKhi`: vũ khí của Kiếm, Liềm, Thương, Quạt.
+- `PhapBao/9..12.png`: bốn pháp bảo lưng gốc; `PhapBao/1..8.png`: các pháp bảo mở rộng, có giới hạn class.
 - `Thuan/1..7.png`: bảy hộ thuẫn; `BuffThuan/1..7.png`: sprite kết giới hộ thể.
-- `PhapTran/Class`: bốn pháp trận alpha dưới chân. `PhapTran/Sources` giữ ảnh mới còn nền đen để xử lý sau, không nạp vào game.
+- `PhapTran/5..8.png`: bốn pháp trận alpha dưới chân. `PhapTran/1..4.png` giữ ảnh mới còn nền đen để xử lý sau, không nạp vào game.
 - `Nhan`, `Consumable`: nhẫn trữ vật và đan dược.
 - `equipment.json`: tên món, class, dòng tẩy luyện, giới hạn và thông số buff. Bản client tương ứng là `js/24c-equipment-rules.js`; kiểm thử đối chiếu hai bản.
 

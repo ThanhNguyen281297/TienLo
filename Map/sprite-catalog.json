@@ -5426,50 +5426,50 @@
       "height": 1254
     },
     {
-      "id": "PhapBao/Class/Kiem",
-      "src": "Item/PhapBao/Class/Kiem.png",
+      "id": "PhapBao/9",
+      "src": "Item/PhapBao/9.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "PhapBao/Class/Liem",
-      "src": "Item/PhapBao/Class/Liem.png",
+      "id": "PhapBao/10",
+      "src": "Item/PhapBao/10.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "PhapBao/Class/Quat",
-      "src": "Item/PhapBao/Class/Quat.png",
+      "id": "PhapBao/11",
+      "src": "Item/PhapBao/11.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "PhapBao/Class/Thuong",
-      "src": "Item/PhapBao/Class/Thuong.png",
+      "id": "PhapBao/12",
+      "src": "Item/PhapBao/12.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "PhapTran/Class/Kiem",
-      "src": "Item/PhapTran/Class/Kiem.png",
+      "id": "PhapTran/5",
+      "src": "Item/PhapTran/5.png",
       "width": 1299,
       "height": 1211
     },
     {
-      "id": "PhapTran/Class/Liem",
-      "src": "Item/PhapTran/Class/Liem.png",
+      "id": "PhapTran/6",
+      "src": "Item/PhapTran/6.png",
       "width": 1333,
       "height": 1180
     },
     {
-      "id": "PhapTran/Class/Quat",
-      "src": "Item/PhapTran/Class/Quat.png",
+      "id": "PhapTran/7",
+      "src": "Item/PhapTran/7.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "PhapTran/Class/Thuong",
-      "src": "Item/PhapTran/Class/Thuong.png",
+      "id": "PhapTran/8",
+      "src": "Item/PhapTran/8.png",
       "width": 1254,
       "height": 1254
     },
@@ -5516,26 +5516,26 @@
       "height": 1254
     },
     {
-      "id": "VuKhi/Class/Kiem",
-      "src": "Item/VuKhi/Class/Kiem.png",
+      "id": "VuKhi/Kiem",
+      "src": "Item/VuKhi/Kiem.png",
       "width": 1024,
       "height": 1536
     },
     {
-      "id": "VuKhi/Class/Liem",
-      "src": "Item/VuKhi/Class/Liem.png",
+      "id": "VuKhi/Liem",
+      "src": "Item/VuKhi/Liem.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "VuKhi/Class/Quat",
-      "src": "Item/VuKhi/Class/Quat.png",
+      "id": "VuKhi/Quat",
+      "src": "Item/VuKhi/Quat.png",
       "width": 1254,
       "height": 1254
     },
     {
-      "id": "VuKhi/Class/Thuong",
-      "src": "Item/VuKhi/Class/Thuong.png",
+      "id": "VuKhi/Thuong",
+      "src": "Item/VuKhi/Thuong.png",
       "width": 1254,
       "height": 1254
     }

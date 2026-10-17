@@ -9,13 +9,15 @@
   window.characterClasses=classes;
   window.sectName=()=>classes[P.ap?.w||0].name;
   const classOf=ap=>Number.isInteger(ap?.w)&&ap.w>=0&&ap.w<4?ap.w:0;
-  const assets=classes.map(info=>{
+  const equipmentArt={Kiem:{lung:'Item/PhapBao/9.png',vong:'Item/PhapTran/5.png'},Liem:{lung:'Item/PhapBao/10.png',vong:'Item/PhapTran/6.png'},Thuong:{lung:'Item/PhapBao/12.png',vong:'Item/PhapTran/8.png'},Quat:{lung:'Item/PhapBao/11.png',vong:'Item/PhapTran/7.png'}};
+  window.characterEquipmentArt=(index,key)=>key==='vukhi'?'Item/VuKhi/'+classes[index].folder+'.png':equipmentArt[classes[index].folder][key];
+  const assets=classes.map((info,index)=>{
     const result={Nam:{},Nu:{}};
     for(const gender of ['Nam','Nu'])for(const direction of ['truoc','sau','trai','phai']){
       const img=new Image();img.src='Character/'+info.folder+'/'+gender+'/'+direction+'.png';result[gender][direction]=img;
     }
     for(const [key,folder] of [['vukhi','VuKhi'],['vong','PhapTran'],['lung','PhapBao']]){
-      const img=new Image();img.src='Item/'+folder+'/Class/'+info.folder+'.png';result[key]=img;
+      const img=new Image();img.src=characterEquipmentArt(index,key);result[key]=img;
     }
     return result;
   });
@@ -40,7 +42,7 @@
     $('rows').innerHTML='<div class="creator-label">CHỌN TÔNG MÔN</div>';
     classes.forEach((info,index)=>{
       const button=document.createElement('button');button.className='sect-choice';button.type='button';button.setAttribute('aria-pressed',String(classOf(tp)===index));
-      const weapon=document.createElement('img');weapon.src='Item/VuKhi/Class/'+info.folder+'.png';weapon.alt='';button.appendChild(weapon);
+      const weapon=document.createElement('img');weapon.src='Item/VuKhi/'+info.folder+'.png';weapon.alt='';button.appendChild(weapon);
       const text=document.createElement('span');const title=document.createElement('b');title.textContent=info.name;const description=document.createElement('small');description.textContent=['Kiếm khí · tốc độ · bộc phát','Nguyệt nhận · dịch chuyển · khống chế','Lôi Ấn · đột kích · bùng nổ','Linh phù · trận pháp · phong ấn'][index];text.append(title,description);button.appendChild(text);
       button.onclick=()=>{tp.w=index;rows();};$('rows').appendChild(button);
     });
