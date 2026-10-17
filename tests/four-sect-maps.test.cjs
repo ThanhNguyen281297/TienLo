@@ -121,7 +121,7 @@ fs.mkdirSync(artifacts, { recursive: true });
       assert(facts.enemiesOnLand, 'Farm monsters occupy walkable, unsafe land belonging to their map');
       assert(facts.servicesOnLand, 'Mentor, teacher, teleport and arena services occupy accessible safe land');
       assert(facts.mentor.includes('Sư phụ')); assert(!facts.mentor.includes('undefined'));
-      assert(facts.images.some(source => source.endsWith('/CHARACTER/' + definition.folder + '/Nam/truoc.png')), 'NPCs use the correct sect artwork');
+      assert(facts.images.some(source => source.endsWith('/Character/' + definition.folder + '/Nam/truoc.png')), 'NPCs use the correct sect artwork');
       if (protocol === 'http') mentors.push(facts.mentor);
       await page.evaluate(() => worldMap.handleService('mentor'));
       assert((await page.locator('#world-title').textContent()).includes(facts.mentor.split(' · ')[0]), 'Mentor dialogue names the local teacher');

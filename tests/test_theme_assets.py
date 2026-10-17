@@ -10,11 +10,11 @@ ROOT=Path(__file__).resolve().parents[1]
 
 class ThemeAssets(unittest.TestCase):
     def test_six_sources_reconstruct_without_clipping_or_duplicate_pixels(self):
-        manifest=json.loads((ROOT/'MAP/theme-sprites/manifest.json').read_text())
+        manifest=json.loads((ROOT/'Map/theme-sprites/manifest.json').read_text())
         self.assertEqual(manifest['atlases'],list(range(10,16)))
         self.assertGreater(len(manifest['sprites']),300)
         for atlas in manifest['atlases']:
-            source=f'MAP/theme-sources/asset{atlas}-alpha.png'
+            source=f'Map/theme-sources/asset{atlas}-alpha.png'
             original=np.array(Image.open(ROOT/source).convert('RGBA'))
             self.assertEqual(original[:,:,3].min(),0)
             result=np.zeros_like(original);coverage=np.zeros(original.shape[:2],dtype=np.uint8)

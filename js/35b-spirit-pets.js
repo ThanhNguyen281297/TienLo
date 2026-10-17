@@ -4,7 +4,7 @@
  const followers=new Map(),icons=new Map(),pictures=new Map();let lastScene=worldMap.state.scene;
  function progress(){const p=inventory.progress();p.pets??=[];p.petEggGifted??=[];return p;}
  const uid=()=>crypto.randomUUID?.()||'pet-'+Date.now()+'-'+Math.random();
- function grantEggs(){if(!P.ap||!account.state.ready||account.state.restoring)return;const p=progress();for(const species of kinds){if(p.petEggGifted.includes(species))continue;if(p.bag.length>=30&&!p.bag.some(i=>i.id==='egg-'+species))break;const item=inventory.addItem('egg-'+species);if(item){p.petEggGifted.push(species);saveCharacter();}else break;}}
+ function grantEggs(){if(!P.ap||!account.state.ready||account.state.restoring)return;const p=progress();for(const species of kinds){if(p.petEggGifted.includes(species))continue;if(p.bag.length>=equipmentData.capacity(p)&&!p.bag.some(i=>i.id==='egg-'+species))break;const item=inventory.addItem('egg-'+species);if(item){p.petEggGifted.push(species);saveCharacter();}else break;}}
  function active(p=progress()){return p.pets.find(pet=>pet.id===p.activePet)||null;}
  function startHatch(itemUid){
   const p=progress(),item=p.bag.find(i=>i.uid===itemUid&&i.type==='egg');

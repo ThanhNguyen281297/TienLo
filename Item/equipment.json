@@ -1,0 +1,512 @@
+{
+  "version": 2,
+  "slots": {
+    "vukhi": "Vũ khí",
+    "daobao": "Đạo bào",
+    "chan": "Hộ thối",
+    "giay": "Giày",
+    "phapbao": "Pháp bảo",
+    "ngoc": "Hộ thuẫn",
+    "gioi": "Nhẫn trữ vật",
+    "phaptran": "Pháp trận"
+  },
+  "combatSlots": [
+    "vukhi",
+    "daobao",
+    "chan",
+    "giay",
+    "phapbao",
+    "ngoc"
+  ],
+  "reforge": {
+    "gold": 60,
+    "essence": 12
+  },
+  "shield": {
+    "duration": 60,
+    "cooldown": 180,
+    "armorPercent": 0.35,
+    "armorMin": 6,
+    "armorMax": 25
+  },
+  "offense": [
+    {
+      "key": "lifesteal",
+      "name": "Hút máu",
+      "min": 25,
+      "max": 200,
+      "percent": true
+    },
+    {
+      "key": "manasteal",
+      "name": "Hút linh lực",
+      "min": 20,
+      "max": 150,
+      "percent": true
+    },
+    {
+      "key": "attackPercent",
+      "name": "Tấn công",
+      "min": 100,
+      "max": 500,
+      "percent": true
+    },
+    {
+      "key": "crit",
+      "name": "Bạo kích",
+      "min": 25,
+      "max": 250,
+      "percent": true
+    },
+    {
+      "key": "skill",
+      "name": "Sát thương kỹ năng",
+      "min": 100,
+      "max": 600,
+      "percent": true
+    },
+    {
+      "key": "critDamage",
+      "name": "Sát thương bạo kích",
+      "min": 200,
+      "max": 1000,
+      "percent": true
+    },
+    {
+      "key": "attackFlat",
+      "name": "Công cố định",
+      "min": 1,
+      "max": 8,
+      "percent": false
+    },
+    {
+      "key": "bossDamage",
+      "name": "Sát thương boss",
+      "min": 100,
+      "max": 600,
+      "percent": true
+    }
+  ],
+  "defense": [
+    {
+      "key": "dodge",
+      "name": "Né tránh",
+      "min": 25,
+      "max": 200,
+      "percent": true
+    },
+    {
+      "key": "resist",
+      "name": "Kháng sát thương",
+      "min": 100,
+      "max": 500,
+      "percent": true
+    },
+    {
+      "key": "armorPercent",
+      "name": "Phòng thủ",
+      "min": 100,
+      "max": 500,
+      "percent": true
+    },
+    {
+      "key": "armorFlat",
+      "name": "Giáp cố định",
+      "min": 1,
+      "max": 10,
+      "percent": false
+    },
+    {
+      "key": "hpPercent",
+      "name": "Sinh lực",
+      "min": 100,
+      "max": 500,
+      "percent": true
+    },
+    {
+      "key": "regen",
+      "name": "Hồi sinh lực",
+      "min": 10,
+      "max": 50,
+      "percent": false
+    },
+    {
+      "key": "mpPercent",
+      "name": "Linh lực",
+      "min": 100,
+      "max": 500,
+      "percent": true
+    }
+  ],
+  "shields": [
+    {
+      "id": "shield-1",
+      "name": "Mộc Linh Hộ Thuẫn",
+      "skillName": "Thanh Mộc Kết Giới",
+      "variant": 1,
+      "buff": 4,
+      "slot": "ngoc",
+      "armor": 3,
+      "hp": 20,
+      "price": 95,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/Thuan/1.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    },
+    {
+      "id": "shield-2",
+      "name": "Huyền Băng Liên Thuẫn",
+      "skillName": "Băng Liên Hộ Thể",
+      "variant": 2,
+      "buff": 2,
+      "slot": "ngoc",
+      "armor": 4,
+      "hp": 25,
+      "price": 120,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/Thuan/2.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    },
+    {
+      "id": "shield-3",
+      "name": "Xích Diệm Long Thuẫn",
+      "skillName": "Viêm Long Hộ Giáp",
+      "variant": 3,
+      "buff": 3,
+      "slot": "ngoc",
+      "armor": 5,
+      "hp": 30,
+      "price": 145,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/Thuan/3.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    },
+    {
+      "id": "shield-4",
+      "name": "Tử Lôi Huyền Thuẫn",
+      "skillName": "Lôi Cương Kết Giới",
+      "variant": 4,
+      "buff": 1,
+      "slot": "ngoc",
+      "armor": 6,
+      "hp": 35,
+      "price": 170,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/Thuan/4.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    },
+    {
+      "id": "shield-5",
+      "name": "Thương Hải Luân Thuẫn",
+      "skillName": "Hải Triều Hộ Thể",
+      "variant": 5,
+      "buff": 2,
+      "slot": "ngoc",
+      "armor": 7,
+      "hp": 40,
+      "price": 195,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/Thuan/5.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    },
+    {
+      "id": "shield-6",
+      "name": "Kim Ô Thánh Thuẫn",
+      "skillName": "Kim Quang Bất Diệt",
+      "variant": 6,
+      "buff": 5,
+      "slot": "ngoc",
+      "armor": 8,
+      "hp": 45,
+      "price": 220,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/Thuan/6.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    },
+    {
+      "id": "shield-7",
+      "name": "Nguyệt Hoa Linh Thuẫn",
+      "skillName": "Nguyệt Hoa Bảo Giới",
+      "variant": 7,
+      "buff": 6,
+      "slot": "ngoc",
+      "armor": 9,
+      "hp": 50,
+      "price": 245,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/Thuan/7.png",
+      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
+    }
+  ],
+  "backs": [
+    {
+      "id": "back-class-0",
+      "name": "Vạn Kiếm Thiên Dực",
+      "classIndex": 0,
+      "slot": "phapbao",
+      "atk": 2,
+      "price": 90,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/PhapBao/Class/Kiem.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-class-1",
+      "name": "Hàn Nguyệt Tiên Luân",
+      "classIndex": 1,
+      "slot": "phapbao",
+      "atk": 2,
+      "price": 90,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/PhapBao/Class/Liem.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-class-2",
+      "name": "Cửu Tiêu Lôi Dực",
+      "classIndex": 2,
+      "slot": "phapbao",
+      "atk": 2,
+      "price": 90,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/PhapBao/Class/Thuong.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-class-3",
+      "name": "Thiên Cơ Linh Phù",
+      "classIndex": 3,
+      "slot": "phapbao",
+      "atk": 2,
+      "price": 90,
+      "req": 0,
+      "rarity": "huyen",
+      "art": "Item/PhapBao/Class/Quat.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-1",
+      "name": "Thương Long Kiếm Ấn",
+      "classIndex": 0,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/1.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-2",
+      "name": "Băng Phách Tiên Luân",
+      "classIndex": 1,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/2.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-3",
+      "name": "Thanh Mộc Thiên Cơ",
+      "classIndex": 3,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/3.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-4",
+      "name": "Tử Điện Ma Dực",
+      "classIndex": 2,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/4.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-5",
+      "name": "Băng Điệp Huyền Dực",
+      "classIndex": 1,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/5.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-6",
+      "name": "Xích Phượng Thiên Dực",
+      "classIndex": 0,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/6.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-7",
+      "name": "Thanh Vũ Linh Dực",
+      "classIndex": 3,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/7.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    },
+    {
+      "id": "back-8",
+      "name": "Cửu Lôi Thiên Dực",
+      "classIndex": 2,
+      "slot": "phapbao",
+      "atk": 4,
+      "price": 180,
+      "req": 10,
+      "rarity": "linh",
+      "art": "Item/PhapBao/8.png",
+      "desc": "Pháp bảo sau lưng, có 5 dòng thuộc tính tấn công."
+    }
+  ],
+  "formations": [
+    {
+      "id": "formation-0",
+      "name": "Kiếm Tâm Pháp Trận",
+      "classIndex": 0,
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/Class/Kiem.png",
+      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+    },
+    {
+      "id": "formation-1",
+      "name": "Hàn Nguyệt Tinh Trận",
+      "classIndex": 1,
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/Class/Liem.png",
+      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+    },
+    {
+      "id": "formation-2",
+      "name": "Cửu Tiêu Lôi Trận",
+      "classIndex": 2,
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/Class/Thuong.png",
+      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+    },
+    {
+      "id": "formation-3",
+      "name": "Thiên Cơ Bát Quái Trận",
+      "classIndex": 3,
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/Class/Quat.png",
+      "desc": "Pháp trận dưới chân dành riêng cho tông môn."
+    }
+  ],
+  "rings": [
+    {
+      "id": "dong-gioi",
+      "name": "Tu Di Trữ Vật Giới",
+      "capacity": 10,
+      "req": 0,
+      "rarity": "pham",
+      "price": 80,
+      "slot": "gioi",
+      "desc": "Nhẫn trữ vật mở rộng túi đồ, không cộng chỉ số chiến đấu."
+    },
+    {
+      "id": "linh-gioi",
+      "name": "Càn Khôn Trữ Vật Giới",
+      "capacity": 20,
+      "req": 10,
+      "rarity": "huyen",
+      "price": 200,
+      "slot": "gioi",
+      "desc": "Nhẫn trữ vật mở rộng túi đồ, không cộng chỉ số chiến đấu."
+    },
+    {
+      "id": "hu-khong-gioi",
+      "name": "Hư Không Trữ Vật Giới",
+      "capacity": 30,
+      "req": 25,
+      "rarity": "linh",
+      "price": 400,
+      "slot": "gioi",
+      "desc": "Nhẫn trữ vật mở rộng túi đồ, không cộng chỉ số chiến đấu."
+    },
+    {
+      "id": "tien-gioi",
+      "name": "Vạn Tượng Trữ Vật Giới",
+      "capacity": 40,
+      "req": 45,
+      "rarity": "tien",
+      "price": 700,
+      "slot": "gioi",
+      "desc": "Nhẫn trữ vật mở rộng túi đồ, không cộng chỉ số chiến đấu."
+    }
+  ],
+  "weaponNames": [
+    [
+      "Mộc Kiếm",
+      "Huyền Thiết Kiếm",
+      "Linh Quang Kiếm",
+      "Cửu Tiêu Tiên Kiếm"
+    ],
+    [
+      "Thanh Nguyệt Liềm",
+      "Huyền Băng Liềm",
+      "Nguyệt Ảnh Liềm",
+      "Minh Nguyệt Tiên Liềm"
+    ],
+    [
+      "Trúc Thương",
+      "Huyền Thiết Thương",
+      "Lôi Quang Thương",
+      "Cửu Tiêu Lôi Thương"
+    ],
+    [
+      "Thanh Trúc Phiến",
+      "Huyền Phong Phiến",
+      "Linh Vũ Phiến",
+      "Thiên Cơ Tiên Phiến"
+    ]
+  ]
+}

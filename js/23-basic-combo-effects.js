@@ -5,7 +5,7 @@
   const TAU=Math.PI*2,HEIGHT=18;
   const colors=['#83d6ff','#66ffe0','#bb97ff','#ffe29c'];
   const weapons=['Kiem','Liem','Thuong','Quat'].map(folder=>{
-    const img=new Image();img.src='CHARACTER/'+folder+'/VuKhi/vukhi.png';return img;
+    const img=new Image();img.src='Item/VuKhi/Class/'+folder+'.png';return img;
   });
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const progress=o=>clamp((o.age||0)/(o.duration||.3),0,1);

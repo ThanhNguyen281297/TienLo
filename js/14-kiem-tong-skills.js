@@ -13,10 +13,10 @@
     const image = new Image();
     image.onload = () => refreshUI(true);
     image.onerror = () => msg('Không tải được ảnh kỹ năng: ' + name + '.png');
-    image.src = 'CHARACTER/SkillSprites/Kiem/' + name + '/01.png';
+    image.src = 'Skill/Class/Kiem/' + name + '/01.png';
     return image;
   });
-  const ringImage = new Image(); ringImage.src = 'CHARACTER/Kiem/Vong/vong.png';
+  const ringImage = new Image(); ringImage.src = 'Item/PhapTran/Class/Kiem.png';
   const state = { cooldown: [0,0,0,0], flying: [], dash: null, field: null, ultimate: null, slash: [], aim: null, stamp: null };
   const isSword = () => !!P.ap && P.ap.w === 0;
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));

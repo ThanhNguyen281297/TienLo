@@ -25,13 +25,14 @@ jobs:
           TIENLO_QUIET: '1'
         run: |
           python tests/test_online_server.py
+          python tests/test_equipment.py
           python tests/test_release_stamp.py
           python tests/test_map_sprite_assets.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done
           for file in deploy/*.sh; do bash -n "$file"; done
-          python -m compileall -q server.py deploy tests
+          python -m compileall -q server.py community.py equipment.py deploy tests
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / 'CHARACTER' / 'SkillSprites'
+BASE = ROOT / 'Skill' / 'Class'
 manifest = {}
 
 def gutter(alpha, nominal, axis):

@@ -7,7 +7,7 @@
   hit=function(enemy,power){
     if(enemy.network){
       if(enemy.dead||enemy.hp<=0)return;
-      if(state.hits.length<32)state.hits.push({id:enemy.id,power});
+      if(state.hits.length<32)state.hits.push({id:enemy.id,power:power*(enemy.boss||enemy.elite||enemy.t===2?1+(bonusStats().bossDamage||0):1)*(Math.random()<(bonusStats().crit||0)?1.6+(bonusStats().critDamage||0):1)});
       spark(enemy.x,enemy.y-20,characterClasses[P.ap.w].color,5);
       return;
     }
@@ -26,11 +26,13 @@
     if(lastMap!==scene){state.hits=[];state.players=[];state.fields=[];state.shared=false;retry=null;lastMap=scene;}
     const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,cast:state.cast,hp:P.hp,ackBoss:window.communityGame?.bossAcks||[],field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;state.petCast=null;retry=batch;
     try{
-      const data=await account.api('/api/world',batch);retry=null;state.connected=true;chat.hidden=false;
+      const data=await account.api('/api/world',{...batch,ackSustain:P.world.sustainIds||[]});retry=null;state.connected=true;chat.hidden=false;
       if(scene!==worldMap.state.scene||account.state.restoring)return;
       if(Math.hypot(data.x-batch.x,data.y-batch.y)>1){P.x=data.x;P.y=data.y;}
       state.players=data.players.map(peer=>{const old=state.players.find(p=>p.id===peer.id);return {...peer,drawX:old?.drawX??peer.x,drawY:old?.drawY??peer.y,drawLift:old?.drawLift??peer.airborne??0};});
       for(const peer of data.players){if(peer.cast&&peer.cast.id!==state.remoteCasts?.get(peer.id)){state.remoteCasts??=new Map();state.remoteCasts.set(peer.id,peer.cast.id);const color=characterClasses[peer.ap.w].color;window.combatVisuals?.pulse(peer.cast.x,peer.cast.y,peer.cast.index===3?145:peer.cast.index===2?100:45,color,.65);spark(peer.x,peer.y-25,color,8);}}
+      equipmentSystem.receive(data.shield);
+      const sustainIds=P.world.sustainIds??=[];for(const event of data.sustain||[]){if(!sustainIds.includes(event.id)){equipmentSystem.sustain(event.amount);sustainIds.push(event.id);if(sustainIds.length>100)sustainIds.shift();}}
       state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);
       if(data.shared){
         const previous=new Map(E.filter(e=>e.network).map(e=>[e.id,e]));
@@ -39,7 +41,7 @@
           if(state.seenRewards.has(reward.eventId)||claimed.includes(reward.eventId)){if(!state.acks.includes(reward.eventId))state.acks.push(reward.eventId);continue;}
           state.seenRewards.add(reward.eventId);claimed.push(reward.eventId);if(claimed.length>100)claimed.shift();
           // Replay each server-issued death once through existing quest/loot hooks.
-          const e={...reward,hp:1,dead:0,network:false},existingPopups=new Set(X);localHit(e,1);
+          const e={...reward,hp:1,dead:0,network:false,rewardReplay:true},existingPopups=new Set(X);localHit(e,1);
           // Reward replay is bookkeeping, not a real one-point attack popup.
           X=X.filter(popup=>existingPopups.has(popup)||popup.t!==1);
           account.flush().then(ok=>{if(ok)state.acks.push(reward.eventId);});
@@ -47,7 +49,7 @@
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
         E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;if(damage>0&&e.hp>0){fx(snapshot.x,snapshot.y-T[snapshot.t].s,damage,'#ffe0a0');window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
         if(data.damage&&!worldMap.isSafe(P)){
-          const bonus=bonusStats();if(window.combatDefense?.evading()||classCombat.isDashing()||Math.random()<Math.min(.2,bonus.dodge||0)){window.combatDefense?.dodge();}else{const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
+          const bonus=bonusStats();if(window.combatDefense?.evading()||classCombat.isDashing()||Math.random()<Math.min(.2,bonus.dodge||0)){window.combatDefense?.dodge();}else{const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)*(window.equipmentSystem?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }
       }
       if(P.hp<=0){worldMap.dialog.close();classCombat.onRespawn();worldMap.respawn();P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;saveCharacter();msg('Trọng thương! Trở về đài an toàn, mất 10% Linh Thạch.');}

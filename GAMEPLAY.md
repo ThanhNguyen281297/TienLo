@@ -4,7 +4,7 @@
 
 Đã cập nhật cảnh quan cho Vạn Kiếm/Thiên Vân (cổ ngọc), Nguyệt Hồ (liên hoa), Lôi Vân (băng tinh), Thiên Cơ/Linh Mạch (linh mộc), đấu trường (hỏa điện) và chiến trường boss (ma vực). Bí cảnh solo dùng cổ tích ngọc. Dùng sprite PNG đã tách alpha và giữ nguyên các cụm kiến trúc dính nhau; các cụm lớn nằm sau địa hình, cây/trụ nhỏ dùng các ô trang trí sẵn có. Ánh sáng vách đảo được cache theo chủ đề. Nền vẫn lát từng viên; tọa độ online, vị trí quái, va chạm và cặp truyền tống không đổi. Bỏ hồ sen cũ chồng vào trận truyền tống Linh Mạch.
 
-Thư viện 338 sprite/cụm: `MAP/theme-sprites/index.html`. Nguồn RGB gốc giữ nguyên; bản alpha và quy trình ImageGen ghi tại `MAP/theme-sources/README.md`. Renderer chỉ tải những PNG được chọn cho map/khung nhìn đang dùng.
+Thư viện 338 sprite/cụm: `Map/theme-sprites/index.html`. Nguồn RGB gốc giữ nguyên; bản alpha và quy trình ImageGen ghi tại `Map/theme-sources/README.md`. Renderer chỉ tải những PNG được chọn cho map/khung nhìn đang dùng.
 
 Không có gameplay tốt nhất cho mọi nhóm người chơi. Hướng phù hợp với source này là **ARPG tu tiên hợp tác**, chơi được một mình nhưng gặp đạo hữu sẽ có lợi: combo rõ, skill chủ động, tiến trình có mục tiêu và trang bị có lựa chọn.
 
@@ -103,7 +103,7 @@ Các hiệu ứng dưới đây áp dụng cho quái trong vùng trận. Rời v
 
 Quái bị đóng băng/choáng không di chuyển hoặc đánh. Quái bị khóa đánh vẫn di chuyển chậm. Dấu hiệu là kiếm áp hướng xuống, tinh thể tuyết, điện tích/ngôi sao choáng và lá phù phong ấn; không thêm vòng bao quanh quái.
 
-Bản online xử lý trạng thái, sát thương và AI quái trên server, gửi trạng thái quái và trận của đồng đội qua `/api/world`. Server cố định thời gian tồn tại/cooldown của trận theo class, không làm mới trận khi client gửi lại cùng ID. Cấu hình chung ở `MAP/field-effects.json`, bản trình duyệt tương ứng ở `js/13c-field-rules.js`.
+Bản online xử lý trạng thái, sát thương và AI quái trên server, gửi trạng thái quái và trận của đồng đội qua `/api/world`. Server cố định thời gian tồn tại/cooldown của trận theo class, không làm mới trận khi client gửi lại cùng ID. Cấu hình chung ở `Map/field-effects.json`, bản trình duyệt tương ứng ở `js/13c-field-rules.js`.
 
 ## Trang bị +15 và linh thú
 

@@ -5,12 +5,12 @@ import json
 import struct
 
 ROOT = Path(__file__).resolve().parents[1]
-folder = ROOT / 'MAP/sprites'
+folder = ROOT / 'Map/sprites'
 assets = {}
 for file in sorted(folder.glob('*.png')):
     data = file.read_bytes()
     width, height = struct.unpack('>II', data[16:24])
-    assets[file.stem] = dict(file='MAP/sprites/' + file.name, width=width,
+    assets[file.stem] = dict(file='Map/sprites/' + file.name, width=width,
                              height=height, sha256=hashlib.sha256(data).hexdigest())
 (folder / 'manifest.json').write_text(json.dumps(assets, indent=2) + '\n', encoding='utf-8')
 cards = ''.join(f'<figure><img src="{key}.png" alt="{key}"><figcaption>{key} · {a["width"]} × {a["height"]}</figcaption></figure>' for key, a in assets.items())

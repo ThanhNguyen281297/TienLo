@@ -41,7 +41,7 @@
   for(const [key,id]of Object.entries({emptyIsland:'atlas-06-024',gardenIsland:'atlas-06-038',wildIsland:'atlas-06-022',smallIsland:'atlas-06-026'})){
     const meta=mapAtlasSprites.sprites.find(s=>s.id===id);if(meta){const image=new Image();image.src=artworkURL(meta.src);terrainSprites[key]=image;}
   }
-  const highIsland=new Image();highIsland.src=artworkURL('MAP/hd/courtyard-island.png');
+  const highIsland=new Image();highIsland.src=artworkURL('Map/hd/courtyard-island.png');
   const themes={
     sword:{base:'emptyIsland',motif:'court',satellites:[['gardenIsland',560,805,180],['wildIsland',1440,820,150],['rockSpire',690,1430,95]]},
     moon:{base:'gardenIsland',motif:'roundCourt',satellites:[['smallIsland',600,845,185],['lotusTerrace',1410,820,205],['smallIsland',1430,1400,130]]},
@@ -157,7 +157,7 @@
     world.state.near=null;
   }
   world.layoutArt={modules,islandDeck,hubDecor,decor,valleyDecor,terrainSprites,highIsland,stonePaving,themes,districts};
-  const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='CHARACTER/'+folder+'/Nam/truoc.png';return img;});
+  const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='Character/'+folder+'/Nam/truoc.png';return img;});
   world.layoutArt.placements=function(){
     const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:[];
     const props=[...world.buildings.filter(b=>!b.ground),...decorations].map((p,i)=>{const bounds=world.spriteBounds(p.key,p.x,p.y,p.w);return{id:p.key+':'+i,type:'prop',...(bounds||{left:p.x,right:p.x,top:p.y,bottom:p.y})};});

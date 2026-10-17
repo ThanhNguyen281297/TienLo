@@ -29,7 +29,7 @@
   function isolate(key){
     if(!definitions[key])return null;
     if(!cleaned.has(key)){
-      const img=new Image();img.src=artworkURL('MAP/sprites/'+key+'.png');
+      const img=new Image();img.src=artworkURL('Map/sprites/'+key+'.png');
       img.onerror=()=>msg('Không tải được asset bản đồ '+key+'.');cleaned.set(key,img);
     }
     const img=cleaned.get(key);return ready(img)?img:null;
@@ -101,7 +101,7 @@
       ...regions.filter(r=>r.id!=='hub').map(r=>({key:'platform',x:r.x,y:r.y+50,w:210,h:110})),...buildings.filter(b=>b.ground)];
     for(const item of details)if(item.x>cx-item.w&&item.x<cx+vw+item.w&&item.y>cy-30&&item.y<cy+vh+item.w)sprite(ctx,item.key,item.x,item.y,item.w,item.h);
   }
-  const npcImage=new Image();npcImage.src='CHARACTER/Kiem/Nam/truoc.png';
+  const npcImage=new Image();npcImage.src='Character/Kiem/Nam/truoc.png';
   function npc(service){
     if(window.creatureArt?.drawNpc(g,service))return;
     g.save();g.fillStyle='rgba(43,40,31,.18)';g.beginPath();g.ellipse(service.x,service.y,10,4,0,0,Math.PI*2);g.fill();

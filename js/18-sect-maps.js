@@ -25,12 +25,12 @@
     waterfall:[3,.017,.760,.155,.238],moonFall:[0,.843,.754,.155,.241]
   });
   world.preloadSprites();
-  const swordImage=new Image();swordImage.src='CHARACTER/Kiem/VuKhi/vukhi.png';
-  const moonWeapon=new Image();moonWeapon.src='CHARACTER/Liem/VuKhi/vukhi.png';
-  const swordRing=new Image();swordRing.src='CHARACTER/Kiem/Vong/vong.png';
-  const moonRing=new Image();moonRing.src='CHARACTER/Liem/Vong/vong.png';
-  const moonArt=new Image();moonArt.src='CHARACTER/Liem/skill/minhnguyetgiangthe.png';
-  const npcBodies=[new Image(),new Image()];npcBodies[0].src='CHARACTER/Kiem/Nam/truoc.png';npcBodies[1].src='CHARACTER/Liem/Nam/truoc.png';
+  const swordImage=new Image();swordImage.src='Item/VuKhi/Class/Kiem.png';
+  const moonWeapon=new Image();moonWeapon.src='Item/VuKhi/Class/Liem.png';
+  const swordRing=new Image();swordRing.src='Item/PhapTran/Class/Kiem.png';
+  const moonRing=new Image();moonRing.src='Item/PhapTran/Class/Liem.png';
+  const moonArt=new Image();moonArt.src='Skill/Legacy/Liem/minhnguyetgiangthe.png';
+  const npcBodies=[new Image(),new Image()];npcBodies[0].src='Character/Kiem/Nam/truoc.png';npcBodies[1].src='Character/Liem/Nam/truoc.png';
   const ready=i=>i.complete&&i.naturalWidth>0;
   function ellipse(point,island,margin=0){return ((point.x-island.x)/(island.rx-margin))**2+((point.y-island.y)/(island.ry-margin))**2<=1;}
   function bridgePlacement([a,b]){const img=world.asset('bridge'),ratio=img?img.height/img.width:.475,length=dist(a,b),width=length/Math.hypot(.8,.3*ratio),height=width*ratio,angle=Math.atan2(b.y-a.y,b.x-a.x)+Math.atan2(.3*height,.8*width);return {a,b,img,width,height,angle};}

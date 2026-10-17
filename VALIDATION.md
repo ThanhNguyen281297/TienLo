@@ -19,7 +19,7 @@ Các bộ đã đạt bằng Chrome/Playwright:
 - `skill-aim.test.cjs`: ngắm chuột/chạm, kéo/thả/hủy và chi tiêu mana.
 - `world-map.test.cjs`, `four-sect-maps.test.cjs`: bản đồ, đường cầu/va chạm, dịch vụ, truyền tống, map độc lập và mobile.
 - `sect-arena.test.cjs`: 30 lượt, thắng/thua/rời, giới hạn theo tài khoản và UI mobile.
-- `npc-monsters.test.cjs`: sprite NPC/quái, animation, thưởng một lần và hồi sinh.
+- `npc-monsters.test.cjs`: sprite Character/NPC/quái, animation, thưởng một lần và hồi sinh.
 - `local-file-map.test.cjs`: kiểm tra renderer/terrain file:// bằng tài khoản mock; chơi online thực tế vẫn yêu cầu HTTP(S) và đăng nhập.
 
 Ảnh QA nằm trong `tests/artifacts/online-*.png`. Đã xem và kiểm tra trực quan màn đăng nhập, hành trang desktop/mobile. Không có benchmark tải lớn, kiểm thử xâm nhập hoặc kiểm tra chống gian lận đầy đủ; phạm vi phát hành hiện tại là alpha cho nhóm nhỏ.

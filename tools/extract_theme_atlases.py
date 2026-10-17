@@ -1,7 +1,7 @@
 """Native, lossless alpha sprites from the user supplied theme atlases 10–15.
 
 Touching scenic architecture stays a compound: hidden pixels are not invented.
-This exporter owns only MAP/theme-sprites, never the nine original atlas exports.
+This exporter owns only Map/theme-sprites, never the nine original atlas exports.
 """
 import json
 from pathlib import Path
@@ -10,13 +10,13 @@ from PIL import Image, ImageDraw
 from scipy import ndimage as nd
 
 ROOT=Path(__file__).resolve().parents[1]
-DEST=ROOT/'MAP/theme-sprites'
+DEST=ROOT/'Map/theme-sprites'
 
 
 def export():
     records=[]
     for atlas in range(10,16):
-        source=f'MAP/theme-sources/asset{atlas}-alpha.png'
+        source=f'Map/theme-sources/asset{atlas}-alpha.png'
         rgba=np.array(Image.open(ROOT/source).convert('RGBA'))
         if rgba[:,:,3].min()!=0:
             raise ValueError(f'{source} has no transparent background; do not cut by RGB.')
@@ -37,7 +37,7 @@ def export():
             pixels[:,:,3]*=(assigned[y0:y1,x0:x1]==label)
             sprite=Image.new('RGBA',(x1-x0+16,y1-y0+16));sprite.paste(Image.fromarray(pixels),(8,8))
             key=f'theme-{atlas}-{i:03}';path=folder/f'{key}.png';sprite.save(path)
-            records.append(dict(id=key,src=path.relative_to(ROOT).as_posix(),width=sprite.width,height=sprite.height,source=source,original=f'MAP/asset{atlas}.png',sourceBox=box,padding=8,kind='compound' if max(x1-x0,y1-y0)>300 else 'prop'))
+            records.append(dict(id=key,src=path.relative_to(ROOT).as_posix(),width=sprite.width,height=sprite.height,source=source,original=f'Map/asset{atlas}.png',sourceBox=box,padding=8,kind='compound' if max(x1-x0,y1-y0)>300 else 'prop'))
         # A native extraction contact sheet, not an in-game atlas or image edit.
         own=[r for r in records if r['source']==source];sheet=Image.new('RGB',(800,((len(own)+5)//6)*110),'#14232c');draw=ImageDraw.Draw(sheet)
         for i,r in enumerate(own):

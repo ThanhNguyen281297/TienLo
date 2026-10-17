@@ -35,8 +35,8 @@ if [[ -f /opt/tienlo/server.py ]]; then
   tar -czf "/var/backups/tienlo/code-$(date -u +%Y%m%d-%H%M%S).tar.gz" -C /opt/tienlo .
 fi
 if [[ "$SOURCE" != /opt/tienlo ]]; then
-  cp -a "$SOURCE/server.py" "$SOURCE/index.html" "$SOURCE/README.md" "$SOURCE/GAMEPLAY.md" "$SOURCE/DEPLOYMENT.md" /opt/tienlo/
-  for folder in js css CHARACTER MAP MONTERS NPC deploy; do cp -a "$SOURCE/$folder" /opt/tienlo/; done
+  cp -a "$SOURCE/server.py" "$SOURCE/community.py" "$SOURCE/equipment.py" "$SOURCE/index.html" "$SOURCE/README.md" "$SOURCE/GAMEPLAY.md" "$SOURCE/DEPLOYMENT.md" /opt/tienlo/
+  for folder in js css Character Map Item Skill deploy; do cp -a "$SOURCE/$folder" /opt/tienlo/; done
 fi
 chmod -R a+rX /opt/tienlo
 if [[ ! -f /etc/tienlo.env ]]; then

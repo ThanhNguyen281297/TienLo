@@ -1,6 +1,6 @@
 /* Equipment levels are stored on each item; base stats never get overwritten. */
 (function(){
- const slots=['vukhi','daobao','ngoc','gioi','giay','phapbao'];
+ const slots=equipmentRules.combatSlots;
  const level=item=>Math.max(0,Math.min(15,Number.isInteger(item?.enhance)?item.enhance:0));
  const color=n=>n>=15?'#ffdc65':n>=14?'#ff5757':n>=11?'#ff9b45':n>=9?'#58b5ff':n>=1?'#64ed92':null;
  function setInfo(equip=P.world?.equip||{}){const minimum=Math.min(...slots.map(s=>equip[s]?level(equip[s]):0));const tier=[15,13,11,9].find(n=>minimum>=n)||0;return{tier,bonus:({9:.05,11:.1,13:.15,15:.2})[tier]||0,count:slots.filter(s=>equip[s]).length};}
@@ -8,7 +8,7 @@
  const cost=next=>({gold:next*40,essence:next*8});
  function enhance(uid){
   const p=inventory.progress(),item=[...p.bag,...Object.values(p.equip)].find(i=>i?.uid===uid);
-  if(!item?.slot)return false;const next=level(item)+1;if(next>15){msg('Trang bị đã đạt tối đa +15.');return false;}
+  if(!item?.slot||item.slot==='gioi')return false;const next=level(item)+1;if(next>15){msg('Trang bị đã đạt tối đa +15.');return false;}
   const price=cost(next),free=!!window.gmTest?.enabled;
   if(!free&&(P.gold<price.gold||(p.essence||0)<price.essence)){msg('Cần '+price.gold+' Linh Thạch và '+price.essence+' Linh Nguyên.');return false;}
   if(!free){P.gold-=price.gold;p.essence-=price.essence;}item.enhance=next;saveCharacter();msg(item.name+' đã cường hóa +'+next+(free?' · GM miễn phí.':'.'));window.dispatchEvent(new CustomEvent('tienlo-item-success',{detail:{name:item.name,caption:'CƯỜNG HÓA THÀNH CÔNG · +'+next,src:inventory.itemIcon(item)}}));return true;

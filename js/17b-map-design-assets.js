@@ -2,7 +2,7 @@
 (function(){
   const world=window.worldMap;
   if(!world)return;
-  // Atlas chỉ ghi nguồn để tra cứu. Renderer nạp trực tiếp MAP/sprites/<key>.png.
+  // Atlas chỉ ghi nguồn để tra cứu. Renderer nạp trực tiếp Map/sprites/<key>.png.
   const sources={
     thunderHall:[5,0,0,606,365],thunderAltar:[5,563,577,189,247],
     crystalPillar:[8,978,0,114,269],cloudRock:[8,0,918,169,90],
@@ -33,7 +33,7 @@
   for(const [key,rect]of Object.entries(sources)){
     const [atlas,x,y,width,height]=rect;
     world.definitions[key]=[atlas,x/1448,y/1086,width/1448,height/1086];
-    catalog[key].source='MAP/asset'+(atlas+1)+'.png';
+    catalog[key].source='Map/asset'+(atlas+1)+'.png';
     catalog[key].rect={x,y,width,height};
   }
   world.mapAssetCatalog=catalog;

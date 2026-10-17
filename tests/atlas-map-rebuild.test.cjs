@@ -58,7 +58,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     assert(motion.calls.length>=24&&motion.calls.every(n=>n===5),'Animated poses keep the entire PNG');
     assert(motion.positions.every(p=>p.every(Number.isFinite)));
     assert(new Set(motion.positions.map(p=>p.map(v=>v.toFixed(2)).join(','))).size>12,'Animation must move through distinct positions, not only dissolve opacity');
-    await page.goto('http://127.0.0.1:'+port+'/MAP/atlas-sprites/index.html',{waitUntil:'networkidle'});
+    await page.goto('http://127.0.0.1:'+port+'/Map/atlas-sprites/index.html',{waitUntil:'networkidle'});
     for(let i=1;i<=9;i++){
       const atlas=String(i).padStart(2,'0');await page.locator('#atlas').selectOption(atlas);
       const expected=await page.evaluate(atlas=>mapAtlasSprites.sprites.filter(r=>r.id.startsWith('atlas-'+atlas+'-')).length,atlas);

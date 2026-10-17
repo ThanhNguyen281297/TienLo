@@ -2,8 +2,8 @@
 
 Current layout revision: map floors now use modular paving, cliff, waterfall and
 bridge sprites; the old complete decorated island is retained only as a source.
-NPC/prop bounds are audited in all five service maps. See
-`MAP/SPRITE-WORKFLOW.md` for the current 304-sprite catalog, paths and VFX design.
+Character/NPC/prop bounds are audited in all five service maps. See
+`Map/SPRITE-WORKFLOW.md` for the current 304-sprite catalog, paths and VFX design.
 The notes below describe the preceding resolution/UI pass.
 
 ## Findings and changes
@@ -28,7 +28,7 @@ The notes below describe the preceding resolution/UI pass.
   control or game canvas. A real-keyboard regression checks this behavior.
 - Map and item PNG URLs inherit the deployment revision from their script,
   preventing a newly deployed game from retaining old cached artwork.
-- Placed painted item icons in MAP/items, inside the existing Python and Nginx public map-art allowlists. A real HTTP
+- Placed painted item icons in Map/items, inside the existing Python and Nginx public map-art allowlists. A real HTTP
   integration test verifies GET and HEAD for every icon, including versioned URLs.
 - Retained the existing high resolution character art and 96 full skill PNG
   poses. No source rectangles are used to clip skill artwork.

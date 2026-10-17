@@ -24,7 +24,7 @@
     grace=Math.max(0,grace-dt);notice=Math.max(0,notice-dt);banner.hidden=notice<=0;
     for(const [e,s]of casts){if(!E.includes(e)||!localBoss(e)){casts.delete(e);continue;}s.cooldown-=dt;s.recovery=Math.max(0,s.recovery-dt);
       if(s.mark&&!s.mark.spent&&blocked(e)){s.mark=null;s.cooldown=2;s.recovery=.4;fx(e.x,e.y-45,'Ngắt chiêu','#b7eaff');}
-      const m=s.mark;if(m){m.age+=dt;if(!m.spent&&m.age>=m.duration){m.spent=true;s.recovery=.85;const inside=Math.hypot(P.x-m.x,P.y-m.y)<=m.r;if(!inside||evading()){if(m.targeted)dodge();}else{const armor=window.totalArmor?totalArmor():0,raw=Math.max(T[e.t].at*(e.attackScale||1)*1.5,mhp()*.12),amount=Math.max(1,Math.round((raw*fieldEffects.attackMultiplier(e)-armor)*(window.newClassCombat?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff9c82');}spark(m.x,m.y,'#ffc587',12);}
+      const m=s.mark;if(m){m.age+=dt;if(!m.spent&&m.age>=m.duration){m.spent=true;s.recovery=.85;const inside=Math.hypot(P.x-m.x,P.y-m.y)<=m.r;if(!inside||evading()){if(m.targeted)dodge();}else{const armor=window.totalArmor?totalArmor():0,raw=Math.max(T[e.t].at*(e.attackScale||1)*1.5,mhp()*.12),amount=Math.max(1,Math.round((raw*fieldEffects.attackMultiplier(e)-armor)*(window.newClassCombat?.damageTaken()||1)*(window.equipmentSystem?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff9c82');}spark(m.x,m.y,'#ffc587',12);}
         if(m.age>m.duration+.35)s.mark=null;
       }
     }

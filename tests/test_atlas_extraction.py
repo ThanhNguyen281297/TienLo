@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class AtlasExtractionTests(unittest.TestCase):
     def test_all_nine_atlases_reconstruct_without_cutting_artwork(self):
-        manifest = json.loads((ROOT/'MAP/atlas-sprites/manifest.json').read_text())
+        manifest = json.loads((ROOT/'Map/atlas-sprites/manifest.json').read_text())
         sources = {r['source'] for r in manifest['sprites']}
         self.assertEqual(len(sources), 9)
         for source in sorted(sources):

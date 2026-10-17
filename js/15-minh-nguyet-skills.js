@@ -15,11 +15,11 @@
   const live=e=>!e.dead&&e.hp>0;
   const ART=FILES.map(name=>{
     const img=new Image();img.onload=()=>refreshUI(true);img.onerror=()=>msg('Không tải được ảnh kỹ năng: '+name+'.png');
-    img.src='CHARACTER/SkillSprites/Liem/'+name+'/01.png';return img;
+    img.src='Skill/Class/Liem/'+name+'/01.png';return img;
   });
-  const physical=new Image();physical.src='CHARACTER/Liem/VuKhi/vukhi.png';
-  const ring=new Image();ring.src='CHARACTER/Liem/Vong/vong.png';
-  const bodies={Nam:{},Nu:{}};for(const gender of ['Nam','Nu'])for(const name of ['truoc','sau','trai','phai']){bodies[gender][name]=new Image();bodies[gender][name].src='CHARACTER/Liem/'+gender+'/'+name+'.png';}
+  const physical=new Image();physical.src='Item/VuKhi/Class/Liem.png';
+  const ring=new Image();ring.src='Item/PhapTran/Class/Liem.png';
+  const bodies={Nam:{},Nu:{}};for(const gender of ['Nam','Nu'])for(const name of ['truoc','sau','trai','phai']){bodies[gender][name]=new Image();bodies[gender][name].src='Character/Liem/'+gender+'/'+name+'.png';}
   const ready=img=>img.complete&&img.naturalWidth>0;
   function crop(ctx,img,rect,x,y,w,h,angle=0,alpha=1){
     const index=ART.indexOf(img);

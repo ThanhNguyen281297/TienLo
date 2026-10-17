@@ -1,7 +1,7 @@
 /* Separate stone islands and continuous masonry walls. No corner decks or bridges. */
 (function(){
   const world=worldMap,cache=new Map(),images={};
-  for(const key of ['wall-panel','wall-pier']){const image=new Image();image.src=artworkURL('MAP/structures/'+key+'.png');images[key]=image;}
+  for(const key of ['wall-panel','wall-pier']){const image=new Image();image.src=artworkURL('Map/structures/'+key+'.png');images[key]=image;}
   const mix=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
   const distance=(a,b)=>Math.hypot(b.x-a.x,b.y-a.y);
   function splitWall(a,b){const count=Math.ceil(distance(a,b)/72);return Array.from({length:count},(_,i)=>[mix(a,b,i/count),mix(a,b,(i+1)/count)]);}

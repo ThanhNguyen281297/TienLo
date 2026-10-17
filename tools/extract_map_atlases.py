@@ -13,7 +13,7 @@ from PIL import Image
 from scipy import ndimage as nd
 
 ROOT = Path(__file__).resolve().parents[1]
-DEST = ROOT / 'MAP/atlas-sprites'
+DEST = ROOT / 'Map/atlas-sprites'
 DEST.mkdir(exist_ok=True)
 
 
@@ -30,7 +30,7 @@ def save(image, path):
 
 records = []
 for atlas in range(1, 10):
-    source = 'MAP/asset' + (str(atlas) if atlas > 1 else '') + '.png'
+    source = 'Map/asset' + (str(atlas) if atlas > 1 else '') + '.png'
     rgba = np.array(Image.open(ROOT / source).convert('RGBA'))
     # No morphological closing: it joins adjacent props and fills genuine holes.
     labels, _ = nd.label(rgba[:, :, 3] > 24)
@@ -76,7 +76,7 @@ curated = {
 }
 terrain = {}
 for key, (atlas, box, seed) in curated.items():
-    source = f'MAP/asset{atlas}.png'
+    source = f'Map/asset{atlas}.png'
     rgba = np.array(Image.open(ROOT/source).convert('RGBA'))
     x0, y0, x1, y1 = box
     pixels = rgba[y0:y1, x0:x1].copy()

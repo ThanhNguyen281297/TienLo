@@ -8,9 +8,9 @@
   const ready=img=>img&&img.complete&&img.naturalWidth>0;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const img=src=>{const i=new Image();try{i.src=artworkURL(src);}catch(e){i.src=src;}return i;};
-  const cloudImg=img('MAP/sprites/cloud.png');
-  const lanternImg=img('MAP/sprites/lantern.png');
-  const portalImg=img('MAP/sprites/portal.png');
+  const cloudImg=img('Map/sprites/cloud.png');
+  const lanternImg=img('Map/sprites/lantern.png');
+  const portalImg=img('Map/sprites/portal.png');
 
   /* ---------- trạng thái hiệu ứng ---------- */
   let shake=0,flash=0,killFlash=0,envT=0;

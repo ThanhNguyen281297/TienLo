@@ -9,13 +9,13 @@ ROOT=Path(__file__).resolve().parents[1]
 
 class SkillSpriteAssets(unittest.TestCase):
     def test_complete_lossless_frames(self):
-        manifest=json.loads((ROOT/'CHARACTER/SkillSprites/manifest.json').read_text(encoding='utf-8'))
+        manifest=json.loads((ROOT/'Skill/Class/manifest.json').read_text(encoding='utf-8'))
         self.assertEqual(len(manifest),4)
         total=0
         for sect,skills in manifest.items():
             self.assertEqual(len(skills),4)
             for name,frames in skills.items():
-                source=np.array(Image.open(ROOT/f'CHARACTER/SkillSprites/{sect}/{name}-sheet.png').convert('RGBA'))
+                source=np.array(Image.open(ROOT/f'Skill/Class/{sect}/{name}-sheet.png').convert('RGBA'))
                 self.assertEqual(len(frames),6)
                 pixels=0
                 for frame in frames:

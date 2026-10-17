@@ -43,6 +43,6 @@
   const oldHud=hud;hud=function(){oldHud();refresh();};const oldUp=up;up=function(dt){oldUp(dt);if(!alive(target)){target=null;attacking=false;}refresh();};
   // Selection is indicated on the health bar; no ring around the creature.
   const oldRespawn=classCombat.onRespawn;classCombat.onRespawn=function(){target=null;attacking=false;return oldRespawn();};
-  const creator=$('ok').onclick;$('ok').onclick=()=>{creator();if(!P.ap||cr.style.display!=='none')return;P.r=0;P.stage=1;const p=progress();p.learnedSkills=[false,false,false,false];p.attrs={luc:0,the:0,nhanh:0,linh:0};p.attrPoints=0;p.bag=[];p.equip={vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null};P.hp=mhp();P.mp=mmp();saveCharacter();refresh();};
+  const creator=$('ok').onclick;$('ok').onclick=()=>{creator();if(!P.ap||cr.style.display!=='none')return;P.r=0;P.stage=1;const p=progress();p.learnedSkills=[false,false,false,false];p.attrs={luc:0,the:0,nhanh:0,linh:0};p.attrPoints=0;p.bag=[];p.equip={vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null};p.equipmentVersion=0;P.hp=mhp();P.mp=mmp();saveCharacter();refresh();};
   window.cultivation={requirements,realmName,eligible,canUse,openTrainer,alchemy,training,basicTarget,select,refresh,basicSelection:()=>({target,attacking})};
 })();

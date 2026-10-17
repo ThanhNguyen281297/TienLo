@@ -1,5 +1,6 @@
 """Tiên Lộ: SQLite accounts, sessions, characters and shared online maps. Python 3.11+."""
 import community
+import equipment as equipment_rules
 import hashlib
 import hmac
 import json
@@ -19,9 +20,9 @@ from threading import RLock
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent
-FARM_LAYOUT = json.loads((ROOT / 'MAP' / 'farm-layout.json').read_text(encoding='utf-8'))
-FIELD_RULES = json.loads((ROOT / 'MAP' / 'field-effects.json').read_text(encoding='utf-8'))
-BUILD_RULES = json.loads((ROOT / 'MAP' / 'builds.json').read_text(encoding='utf-8'))
+FARM_LAYOUT = json.loads((ROOT / 'Map' / 'farm-layout.json').read_text(encoding='utf-8'))
+FIELD_RULES = json.loads((ROOT / 'Map' / 'field-effects.json').read_text(encoding='utf-8'))
+BUILD_RULES = json.loads((ROOT / 'Map' / 'builds.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
 SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
@@ -65,6 +66,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS session_expiry ON sessions(expires_at);
         ''')
         community.init_db(db)
+        equipment_rules.init_db(db,collection_item)
 
 
 def password_hash(password, salt=None):
@@ -90,13 +92,13 @@ def valid_player(p):
         if key in ('r','stage','gold') and value != int(value):
             raise ValueError('Chỉ số nguyên không hợp lệ.')
     world = p.get('world', {})
-    if not isinstance(world, dict) or world.get('map', 'sword') not in MAPS or not isinstance(world.get('bag', []), list) or len(world.get('bag', [])) > 30:
+    if not isinstance(world, dict) or world.get('map', 'sword') not in MAPS or not isinstance(world.get('bag', []), list) or len(world.get('bag', [])) > equipment_rules.capacity(world):
         raise ValueError('Túi đồ hoặc bản đồ không hợp lệ.')
     attrs=world.get('attrs',{})
     if not isinstance(attrs,dict) or any(type(v) is not int or not 0<=v<=1000 for v in attrs.values()):
         raise ValueError('Thuộc tính không hợp lệ.')
     equipment=world.get('equip',{})
-    if not isinstance(equipment,dict) or set(equipment)-{'vukhi','daobao','ngoc','gioi','giay','phapbao'}:
+    if not isinstance(equipment,dict) or set(equipment)-set(equipment_rules.RULES['slots']):
         raise ValueError('Ô trang bị không hợp lệ.')
     for item in world.get('bag',[])+[v for v in equipment.values() if v is not None]:
         if not isinstance(item,dict) or not isinstance(item.get('id'),str) or not isinstance(item.get('uid'),str):
@@ -110,6 +112,7 @@ def valid_player(p):
         for key in ('atk','hp','mp','armor','crit','dodge','skill','heal','mana','xp','price','req','qty'):
             if key in item and (type(item[key]) not in (int,float) or not math.isfinite(item[key]) or not 0<=item[key]<=10000):
                 raise ValueError('Chỉ số vật phẩm không hợp lệ.')
+    equipment_rules.validate(p)
     pets=world.get('pets',[])
     species={'BoNgua','Tho','Nhen','Doi'}
     if not isinstance(pets,list) or len(pets)>20:raise ValueError('Linh thú không hợp lệ.')
@@ -133,7 +136,7 @@ def valid_player(p):
 
 def equipment_stats(player):
     equipment=player.get('world',{}).get('equip',{})
-    slots=('vukhi','daobao','ngoc','gioi','giay','phapbao')
+    slots=equipment_rules.RULES['combatSlots']
     minimum=min((equipment.get(slot) or {}).get('enhance',0) for slot in slots)
     tier=next((value for value in (15,13,11,9) if minimum>=value),0)
     multiplier=1+{9:.05,11:.1,13:.15,15:.2}.get(tier,0)
@@ -168,14 +171,14 @@ def player_attack(player):
     level=player['r']*10+player['stage']-1
     gear,multiplier,_=equipment_stats(player)
     strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
-    return (8+level*1.3+strength*2+gear)*multiplier*(1+collection_bonuses(player).get('atkPercent',0))
+    return (8+level*1.3+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0))*multiplier*(1+collection_bonuses(player).get('atkPercent',0)+equipment_rules.bonuses(player).get('attackPercent',0))
 
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
     hp=sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0)) for item in equipment.values() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
-    return round((100+(player['r']*10+player['stage']-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+collection_bonuses(player).get('hpPercent',0)))
+    return round((100+(player['r']*10+player['stage']-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+collection_bonuses(player).get('hpPercent',0)+equipment_rules.bonuses(player).get('hpPercent',0)))
 
 
 def damage_mob(mob,damage,owner,now,key):
@@ -439,6 +442,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/characters':
                 with connect() as db: row=db.execute('SELECT * FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
                 return self.reply(200,{'character':{'id':row['id'],'player':json.loads(row['player']),'revision':row['revision']} if row else None})
+            if path=='/api/equipment': return self.equipment(user)
             if path=='/api/community': return self.community(user)
             if path=='/api/arena': return self.arena(user,False)
             if path=='/api/rankings':
@@ -448,7 +452,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         requested=Path(self.translate_path(self.path))
         target=requested.resolve()
         relative=target.relative_to(ROOT) if target.is_relative_to(ROOT) else None
-        if relative is None or (relative.parts and relative.parts[0] not in ('js','css','CHARACTER','MAP','MONTERS','NPC')) and relative.as_posix()!='index.html' and path!='/':
+        if relative is None or (relative.parts and relative.parts[0] not in ('js','css','Character','Map','Item','Skill')) and relative.as_posix()!='index.html' and path!='/':
             return self.send_error(403)
         if target.is_dir() and path!='/': return self.send_error(403)
         if not target.is_dir() and requested.relative_to(ROOT).as_posix() not in STATIC_FILES:
@@ -478,6 +482,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             with connect() as db: db.execute('DELETE FROM sessions WHERE token=?',(user['token'],))
             with WORLD_LOCK: PEERS.pop(user['user_id'],None); EVENTS.pop(user['user_id'],None)
             return self.reply(200,{'ok':True},self.cookie(clear=True))
+        if path=='/api/equipment': return self.equipment(user,body)
         if path=='/api/community': return self.community(user,body)
         if path=='/api/arena': return self.arena(user,True)
         if path=='/api/characters': return self.save_character(user,body)
@@ -540,13 +545,16 @@ class GameHandler(SimpleHTTPRequestHandler):
         finally: AUTH_WORK.release()
 
     def save_character(self,user,body):
-        player=body.get('player'); valid_player(player)
+        player=body.get('player')
+        if isinstance(player,dict):equipment_rules.normalize(player,collection_item)
+        valid_player(player)
         uid=user['user_id']; revision=body.get('revision',0)
         if type(revision) is not int: raise ValueError()
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
             row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
             if row and row['revision']!=revision: return self.reply(409,{'error':'Nhân vật đã được cập nhật ở phiên khác. Tải lại để tiếp tục.','conflict':True})
+            equipment_rules.validate(player,db,uid)
             if row:
                 old=json.loads(row['player'])
                 if old['ap']!=player['ap'] or old['nm']!=player['nm']: return self.reply(400,{'error':'Không thể đổi phái, giới tính hoặc đạo hiệu của nhân vật.'})
@@ -557,6 +565,16 @@ class GameHandler(SimpleHTTPRequestHandler):
                 cid=secrets.token_hex(16); rev=1
                 db.execute('INSERT INTO characters VALUES(?,?,?,?,?)',(uid,cid,json.dumps(player,ensure_ascii=False,allow_nan=False),rev,int(time.time())))
         return self.reply(201,{'saved':True,'id':cid,'revision':rev})
+
+    def equipment(self,user,body=None):
+        try:
+            with DB_LOCK, connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                row=db.execute('SELECT player FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
+                if not row:raise ValueError('Hãy tạo nhân vật trước.')
+                result=equipment_rules.action(db,user['user_id'],body) if body is not None else {'shield':equipment_rules.shield_state(db,user['user_id'],json.loads(row['player']))}
+            return self.reply(409 if result.get('conflict') else 200,result)
+        except ValueError as error:return self.reply(409,{'error':str(error)})
 
     def community(self,user,body=None):
         try:
@@ -604,6 +622,11 @@ class GameHandler(SimpleHTTPRequestHandler):
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
+            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc')]})
+            with connect() as shield_db:peer['ap']['shieldState']=equipment_rules.shield_state(shield_db,uid,p)
+            ack_sustain=body.get('ackSustain',[])
+            if not isinstance(ack_sustain,list) or len(ack_sustain)>100:raise ValueError()
+            peer['sustain']=[event for event in peer.get('sustain',[]) if event['id'] not in ack_sustain]
             peer['pet']=next((pet for pet in p.get('world',{}).get('pets',[]) if pet['id']==p.get('world',{}).get('activePet')),None)
             peer['attack']=player_attack(p);peer['maxHp']=player_max_hp(p);health=body.get('hp',p['hp']);peer['hp']=max(0,min(peer['maxHp'],health)) if type(health) in (int,float) and math.isfinite(health) else 0
             # Presentation only: height grants no speed exception or damage immunity.
@@ -660,7 +683,10 @@ class GameHandler(SimpleHTTPRequestHandler):
                     power=event.get('power',0)
                     if type(power) not in (int,float) or not math.isfinite(power) or power<=0: continue
                     attack=player_attack(p)
+                    before=mob['hp']
                     damage_mob(mob,min(power,attack*6)*field_vulnerability(mob),uid,now,key);hit_times.append(now)
+                    dealt=max(0,before-mob['hp'])
+                    if dealt and len(peer['sustain'])<100:peer['sustain'].append({'id':secrets.token_hex(12),'amount':dealt})
                 peer['hitTimes']=hit_times
                 register_pet_cast(peer,body,p,now,mobs)
             peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast','hp','maxHp')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
@@ -679,7 +705,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             with connect() as db:
                 party=community.membership(db,uid,'party');guild=community.membership(db,uid,'guild')
             messages=[m for m in CHAT if (m.get('channel','world')=='world' and m['map']==scene) or (m.get('channel')=='party' and party and m.get('group')==party['party_id']) or (m.get('channel')=='guild' and guild and m.get('group')==guild['guild_id'])]
-            result={'boss':community.boss_view(mobs[0],uid,peer['attack']) if scene=='worldboss' and mobs else None,'bossEvents':peer.get('bossEvents',[]),'damage':damage,'players':peers,'fields':public_fields,'mobs':[public_mob(m) | {'dead':max(0,m['dead']-now) if m['dead'] else 0} for m in mobs], 'rewards':EVENTS[uid][:],'chat':messages,'shared':shared,'online':len(PEERS),'x':x,'y':y}
+            result={'shield':peer['ap']['shieldState'],'sustain':peer.get('sustain',[]),'boss':community.boss_view(mobs[0],uid,peer['attack']) if scene=='worldboss' and mobs else None,'bossEvents':peer.get('bossEvents',[]),'damage':damage,'players':peers,'fields':public_fields,'mobs':[public_mob(m) | {'dead':max(0,m['dead']-now) if m['dead'] else 0} for m in mobs], 'rewards':EVENTS[uid][:],'chat':messages,'shared':shared,'online':len(PEERS),'x':x,'y':y}
         return self.reply(200,result)
 
 

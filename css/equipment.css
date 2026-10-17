@@ -1,0 +1,19 @@
+/* Eight distinct slots, four on each side; keep the character unobstructed. */
+.paper-doll{height:360px}
+.gear-slot.gear-0,.gear-slot.gear-1,.gear-slot.gear-2,.gear-slot.gear-3{left:0;right:auto}
+.gear-slot.gear-4,.gear-slot.gear-5,.gear-slot.gear-6,.gear-slot.gear-7{left:auto;right:0}
+.gear-slot.gear-0,.gear-slot.gear-4{top:0}
+.gear-slot.gear-1,.gear-slot.gear-5{top:90px}
+.gear-slot.gear-2,.gear-slot.gear-6{top:180px}
+.gear-slot.gear-3,.gear-slot.gear-7{top:270px}
+.affix-list{display:grid;gap:9px;margin:14px 0;color:#a8e2d7}
+.affix-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px}
+.affix-row small{color:#8c9fab;font-size:10px}
+.affix-row progress{grid-column:1/-1;width:100%;height:4px;accent-color:#78d5bf}
+#combat-wheel #shield-skill{position:absolute!important;left:5%;top:-31%;width:25%;height:25%;padding:4px;border-radius:50%;border:2px solid #80c6cf;background:radial-gradient(circle,#244b63,#0d1f31);overflow:hidden;pointer-events:auto;color:#e4fbff;touch-action:manipulation;min-height:0}
+#shield-skill[hidden]{display:none!important}
+#shield-skill img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+#shield-skill span{position:absolute;bottom:0;left:0;width:100%;font:bold 10px Arial;text-shadow:0 1px 3px #000}
+#shield-skill.shield-active{box-shadow:0 0 14px #78d5bf}
+#shield-skill:disabled{opacity:.7}
+@media(max-width:700px){.paper-doll{height:280px}.gear-slot.gear-0,.gear-slot.gear-4{top:0}.gear-slot.gear-1,.gear-slot.gear-5{top:70px}.gear-slot.gear-2,.gear-slot.gear-6{top:140px}.gear-slot.gear-3,.gear-slot.gear-7{top:210px}.gear-preview{height:280px!important}}

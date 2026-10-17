@@ -2,7 +2,7 @@
 (function(){
   const ready=image=>image.complete&&image.naturalWidth>0;
   const image=src=>{const img=new Image();img.src=src;return img;};
-  const npcImages=Object.fromEntries(['nhiemvu','thoren','dautruong','bxh'].map(key=>[key,image('NPC/'+key+'.png')]));
+  const npcImages=Object.fromEntries(['nhiemvu','thoren','dautruong','bxh'].map(key=>[key,image('Character/NPC/'+key+'.png')]));
   const npcRoles={quest:'nhiemvu',shop:'thoren',forge:'thoren',arena:'dautruong',rank:'bxh'};
   // 1 idle, 2 move, 3 attack, 4 hurt, 5 death (BoNgua/Tho).
   // Nhen/Doi: 1 idle/move, 2 attack, 3 hurt, 4 death. Hurt sheets have five frames.

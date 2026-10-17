@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class SpriteLibraryTest(unittest.TestCase):
     def test_complete_exports(self):
-        catalog = json.loads((ROOT / 'MAP/sprite-catalog.json').read_text())
-        for key, count in [('maps',45),('modules',5),('monsters',104),('skills',96),('characters',44),('items',6),('npcs',4)]:
+        catalog = json.loads((ROOT / 'Map/sprite-catalog.json').read_text())
+        for key, count in [('maps',45),('modules',5),('monsters',104),('skills',96),('characters',32),('items',39),('npcs',4)]:
             self.assertEqual(len(catalog[key]), count, key)
         for prop in catalog['maps']:
             image=Image.open(ROOT/prop['src']).convert('RGBA')

@@ -19,7 +19,7 @@
   document.addEventListener('focusin',event=>{if(event.target.matches('input,textarea,[contenteditable="true"]'))reset();});
   cv.addEventListener('pointerdown',event=>{if(event.pointerType==='touch'){ptr=null;event.stopImmediatePropagation();}},true);
 
-  const wheel=document.createElement('section');wheel.id='combat-wheel';wheel.setAttribute('aria-label','Kỹ năng chiến đấu');document.body.append(wheel);wheel.append(sb,$('basic-attack'));if($('pet-skill'))wheel.append($('pet-skill'));
+  const wheel=document.createElement('section');wheel.id='combat-wheel';wheel.setAttribute('aria-label','Kỹ năng chiến đấu');document.body.append(wheel);wheel.append(sb,$('basic-attack'));if($('pet-skill'))wheel.append($('pet-skill'));if($('shield-skill'))wheel.append($('shield-skill'));
   const dock=$('bt'),menu=document.createElement('section');menu.id='hud-more-menu';menu.hidden=true;menu.setAttribute('aria-label','Chức năng khác');document.body.append(menu);
   const buttons=[...dock.children];for(const button of buttons)menu.append(button);
   function button(id,label,handler){const b=document.createElement('button');b.id=id;b.type='button';b.onclick=handler;b.textContent=label;return b;}

@@ -15,9 +15,9 @@
       c.getContext('2d').drawImage(atlas,(n%4)*w,Math.floor(n/4)*h,w,h,0,0,c.width,c.height);parts[n]=c;
     }
   };
-  atlas.src=artworkURL('CHARACTER/SkillVFX/spirit-components-v1.png');
+  atlas.src=artworkURL('Skill/VFX/spirit-components-v1.png');
   for(const folder of ['Kiem','Liem','Thuong','Quat']){
-    const image=new Image();image.src=artworkURL('CHARACTER/'+folder+'/VuKhi/vukhi.png');weapons.push(image);
+    const image=new Image();image.src=artworkURL('Item/VuKhi/Class/'+folder+'.png');weapons.push(image);
   }
   function texture(sect,index){
     const key=sect+':'+index;if(tints.has(key))return tints.get(key);

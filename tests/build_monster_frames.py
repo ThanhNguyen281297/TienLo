@@ -11,7 +11,7 @@ for folder in ('BoNgua', 'Tho', 'Nhen', 'Doi'):
     result[folder] = []
     counts = [6, 6, 6, 5, 6] if folder in ('BoNgua', 'Tho') else [6, 6, 5, 6]
     for sheet, count in enumerate(counts, 1):
-        image = Image.open(root / 'MONTERS' / folder / f'{sheet}.png').convert('RGBA')
+        image = Image.open(root / 'Character/Monsters' / folder / f'{sheet}.png').convert('RGBA')
         alpha = np.array(image.getchannel('A'))
         labels, _ = label(alpha > 24)
         sizes = np.bincount(labels.ravel())
@@ -36,5 +36,5 @@ for folder in ('BoNgua', 'Tho', 'Nhen', 'Doi'):
             top, bottom = max(0, int(pixels[:, 0].min())-2), min(image.height, int(pixels[:, 0].max())+3)
             frames.append({'x': left, 'y': top, 'w': right-left, 'h': bottom-top})
         result[folder].append(frames)
-(root / 'MONTERS' / 'frames.js').write_text('window.monsterFrames=' + json.dumps(result, separators=(',', ':')) + ';\n', encoding='utf-8')
+(root / 'Character/Monsters' / 'frames.js').write_text('window.monsterFrames=' + json.dumps(result, separators=(',', ':')) + ';\n', encoding='utf-8')
 print('Built source rectangles for all 18 original monster sheets')

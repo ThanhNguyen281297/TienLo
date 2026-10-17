@@ -7,7 +7,7 @@
   function card(title,text,status,action,label='Xem chi tiết',disabled=false){
     const ui=visualUI,p=world.progress(),level=cultivationLevel();
     const key=title.includes('Bí Cảnh')?'portal':title.includes('Đấu trường')?'arena':title.includes('Huyết Ma')?'tower':title.includes('Tông môn')?'palace':title.includes('trang bị')?'forge':title.includes('Linh Mạch')?'garden':title.includes('nhập môn')?'school':'statue';
-    const {card:box,body}=ui.panel(title,'MAP/sprites/'+key+'.png',$('activity-grid')||$('world-content'));
+    const {card:box,body}=ui.panel(title,'Map/sprites/'+key+'.png',$('activity-grid')||$('world-content'));
     if(title==='Hành trình chính')ui.meter(Math.floor(P.xp),need(),'Đạo hạnh',body);
     else if(title==='Bài tập nhập môn'){const q=p.sectQuest||{};ui.meter(q.status==='claimed'?3:q.kills||0,3,'Yêu thú',body);ui.chips([['◈',35],['Đạo hạnh',20]],body);}
     else if(title.includes('Linh Mạch'))ui.chips([['Linh Nguyên','×2'],['Đạo hạnh','+20%']],body);
@@ -41,7 +41,7 @@
     card('Boss thế giới · Huyết Ma','Hợp lực, né vùng đỏ và góp đủ sát thương. Mỗi người đủ điều kiện nhận rương 250 Linh Thạch +60 Linh Nguyên +5 mảnh.',boss?(boss.respawn>0?'Tái xuất sau '+Math.ceil(boss.respawn)+' giây':'Đang xuất hiện · '+Math.ceil(boss.hp)+'/'+boss.maxHp+' HP'):'Mở chi tiết để cập nhật trạng thái boss',()=>communityGame.open('boss'),'Boss & Rương',!p.tutorial);
     const guild=communityGame.state.social?.guild;
     card('Tổ đội & Tông môn','Lập đội tối đa 4 người. Nhiệm vụ tông môn mỗi ngày: 20 quái chung và 1 boss thế giới; nhận thưởng tại nơi an toàn.',guild?guild.name+' · Hôm nay '+guild.tasks.kills+'/20 quái · '+guild.tasks.bosses+'/1 boss':'Chưa có tông môn hoặc đang cập nhật',()=>communityGame.open(),'Mở Đạo hữu');
-    card('Mục tiêu trang bị','Chọn một bộ để săn; đủ 6 mảnh đổi đúng slot còn thiếu. Thưởng bộ 2/4/6 món có thể phối; full cường hóa +9/+11/+13/+15 thêm 5/10/15/20%.',(p.riftShards||0)+' mảnh bí cảnh · Túi '+p.bag.length+'/30',equipmentSets.open,'Chọn bộ & Đổi món');
+    card('Mục tiêu trang bị','Chọn một bộ để săn; đủ 6 mảnh đổi đúng slot còn thiếu. Thưởng bộ 2/4/6 món có thể phối; full cường hóa +9/+11/+13/+15 thêm 5/10/15/20%.',(p.riftShards||0)+' mảnh bí cảnh · Túi '+p.bag.length+'/'+equipmentData.capacity(p),equipmentSets.open,'Chọn bộ & Đổi món');
   }
   function openAuto(){if(!P.ap||paused())return;const settings=autoCombat.plans(),plan=settings[settings.active];
     d.show('Chiến pháp · Combo Auto','Chạm chiêu để bật/tắt · ↑ ↓ để xếp combo.');menu();

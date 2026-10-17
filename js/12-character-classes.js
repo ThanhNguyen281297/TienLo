@@ -12,10 +12,10 @@
   const assets=classes.map(info=>{
     const result={Nam:{},Nu:{}};
     for(const gender of ['Nam','Nu'])for(const direction of ['truoc','sau','trai','phai']){
-      const img=new Image();img.src='CHARACTER/'+info.folder+'/'+gender+'/'+direction+'.png';result[gender][direction]=img;
+      const img=new Image();img.src='Character/'+info.folder+'/'+gender+'/'+direction+'.png';result[gender][direction]=img;
     }
-    for(const [key,folder] of [['vukhi','VuKhi'],['vong','Vong'],['lung','Lung']]){
-      const img=new Image();img.src='CHARACTER/'+info.folder+'/'+folder+'/'+key+'.png';result[key]=img;
+    for(const [key,folder] of [['vukhi','VuKhi'],['vong','PhapTran'],['lung','PhapBao']]){
+      const img=new Image();img.src='Item/'+folder+'/Class/'+info.folder+'.png';result[key]=img;
     }
     return result;
   });
@@ -40,7 +40,7 @@
     $('rows').innerHTML='<div class="creator-label">CHỌN TÔNG MÔN</div>';
     classes.forEach((info,index)=>{
       const button=document.createElement('button');button.className='sect-choice';button.type='button';button.setAttribute('aria-pressed',String(classOf(tp)===index));
-      const weapon=document.createElement('img');weapon.src='CHARACTER/'+info.folder+'/VuKhi/vukhi.png';weapon.alt='';button.appendChild(weapon);
+      const weapon=document.createElement('img');weapon.src='Item/VuKhi/Class/'+info.folder+'.png';weapon.alt='';button.appendChild(weapon);
       const text=document.createElement('span');const title=document.createElement('b');title.textContent=info.name;const description=document.createElement('small');description.textContent=['Kiếm khí · tốc độ · bộc phát','Nguyệt nhận · dịch chuyển · khống chế','Lôi Ấn · đột kích · bùng nổ','Linh phù · trận pháp · phong ấn'][index];text.append(title,description);button.appendChild(text);
       button.onclick=()=>{tp.w=index;rows();};$('rows').appendChild(button);
     });
@@ -189,7 +189,11 @@
     const bob = moving ? Math.abs(Math.sin(phase)) * 1.2 : Math.sin(tm * 2) * .4;
     ctx.save();
     ctx.imageSmoothingEnabled = true;
-    footRing(ctx, images.vong, x, y, info.color);
+    const ring=window.equipmentSystem?.formationImage(ap,images.vong)||(!window.equipmentSystem?images.vong:null);
+    if(ring)footRing(ctx, ring, x, y, info.color);
+    window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
+    window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,false);
+    const back=window.equipmentSystem?.backImage(ap,images.lung)||(!window.equipmentSystem?images.lung:null);
     // Fixed position and class angle; only the back accessory floats.
     const angle = [-.18,-.3,.12,-.2][index];
     const weapon = window.characterWeapon.position(index, x, y, bob);
@@ -197,7 +201,7 @@
     const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
     const weaponColor=weaponTones[index];
     const drawBackItem = () => {
-      if (!ready(images.lung)) return;
+      if (!back||!ready(back)) return;
       ctx.save();
       const t=reducedWeaponMotion.matches?0:tm,height=[82,86,94,88][index];
       const lift=Math.sin(t*1.8+index)*1.3;
@@ -205,9 +209,9 @@
       ctx.translate(x+(dir===2?-facing*11:0),y-10-bob+lift);
       ctx.rotate(Math.sin(t*1.3+index)*.025);
       ctx.scale((dir===2?.7:1)*(1+Math.sin(t*(index===2?2.5:1.7))*.025),1);
-      sprite(ctx,images.lung,0,0,height);
+      sprite(ctx,back,0,0,height);
       const n=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.phapbao):(ap?.backEnhance||0);
-      window.equipmentProgression?.outline(ctx,images.lung,-height*images.lung.naturalWidth/images.lung.naturalHeight/2,-height,height*images.lung.naturalWidth/images.lung.naturalHeight,height,n||0);
+      window.equipmentProgression?.outline(ctx,back,-height*back.naturalWidth/back.naturalHeight/2,-height,height*back.naturalWidth/back.naturalHeight,height,n||0);
       ctx.restore();
     };
     const drawWeapon = () => {
@@ -239,6 +243,8 @@
     // Facing away: the complete back mount sits in front of the rear sprite, including long hair.
     if(dir===1)drawBackItem();
     drawWeapon();
+    window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,true);
+    window.equipmentSystem?.drawBuff(ctx,x,y,ap,true);
     ctx.restore();
   };
 

@@ -3,7 +3,7 @@
  const keys=[['phikiemquyet','kiemanhbo','batquaikiemtran','vankiemquytong'],['tamnguyettram','nguyetanhbo','nguyetluantran','minhnguyetgiangthe'],['loithuongdotkich','hoanhtaothienquan','cuuthienloitran','loilonggiangthe'],['philinhchu','phonglinhphien','thiencotran','vanphuphongan']];
  function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
  function art(src,cls='visual-art'){const img=node('img',cls);img.src=src.startsWith('data:')||/[?&]v=/.test(src)?src:artworkURL(src);img.alt='';img.loading='lazy';img.decoding='async';return img;}
- function skillArt(c,i){return art('CHARACTER/SkillSprites/'+characterClasses[c].folder+'/'+keys[c][i]+'/03.png','visual-skill');}
+ function skillArt(c,i){return art('Skill/Class/'+characterClasses[c].folder+'/'+keys[c][i]+'/03.png','visual-skill');}
  function chips(values,parent){const row=node('div','visual-chips');for(const [label,value]of values){const chip=node('span','visual-chip');chip.append(node('b','',String(value)),node('small','',label));row.append(chip);}parent.append(row);return row;}
  function meter(value,max,label,parent){const box=node('div','visual-meter'),p=node('progress');p.max=Math.max(1,max);p.value=Math.max(0,Math.min(max,value));p.setAttribute('aria-label',label);box.append(node('small','',label+' · '+Math.floor(value)+'/'+max),p);parent.append(box);return p;}
  function details(text,parent,label='Chi tiết'){const box=node('details','visual-details');box.append(node('summary','',label),node('p','',text));parent.append(box);return box;}

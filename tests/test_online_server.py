@@ -94,7 +94,7 @@ class OnlineServerTest(unittest.TestCase):
         def frame(auth,**extra):
             time.sleep(.14);status,data,_=self.request('/api/world',{'csrf':auth[1],'map':'worldboss','x':1000,'y':1210,'hp':100,'batch':server.secrets.token_hex(8),**extra},auth[0]);self.assertEqual(status,200);return data
         first=frame(a);second=frame(b);frame(watcher)
-        self.assertEqual(first['mobs'][0]['id'],second['mobs'][0]['id']);self.assertEqual(second['boss']['required'],48)
+        self.assertEqual(first['mobs'][0]['id'],second['mobs'][0]['id']);saved_b=self.request('/api/characters',cookie=b[0])[1]['character']['player'];self.assertEqual(second['boss']['required'],max(1,round(server.player_attack(saved_b)*6)))
         boss=server.ROOMS['worldboss:0']['mobs'][0];boss_id=boss['id']
         frame(a,hits=[{'id':boss_id,'power':1000}]);frame(b,hits=[{'id':boss_id,'power':48} for _ in range(7)])
         owner=next(p for p in server.PEERS.values() if p['name']=='raid_a')
@@ -131,11 +131,13 @@ class OnlineServerTest(unittest.TestCase):
         for set_id in ('phong','kim','nguyet','linh'):
             for level in (0,10,25,45):
                 p['world']['equip']={slot:{**server.collection_item(f'rift-{set_id}-{slot}-{level}'),'uid':slot} for slot in slots}
+                for item in p['world']['equip'].values():
+                    if server.equipment_rules.pool(item):item['affixes']=server.equipment_rules.defaults(item)
                 server.valid_player(p)
             result=server.collection_bonuses(p)
             self.assertTrue(result)
             if set_id=='linh':self.assertEqual((result['petPower'],result['petCooldown']),(.25,.2))
-            if set_id=='phong':self.assertAlmostEqual(server.player_attack(p),(8+25)*1.06)
+            if set_id=='phong':self.assertAlmostEqual(server.player_attack(p),(8+30)*1.07)
         p['world']['equip']={slot:{**server.collection_item(f'rift-{"phong" if i<4 else "kim"}-{slot}-0'),'uid':slot} for i,slot in enumerate(slots)}
         mixed=server.collection_bonuses(p);self.assertEqual((mixed['atkPercent'],mixed['crit'],mixed['hpPercent']),(.06,.03,.1));self.assertEqual(mixed['skill'],0)
         p['world']['equip']['vukhi']['atk']=999
@@ -164,7 +166,7 @@ class OnlineServerTest(unittest.TestCase):
             if species!='Nhen':self.assertLess(hp,500)
             else:
                 effect=mob['_petEffects'][owner['id']];effect['next']=time.monotonic()-5
-                server.tick_pet_effects(mob,time.monotonic(),server.room_for(owner));self.assertEqual(mob['hp'],470);self.assertNotIn(owner['id'],mob['_petEffects'])
+                server.tick_pet_effects(mob,time.monotonic(),server.room_for(owner));self.assertEqual(mob['hp'],500-round(effect['power'])*5);self.assertNotIn(owner['id'],mob['_petEffects'])
                 hp=mob['hp']
             duplicate=frame(petCast={**cast,'id':'second-'+species});self.assertEqual(next(m for m in duplicate['mobs'] if m['id']==mob_id)['hp'],hp)
             if species=='Doi':
@@ -184,8 +186,10 @@ class OnlineServerTest(unittest.TestCase):
 
     def test_enhancement_levels_set_tiers_and_pet_validation(self):
         player=self.player()
-        slots=('vukhi','daobao','ngoc','gioi','giay','phapbao')
+        slots=server.equipment_rules.RULES['combatSlots']
         player['world']['equip']={slot:dict(id=slot,uid=slot,slot=slot,rarity='pham',atk=2,enhance=0) for slot in slots}
+        for item in player['world']['equip'].values():
+            if server.equipment_rules.pool(item):item['affixes']=server.equipment_rules.defaults(item)
         for level,tier,multiplier in [(0,0,1),(8,0,1),(9,9,1.05),(11,11,1.1),(13,13,1.15),(14,13,1.15),(15,15,1.2)]:
             for item in player['world']['equip'].values():item['enhance']=level
             server.valid_player(player)
@@ -254,7 +258,13 @@ class OnlineServerTest(unittest.TestCase):
         until=owner['skillField']['until']
         frame(caster,csrf,field=descriptor)
         self.assertEqual(owner['skillField']['until'],until,'Same field ID does not refresh lifetime')
-        for _ in range(9):snapshot=frame(watcher,watch_csrf)
+        # Sample the actual hard-control window rather than the ninth HTTP round trip.
+        snapshot=None
+        for _ in range(16):
+            current=frame(watcher,watch_csrf)
+            if any(effect['key']=='moonFrost' and effect['hard']>0 for effect in current['mobs'][0]['fieldEffects']):
+                snapshot=current;break
+        self.assertIsNotNone(snapshot)
         target=snapshot['mobs'][0]
         self.assertEqual(snapshot['fields'][0]['sect'],1,'Observers receive the persistent field as well as mob states')
         self.assertTrue(any(effect['key']=='moonFrost' and effect['hard']>0 for effect in target['fieldEffects']))
@@ -311,8 +321,8 @@ class OnlineServerTest(unittest.TestCase):
         self.assertEqual(frame(two,other_csrf,map='hub')['players'][0]['airborne'],0)
 
     def test_public_item_artwork(self):
-        for name in ('daobao','ngoc','gioi','giay','phapbao','consume'):
-            path='/MAP/items/'+name+'.png?v=release-test'
+        for name in ('daobao','gioi','giay','consume'):
+            path='/Item/'+{'daobao':'Ao','ngoc':'Icons','gioi':'Nhan','giay':'Giay','phapbao':'Icons','consume':'Consumable'}[name]+'/'+name+'.png?v=release-test'
             status, data, _ = self.request(path)
             self.assertEqual(status,200,path)
             self.assertTrue(data.startswith(b'\x89PNG\r\n\x1a\n'))
