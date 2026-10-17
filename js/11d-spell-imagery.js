@@ -17,7 +17,7 @@
   if(v<.7){const p=v/.7;return{x:Math.sin(p*TAU*1.45)*w*.23*ease(p/.2),y:-h*.82*ease(p)};}
   const p=ease((v-.7)/.3),startX=Math.sin(TAU*1.45)*w*.23;
   if(v<=1){const a=1-p;return{x:a*a*a*startX+3*a*a*p*w*.58+3*a*p*p*w*.3,y:-h*.82*a*a*a-h*1.05*3*a*a*p};}
-  return{x:w*(v-1),y:-h*.22*(1-Math.exp(-3*(v-1)))};
+  return{x:-w*(v-1),y:-h*.22*(1-Math.exp(-3*(v-1)))**2};
  }
  function dragon(nodes,age,hitAt,w,h,alpha){
   const q=age/hitAt,trail=.64,joints=[];

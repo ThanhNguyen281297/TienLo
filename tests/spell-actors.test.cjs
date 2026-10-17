@@ -44,6 +44,8 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    if(dragon.nodes.filter(n=>n.id.startsWith('vertebra-')).length<15||!joint(dragon,'head'))throw Error('Dragon must use a chain of independent body joints');
    const dragonImpact=joint(spellImagery.pose(2,1.7,3,1.7),'head');
    if(Math.hypot(dragonImpact.x,dragonImpact.y)>1e-6)throw Error('Dragon head must dive to the impact point at hit time');
+   const before=joint(spellImagery.pose(2,1.6999,3,1.7),'head').angle,after=joint(spellImagery.pose(2,1.74,3,1.7),'head').angle;
+   if(Math.abs(Math.atan2(Math.sin(after-before),Math.cos(after-before)))>.15)throw Error('Dragon turns abruptly across impact');
    const swords=spellImagery.pose(0,1.7,3,1.7).nodes;
    if(swords.some(n=>Math.hypot(n.x,n.y)>1e-6))throw Error('Sword impact does not meet the damage time');
    for(let sect=0;sect<4;sect++)if(spellImagery.pose(sect,3,3,1.7).nodes.length)throw Error('Finished cast leaves actors behind');
