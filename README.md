@@ -39,7 +39,7 @@ Thấy người chơi khác cùng bản đồ, chat và biểu cảm. Quái farm
 - WASD/mũi tên/chạm kéo: di chuyển; Tab/chạm quái: chọn mục tiêu; F: đánh thường; Z: auto.
 - 1–4/Space: skill; chuột/chạm kéo nút skill để ngắm. Skill cần học tại Truyền Công Các.
 - Q: đả tọa; B: tăng tầng/đột phá tại vùng an toàn; C: tu luyện; M: bản đồ; E: tương tác NPC.
-- I: túi 30 ô; U: thuộc tính. Kéo đồ vào sáu ô trang bị, kéo về ô túi trống để tháo. Trên mobile kéo bằng chạm hoặc chọn đồ rồi nhấn Trang bị.
+- I: túi cơ bản 30 ô, nhẫn trữ vật mở thêm tối đa 40 ô; U: thuộc tính. Kéo đồ vào tám ô trang bị, kéo về ô túi trống để tháo. Trên mobile kéo bằng chạm hoặc chọn đồ rồi nhấn Trang bị.
 
 ## Gameplay và hình ảnh
 
@@ -74,3 +74,5 @@ Browser tests dùng Chrome và Playwright. Có thể chỉ định module qua `P
 ## Tự cập nhật qua GitHub Actions
 
 Đọc [CICD.md](CICD.md) để thiết lập một lần. Sau đó commit/push lên main sẽ chạy kiểm thử, đồng bộ code, restart service và kiểm tra health; cấu hình/DB VPS được giữ nguyên.
+
+Hệ thống pháp bảo, tẩy luyện, hộ thuẫn và cấu trúc asset: xem [Item/README.md](Item/README.md).

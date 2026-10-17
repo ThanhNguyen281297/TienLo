@@ -40,7 +40,7 @@ Hướng tiếp theo từ khảo sát: mở rộng nhiệm vụ kể chuyện d�
 
 Đăng ký → chọn phái → nhận bộ đồ/thuốc → gặp Sư phụ → farm và nhiệm vụ nhập môn → Phàm Nhân 3 → học skill trong thành → chọn thuộc tính/trang bị → luyện đan/tăng tầng → farm cùng đạo hữu → thử đấu trường.
 
-Khung Tiên Đồ hiển thị mục tiêu hiện tại. Túi 30 ô và sáu ô trang bị hỗ trợ kéo thả/chạm. Đồ khởi hành gồm Mộc Kiếm, Vải Bố Đạo Bào và ba thuốc mỗi loại hồi máu/linh; người chơi chủ động trang bị thay vì tự cộng chỉ số.
+Khung Tiên Đồ hiển thị mục tiêu hiện tại. Túi cơ bản 30 ô (tối đa 70 với nhẫn trữ vật) và tám ô trang bị hỗ trợ kéo thả/chạm. Đồ khởi hành gồm Mộc Kiếm, Vải Bố Đạo Bào và ba thuốc mỗi loại hồi máu/linh; người chơi chủ động trang bị thay vì tự cộng chỉ số.
 
 ## Bản sắc bốn phái
 
@@ -180,3 +180,5 @@ Rương boss lưu riêng đến khi nhận tại vùng an toàn. Các thao tác 
 ## Gỡ mục giao diện theo yêu cầu
 
 Đã bỏ Bách khoa, toàn bộ tra cứu/phân trang và nút Tu luyện (C), gỡ liên kết và phím tắt C. Tiên Đồ chuyển nút xem tu luyện thành Thuộc tính. Tiến trình tăng tầng/đột phá, học và nâng kỹ năng tại NPC vẫn hoạt động với dữ liệu cũ. Các mô tả Bách khoa ở phần lịch sử phía trên không còn áp dụng cho bản hiện tại.
+
+Pháp bảo là trang bị lưng, có năm dòng tấn công; hộ thuẫn có năm dòng phòng thủ. Tẩy luyện tại vùng an toàn tiêu 60 Linh Thạch và 12 Linh Nguyên để đổi cả năm dòng, không trùng thuộc tính. Kỹ năng hộ thuẫn tăng 35% giáp (6–25 điểm) trong 60 giây, hồi 180 giây; dùng nút Thuẫn cạnh cụm kỹ năng. Nhẫn chỉ tăng ô túi. Pháp trận là ô riêng dưới chân; sáu ô chiến đấu còn lại tính bộ cường hóa và bộ bí cảnh.
