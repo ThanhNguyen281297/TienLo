@@ -51,6 +51,7 @@
   const gradient=ctx.createLinearGradient(0,cy,0,cy+vh);gradient.addColorStop(0,t.sky);gradient.addColorStop(1,'#10232d');ctx.fillStyle=gradient;ctx.fillRect(cx,cy,vw,vh);
   for(const p of scenery()){const b=bounds(p.key,p.x,p.y,p.w);if(b&&b.right>cx-5&&b.left<cx+vw+5&&b.bottom>cy-5&&b.top<cy+vh+5)draw(ctx,p.key,p.x,p.y,p.w,p.alpha);}
   if(t.cloud){const key=id(t.atlas,t.cloud),clock=world.environmentClock||0;for(let i=0;i<5;i++){const x=((i*487+clock*(i%2?2.5:4))%2600)-300+cx*.025,y=350+i*300;draw(ctx,key,x,y,280,.13);}}
+  world.atmosphere?.drawSky(ctx,cx,cy,vw,vh);
   return true;
  }
  function finishDeck(ctx,x,y,rx,ry){const t=current();if(!t)return;ctx.save();ctx.globalCompositeOperation='multiply';ctx.globalAlpha=.09;ctx.fillStyle=t.wash;ctx.fillRect(x-rx,y-ry,rx*2,ry*2);ctx.restore();}

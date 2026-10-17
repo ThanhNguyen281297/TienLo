@@ -65,6 +65,7 @@
       ctx.save();ctx.beginPath();ctx.rect(x-rx*1.4,y-ry*2,rx*2.8,ry*5);
       pavedOutline(ctx,x,y,rx,ry);ctx.clip('evenodd');
       renderArtwork(ctx,world.mapThemes?.terrainFor(highIsland)||highIsland,x-rx*768/625,y-ry*355/272,rx*1536/625,ry*1024/272);ctx.restore();
+      world.atmosphere?.drawCliff(ctx,highIsland,{x,y,rx,ry,view:floorView});
     }else{
       ctx.save();ctx.fillStyle='#40545c';ctx.beginPath();ctx.moveTo(x-rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry+depth);ctx.closePath();ctx.fill();ctx.restore();
     }
