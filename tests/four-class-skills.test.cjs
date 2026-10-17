@@ -11,7 +11,7 @@ for(let sect=0;sect<4;sect++){
   window.prepareSkill=()=>{classCombat.onRespawn();worldMap.dialog.close();worldMap.switchScene('hub');worldMap.state.scene='arena';cultivation.select(null);autoCombat.toggle(false);gmTest.enabled=false;Object.assign(P,{x:1000,y:1100,r:3,stage:1,hp:9999,mp:9999,acd:100,med:0});P.world.learnedSkills=[true,true,true,true];P.world.tutorial=true;K={};ptr=null;E=[{id:'path',t:0,x:1080,y:1090,hx:1080,hy:1090,hp:1e6,maxHp:1e6,dead:0,cd:100,fr:0},{id:'origin',t:0,x:1008,y:1100,hx:1008,hy:1100,hp:1e6,maxHp:1e6,dead:0,cd:100,fr:0},{id:'impact',t:0,x:1120,y:1100,hx:1120,hy:1100,hp:1e6,maxHp:1e6,dead:0,cd:100,fr:0}];getClassCombat().state.aim={x:1120,y:1100};getClassCombat().state.cooldown.fill(0);visualCalls.length=0;up(.001);hud();};
   window.advanceSkill=seconds=>{for(let n=0;n<Math.ceil(seconds/.01);n++){tm+=.01;up(.01);}dr();};
  });
- await page.waitForFunction(()=>{worldVFX.paintIcons();return [...sb.children].every(b=>b.querySelector('canvas')?.dataset.spriteIcon);});
+ await page.waitForFunction(()=>{worldVFX.paintIcons();return [...sb.children].every(b=>b.querySelector('canvas')?.dataset.spriteIcon);},null,{polling:50});
  assert.deepEqual(await page.locator('#sb button').evaluateAll(buttons=>buttons.map(b=>b.getAttribute('aria-label'))),await page.evaluate(()=>combatNames[P.ap.w]));
  for(let skillIndex=0;skillIndex<4;skillIndex++){
   await page.evaluate(()=>prepareSkill());assert(await page.locator('#sb button').nth(skillIndex).isEnabled(),'Class '+sect+' skill '+skillIndex+' must be usable after learning');await page.locator('#sb button').nth(skillIndex).click();
