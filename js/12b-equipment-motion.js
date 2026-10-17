@@ -10,7 +10,9 @@
     if(!image?.complete||!image.naturalWidth)return null;
     if(cache.has(image))return cache.get(image);
     const source=document.createElement('canvas');source.height=256;source.width=Math.round(256*image.naturalWidth/image.naturalHeight);
-    const c=source.getContext('2d');c.imageSmoothingQuality='high';c.drawImage(image,0,0,source.width,256);
+    const c=source.getContext('2d');c.imageSmoothingQuality='high';
+    if(/\/BuffThuan\//.test(image.src))c.filter='saturate(1.22) contrast(1.05)';
+    c.drawImage(image,0,0,source.width,256);c.filter='none';
     const shine=document.createElement('canvas');shine.width=source.width;shine.height=256;
     const entry={source,shine,frame:-1};cache.set(image,entry);return entry;
   }
@@ -64,15 +66,15 @@
     ctx.save();ctx.translate(x,y-24);ctx.scale(.82+.18*smooth((duration-remaining)/.32),1);
     // The rear shell surrounds the actor; only the lower rim passes in front.
     if(front){ctx.beginPath();ctx.rect(-60,4,120,60);ctx.clip();}
-    ctx.globalAlpha=opacity*(front?.14:.2);
+    ctx.globalAlpha=opacity*(front?.22:.34);
     cloth(ctx,entry.source,82,90,.53,t*.65,reduced.matches?0:.028);
-    ctx.globalCompositeOperation='screen';ctx.globalAlpha=opacity*(front?.16:.12);
+    ctx.globalCompositeOperation='screen';ctx.globalAlpha=opacity*(front?.22:.16);
     cloth(ctx,shimmer(entry,t,tone),82,90,.53,t*.65,reduced.matches?0:.028);
     ctx.globalCompositeOperation='lighter';ctx.strokeStyle=tone;ctx.lineCap='round';
     // Moving latitude bands follow a sphere rather than sliding a flat picture.
     for(let n=0;n<3;n++){
       const p=(t*.18+n/3)%1,latitude=-Math.PI/2+p*Math.PI,r=35*Math.cos(latitude),cy=Math.sin(latitude)*43;
-      ctx.globalAlpha=opacity*Math.sin(p*Math.PI)*(front?.28:.2);ctx.lineWidth=.65;
+      ctx.globalAlpha=opacity*Math.sin(p*Math.PI)*(front?.38:.3);ctx.lineWidth=.8;
       ctx.beginPath();ctx.ellipse(0,cy,Math.max(.1,r),Math.max(.1,r*.22),0,front?0:Math.PI,front?Math.PI:TAU);ctx.stroke();
     }
     if(!front)for(let n=0;n<8;n++){

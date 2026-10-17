@@ -74,7 +74,7 @@ jobs:
           $RSYNC_RSH "$destination" "sudo -n /usr/local/sbin/tienlo-activate $GITHUB_SHA"
       - name: Verify public HTTPS assets through Nginx
         run: |
-          for asset in Character/Kiem/Nam/truoc.png Map/sprites/pineTree.png Item/VuKhi/Kiem.png Item/PhapBao/9.png Item/PhapTran/5.png Item/Thuan/1.png Item/BuffThuan/4.png Skill/Class/manifest.json Skill/VFX/class-spirit-actors-v2.png; do
+          for asset in Character/Kiem/Nam/truoc.png Map/sprites/pineTree.png Item/VuKhi/Kiem.png Item/PhapBao/9.png Item/PhapTran/5.png Item/Thuan/1.png Item/BuffThuan/4.png Skill/Class/manifest.json Skill/VFX/rig-parts-v3.png; do
             curl --resolve "mkt.ddnsfree.com:443:$DEPLOY_HOST" --fail --silent --show-error \
               --retry 2 --retry-delay 3 --max-time 20 \
               "https://mkt.ddnsfree.com/$asset?v=$GITHUB_SHA" -o /dev/null

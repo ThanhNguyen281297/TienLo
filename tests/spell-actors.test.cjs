@@ -22,12 +22,12 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    for(let sect=0;sect<4;sect++){
     const subjectFrames=[];
     for(let n=0;n<24;n++){
-     g.clearRect(0,0,400,320);spellImagery.draw(g,sect,200,160,180,200,n/60+.5);
+     g.clearRect(0,0,400,320);spellImagery.render(g,sect,200,240,n/60+.5,3,1.7,180,200);
      const p=g.getImageData(0,0,400,320).data;let h=2166136261;
      for(let i=0;i<p.length;i+=4)h=Math.imul(h^p[i]^p[i+3],16777619);
      subjectFrames.push(h>>>0);
     }
-    if(new Set(subjectFrames).size!==24)throw Error('Illustrated subject is static for class '+sect);
+    if(new Set(subjectFrames).size!==24)throw Error('Articulated actors are static for class '+sect);
     const samples=[];for(let n=0;n<45;n++)samples.push(render(sect,.4+n/60));
     if(new Set(samples.map(s=>s.hash)).size!==samples.length)throw Error('Frozen animation for class '+sect);
     if(samples.some(s=>s.lit<100))throw Error('Missing visible texture for class '+sect);
@@ -36,6 +36,17 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
     for(const t of [1.699,1.7,1.701,2,2.5,2.99])render(sect,t);
     summaries.push({sect,uniqueFrames:new Set(samples.map(s=>s.hash)).size,lit:samples[20].lit});
    }
+   const a=spellImagery.pose(3,.5,3,1.7),b=spellImagery.pose(3,.8,3,1.7);
+   const joint=(p,id)=>p.nodes.find(n=>n.id===id);
+   const bend=p=>joint(p,'wing-tip--1').angle-joint(p,'wing-root--1').angle;
+   if(Math.abs(bend(a)-bend(b))<.15)throw Error('Phoenix elbow does not articulate independently');
+   const dragon=spellImagery.pose(2,1,3,1.7);
+   if(dragon.nodes.filter(n=>n.id.startsWith('vertebra-')).length<15||!joint(dragon,'head'))throw Error('Dragon must use a chain of independent body joints');
+   const dragonImpact=joint(spellImagery.pose(2,1.7,3,1.7),'head');
+   if(Math.hypot(dragonImpact.x,dragonImpact.y)>1e-6)throw Error('Dragon head must dive to the impact point at hit time');
+   const swords=spellImagery.pose(0,1.7,3,1.7).nodes;
+   if(swords.some(n=>Math.hypot(n.x,n.y)>1e-6))throw Error('Sword impact does not meet the damage time');
+   for(let sect=0;sect<4;sect++)if(spellImagery.pose(sect,3,3,1.7).nodes.length)throw Error('Finished cast leaves actors behind');
    skillSprites.draw=original;
    document.getElementById('actor-proof')?.remove();const proof=document.createElement('canvas');proof.id='actor-proof';proof.width=1280;proof.height=800;proof.style.cssText='position:fixed;inset:0;z-index:99999;width:1280px;height:800px';document.body.appendChild(proof);
    window.renderActorProof=(t)=>{
@@ -58,6 +69,6 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    recorder.stop();await finished;stream.getTracks().forEach(t=>t.stop());const bytes=new Uint8Array(await new Blob(chunks).arrayBuffer());let str='';for(const byte of bytes)str+=String.fromCharCode(byte);return btoa(str);
   });
   fs.writeFileSync(path.join(__dirname,'artifacts','layered-skills-preview.webm'),Buffer.from(video,'base64'));
-  assert.deepEqual(errors,[]);console.log('PASS layered actors: 180 distinct frames, deterministic simulation, no finished-pose dissolves, charge/impact/rendering; '+JSON.stringify(result));
+  assert.deepEqual(errors,[]);console.log('PASS articulated spells: separate joints, independent elbows, dragon chain, sword impact timing, cleanup, 180 distinct frames and deterministic rendering; '+JSON.stringify(result));
  }finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

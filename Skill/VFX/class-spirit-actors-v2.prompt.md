@@ -1,5 +1,7 @@
 # Illustrated class spirits, v2
 
+Archived source reference. The active renderer now uses the separate [v3 rig parts](rig-parts-v3.prompt.md); the full-creature v2 image is not loaded in live casts.
+
 Generated with the built-in ImageGen tool, followed by a layout edit. Final project asset: `Skill/VFX/class-spirit-actors-v2.png` (1254×1254 RGBA). Four complete motifs, in a 2×2 grid: sword array, crescent lotus, thunder dragon, golden phoenix. The original PNG alpha is preserved. `js/11d-spell-imagery.js` caches complete quadrants, fits their visible bounds and deforms adjacent strips with shared edges; it does not swap full-pose paintings. Existing class formation artwork supplies skill 3. Teleport remains an outline tear.
 
 ## Generation prompt

@@ -1,6 +1,6 @@
 # Layered spirit VFX
 
-The current illustrated subject layer is [class-spirit-actors-v2.png](class-spirit-actors-v2.png), generated with built-in ImageGen. [Its prompts and renderer notes](class-spirit-actors-v2.prompt.md) describe the sword array, crescent lotus, dragon and phoenix. This layer and the existing class formation paintings now sit above the subtle components described below. The complete subjects bend continuously; they do not dissolve between six pose paintings.
+The active renderer uses [rig-parts-v3.png](rig-parts-v3.png), generated with built-in ImageGen. [Prompts and animation notes](rig-parts-v3.prompt.md) describe the separate head, scales, claws, wing bones, feathers and talismans. Casts use articulated joints and independent trajectories. The previous v2 full-creature painting is retained as a source reference and is not loaded by the game.
 
 `spirit-components-v1.png` is an RGBA atlas generated with the built-in ImageGen tool, with a second pass to restore transparent padding. Existing Kiem/Liem/Thuong/Quat skill illustrations supplied the visual direction; existing weapon PNGs supply the moving weapon actors.
 

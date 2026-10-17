@@ -51,7 +51,7 @@ Túi có icon, màu phẩm chất, preview nhân vật, sắp xếp và panel ch
 
 Skill dùng đường khí uốn liên tục, quỹ đạo tụ lực–tung chiêu liền mạch và hạt theo thời gian mô phỏng. Pháp bảo đeo ở lưng có chuyển động cánh/dải và ánh sáng quét; buff thuẫn có lớp năng lượng chạy quanh nhân vật. Kiểm tra hình ảnh bằng `node tests/spell-actors.test.cjs` và `node tests/equipment-animation.test.cjs`; ảnh/video được ghi trong `tests/artifacts/`.
 
-Skill bổ sung sprite chủ thể ImageGen: kiếm trận, nguyệt nhận, lôi long và phượng linh; cánh, thân và dải chuyển động theo thời gian, không đổi qua sáu tranh pose. Nguồn và prompt tại [Skill/VFX/class-spirit-actors-v2.prompt.md](Skill/VFX/class-spirit-actors-v2.prompt.md). Vũ khí đeo thu nhỏ 19%, thuẫn 21% để thân nhân vật dễ nhìn.
+Skill dùng các bộ phận ảnh riêng: từng kiếm/nguyệt nhận bay độc lập; thân rồng có 28 khớp theo đường đầu rồng; phượng có khớp vai/khuỷu, đập cánh, lao xuống và tỏa phù. Điểm lao trúng khớp thời điểm gây sát thương. Lớp ảnh nguyên con đung đưa đã được gỡ khỏi renderer. Nguồn ImageGen và prompt tại [Skill/VFX/rig-parts-v3.prompt.md](Skill/VFX/rig-parts-v3.prompt.md). Vũ khí đeo thu nhỏ 19%, thuẫn 21% để thân nhân vật dễ nhìn.
 
 ## Cấu trúc
 
