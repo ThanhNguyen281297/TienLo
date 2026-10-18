@@ -1,5 +1,6 @@
-/* Four class slots at left, four shared slots at right; foot effect between feet slots. */
+/* Four slots per side; mask at top center, foot effect at bottom center. */
 .gear-slot.gear-8{left:50%;right:auto;top:270px;transform:translateX(-50%)}
+.gear-slot.gear-9{left:50%;right:auto;top:0;transform:translateX(-50%)}
 @media(max-width:700px){.gear-slot.gear-8{top:210px}}
 .paper-doll{height:360px}
 .gear-slot.gear-0,.gear-slot.gear-1,.gear-slot.gear-2,.gear-slot.gear-3{left:0;right:auto}

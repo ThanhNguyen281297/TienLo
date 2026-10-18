@@ -34,7 +34,7 @@ class EquipmentTest(unittest.TestCase):
         for meta in equipment.TEMPLATES.values():
             if meta.get('art'):self.assertIn(meta['art'],exact)
         self.assertEqual(len(equipment.RULES['combatSlots']),4)
-        self.assertEqual(len(equipment.RULES['slots']),9)
+        self.assertEqual(len(equipment.RULES['slots']),10)
         self.assertEqual(len(equipment.RULES['trails']),6)
         self.assertEqual([r['realm'] for r in equipment.RULES['realmEffects']],list(range(3,15)))
         for aura in equipment.RULES['realmEffects']:self.assertIn(aura['art'],exact)
@@ -53,6 +53,18 @@ class EquipmentTest(unittest.TestCase):
         for cls in range(4):
             self.player['ap']['w']=cls;self.player['world']['equip']={'dichuyen':self.make('footstep-6')}
             server.valid_player(self.player)
+        self.assertFalse(equipment.normalize(self.player))
+    def test_v5_adds_empty_mask_without_changing_gear_or_currency(self):
+        equipment.normalize(self.player)
+        self.player['world']['equip']['dichuyen']=self.make('footstep-6')
+        self.player['world']['bag']=[self.make('back-class-1')]
+        self.player['world']['equip'].pop('matna')
+        self.player['world'].update(equipmentVersion=5,riftShards=7)
+        expected=copy.deepcopy(self.player)
+        expected['world']['equip']['matna']=None
+        expected['world']['equipmentVersion']=6
+        self.assertTrue(equipment.normalize(self.player))
+        self.assertEqual(self.player,expected)
         self.assertFalse(equipment.normalize(self.player))
     def test_public_nginx_allows_current_asset_roots(self):
         config=(server.ROOT/'deploy/nginx.conf').read_text(encoding='utf-8')

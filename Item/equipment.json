@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "slots": {
     "vukhi": "Vũ khí",
     "daobao": "Đạo bào",
@@ -9,7 +9,8 @@
     "ngoc": "Hộ thuẫn",
     "gioi": "Nhẫn trữ vật",
     "phaptran": "Pháp trận",
-    "dichuyen": "Hiệu ứng chân"
+    "dichuyen": "Hiệu ứng chân",
+    "matna": "Mặt nạ"
   },
   "combatSlots": [
     "vukhi",
@@ -531,7 +532,8 @@
     "ngoc",
     "phaptran",
     "gioi",
-    "dichuyen"
+    "dichuyen",
+    "matna"
   ],
   "collectionAppearance": {
     "phong": {

@@ -33,6 +33,10 @@ Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25)
 
 `DHCanhGioi/` giữ 14 ảnh PNG alpha người dùng cung cấp (tỷ lệ 3:1), tương ứng `r=1..14` từ Luyện Khí đến Đạo Tổ; tên file `kimtien.png` đúng cho Kim Tiên. Danh sách `realmTitles` trong catalog dùng chung tên đường dẫn phân biệt hoa/thường. `js/35k-character-titles.js` nạp theo cảnh giới đang thấy, cache ảnh 1024px và vẽ đúng tỷ lệ trên đầu; preview túi giữ chỗ cho trang bị, không chèn danh hiệu. Tên đạo hữu dùng chữ nhỏ dưới chân ở cả tư thế thường/đả tọa và người chơi online.
 
+## Ô mặt nạ
+
+Ô `matna` nằm chính giữa vũ khí và pháp bảo ở hàng trên, dùng chung cho mọi class và không nằm trong bốn ô cường hóa. Catalog version 6 thêm ô trống vào bản lưu cũ, giữ nguyên vật phẩm, chỉ số và tiền. `MatNa/slot.svg` chỉ là biểu tượng ô trống; thư mục hiện chưa có ảnh/vật phẩm mặt nạ nên chưa thêm món mới vào GM/cửa hàng hoặc lớp ngoại hình nhân vật.
+
 ## Di chuyển dữ liệu
 
 `equipment.py` chuyển bản lưu cũ sang trang bị độc lập, giữ UID, đồ sở hữu, dòng tẩy luyện và cấp cường hóa đã lưu. Cường hóa cũ của đồ phải không còn tác dụng. Mảnh bí cảnh đổi 20 Linh Thạch/mảnh; mảnh Thăng Vị đổi 1 Linh Thạch/mảnh. Món bí cảnh chờ nhận được chuyển vào túi, hoặc hoàn Linh Thạch nếu túi đầy. JSON gốc được giữ trong bảng backup và bản sao DB trước deploy. Không còn tính năng bộ đồ hoặc đổi mảnh. Bí cảnh chỉ thưởng Linh Thạch.

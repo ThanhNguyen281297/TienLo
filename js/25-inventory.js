@@ -262,7 +262,7 @@
     if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
     if((item?.slot||slot)==='vukhi')return 'Item/VuKhi/'+characterClasses[P.ap.w].folder+'.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
-    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png'};
+    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png',matna:'Item/MatNa/slot.svg'};
     return artworkURL(icons[type]||'Item/Thuan/1.png');
   }
   function cells(p) {
