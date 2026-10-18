@@ -24,7 +24,7 @@
   for(let i=0;i<=28;i++){const v=q-(1-i/28)*trail,p=dragonPoint(v,w,h);joints.push({...p,v});}
   for(let i=0;i<28;i++){
    const a=joints[i],b=joints[i+1];if(b.v<0)continue;
-   const angle=Math.atan2(b.y-a.y,b.x-a.x),size=h*(.07+.07*i/28)*ease(b.v/.08),fade=alpha;
+   const angle=Math.atan2(b.y-a.y,b.x-a.x),size=h*(.07+.07*i/28)*ease(b.v/.08)*(1+Math.sin(age*8-i*.45)*.035),fade=alpha;
    if(i===0||a.v<0)node(nodes,'tail',2,a.x,a.y,size*2.7,size*1.15,angle,fade,.88,.5);
    if(i===15||i===23)for(const side of [-1,1])node(nodes,'claw-'+i+'-'+side,3,a.x,a.y,size*1.6,size*2.1,angle+side*(.65+.28*Math.sin(age*5+i)),fade,.15,.12,side);
    node(nodes,'vertebra-'+i,1,(a.x+b.x)/2,(a.y+b.y)/2,Math.hypot(b.x-a.x,b.y-a.y)+size*.85,size,angle,fade);
@@ -37,12 +37,13 @@
   const x=projectile?0:Math.sin(q*Math.PI)*w*.1,y=projectile?0:-h*.58*Math.sin(q*Math.PI);
   const pitch=projectile?0:-.12+Math.sin(q*Math.PI)*.13+dive*.4,fold=projectile?0:dive*.75;
   const local=[],wingW=w*.43*(1-fold*.35),wingH=h*.36;
-  for(let n=0;n<4;n++)node(local,'tail-feather-'+n,6,(n-1.5)*w*.018,h*.08,w*.1,h*(.43+n*.025),Math.sin(clock*4-n*.7)*.24+(n-1.5)*.14,alpha,.4,.05);
+  for(let n=0;n<6;n++)node(local,'tail-feather-'+n,6,(n-2.5)*w*.016,h*.08,w*.085,h*(.39+n*.026),Math.sin(clock*5-n*.7)*.29+(n-2.5)*.13,alpha,.4,.05);
   for(const side of [-1,1]){
    const shoulder=side*(.15+Math.sin(clock*7)*.56+fold*.65),elbow=side*(.2+Math.sin(clock*7-.8)*.45+fold*.5),mirror=-side,rx=side*w*.025,ry=-h*.025;
-   const offset=rotate(-.4*wingW*mirror,-.36*wingH,shoulder);
-   node(local,'wing-root-'+side,8,rx,ry,wingW*.55,wingH,shoulder,alpha,.43/.55,.78,mirror);
-   node(local,'wing-tip-'+side,9,rx+offset.x,ry+offset.y,wingW*.55,wingH,shoulder+elbow,alpha,.48/.55,.42,mirror);
+   const foreshorten=.72+.28*Math.cos(clock*7+side*.18);
+   const offset=rotate(-.4*wingW*mirror*foreshorten,-.36*wingH,shoulder);
+   node(local,'wing-root-'+side,8,rx,ry,wingW*.55*foreshorten,wingH,shoulder,alpha,.43/.55,.78,mirror);
+   node(local,'wing-tip-'+side,9,rx+offset.x,ry+offset.y,wingW*.55*foreshorten,wingH*(.92+.08*Math.sin(clock*7)),shoulder+elbow,alpha,.48/.55,.42,mirror);
   }
   node(local,'body',4,0,0,w*.23,h*.34,0,alpha);
   for(const n of local){const p=rotate(n.x,n.y,pitch);nodes.push({...n,x:x+p.x,y:y+p.y,angle:n.angle+pitch});}

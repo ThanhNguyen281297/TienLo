@@ -36,9 +36,10 @@
   if(age<0||age>=duration)return{nodes,phase:'ended',impact:false};
   const fade=ease(age/.15)*ease((duration-age)/.35),storm=ease((t-1.4)/.25)*(1-ease((t-3.0)/.22)),seal=ease((t-3.0)/.25);
   const moonY=-h*(.35+.16*Math.sin(Math.min(1,t/1.55)*Math.PI)),size=w*(.33+.12*ease(t/.7));
+  const seams=[0,.42,.94,1.35,1.91,2.58,3.13,3.52,4.05,4.68,5.17,5.74,TAU];
   for(let i=0;i<12;i++){
-   const a=i*TAU/12,open=release>0?ease(release/.55):(.14*(1-ease(t/.8))),r=w*(release>0?.6:1)*open;
-   add(nodes,'moon-sector-'+i,3,Math.cos(a)*r,moonY+Math.sin(a)*r*.55,release>0?size*(1+open*.2):size,size,release>0?Math.sin(a)*open*.35:0,fade*(release>0?1-open:1),.5,{wedge:[a-.012,a+TAU/12+.012],eclipse:seal});
+   const a=(seams[i]+seams[i+1])*.5,open=release>0?ease(release/(.43+(i%3)*.06)):(.14*(1-ease(t/.8))),r=w*(release>0?.45+(i%4)*.08:1)*open;
+   add(nodes,'moon-sector-'+i,3,Math.cos(a)*r,moonY+Math.sin(a)*r*.55+release*release*24,size,size,release>0?Math.sin(i*2.3)*open*.8:0,fade*(release>0?1-open:1),.5,{wedge:[seams[i]-.012,seams[i+1]+.012],eclipse:seal});
   }
   for(let i=0;i<3;i++){
    let x,y,angle;
@@ -85,7 +86,8 @@
   const nodes=[],clock=reduced.matches?0:f.age,count=sect===0?5:3,fade=ease(f.age/.3)*ease(((f.duration||5)-f.age)/.45);
   for(let i=0;i<count;i++){
    const a=sect===0?-Math.PI/2+i*TAU/5:f.age*1.8+i*TAU/3,r=f.radius*(sect===0?.83:.88)*ease((f.age-i*.035)/.3);
-   add(nodes,'boundary-'+i,sect===0?0:1,Math.cos(a)*r,Math.sin(a)*r*(sect===0?.55:.58)-14,sect===0?22:35,sect===0?54:35,sect===0?Math.sin(clock*2+i)*.035:a,fade);
+   const float=Math.sin(clock*3+i*1.7)*4;
+   add(nodes,'boundary-'+i,sect===0?0:1,Math.cos(a)*r,Math.sin(a)*r*(sect===0?.55:.58)-14+float,sect===0?22:35,sect===0?54:35,sect===0?Math.sin(clock*2+i)*.07:a,fade);
   }return nodes;
  }
  spellActors.field=function(ctx,sect,f,alpha=1){

@@ -10,5 +10,10 @@ tests/artifacts/
 .env.*
 *.pem
 *.key
+*.keystore
+*.jks
 .ssh/
+/android/local.properties
+/android/.gradle/
+/android/**/build/
 data/*.txt

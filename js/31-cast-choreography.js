@@ -12,7 +12,7 @@
     return result;
   };
   const update=up;up=function(dt){update(dt);if(paused())return;for(const c of cues)c.age+=dt;for(let i=cues.length-1;i>=0;i--)if(cues[i].age>=cues[i].duration)cues.splice(i,1);};
-  const draw=dr;dr=function(){draw();if(paused())return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);for(const cue of cues)spellMotion.charge(g,cue.sect,cue.x,cue.y,cue.age,cue.duration);g.restore();};
+  const draw=dr;dr=function(){draw();if(paused())return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);for(const cue of cues){spellMotion.charge(g,cue.sect,cue.x,cue.y,cue.age,cue.duration);window.spellFlourish?.charge(g,cue.sect,cue.x,cue.y,cue.age,cue.duration);}g.restore();};
   const reset=classCombat.onRespawn;classCombat.onRespawn=function(){cues.length=0;return reset();};
   window.castChoreography={cues};
 })();

@@ -68,7 +68,7 @@ jobs:
           rsync -az --delete --chmod=D755,F644 \
             --link-dest=/opt/tienlo \
             --exclude='/.git/' --exclude='/.github/' --exclude='/data/' \
-            --exclude='/dist/' --exclude='/tests/' --exclude='__pycache__/' \
+            --exclude='/dist/' --exclude='/tests/' --exclude='/android/' --exclude='__pycache__/' \
             --exclude='*.pyc' --exclude='.env*' --exclude='*.pem' --exclude='*.key' \
             ./ "$destination:/opt/tienlo-releases/$GITHUB_SHA/"
           $RSYNC_RSH "$destination" "sudo -n /usr/local/sbin/tienlo-activate $GITHUB_SHA"

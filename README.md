@@ -22,6 +22,12 @@ python server.py
 
 Mở http://127.0.0.1:8080, đăng ký tài khoản, chọn phái/Nam/Nữ và đặt đạo hiệu. Mỗi tài khoản có một nhân vật; đăng nhập lại hoặc từ thiết bị khác tiếp tục bản lưu trên server. Không mở trực tiếp `index.html` để chơi online.
 
+## Android và màn hình điện thoại
+
+Bản Android online tại `android/` mở đúng `https://mkt.ddnsfree.com/` trong System WebView, cùng game, tài khoản, đồ họa và DB với web. Trên điện thoại app mở ngang toàn màn hình, xử lý vùng khuyết màn hình và bàn phím; cập nhật web sẽ có hiệu lực khi mở lại app. Cần mạng và System WebView hiện đại. Build thử bằng `powershell -ExecutionPolicy Bypass -File android/build.ps1` với JDK 17+/Android SDK 36; APK tại `dist/TienLo-Android-test.apk`. Đã kiểm tra build/chữ ký; cần thử trên điện thoại thật trước khi phát hành. Xem [android/README.md](android/README.md) về key ký test và phát hành.
+
+Trên web, nút **Khác → Chơi ngang** và lời nhắc khi chơi dọc mở fullscreen, rồi yêu cầu khóa ngang nếu trình duyệt hỗ trợ. Trình duyệt cần thao tác chạm; khi không hỗ trợ vẫn chơi dọc được hoặc xoay máy thủ công. Không xoay giả Canvas bằng CSS, nên tọa độ chạm/ngắm luôn theo màn hình thật. Camera touch tự căn mức zoom để nhìn rộng hơn; bàn phím mở sẽ ngắt joystick. Kiểm tra bằng `node tests/mobile-hud.test.cjs` và `node tests/mobile-screen.test.cjs`.
+
 ## Database và tài khoản
 
 Database SQLite mặc định ở `data/tienlo.sqlite3`; đổi bằng `TIENLO_DB`. Không đọc/ghi TXT và không dùng localStorage lưu nhân vật. File TXT cũ không tự nhập vào tài khoản mới.
@@ -60,6 +66,8 @@ Tên nhân vật hiển thị nhỏ (6,5 px trong thế giới) dưới chân, c
 Túi có icon, màu phẩm chất, preview nhân vật, sắp xếp và panel chi tiết. Vũ khí phát sáng mạnh hơn theo phẩm chất; skill/hit có vòng sáng và hạt theo phái. Giữ sprite/asset nguồn và phối cảnh bản đồ. Xem [GAMEPLAY.md](GAMEPLAY.md).
 
 Skill dùng đường khí uốn liên tục, quỹ đạo tụ lực–tung chiêu liền mạch và hạt theo thời gian mô phỏng. Pháp bảo đeo ở lưng có chuyển động cánh/dải và ánh sáng quét; buff thuẫn có lớp năng lượng chạy quanh nhân vật. Kiểm tra hình ảnh bằng `node tests/spell-actors.test.cjs` và `node tests/equipment-animation.test.cjs`; ảnh/video được ghi trong `tests/artifacts/`.
+
+`js/11f-spell-flourish.js` thêm mảnh kiếm/băng, nguyệt nhận, vảy lôi và lông phượng chuyển động riêng trong tụ lực, đường bay, pháp trận và điểm trúng. Mảnh va chạm đi theo quỹ đạo liên tục, có lực rơi và tự tan; không đổi sát thương hay hồi chiêu. Phượng có sáu lông đuôi, cánh đổi góc nhìn theo nhịp vỗ; rồng có râu chuyển động theo đầu và sóng nhẹ chạy dọc thân. Trăng vỡ thành các mảnh không đều, khác góc/quãng bay. Giảm số mảnh trên touch, tắt phần trang trí bổ sung khi reduced-motion. Clip đủ bốn phái tại `tests/artifacts/layered-skills-preview.webm`.
 
 Skill dùng các bộ phận ảnh riêng: từng kiếm/nguyệt nhận bay độc lập; thân rồng có 28 khớp theo đường đầu rồng; phượng có khớp vai/khuỷu, đập cánh, lao xuống và tỏa phù. Điểm lao trúng khớp thời điểm gây sát thương. Lớp ảnh nguyên con đung đưa đã được gỡ khỏi renderer. Nguồn ImageGen và prompt tại [Skill/VFX/rig-parts-v3.prompt.md](Skill/VFX/rig-parts-v3.prompt.md). Vũ khí đeo thu nhỏ 19%, thuẫn 21% để thân nhân vật dễ nhìn.
 

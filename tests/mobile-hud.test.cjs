@@ -5,7 +5,7 @@ try{const port=await new Promise(resolve=>server.stdout.once('data',d=>resolve(N
 const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,deviceScaleFactor:2}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.addInitScript(()=>{requestAnimationFrame=()=>0;window.resized=false;addEventListener('resize',()=>resized=true);});await require('./test-account.cjs')(page);await page.route('**/api/characters',r=>r.fulfill({status:201,body:'{}'}));await page.goto('http://127.0.0.1:'+port,{waitUntil:'networkidle'});
 assert(await page.locator('#move-joystick').isHidden());await page.locator('#nm').fill('Mobile HUD');await page.locator('#ok').click();
-await page.evaluate(()=>{P.world.tutorial=true;E=[];P.r=3;P.hp=mhp();P.mp=mmp();P.world.learnedSkills=[true,true,true,true];window.hudStep=t=>{for(let i=0;i<Math.ceil(t/.01);i++){tm+=.01;up(.01);}dr();};hudStep(2);V.length=0;dr();});
+await page.evaluate(()=>{P.world.tutorial=true;E=[];P.r=3;P.level=40;P.hp=mhp();P.mp=mmp();P.world.learnedSkills=[true,true,true,true];window.hudStep=t=>{for(let i=0;i<Math.ceil(t/.01);i++){tm+=.01;up(.01);}dr();};hudStep(2);V.length=0;dr();});
 await page.waitForFunction(()=>{worldVFX.paintIcons();return [...sb.children].every(b=>b.querySelector('canvas')?.dataset.spriteIcon);},null,{polling:50});
 for(const viewport of [{width:390,height:844},{width:844,height:390},{width:568,height:320},{width:320,height:568},{width:1440,height:900}]){
   await page.evaluate(()=>resized=false);if(viewport.width!==390||viewport.height!==844){await page.setViewportSize(viewport);await page.waitForFunction(()=>resized,null,{polling:50});}

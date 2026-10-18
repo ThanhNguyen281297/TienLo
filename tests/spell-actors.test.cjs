@@ -36,6 +36,12 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
     for(const t of [1.699,1.7,1.701,2,2.5,2.99])render(sect,t);
     summaries.push({sect,uniqueFrames:new Set(samples.map(s=>s.hash)).size,lit:samples[20].lit});
    }
+   for(let sect=0;sect<4;sect++){
+    const hashes=[];for(let i=0;i<20;i++){g.clearRect(0,0,400,320);spellActors.impact(g,sect,200,160,.08+i*.02,65,.6);hashes.push(c.toDataURL());}
+    if(new Set(hashes).size!==20)throw Error('Contact fragments are static for class '+sect);
+    const n=spellFlourish.impactNodes(sect,.2,60);if(n.length>11||n.some(p=>!Number.isFinite(p.x+p.y+p.angle)))throw Error('Unbounded/invalid fragments');
+    if(spellFlourish.impactNodes(sect,.6,60,.6).length)throw Error('Expired fragments remain');
+   }
    const a=spellImagery.pose(3,.5,3,1.7),b=spellImagery.pose(3,.8,3,1.7);
    const joint=(p,id)=>p.nodes.find(n=>n.id===id);
    const bend=p=>joint(p,'wing-tip--1').angle-joint(p,'wing-root--1').angle;
@@ -66,7 +72,7 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
      spellActors.field(ctx,sect,{x,y:560,age:t,duration:3,radius:100},.8);
      spellActors.projectile(ctx,sect,x+Math.sin(t)*60,680,-.25,t,40,1);
     }
-   };renderActorProof(1.2);return summaries;
+   };const renderTimes=[];for(let i=0;i<100;i++){const begin=performance.now();renderActorProof(.4+i*.01);if(i>=10)renderTimes.push(performance.now()-begin);}renderTimes.sort((a,b)=>a-b);window.spellRenderP95=renderTimes[Math.floor(renderTimes.length*.95)];renderActorProof(1.2);return summaries;
   });
   await page.screenshot({path:path.join(__dirname,'artifacts','layered-skills-charge.png')});
   await page.evaluate(()=>renderActorProof(1.9));await page.screenshot({path:path.join(__dirname,'artifacts','layered-skills-impact.png')});
@@ -78,6 +84,6 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    recorder.stop();await finished;stream.getTracks().forEach(t=>t.stop());const bytes=new Uint8Array(await new Blob(chunks).arrayBuffer());let str='';for(const byte of bytes)str+=String.fromCharCode(byte);return btoa(str);
   });
   fs.writeFileSync(path.join(__dirname,'artifacts','layered-skills-preview.webm'),Buffer.from(video,'base64'));
-  assert.deepEqual(errors,[]);console.log('PASS articulated spells: separate joints, independent elbows, dragon chain, sword impact timing, cleanup, 180 distinct frames and deterministic rendering; '+JSON.stringify(result));
+  assert.deepEqual(errors,[]);console.log('PASS articulated spells: separate joints, independent elbows, dragon chain, sword impact timing, contact fragments, cleanup, 180 distinct frames and deterministic rendering; '+JSON.stringify({classes:result,renderP95ms:await page.evaluate(()=>spellRenderP95)}));
  }finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
