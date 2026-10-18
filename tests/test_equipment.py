@@ -34,7 +34,24 @@ class EquipmentTest(unittest.TestCase):
         for meta in equipment.TEMPLATES.values():
             if meta.get('art'):self.assertIn(meta['art'],exact)
         self.assertEqual(len(equipment.RULES['combatSlots']),4)
-        self.assertEqual(len(equipment.RULES['slots']),8)
+        self.assertEqual(len(equipment.RULES['slots']),9)
+        self.assertEqual(len(equipment.RULES['trails']),6)
+        self.assertEqual([r['realm'] for r in equipment.RULES['realmEffects']],list(range(3,15)))
+        for aura in equipment.RULES['realmEffects']:self.assertIn(aura['art'],exact)
+
+    def test_v4_adds_empty_cosmetic_slot_preserving_items_and_rolls(self):
+        equipment.normalize(self.player)
+        belt=self.make('chan-2-class-0');belt.pop('art')
+        back=self.make('back-class-1');back['affixes']=[dict(key=r['key'],value=r['max']) for r in equipment.RULES['offense'][:5]]
+        self.player['world'].update(equipmentVersion=4,equip={'chan':belt,'phapbao':back})
+        original=copy.deepcopy(back);equipment.normalize(self.player)
+        self.assertEqual(self.player['world']['equip']['phapbao'],original)
+        self.assertEqual(belt['art'],'Item/Chan/dai-v2.png')
+        self.assertIsNone(self.player['world']['equip']['dichuyen'])
+        for cls in range(4):
+            self.player['ap']['w']=cls;self.player['world']['equip']={'dichuyen':self.make('footstep-6')}
+            server.valid_player(self.player)
+        self.assertFalse(equipment.normalize(self.player))
     def test_public_nginx_allows_current_asset_roots(self):
         config=(server.ROOT/'deploy/nginx.conf').read_text(encoding='utf-8')
         match=re.search(r'location ~ (\^/\([^\n]+\)/)',config)
@@ -50,7 +67,7 @@ class EquipmentTest(unittest.TestCase):
         self.player['world']['equipmentVersion']=2
         self.assertTrue(equipment.normalize(self.player,server.collection_item))
         self.assertEqual(item,original)
-        self.assertEqual(self.player['world']['equipmentVersion'],4)
+        self.assertEqual(self.player['world']['equipmentVersion'],equipment.RULES['version'])
         self.assertFalse(equipment.normalize(self.player,server.collection_item))
     def test_migrate_old_collection_ring_gem_and_back_without_losing_items(self):
         old=copy.deepcopy(self.player);old['ap']['w']=3

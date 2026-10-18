@@ -39,7 +39,7 @@ Thấy người chơi khác cùng bản đồ, chat và biểu cảm. Quái farm
 - WASD/mũi tên/chạm kéo: di chuyển; Tab/chạm quái: chọn mục tiêu; F: đánh thường; Z: auto.
 - 1–4/Space: skill; chuột/chạm kéo nút skill để ngắm. Tự mở ở cấp 10/20/30/40; nâng chiêu tại Truyền Công Các.
 - Q: đả tọa; B: tăng tầng/đột phá tại vùng an toàn; M: bản đồ; E: tương tác NPC.
-- I: túi cơ bản 30 ô, nhẫn trữ vật mở thêm tối đa 40 ô; U: thuộc tính. Kéo đồ vào tám ô trang bị, kéo về ô túi trống để tháo. Trên mobile kéo bằng chạm hoặc chọn đồ rồi nhấn Trang bị.
+- I: túi cơ bản 30 ô, nhẫn trữ vật mở thêm tối đa 40 ô; U: thuộc tính. Kéo đồ vào chín ô trang bị, kéo về ô túi trống để tháo. Trên mobile kéo bằng chạm hoặc chọn đồ rồi nhấn Trang bị.
 
 ## Gameplay và hình ảnh
 
@@ -51,7 +51,9 @@ Tên dịch vụ/NPC là chữ nhỏ dưới chân, không có mô tả trên đ
 
 Cấp nhân vật (1–200) và tu vi tách riêng. Đánh quái/nhận thưởng nhiệm vụ cho EXP tự lên cấp, giữ EXP dư; EXP cần cho cấp tiếp theo là `100 + 45×(cấp−1) + 12×(cấp−1)²`. Mỗi cấp thêm 6 HP, 2 MP và 0,8 Công gốc. Tu vi vẫn giữ 15 cảnh giới × 10 tầng, dùng đạo hạnh, Linh Thạch và đan để tăng tầng/đột phá. Đả tọa và Tu Vi Đan chỉ tăng tu vi. Nhân vật cũ giữ nguyên tu vi/đạo hạnh; level khởi tạo bằng `cảnh giới×10 + tầng`, EXP level bằng 0. Hai thanh EXP/tu vi hiện trên HUD.
 
-Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới bắt đầu với túi và tám ô trang bị trống. Bật GM mở kho 94 vật phẩm để lấy/mặc thử; bốn ô trái cần đúng class, bốn ô phải dùng chung. Chỉ bốn ô trái cường hóa +15. Bí cảnh chỉ thưởng Linh Thạch; bộ trang bị và các loại mảnh đã được gỡ.
+Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới bắt đầu với túi và chín ô trang bị trống. Bật GM mở kho 100 vật phẩm để lấy/mặc thử; bốn ô trái cần đúng class, bốn ô phải dùng chung. Chỉ bốn ô trái cường hóa +15. Bí cảnh chỉ thưởng Linh Thạch; bộ trang bị và các loại mảnh đã được gỡ.
+
+Ô Hiệu ứng chân nằm giữa giày và pháp trận, dùng chung cho bốn class. Sáu món Bộ Bộ Sinh Liên, Ngự Phong, Lôi Hành, Băng Liên, Hỏa Phượng, Tinh Hà có trong kho GM/cửa hàng; dấu bước sinh theo quãng đường, tự tan và không xuất hiện khi đứng yên hoặc truyền tống. Từ Kim Đan đến Đạo Tổ tự hiện hào quang đúng tu vi, có ánh quét/hạt chuyển động và lớp dưới chân; level không mở hào quang. Người chơi khác nhìn thấy món đang mặc và cảnh giới đã lưu. Kiểm tra bằng `node tests/character-auras.test.cjs`; clip tại `tests/artifacts/character-auras-preview.webm`.
 
 Túi có icon, màu phẩm chất, preview nhân vật, sắp xếp và panel chi tiết. Vũ khí phát sáng mạnh hơn theo phẩm chất; skill/hit có vòng sáng và hạt theo phái. Giữ sprite/asset nguồn và phối cảnh bản đồ. Xem [GAMEPLAY.md](GAMEPLAY.md).
 

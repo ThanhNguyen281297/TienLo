@@ -16,6 +16,17 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_saved_cosmetic_trail_and_realm_are_broadcast(self):
+        a=self.social_user('aura_one',3);b=self.social_user('aura_two')
+        saved=self.request('/api/characters',cookie=a[0])[1]['character'];p=saved['player']
+        p['world']['equip']['dichuyen']=dict(server.equipment_rules.TEMPLATES['footstep-6'],uid='trail-one')
+        self.assertEqual(self.request('/api/characters',{'csrf':a[1],'revision':saved['revision'],'player':p},a[0])[0],201)
+        self.assertEqual(self.request('/api/world',{'csrf':a[1],'map':'hub','x':1000,'y':1100,'hp':100,'ap':{'realm':14,'trailId':'footstep-1'}},a[0])[0],200)
+        status,data,_=self.request('/api/world',{'csrf':b[1],'map':'hub','x':1000,'y':1100,'hp':100},b[0])
+        self.assertEqual(status,200)
+        peer=next(v for v in data['players'] if v['name']=='aura_one')
+        self.assertEqual((peer['ap']['realm'],peer['ap']['trailId']),(3,'footstep-6'))
+
     def test_level_legacy_read_and_persistence_preserve_cultivation(self):
         cookie,csrf=self.register('legacy_level');p=self.player();p.update(r=4,stage=7,xp=321)
         self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':0,'player':p},cookie)[0],201)

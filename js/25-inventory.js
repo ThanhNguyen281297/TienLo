@@ -123,7 +123,7 @@
     const r = Math.random();
     // Boss/elite luôn rớt đồ xanh trở lên + chắc chắn 1 Thăng Vị Đan (30% thêm 1).
     if (isBoss) {
-      const available=TEMPLATES.filter(t=>t.slot&&(t.classIndex===undefined||equipmentRules.sharedSlots.includes(t.slot)||t.classIndex===P.ap.w)&&t.req<=cultivationLevel()+10);
+      const available=TEMPLATES.filter(t=>t.slot&&t.slot!=='dichuyen'&&(t.classIndex===undefined||equipmentRules.sharedSlots.includes(t.slot)||t.classIndex===P.ap.w)&&t.req<=cultivationLevel()+10);
       const tier=Math.max(...available.map(t=>({pham:0,huyen:1,linh:2,tien:3}[t.rarity])));
       const pool=available.filter(t=>({pham:0,huyen:1,linh:2,tien:3}[t.rarity])===tier).map(t=>t.id);
       const id = pool[Math.floor(Math.random() * pool.length)];
@@ -262,7 +262,7 @@
     if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
     if((item?.slot||slot)==='vukhi')return 'Item/VuKhi/'+characterClasses[P.ap.w].folder+'.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
-    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/chan.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong')};
+    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png'};
     return artworkURL(icons[type]||'Item/Thuan/1.png');
   }
   function cells(p) {
@@ -319,7 +319,7 @@
     const heading=document.createElement('h3');heading.textContent=P.nm+' · '+sectName();gear.append(heading);
     const paper=document.createElement('div');paper.className='paper-doll';gear.append(paper);
     const preview=document.createElement('canvas');const density=Math.max(1.5,Math.min(3,devicePixelRatio||1));preview.width=Math.round(320*density);preview.height=Math.round(380*density);preview.className='gear-preview';paper.append(preview);
-    const ctx=preview.getContext('2d');function paintPreview(){if(!preview.isConnected||!dialog.isOpen())return;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,preview.width,preview.height);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(2.6*density,0,0,2.6*density,160*density,270*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);requestAnimationFrame(paintPreview);}paintPreview();
+    const ctx=preview.getContext('2d');function paintPreview(){if(!preview.isConnected||!dialog.isOpen())return;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,preview.width,preview.height);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.setTransform(2.3*density,0,0,2.3*density,160*density,232*density);drawChar(ctx,0,0,0,1,false,tm*10,false,P.ap,characterClasses[P.ap.w].color);requestAnimationFrame(paintPreview);}paintPreview();
     Object.keys(SLOTS).forEach((slot,i)=>{
       const item=p.equip[slot],button=document.createElement('button');button.type='button';button.className='item-cell gear-slot gear-'+i;button.dataset.equipSlot=slot;button.style.setProperty('--rarity',RARITY[item?.rarity||'pham'].color);button.setAttribute('aria-label',SLOTS[slot]+': '+(item?.name||'trống'));
       const img=document.createElement('img');img.src=itemIcon(item,slot);img.alt='';button.append(img);

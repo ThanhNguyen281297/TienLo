@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "slots": {
     "vukhi": "Vũ khí",
     "daobao": "Đạo bào",
@@ -8,7 +8,8 @@
     "phapbao": "Pháp bảo",
     "ngoc": "Hộ thuẫn",
     "gioi": "Nhẫn trữ vật",
-    "phaptran": "Pháp trận"
+    "phaptran": "Pháp trận",
+    "dichuyen": "Hiệu ứng chân"
   },
   "combatSlots": [
     "vukhi",
@@ -529,7 +530,8 @@
     "phapbao",
     "ngoc",
     "phaptran",
-    "gioi"
+    "gioi",
+    "dichuyen"
   ],
   "collectionAppearance": {
     "phong": {
@@ -728,7 +730,8 @@
       "price": 20,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-0",
-      "classIndex": 0
+      "classIndex": 0,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-1-class-0",
@@ -741,7 +744,8 @@
       "price": 110,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-1",
-      "classIndex": 0
+      "classIndex": 0,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-2-class-0",
@@ -754,7 +758,8 @@
       "price": 200,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-2",
-      "classIndex": 0
+      "classIndex": 0,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-3-class-0",
@@ -767,7 +772,8 @@
       "price": 290,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-3",
-      "classIndex": 0
+      "classIndex": 0,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "moc-kiem-class-1",
@@ -929,7 +935,8 @@
       "price": 20,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-0",
-      "classIndex": 1
+      "classIndex": 1,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-1-class-1",
@@ -942,7 +949,8 @@
       "price": 110,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-1",
-      "classIndex": 1
+      "classIndex": 1,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-2-class-1",
@@ -955,7 +963,8 @@
       "price": 200,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-2",
-      "classIndex": 1
+      "classIndex": 1,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-3-class-1",
@@ -968,7 +977,8 @@
       "price": 290,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-3",
-      "classIndex": 1
+      "classIndex": 1,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "moc-kiem-class-2",
@@ -1130,7 +1140,8 @@
       "price": 20,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-0",
-      "classIndex": 2
+      "classIndex": 2,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-1-class-2",
@@ -1143,7 +1154,8 @@
       "price": 110,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-1",
-      "classIndex": 2
+      "classIndex": 2,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-2-class-2",
@@ -1156,7 +1168,8 @@
       "price": 200,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-2",
-      "classIndex": 2
+      "classIndex": 2,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-3-class-2",
@@ -1169,7 +1182,8 @@
       "price": 290,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-3",
-      "classIndex": 2
+      "classIndex": 2,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "moc-kiem-class-3",
@@ -1331,7 +1345,8 @@
       "price": 20,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-0",
-      "classIndex": 3
+      "classIndex": 3,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-1-class-3",
@@ -1344,7 +1359,8 @@
       "price": 110,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-1",
-      "classIndex": 3
+      "classIndex": 3,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-2-class-3",
@@ -1357,7 +1373,8 @@
       "price": 200,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-2",
-      "classIndex": 3
+      "classIndex": 3,
+      "art": "Item/Chan/dai-v2.png"
     },
     {
       "id": "chan-3-class-3",
@@ -1370,7 +1387,8 @@
       "price": 290,
       "desc": "Bảo vệ đôi chân khi giao chiến.",
       "baseId": "chan-3",
-      "classIndex": 3
+      "classIndex": 3,
+      "art": "Item/Chan/dai-v2.png"
     }
   ],
   "legacyCollection": {
@@ -1468,5 +1486,123 @@
       "dang-van-ngoa",
       "dang-van-ngoa"
     ]
-  }
+  },
+  "trails": [
+    {
+      "id": "footstep-1",
+      "slot": "dichuyen",
+      "name": "Bộ Bộ Sinh Liên",
+      "rarity": "linh",
+      "req": 0,
+      "price": 120,
+      "variant": 1,
+      "art": "Item/DiChuyen/1.png",
+      "desc": "Mỗi bước nở hoa sen rồi tan thành cánh hoa."
+    },
+    {
+      "id": "footstep-2",
+      "slot": "dichuyen",
+      "name": "Ngự Phong",
+      "rarity": "linh",
+      "req": 0,
+      "price": 150,
+      "variant": 2,
+      "art": "Item/DiChuyen/2.png",
+      "desc": "Mây trắng cuộn nhẹ và lướt dưới chân."
+    },
+    {
+      "id": "footstep-3",
+      "slot": "dichuyen",
+      "name": "Lôi Hành",
+      "rarity": "linh",
+      "req": 0,
+      "price": 180,
+      "variant": 3,
+      "art": "Item/DiChuyen/3.png",
+      "desc": "Dấu chân điện tím lóe rồi tắt."
+    },
+    {
+      "id": "footstep-4",
+      "slot": "dichuyen",
+      "name": "Băng Liên",
+      "rarity": "linh",
+      "req": 0,
+      "price": 210,
+      "variant": 4,
+      "art": "Item/DiChuyen/4.png",
+      "desc": "Băng kết tinh theo bước, tan thành sương."
+    },
+    {
+      "id": "footstep-5",
+      "slot": "dichuyen",
+      "name": "Hỏa Phượng",
+      "rarity": "linh",
+      "req": 0,
+      "price": 240,
+      "variant": 5,
+      "art": "Item/DiChuyen/5.png",
+      "desc": "Lông phượng cháy và tàn lửa bay theo bước."
+    },
+    {
+      "id": "footstep-6",
+      "slot": "dichuyen",
+      "name": "Tinh Hà",
+      "rarity": "linh",
+      "req": 0,
+      "price": 270,
+      "variant": 6,
+      "art": "Item/DiChuyen/6.png",
+      "desc": "Sao nhỏ hiện lên theo bước rồi tan."
+    }
+  ],
+  "realmEffects": [
+    {
+      "realm": 3,
+      "art": "Item/CanhGioi/kimdan.png"
+    },
+    {
+      "realm": 4,
+      "art": "Item/CanhGioi/nguyenanh.png"
+    },
+    {
+      "realm": 5,
+      "art": "Item/CanhGioi/hoathan.png"
+    },
+    {
+      "realm": 6,
+      "art": "Item/CanhGioi/luyenhu.png"
+    },
+    {
+      "realm": 7,
+      "art": "Item/CanhGioi/hopthe.png"
+    },
+    {
+      "realm": 8,
+      "art": "Item/CanhGioi/daithua.png"
+    },
+    {
+      "realm": 9,
+      "art": "Item/CanhGioi/dokiep.png"
+    },
+    {
+      "realm": 10,
+      "art": "Item/CanhGioi/chantien.png"
+    },
+    {
+      "realm": 11,
+      "art": "Item/CanhGioi/kiemtien.png"
+    },
+    {
+      "realm": 12,
+      "art": "Item/CanhGioi/thaiat.png"
+    },
+    {
+      "realm": 13,
+      "art": "Item/CanhGioi/daila.png"
+    },
+    {
+      "realm": 14,
+      "art": "Item/CanhGioi/daoto.png"
+    }
+  ]
 }

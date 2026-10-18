@@ -33,7 +33,7 @@
     for(let i=contacts.length-1;i>=0;i--)if(contacts[i].age>.38)contacts.splice(i,1);
     const dx=P.x-origin.x,dy=P.y-origin.y,moved=Math.hypot(dx,dy);
     if(!dashing&&!classCombat.isDashing()&&!P.med&&moved>.001&&moved<18){
-      distance+=moved;if(distance>=12){distance%=12;foot=-foot;const angle=Math.atan2(dy,dx);steps.push({x:P.x-Math.sin(angle)*foot*2.7,y:P.y+Math.cos(angle)*foot*2.7,angle,age:0,sect:P.ap.w});if(steps.length>80)steps.shift();}
+      distance+=moved;if(distance>=12){distance%=12;foot=-foot;const angle=Math.atan2(dy,dx);if(!window.characterAuras?.hasTrail())steps.push({x:P.x-Math.sin(angle)*foot*2.7,y:P.y+Math.cos(angle)*foot*2.7,angle,age:0,sect:P.ap.w});if(steps.length>80)steps.shift();}
     }else if(moved>=18)distance=0;
   };
   const ground=worldMap.drawGroundDetails;

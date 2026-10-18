@@ -1,4 +1,6 @@
-/* Eight distinct slots, four on each side; keep the character unobstructed. */
+/* Four class slots at left, four shared slots at right; foot effect between feet slots. */
+.gear-slot.gear-8{left:50%;right:auto;top:270px;transform:translateX(-50%)}
+@media(max-width:700px){.gear-slot.gear-8{top:210px}}
 .paper-doll{height:360px}
 .gear-slot.gear-0,.gear-slot.gear-1,.gear-slot.gear-2,.gear-slot.gear-3{left:0;right:auto}
 .gear-slot.gear-4,.gear-slot.gear-5,.gear-slot.gear-6,.gear-slot.gear-7{left:auto;right:0}

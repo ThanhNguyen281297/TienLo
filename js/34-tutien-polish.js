@@ -121,6 +121,7 @@
     drawChar=function(ctx,x,y,dir,facing,moving,phase,attacking,ap){
       try{
         const mine=ap===P.ap,idx=Number.isInteger(ap?.w)?ap.w:sect();
+        if(!window.characterAuras?.realmFor(ap)&&!window.characterAuras?.trailFor(ap)){
         // vòng hồ quang cảnh giới dưới chân
         ctx.save();
         ctx.globalCompositeOperation='lighter';
@@ -130,6 +131,7 @@
         ctx.strokeStyle=SECT[idx];ctx.globalAlpha=mine?.35:.2;ctx.lineWidth=1;
         ctx.beginPath();ctx.ellipse(x,y+1,21+pulse*1.4,8.5+pulse*.5,0,0,6.3);ctx.stroke();
         ctx.restore();
+        }
       }catch(e){}
       _dc(ctx,x,y,dir,facing,moving,phase,attacking,ap);
       try{

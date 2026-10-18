@@ -1,6 +1,6 @@
 # Trang bị Tiên Lộ
 
-- `Ao`, `Chan`, `Giay`: icon áo, hộ thối và giày. Hộ thối hiện dùng cùng nét vẽ icon đạo bào; không thay sprite thân nhân vật.
+- `Ao`, `Chan`, `Giay`: icon áo, đai hộ thối và giày. Hộ thối dùng `Chan/dai-v2.png` (ImageGen, prompt cùng thư mục), không dùng lại icon áo; không thay sprite thân nhân vật.
 - `VuKhi`: vũ khí của Kiếm, Liềm, Thương, Quạt.
 - `PhapBao/9..12.png`: bốn pháp bảo lưng gốc; `PhapBao/1..8.png`: các pháp bảo mở rộng, mọi class đều dùng được.
 - `Thuan/1..7.png`: bảy hộ thuẫn; `BuffThuan/1..7.png`: sprite kết giới hộ thể.
@@ -14,13 +14,20 @@ Bốn ô trái: vũ khí, đạo bào, hộ thối, giày; có `classIndex` bắ
 
 Bốn ô phải: pháp bảo lưng, hộ thuẫn, nhẫn trữ vật và pháp trận; dùng chung cho mọi class, không cường hóa. Chỉ `classIndex` của bốn ô này ghi kiểu ảnh gốc. Nhẫn thêm 10/20/30/40 ô cho túi 30 ô; không thể tháo nếu túi không đủ chỗ. Pháp bảo, thuẫn và pháp trận hiển thị theo món đang mặc.
 
-Nhân vật mới không có đồ, thuốc hay trứng trong túi và không mặc món nào. Bật GM mở kho 94 vật phẩm, lọc/tìm và lấy đồ hoặc mặc thử. GM bỏ yêu cầu cấp để thử, vẫn giữ giới hạn class của bốn ô trái.
+Nhân vật mới không có đồ, thuốc hay trứng trong túi và không mặc món nào. Bật GM mở kho 100 vật phẩm, lọc/tìm và lấy đồ hoặc mặc thử. GM bỏ yêu cầu cấp để thử, vẫn giữ giới hạn class của bốn ô trái.
 
 Pháp bảo và hộ thuẫn luôn có năm dòng khác loại. Đồ mới có năm dòng tối thiểu; tẩy luyện tiêu 60 Linh Thạch và 12 Linh Nguyên, server chọn lại cả năm dòng. Số phần trăm trong JSON là basis point: `100` = 1%. Dòng cố định dùng số nguyên, riêng hồi sinh lực chia 100 HP/giây. Dòng tẩy luyện không nhân theo cường hóa. Tổng né giới hạn 20%, bạo kích 35%, kháng sát thương 15%.
 
 Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25) trong 60 giây, hồi 180 giây từ khi dùng. Hồi chiêu lưu SQLite; tải lại, đổi thuẫn hay khởi động lại service không xóa hồi. Chết sẽ mất buff, vẫn giữ hồi chiêu. Hút máu/linh lực tính trên sát thương thực tế, không trên phần sát thương vượt HP quái hay lượt phát lại phần thưởng.
 
 `js/12b-equipment-motion.js` giữ điểm đeo pháp bảo ở giữa lưng, với điểm neo riêng cho 12 ảnh. Phần ngoài uốn nhẹ và ánh sáng quét theo alpha ảnh; khi quay lưng vẫn chừa đầu nhân vật. Buff thuẫn chia lớp sau/trước, có dải năng lượng chuyển động trên mặt cầu và hiệu ứng mở/tan theo thời hạn server. Ảnh gốc được giữ nguyên; bản render thu nhỏ được cache. Chế độ giảm chuyển động tắt chuyển động trang trí.
+
+## Hiệu ứng chân và cảnh giới
+
+- `DiChuyen/1..6.png`: sáu vật phẩm cosmetic không tăng chỉ số/cường hóa, mọi class dùng được. Ô `dichuyen` nằm giữa giày và pháp trận; GM và cửa hàng dùng cùng catalog. Nhân vật mới để trống ô này.
+- `CanhGioi/`: 12 hào quang tự mở theo tu vi `r=3..14`, Kim Đan đến Đạo Tổ, không theo level. File `kiemtien.png` được ánh xạ Kim Tiên (`r=11`), giữ nguyên tên file nguồn.
+- `js/35j-character-auras.js`: cánh sen nở, mây tách lớp, điện tím, băng kết tinh, lông phượng/tàn lửa, sao xuất hiện và tan. Chỉ nạp ảnh đang dùng, cache bản render, tối đa 72 dấu bước; không vẽ thêm dấu khi đứng yên/truyền tống. Hào quang nằm sau nhân vật, chỉ viền chân ở lớp trước. Người chơi từ xa dùng trang bị/cảnh giới server đã lưu.
+- Catalog version 5 chỉ thêm ô mới và đổi art hộ thối khi nâng từ version 4; giữ UID, chỉ số, dòng tẩy luyện và cường hóa. Không chuyển đổi mảnh/tiền lần nữa.
 
 ## Di chuyển dữ liệu
 

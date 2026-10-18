@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 RULES = json.loads((ROOT/'Item'/'equipment.json').read_text(encoding='utf-8'))
-TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations') for t in RULES[group]}
+TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails') for t in RULES[group]}
 STAT_KEYS = ('atk','hp','mp','armor','crit','dodge','skill')
 
 def pool(item):
@@ -58,9 +58,16 @@ def normalize(player, collection=None):
     if not isinstance(player.get('ap'),dict) or not isinstance(player.get('world',{}),dict):return False
     w=player.setdefault('world',{});equip=w.setdefault('equip',{});w.setdefault('bag',[])
     if not isinstance(equip,dict) or not isinstance(w['bag'],list) or any(not isinstance(i,dict) for i in w['bag']+[i for i in equip.values() if i is not None]):return False
-    if w.get('equipmentVersion',0)>=4:return False
+    if w.get('equipmentVersion',0)>=RULES['version']:return False
     cls=player['ap'].get('w')
     if type(cls) is not int or cls not in range(4):return False
+    if w.get('equipmentVersion',0)>=4:
+        for item in items(player):
+            meta=TEMPLATES.get(item.get('id'))
+            if item.get('slot')=='chan' and meta:item['art']=meta['art']
+        for slot in RULES['slots']:equip.setdefault(slot,None)
+        w['equipmentVersion']=RULES['version']
+        return True
     oldring=equip.get('gioi')
     if oldring and isinstance(oldring.get('id'),str) and oldring['id'].startswith('rift-'):
         equip['chan']=oldring;equip['gioi']=None
@@ -88,7 +95,7 @@ def normalize(player, collection=None):
         converted=min(10**9,shards*20);player['gold']=min(10**9,player.get('gold',0)+converted);w['retiredShardGold']=w.get('retiredShardGold',0)+converted
     for key in ('riftShards','riftFocus','riftPendingItem'):w.pop(key,None)
     for slot in RULES['slots']:equip.setdefault(slot,None)
-    w['equipmentVersion']=4
+    w['equipmentVersion']=RULES['version']
     return True
 
 

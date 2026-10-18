@@ -1,6 +1,6 @@
 /* Shared catalog. Ratios use basis points; affixes do not scale with enhancement. */
 (function(){
- const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
+ const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations,...rules.trails],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
  const pool=item=>item?.slot==='phapbao'?rules.offense:item?.slot==='ngoc'?rules.defense:[];
  const defaults=item=>pool(item).slice(0,5).map(r=>({key:r.key,value:r.min}));
  const capacity=p=>30+(byId.get(p?.equip?.gioi?.id)?.capacity||0);
@@ -12,7 +12,8 @@
   const style=rules.collectionAppearance[old.setId];return old.slot==='phapbao'?style.back:'shield-'+style.shield;
  }
  function normalize(p,cls=P.ap?.w||0){
-  p.bag??=[];p.equip??={};if(p.equipmentVersion>=4)return p;
+  p.bag??=[];p.equip??={};if(p.equipmentVersion>=rules.version)return p;
+  if(p.equipmentVersion>=4){for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)]){const meta=byId.get(item.id);if(item.slot==='chan'&&meta)item.art=meta.art;}for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;p.equipmentVersion=rules.version;return p;}
   if(p.equip.gioi?.id.startsWith('rift-')){p.equip.chan=p.equip.gioi;p.equip.gioi=null;}
   function convert(item){const meta=byId.get(canonicalId(item.id,cls));if(meta){for(const key of [...statKeys,'classIndex','art','capacity','variant','setId','source','baseId'])delete item[key];Object.assign(item,meta);if(pool(item).length&&!item.affixes)item.affixes=defaults(item);}else{delete item.setId;delete item.source;}}
   for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)])convert(item);
@@ -20,7 +21,7 @@
   if(p.riftShards>0){const gold=Math.min(1e9,p.riftShards*20);P.gold=Math.min(1e9,P.gold+gold);p.retiredShardGold=(p.retiredShardGold||0)+gold;}
   if(p.thangViFragments>0)P.gold=Math.min(1e9,P.gold+p.thangViFragments);delete p.thangViFragments;
   delete p.riftShards;delete p.riftFocus;delete p.riftPendingItem;
-  for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;p.equipmentVersion=4;return p;
+  for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;p.equipmentVersion=rules.version;return p;
  }
  function shieldVariant(item){const meta=byId.get(item?.id),style=item?.id?.startsWith('rift-')?rules.collectionAppearance[item.setId]:null;return meta?.variant||style?.shield||1;}
  function appearance(item){if(!item)return null;const meta=byId.get(item.id),style=item.id?.startsWith('rift-')?rules.collectionAppearance[item.setId]:null;
