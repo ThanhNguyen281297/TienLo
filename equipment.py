@@ -182,7 +182,7 @@ def action(db, owner, body):
         if not shield or player['hp']<=0:raise ValueError('Cần trang bị hộ thuẫn và còn sống.')
         state=shield_state(db,owner,player);now=time.time()
         if now<state['readyAt']:raise ValueError('Hộ thuẫn chưa hồi chiêu.')
-        db.execute('INSERT INTO shield_cooldowns VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,active_until=excluded.active_until,source_uid=excluded.source_uid',(owner,now+180,now+60,shield['uid']))
+        db.execute('INSERT INTO shield_cooldowns VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,active_until=excluded.active_until,source_uid=excluded.source_uid',(owner,now+RULES['shield']['cooldown'],now+RULES['shield']['duration'],shield['uid']))
         return {'shield':shield_state(db,owner,player)}
     if op!='reforge':raise ValueError('Thao tác không hợp lệ.')
     opid=body.get('opId')

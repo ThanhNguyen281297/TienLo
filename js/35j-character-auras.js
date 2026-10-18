@@ -13,7 +13,7 @@
  ];
  function load(src){
   if(cache.has(src))return cache.get(src);const entry={src,ready:false};cache.set(src,entry);const image=new Image();image.src=artworkURL(src);
-  image.onload=()=>{const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*image.naturalHeight/image.naturalWidth);const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(image,0,0,c.width,c.height);entry.canvas=c;
+  image.onload=()=>{const c=document.createElement('canvas');c.width=src.startsWith('Item/CanhGioi/')?1024:512;c.height=Math.round(c.width*image.naturalHeight/image.naturalWidth);const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(image,0,0,c.width,c.height);entry.canvas=c;
    const trail=equipmentRules.trails.find(t=>t.art===src);if(trail){const r=styles[trail.variant-1].rect,part=document.createElement('canvas');part.width=256;part.height=160;const g=part.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(image,...r,0,0,256,160);g.globalCompositeOperation='destination-in';g.save();g.translate(128,80);g.scale(1,.625);const mask=g.createRadialGradient(0,0,35,0,0,128);mask.addColorStop(0,'#fff');mask.addColorStop(.55,'#fffd');mask.addColorStop(1,'#fff0');g.fillStyle=mask;g.fillRect(-128,-128,256,256);g.restore();entry.material=part;}
    entry.shine=document.createElement('canvas');entry.shine.width=c.width;entry.shine.height=c.height;entry.frame=-1;entry.ready=true;
   };image.onerror=()=>{entry.failed=true;};return entry;
@@ -72,8 +72,10 @@
  function realmSize(meta){const w=83+(meta.realm-3)*2.5;return{w,h:w*.86};}
  function drawRealm(ctx,x,y,meta,front=false){
   if(!meta)return;const entry=load(meta.art);if(!entry.ready)return;const t=reduced.matches?0:clock(),{w,h}=realmSize(meta),left=x-w/2,top=y-h*.87;
-  ctx.save();if(front){ctx.beginPath();ctx.rect(x-w/2,y-3,w,h*.2);ctx.clip();}
-  ctx.globalAlpha=front?.22:.34;ctx.drawImage(entry.canvas,left,top,w,h);ctx.globalCompositeOperation='screen';ctx.globalAlpha=front?.32:.42;ctx.drawImage(shine(entry,t),left,top,w,h);
+  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';if(front){ctx.beginPath();ctx.rect(x-w/2,y-3,w,h*.2);ctx.clip();}
+  // Keep the original color/detail opaque enough to read; light passes over the
+  // source silhouette instead of bleaching the whole aura with additive bloom.
+  ctx.globalAlpha=front?.46:.84;ctx.drawImage(entry.canvas,left,top,w,h);ctx.globalCompositeOperation='screen';ctx.globalAlpha=front?.4:.55;ctx.drawImage(shine(entry,t),left,top,w,h);
   if(!front){for(let n=0;n<9;n++){const p=(t*.14+n*.618)%1,a=n*2.4+t*.2;ctx.globalAlpha=Math.sin(p*Math.PI)*.56;ctx.fillStyle=meta.realm>=10?'#ffe6ac':'#bceaff';ctx.beginPath();ctx.arc(x+Math.cos(a)*w*(.2+p*.18),y-p*h*.82,.45+(1-p)*.35,0,TAU);ctx.fill();}}
   ctx.restore();
  }

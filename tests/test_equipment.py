@@ -179,17 +179,24 @@ class EquipmentTest(unittest.TestCase):
         equipment.normalize(self.player,server.collection_item);self.player['world']['equip']['ngoc']=self.make('shield-1');self.insert()
         with patch.object(equipment.time,'time',return_value=1000),server.connect() as db:
             state=equipment.action(db,1,dict(action='shield',revision=1))['shield']
-            self.assertEqual((state['activeUntil'],state['readyAt']),(1060,1180))
+            self.assertEqual((state['activeUntil'],state['readyAt']),(1020,1090))
             with self.assertRaises(ValueError):equipment.action(db,1,dict(action='shield',revision=1))
         server.init_db()
-        with patch.object(equipment.time,'time',return_value=1030),server.connect() as db:
-            self.assertEqual(equipment.shield_state(db,1,self.player)['activeUntil'],1060)
+        with patch.object(equipment.time,'time',return_value=1010),server.connect() as db:
+            self.assertEqual(equipment.shield_state(db,1,self.player)['activeUntil'],1020)
             other=copy.deepcopy(self.player);other['world']['equip']['ngoc']=self.make('shield-2')
             self.assertEqual(equipment.shield_state(db,1,other)['activeUntil'],0)
-            self.assertEqual(equipment.shield_state(db,1,other)['readyAt'],1180)
+            self.assertEqual(equipment.shield_state(db,1,other)['readyAt'],1090)
+        with patch.object(equipment.time,'time',return_value=1020),server.connect() as db:
+            self.assertEqual(equipment.shield_state(db,1,self.player)['activeUntil'],0)
+            with self.assertRaises(ValueError):equipment.action(db,1,dict(action='shield',revision=1))
+        with patch.object(equipment.time,'time',return_value=1089.99),server.connect() as db:
+            with self.assertRaises(ValueError):equipment.action(db,1,dict(action='shield',revision=1))
+        with patch.object(equipment.time,'time',return_value=1090),server.connect() as db:
+            state=equipment.action(db,1,dict(action='shield',revision=1))['shield']
+            self.assertEqual((state['activeUntil'],state['readyAt']),(1110,1180))
             equipment.action(db,1,dict(action='shield_end'))
             self.assertEqual(equipment.shield_state(db,1,self.player)['activeUntil'],0)
-        with patch.object(equipment.time,'time',return_value=1180),server.connect() as db:
-            self.assertEqual(equipment.action(db,1,dict(action='shield',revision=1))['shield']['readyAt'],1360)
+            self.assertEqual(equipment.shield_state(db,1,self.player)['readyAt'],1180)
 
 if __name__=='__main__':unittest.main()

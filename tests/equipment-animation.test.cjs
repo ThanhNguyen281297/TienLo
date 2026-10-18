@@ -23,7 +23,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     backs.push(m.variant);
    }
    for(let n=0;n<7;n++){
-    const frames=[];for(let j=0;j<20;j++){ctx.clearRect(0,0,300,300);for(const front of [false,true])equipmentMotion.drawBuff(ctx,motionArt.buffs[n],150,180,n+1,front,j/60+.5,58);frames.push(hash().hash);}
+    const frames=[];for(let j=0;j<20;j++){ctx.clearRect(0,0,300,300);for(const front of [false,true])equipmentMotion.drawBuff(ctx,motionArt.buffs[n],150,180,n+1,front,j/60+.5,18);frames.push(hash().hash);}
     if(new Set(frames).size<19)throw Error('Static shield '+n);
    }
    ctx.clearRect(0,0,300,300);equipmentMotion.drawBuff(ctx,motionArt.buffs[0],150,180,1,false,1,0);if(hash().ink)throw Error('Expired buff still visible');
@@ -33,7 +33,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     const g=proof.getContext('2d');g.fillStyle='#26353e';g.fillRect(0,0,1200,900);tm=t;
     const backIds=equipmentRules.backs.map(i=>i.id);
     for(let row=0;row<4;row++)for(let sect=0;sect<4;sect++){
-     const index=row*4+sect,dir=row%2?0:1,gender=row<2?'Nam':'Nu',ap={w:sect,gender,backId:backIds[index%12],weaponId:'test-weapon',shieldId:'shield-'+(index%7+1),shieldState:{activeUntil:Date.now()/1000+58,buff:index%7+1}};
+     const index=row*4+sect,dir=row%2?0:1,gender=row<2?'Nam':'Nu',ap={w:sect,gender,backId:backIds[index%12],weaponId:'test-weapon',shieldId:'shield-'+(index%7+1),shieldState:{activeUntil:Date.now()/1000+18,buff:index%7+1}};
      g.save();g.translate(150+sect*300,180+row*220);g.scale(2.4,2.4);drawChar(g,0,0,dir,1,false,0,false,ap);g.restore();
      g.font='14px Arial';g.textAlign='center';g.fillStyle='#d6e5e8';g.fillText(['Kiếm','Liềm','Thương','Quạt'][sect]+' · '+gender+' · '+(dir?'sau':'trước'),150+sect*300,210+row*220);
     }

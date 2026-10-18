@@ -18,7 +18,7 @@ Nhân vật mới không có đồ, thuốc hay trứng trong túi và không m�
 
 Pháp bảo và hộ thuẫn luôn có năm dòng khác loại. Đồ mới có năm dòng tối thiểu; tẩy luyện tiêu 60 Linh Thạch và 12 Linh Nguyên, server chọn lại cả năm dòng. Số phần trăm trong JSON là basis point: `100` = 1%. Dòng cố định dùng số nguyên, riêng hồi sinh lực chia 100 HP/giây. Dòng tẩy luyện không nhân theo cường hóa. Tổng né giới hạn 20%, bạo kích 35%, kháng sát thương 15%.
 
-Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25) trong 60 giây, hồi 180 giây từ khi dùng. Hồi chiêu lưu SQLite; tải lại, đổi thuẫn hay khởi động lại service không xóa hồi. Chết sẽ mất buff, vẫn giữ hồi chiêu. Hút máu/linh lực tính trên sát thương thực tế, không trên phần sát thương vượt HP quái hay lượt phát lại phần thưởng.
+Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25) trong 20 giây, hồi 90 giây từ khi dùng. Hồi chiêu lưu SQLite; tải lại, đổi thuẫn hay khởi động lại service không xóa hồi. Chết sẽ mất buff, vẫn giữ hồi chiêu. Hút máu/linh lực tính trên sát thương thực tế, không trên phần sát thương vượt HP quái hay lượt phát lại phần thưởng.
 
 `js/12b-equipment-motion.js` giữ điểm đeo pháp bảo ở giữa lưng, với điểm neo riêng cho 12 ảnh. Phần ngoài uốn nhẹ và ánh sáng quét theo alpha ảnh; khi quay lưng vẫn chừa đầu nhân vật. Buff thuẫn chia lớp sau/trước, có dải năng lượng chuyển động trên mặt cầu và hiệu ứng mở/tan theo thời hạn server. Ảnh gốc được giữ nguyên; bản render thu nhỏ được cache. Chế độ giảm chuyển động tắt chuyển động trang trí.
 
