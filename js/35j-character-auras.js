@@ -13,7 +13,7 @@
  ];
  function load(src){
   if(cache.has(src))return cache.get(src);const entry={src,ready:false};cache.set(src,entry);const image=new Image();image.src=artworkURL(src);
-  image.onload=()=>{const c=document.createElement('canvas');c.width=src.startsWith('Item/CanhGioi/')?1024:512;c.height=Math.round(c.width*image.naturalHeight/image.naturalWidth);const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(image,0,0,c.width,c.height);entry.canvas=c;
+  image.onload=()=>{const c=document.createElement('canvas');c.width=/^Item\/(?:CanhGioi|DHCanhGioi)\//.test(src)?1024:512;c.height=Math.round(c.width*image.naturalHeight/image.naturalWidth);const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(image,0,0,c.width,c.height);entry.canvas=c;
    const trail=equipmentRules.trails.find(t=>t.art===src);if(trail){const r=styles[trail.variant-1].rect,part=document.createElement('canvas');part.width=256;part.height=160;const g=part.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(image,...r,0,0,256,160);g.globalCompositeOperation='destination-in';g.save();g.translate(128,80);g.scale(1,.625);const mask=g.createRadialGradient(0,0,35,0,0,128);mask.addColorStop(0,'#fff');mask.addColorStop(.55,'#fffd');mask.addColorStop(1,'#fff0');g.fillStyle=mask;g.fillRect(-128,-128,256,256);g.restore();entry.material=part;}
    entry.shine=document.createElement('canvas');entry.shine.width=c.width;entry.shine.height=c.height;entry.frame=-1;entry.ready=true;
   };image.onerror=()=>{entry.failed=true;};return entry;
@@ -86,5 +86,5 @@
  };
  const height=characterNameHeight;characterNameHeight=ap=>Math.max(height(ap),realmFor(ap)?Math.ceil(realmSize(realmFor(ap)).h*.87+8):0);
  const respawn=classCombat.onRespawn;classCombat.onRespawn=function(...args){reset();return respawn(...args);};
- window.characterAuras={steps,styles,load,trailFor,realmFor,renderStep,drawRealm,walk,reset,MAX_STEPS,hasTrail:()=>!!trailFor()};
+ window.characterAuras={steps,styles,load,trailFor,realmFor,renderStep,drawRealm,walk,reset,MAX_STEPS,bodyNameHeight:height,hasTrail:()=>!!trailFor()};
 })();

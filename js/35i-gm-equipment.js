@@ -1,11 +1,22 @@
 /* Explicit GM sandbox: inspect every current template and equip matching items. */
 (function(){
- const d=worldMap.dialog,button=document.createElement('button');button.id='gm-equipment-button';button.textContent='GM · Kho trang bị';button.hidden=true;button.onclick=()=>open();$('bt').append(button);
+ const d=worldMap.dialog,button=document.createElement('button');button.id='gm-equipment-button';button.textContent='GM · Công cụ';button.hidden=true;button.onclick=()=>open();$('bt').append(button);
  function take(id,wear=false){if(!gmTest.enabled)return msg('Bật GM để dùng kho trang bị.');const template=inventory.templates.find(t=>t.id===id);if(!template)return;
   if(wear&&equipmentRules.classSlots.includes(template.slot)&&template.classIndex!==P.ap.w)return msg('Chỉ mặc trang bị bên trái đúng class.');
   const item=inventory.addItem(id);if(!item)return;const equipped=!!(wear&&item.slot);if(equipped)inventory.equipItem(item.uid);else msg('GM: đã lấy '+item.name+'.');return item;
  }
- function open(){if(!gmTest.enabled||!P.ap||paused())return;d.show('GM · Kho trang bị','Lấy đồ miễn phí để thử. Mặc thử bỏ qua yêu cầu cấp; 4 ô bên trái vẫn phải đúng class.');const ui=visualUI,root=$('world-content'),tools=ui.node('div','gm-catalog-tools');root.append(tools);
+ function setRealm(realm,stage=1){if(!gmTest.enabled||!P.ap||!Number.isInteger(realm)||realm<0||realm>=R.length||!Number.isInteger(stage)||stage<1||stage>10)return false;
+  P.r=realm;P.stage=stage;const p=worldMap.progress(),training=p.trainingRealm||0;p.trainingRealm=Math.min(training,realm);
+  if(training!==p.trainingRealm&&worldMap.isSectMap(worldMap.state.scene)){E=[];for(let i=0;i<(worldMap.farmPopulation?.()||24);i++)worldMap.generateFarm(i);}
+  P.hp=mhp();P.mp=mmp();cultivation.refresh();saveCharacter();msg('GM: '+cultivation.realmName());return true;
+ }
+ function realmControls(root){const ui=visualUI,form=ui.node('form','gm-realm-controls');form.id='gm-realm-form';form.append(ui.node('h3','','GM · Cảnh giới'));
+  const fields=ui.node('div','gm-catalog-tools'),realmLabel=ui.node('label','','Cảnh giới'),realm=ui.node('select',''),stageLabel=ui.node('label','','Tầng'),stage=ui.node('select','');realm.id='gm-realm';stage.id='gm-stage';realm.setAttribute('aria-label','Cảnh giới GM');stage.setAttribute('aria-label','Tầng GM');
+  R.forEach((name,i)=>{const option=ui.node('option','',name);option.value=i;realm.append(option);});for(let i=1;i<=10;i++){const option=ui.node('option','',String(i));option.value=i;stage.append(option);}realm.value=P.r;stage.value=P.stage||1;realmLabel.append(realm);stageLabel.append(stage);fields.append(realmLabel,stageLabel);form.append(fields);
+  const status=ui.node('output','','Hiện tại: '+cultivation.realmName()),apply=ui.node('button','visual-action','Đặt cảnh giới');status.id='gm-realm-status';apply.id='gm-set-realm';apply.type='submit';form.append(apply,status,ui.node('p','visual-note','Đổi thẳng cảnh giới và tầng để test. Giữ nguyên level, EXP và điểm thuộc tính; không tốn nguyên liệu.'));
+  form.onsubmit=event=>{event.preventDefault();if(setRealm(Number(realm.value),Number(stage.value)))status.textContent='Đã đặt: '+cultivation.realmName();};root.append(form);
+ }
+ function open(){if(!gmTest.enabled||!P.ap||paused())return;d.show('GM · Công cụ','Chọn cảnh giới hoặc lấy đồ miễn phí để thử. Mặc thử bỏ qua yêu cầu cấp; 4 ô bên trái vẫn phải đúng class.');const ui=visualUI,root=$('world-content');realmControls(root);const tools=ui.node('div','gm-catalog-tools');root.append(tools);
   const search=ui.node('input','');search.type='search';search.placeholder='Tìm tên trang bị…';search.setAttribute('aria-label','Tìm trang bị GM');tools.append(search);
   const slots=ui.node('select','');slots.setAttribute('aria-label','Lọc ô trang bị GM');for(const [value,label]of [['all','Tất cả'],...Object.entries(equipmentRules.slots),['other','Đan dược và trứng']]){const o=ui.node('option','',label);o.value=value;slots.append(o);}tools.append(slots);
   const classes=ui.node('select','');classes.setAttribute('aria-label','Lọc class GM');for(const [value,label]of [['all','Mọi class'],['own','Class của bạn'],['shared','Dùng chung'],...equipmentRules.classes.map((n,i)=>[String(i),n])]){const o=ui.node('option','',label);o.value=value;classes.append(o);}tools.append(classes);
@@ -13,6 +24,6 @@
   function render(){const query=search.value.trim().toLocaleLowerCase('vi'),list=inventory.templates.filter(t=>(!query||t.name.toLocaleLowerCase('vi').includes(query))&&(slots.value==='all'||(slots.value==='other'?!t.slot:t.slot===slots.value))&&(classes.value==='all'||(classes.value==='shared'?!equipmentRules.classSlots.includes(t.slot):t.classIndex===(classes.value==='own'?P.ap.w:Number(classes.value))&&equipmentRules.classSlots.includes(t.slot))));count.textContent=list.length+' / '+inventory.templates.length+' vật phẩm';grid.replaceChildren();for(const item of list){const {card,body}=ui.panel(item.name,inventory.itemIcon(item),grid);card.dataset.gmItem=item.id;const locked=equipmentRules.classSlots.includes(item.slot),wrong=locked&&item.classIndex!==P.ap.w;const requirement=ui.node('p','item-class-requirement',locked?'Class yêu cầu: '+equipmentRules.classes[item.classIndex]:'Class yêu cầu: Dùng chung');requirement.style.color=wrong?'#ffaca0':'#9de0bd';body.append(requirement);ui.chips([['Cấp',item.req||0],['Ô',equipmentRules.slots[item.slot]||'Vật phẩm']],body);ui.action(body,'Lấy vào túi',()=>take(item.id));if(item.slot)ui.action(body,'Mặc thử',()=>take(item.id,true),wrong);}}
   search.oninput=slots.onchange=classes.onchange=render;render();
  }
- addEventListener('tienlo-gm-change',()=>{button.hidden=!gmTest.enabled;if(gmTest.enabled)open();else if($('world-title').textContent==='GM · Kho trang bị')d.close();});
- window.gmEquipment={open,take};
+ addEventListener('tienlo-gm-change',()=>{button.hidden=!gmTest.enabled;if(gmTest.enabled)open();else if($('world-title').textContent==='GM · Công cụ')d.close();});
+ window.gmEquipment={open,take,setRealm};
 })();

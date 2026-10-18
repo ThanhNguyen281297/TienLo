@@ -5,7 +5,7 @@
   window.gmTest={enabled:false};
   const button=document.createElement('button');button.id='gm-skills';
   button.type='button';button.textContent='GM · Test skill';button.setAttribute('aria-pressed','false');
-  button.title='Bật/tắt thử 4 kỹ năng, hồi linh lực và xóa hồi chiêu. Tăng tầng, đột phá và cường hóa miễn phí; không tự thay đổi cảnh giới hoặc kỹ năng đã học.';
+  button.title='Bật/tắt thử 4 kỹ năng, hồi linh lực và xóa hồi chiêu. Mở GM Công cụ để đặt cảnh giới/tầng hoặc lấy trang bị. Tăng tầng, đột phá và cường hóa miễn phí.';
   $('bt').appendChild(button);
   button.onclick=()=>{
     if(!P.ap)return;

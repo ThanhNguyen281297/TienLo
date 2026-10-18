@@ -2,13 +2,14 @@
 const DEF={w:0,gender:'Nam'},AP=()=>P.ap||DEF;
 let drawChar;
 let hx=0,hy=0;
-human=function(){if(P.med)return sit();orbit();const dx=P.x-hx,dy=P.y-hy;hx=P.x;hy=P.y;
+const drawPlayerName=()=>drawWorldCaption(g,P.nm||'Đạo hữu',P.x,P.y+14,'#f6ddaa',6.5);
+human=function(){if(P.med){sit();drawPlayerName();return;}orbit();const dx=P.x-hx,dy=P.y-hy;hx=P.x;hy=P.y;
  if(P.sl>0){const e=near(80);if(e){const ex=e.x-P.x,ey=e.y-P.y;if(Math.abs(ex)>Math.abs(ey)){P.dir=2;P.f=ex<0?-1:1}else P.dir=ey>0?0:1}}
  else if(dx||dy){if(Math.abs(dx)>Math.abs(dy)){P.dir=2;P.f=dx<0?-1:1}else P.dir=dy>0?0:1}
  const c=RC[P.r],d=P.dir||0;glow(P.x,P.y-8,34,c,.25);sh(P.x,P.y+1,8,3,.3);
  drawChar(g,P.x,P.y,d,P.f,P.mv,tm*10,P.sl>0,AP(),c);
  if(P.sl>0&&!window.basicCombat?.poseActive()){const vx=d==2?P.f:0,vy=d==0?1:d==1?-1:0,an=Math.atan2(vy,vx);g.save();g.globalCompositeOperation='lighter';g.strokeStyle='#bff';g.lineWidth=3;g.beginPath();g.arc(P.x+vx*10,P.y-10+vy*10,18,an-1,an+1);g.stroke();g.restore()}
- const nt=(P.nm||'Đạo hữu')+' · '+(window.cultivation?.realmName()||R[P.r]);drawWorldLabel(g,nt,P.x,P.y-(window.characterNameHeight?.(AP())||48),'#f6ddaa',8.5)};
+ drawPlayerName()};
 const _up=up;up=function(dt){if(cr.style.display!='none')return;_up(dt)};
 const OPT=[];
 const st2=document.createElement('style');st2.textContent='#cr{position:fixed;inset:0;z-index:9;background:rgba(23,19,16,.94);display:flex;align-items:center;justify-content:center;padding:12px}#cr .pn{width:min(340px,100%);background:#241d16;border:1px solid #8a6d3b;padding:16px;text-align:center;max-height:100%;overflow:auto}#cr h2{margin:0 0 8px;color:#d9a441;font-size:20px}#pv{width:160px;height:160px;border:1px solid #5a4a36;image-rendering:pixelated;background:#cfc3a1}.rw{display:flex;align-items:center;justify-content:space-between;margin:6px 0;font-size:14px}.rw span{flex:1}.rw button{padding:4px 12px;min-height:34px}#nm{width:100%;box-sizing:border-box;margin:10px 0;padding:10px;font:inherit;background:#171310;color:#e8dcc0;border:1px solid #5a4a36}#ok{width:100%}';document.head.appendChild(st2);

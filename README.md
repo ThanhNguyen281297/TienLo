@@ -53,6 +53,8 @@ Cấp nhân vật (1–200) và tu vi tách riêng. Đánh quái/nhận thưởn
 
 Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới bắt đầu với túi và chín ô trang bị trống. Bật GM mở kho 100 vật phẩm để lấy/mặc thử; bốn ô trái cần đúng class, bốn ô phải dùng chung. Chỉ bốn ô trái cường hóa +15. Bí cảnh chỉ thưởng Linh Thạch; bộ trang bị và các loại mảnh đã được gỡ.
 
+Tên nhân vật hiển thị nhỏ (6,5 px trong thế giới) dưới chân, chỉ giữ đạo hiệu. 14 ảnh `Item/DHCanhGioi` làm danh hiệu phía trên đầu theo tu vi Luyện Khí–Đạo Tổ, cho cả nhân vật của bạn và người chơi khác; Phàm Nhân chưa có ảnh danh hiệu. Trong **Khác → GM → GM Công cụ**, chọn cảnh giới và tầng 1–10 rồi **Đặt cảnh giới**; giữ level, EXP, điểm thuộc tính, trang bị và nguyên liệu. Tắt GM khóa chức năng này. Kiểm tra bằng `node tests/realm-titles.test.cjs`.
+
 Ô Hiệu ứng chân nằm giữa giày và pháp trận, dùng chung cho bốn class. Sáu món Bộ Bộ Sinh Liên, Ngự Phong, Lôi Hành, Băng Liên, Hỏa Phượng, Tinh Hà có trong kho GM/cửa hàng; dấu bước sinh theo quãng đường, tự tan và không xuất hiện khi đứng yên hoặc truyền tống. Từ Kim Đan đến Đạo Tổ tự hiện hào quang đúng tu vi, có ánh quét/hạt chuyển động và lớp dưới chân; level không mở hào quang. Người chơi khác nhìn thấy món đang mặc và cảnh giới đã lưu. Kiểm tra bằng `node tests/character-auras.test.cjs`; clip tại `tests/artifacts/character-auras-preview.webm`.
 
 Túi có icon, màu phẩm chất, preview nhân vật, sắp xếp và panel chi tiết. Vũ khí phát sáng mạnh hơn theo phẩm chất; skill/hit có vòng sáng và hạt theo phái. Giữ sprite/asset nguồn và phối cảnh bản đồ. Xem [GAMEPLAY.md](GAMEPLAY.md).

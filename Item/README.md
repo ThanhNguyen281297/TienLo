@@ -29,6 +29,10 @@ Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25)
 - `js/35j-character-auras.js`: cánh sen nở, mây tách lớp, điện tím, băng kết tinh, lông phượng/tàn lửa, sao xuất hiện và tan. Chỉ nạp ảnh đang dùng, cache bản render, tối đa 72 dấu bước; không vẽ thêm dấu khi đứng yên/truyền tống. Hào quang nằm sau nhân vật, chỉ viền chân ở lớp trước. Người chơi từ xa dùng trang bị/cảnh giới server đã lưu.
 - Catalog version 5 chỉ thêm ô mới và đổi art hộ thối khi nâng từ version 4; giữ UID, chỉ số, dòng tẩy luyện và cường hóa. Không chuyển đổi mảnh/tiền lần nữa.
 
+## Danh hiệu cảnh giới
+
+`DHCanhGioi/` giữ 14 ảnh PNG alpha người dùng cung cấp (tỷ lệ 3:1), tương ứng `r=1..14` từ Luyện Khí đến Đạo Tổ; tên file `kimtien.png` đúng cho Kim Tiên. Danh sách `realmTitles` trong catalog dùng chung tên đường dẫn phân biệt hoa/thường. `js/35k-character-titles.js` nạp theo cảnh giới đang thấy, cache ảnh 1024px và vẽ đúng tỷ lệ trên đầu; preview túi giữ chỗ cho trang bị, không chèn danh hiệu. Tên đạo hữu dùng chữ nhỏ dưới chân ở cả tư thế thường/đả tọa và người chơi online.
+
 ## Di chuyển dữ liệu
 
 `equipment.py` chuyển bản lưu cũ sang trang bị độc lập, giữ UID, đồ sở hữu, dòng tẩy luyện và cấp cường hóa đã lưu. Cường hóa cũ của đồ phải không còn tác dụng. Mảnh bí cảnh đổi 20 Linh Thạch/mảnh; mảnh Thăng Vị đổi 1 Linh Thạch/mảnh. Món bí cảnh chờ nhận được chuyển vào túi, hoặc hoàn Linh Thạch nếu túi đầy. JSON gốc được giữ trong bảng backup và bản sao DB trước deploy. Không còn tính năng bộ đồ hoặc đổi mảnh. Bí cảnh chỉ thưởng Linh Thạch.

@@ -38,6 +38,8 @@ class EquipmentTest(unittest.TestCase):
         self.assertEqual(len(equipment.RULES['trails']),6)
         self.assertEqual([r['realm'] for r in equipment.RULES['realmEffects']],list(range(3,15)))
         for aura in equipment.RULES['realmEffects']:self.assertIn(aura['art'],exact)
+        self.assertEqual([t['realm'] for t in equipment.RULES['realmTitles']],list(range(1,15)))
+        for title in equipment.RULES['realmTitles']:self.assertIn(title['art'],exact)
 
     def test_v4_adds_empty_cosmetic_slot_preserving_items_and_rolls(self):
         equipment.normalize(self.player)

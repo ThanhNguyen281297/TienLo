@@ -1604,5 +1604,63 @@
       "realm": 14,
       "art": "Item/CanhGioi/daoto.png"
     }
+  ],
+  "realmTitles": [
+    {
+      "realm": 1,
+      "art": "Item/DHCanhGioi/luyenkhi.png"
+    },
+    {
+      "realm": 2,
+      "art": "Item/DHCanhGioi/trucco.png"
+    },
+    {
+      "realm": 3,
+      "art": "Item/DHCanhGioi/kimdan.png"
+    },
+    {
+      "realm": 4,
+      "art": "Item/DHCanhGioi/nguyenanh.png"
+    },
+    {
+      "realm": 5,
+      "art": "Item/DHCanhGioi/hoathan.png"
+    },
+    {
+      "realm": 6,
+      "art": "Item/DHCanhGioi/luyenhu.png"
+    },
+    {
+      "realm": 7,
+      "art": "Item/DHCanhGioi/hopthe.png"
+    },
+    {
+      "realm": 8,
+      "art": "Item/DHCanhGioi/daithua.png"
+    },
+    {
+      "realm": 9,
+      "art": "Item/DHCanhGioi/dokiep.png"
+    },
+    {
+      "realm": 10,
+      "art": "Item/DHCanhGioi/chantien.png"
+    },
+    {
+      "realm": 11,
+      "art": "Item/DHCanhGioi/kimtien.png"
+    },
+    {
+      "realm": 12,
+      "art": "Item/DHCanhGioi/thaiat.png"
+    },
+    {
+      "realm": 13,
+      "art": "Item/DHCanhGioi/daila.png"
+    },
+    {
+      "realm": 14,
+      "art": "Item/DHCanhGioi/daoto.png"
+    }
   ]
 }
