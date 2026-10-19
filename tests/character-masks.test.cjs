@@ -65,6 +65,26 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     return cases;
    });assert.equal(audit,320);
   }
+  const nativeAudit=await proofPage.evaluate(async()=>{
+   let protectedPixels=0,cases=0;
+   for(const gender of ['Nam','Nu'])for(let w=0;w<4;w++)for(const direction of ['truoc','trai','phai']){
+    const image=new Image();image.src='Character/'+characterClasses[w].folder+'/'+gender+'/'+direction+'.png';await image.decode();
+    for(const variant of [4,8]){
+     const head=characterMasks.headFor({w,gender,maskId:'mask-'+gender.toLowerCase()+'-'+variant},direction,image);
+     const ref=document.createElement('canvas');ref.width=head.width;ref.height=head.height;const ctx=ref.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,head.px,head.py,head.width,head.height,0,0,head.width,head.height);
+     const a=ctx.getImageData(0,0,head.width,head.height).data,b=head.canvas.getContext('2d').getImageData(0,0,head.width,head.height).data,m=head.skinMask.getContext('2d').getImageData(0,0,head.width,head.height).data;
+     for(let i=0;i<a.length;i+=4){
+      if(!a[i+3]&&b[i+3])throw Error('New silhouette outside native head '+gender+' '+w+' '+direction);
+      const red=gender==='Nu'&&a[i]>=190&&a[i]>=a[i+1]*1.65&&a[i]>=a[i+2]*1.45;
+      if(m[i+3]||red)continue;
+      if((a[i+3]>32&&a[i+3]!==b[i+3])||[0,1,2].some(c=>Math.abs(a[i+c]*a[i+3]-b[i+c]*b[i+3])/255>3))throw Error('Changed hair/head accessory '+gender+' '+w+' '+direction+' '+JSON.stringify({a:Array.from(a.slice(i,i+4)),b:Array.from(b.slice(i,i+4))}));
+      protectedPixels++;
+     }
+     cases++;
+    }
+   }
+   return{cases,protectedPixels,cache:characterMasks.cacheSize,limit:characterMasks.headLimit};
+  });assert.equal(nativeAudit.cases,48);assert(nativeAudit.protectedPixels>100000);assert(nativeAudit.cache<=nativeAudit.limit);
   await proofPage.setViewportSize({width:1600,height:1290});
   await proofPage.evaluate(()=>{
    const c=document.createElement('canvas');c.id='mask-proof';c.width=1600;c.height=1290;c.style.cssText='position:fixed;inset:0;width:1600px;height:1290px;z-index:99999';document.body.append(c);const ctx=c.getContext('2d');ctx.fillStyle='#273e47';ctx.fillRect(0,0,c.width,c.height);
@@ -73,6 +93,17 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     ctx.save();ctx.translate(x,y);ctx.scale(4,4);drawChar(ctx,0,0,row===2||row===3?2:row===4?1:0,row===2?-1:1,false,0,false,ap);ctx.restore();ctx.fillStyle='#e9d9ac';ctx.font='13px Arial';ctx.textAlign='center';ctx.fillText(characterClasses[w].name+' · '+gender,x,y+20);ctx.fillText(['Mặt gốc','Mặt nạ 8 · trước','Mặt nạ 8 · trái','Mặt nạ 4 · phải','Quay lưng'][row],x,y+39);
    }
   });await proofPage.screenshot({path:path.join(__dirname,'artifacts/masks-all-classes.png')});
-  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 20 masks, 320 class/gender/direction renders, unchanged outfits/rear views, HUD wear/remove, gender validation, GM, drag/drop, DB restore and phone HUD');
+  await proofPage.evaluate(async()=>{
+   $('mask-proof').remove();const c=document.createElement('canvas');c.id='face-proof';c.width=1600;c.height=1080;c.style.cssText='position:fixed;inset:0;width:1600px;height:1080px;z-index:99999';document.body.append(c);const ctx=c.getContext('2d');ctx.fillStyle='#3c4c55';ctx.fillRect(0,0,1600,1080);
+   for(const [row,gender]of ['Nam','Nu'].entries()){
+    const image=new Image();image.src='Character/Kiem/'+gender+'/truoc.png';await image.decode();
+    for(const [col,variant]of [1,2,3,4,8].entries()){
+     const ap={w:0,gender,maskId:'mask-'+gender.toLowerCase()+'-'+variant},h=characterMasks.headFor(ap,'truoc',image),x=col*320,y=row*530;
+     const w=300,hh=w*h.height/h.width;ctx.drawImage(image,h.px,h.py,h.width,h.height,x+10,y,w,hh);ctx.drawImage(h.canvas,x+10,y+260,w,hh);
+     ctx.fillStyle='white';ctx.font='15px Arial';ctx.fillText(gender+' '+variant+' · trên: gốc / dưới: đổi biểu cảm',x+10,y+520);
+    }
+   }
+  });await proofPage.screenshot({path:path.join(__dirname,'artifacts/masks-face-details.png')});
+  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 20 native expressions, 320 poses, 48 pixel audits preserve native hair/head silhouette, bounded cache, original outfits/rear views, matching HUD portraits, equip/remove, gender, GM, drag/drop, DB restore and phone HUD');
  }finally{if(browser)await browser.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
