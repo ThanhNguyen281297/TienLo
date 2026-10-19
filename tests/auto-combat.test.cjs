@@ -9,7 +9,7 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    window.autoStep=seconds=>{for(let n=0;n<Math.ceil(seconds/.01);n++){tm+=.01;up(.01);}};
    window.autoReset=(sect,learned=true)=>{
     autoCombat.toggle(false);classCombat.onRespawn();basicCombat.reset();worldMap.dialog.close();gmTest.enabled=false;K={};ptr=null;mobileInput.active=false;
-    P.ap.w=sect;Object.assign(P,{x:1000,y:1100,r:3,stage:1,hp:99999,mp:9999,acd:0,med:0,sl:0});lr=3;P.world.learnedSkills=[learned,learned,learned,learned];P.world.skillLevels=[0,0,0,0];P.world.tutorial=true;
+    P.ap.w=sect;Object.assign(P,{x:1000,y:1100,r:3,level:learned?40:1,stage:1,hp:99999,mp:9999,acd:0,med:0,sl:0});lr=3;P.world.learnedSkills=[learned,learned,learned,learned];P.world.skillLevels=[0,0,0,0];P.world.tutorial=true;
     E=[{id:'training',t:0,x:1180,y:1100,hx:1180,hy:1100,hp:999999,maxHp:999999,dead:0,cd:99999,fr:0}];T.forEach(t=>t.sp=0);
     window.autoCasts=[];window.autoBasic=0;
    };
@@ -17,8 +17,8 @@ const {chromium}=require(path.join(require('node:os').homedir(),'.cache/codex-ru
    const attack=basicCombat.attack;basicCombat.attack=e=>{const accepted=attack(e);if(accepted)autoBasic++;return accepted;};
   });
   for(let sect=0;sect<4;sect++){
-   const result=await page.evaluate(sect=>{autoReset(sect);autoCombat.toggle(true);autoStep(65);autoCombat.toggle(false);return{casts:autoCasts,basic:autoBasic,expected:combatBalance.cooldowns(sect)};},sect);
-   assert.deepEqual([...new Set(result.casts.map(c=>c.index))].sort(),[0,1,2,3],'Auto must use every skill for class '+sect);assert(result.basic>10,'Auto must keep using normal attacks');
+   const result=await page.evaluate(sect=>{autoReset(sect);autoCombat.toggle(true);autoStep(65);autoCombat.toggle(false);return{guide:skillAim.state.visible,casts:autoCasts,basic:autoBasic,expected:combatBalance.cooldowns(sect)};},sect);
+   assert.equal(result.guide,false,'Auto must not show manual aiming guides');assert.deepEqual([...new Set(result.casts.map(c=>c.index))].sort(),[0,1,2,3],'Auto must use every skill for class '+sect);assert(result.basic>10,'Auto must keep using normal attacks');
    for(const c of result.casts)assert(Math.abs(c.cd-result.expected[c.index])<.01,'Actual cast uses configured cooldown');
    for(let n=1;n<result.casts.length;n++)assert(result.casts[n].time-result.casts[n-1].time>=.84,'No skill burst spam');
    console.log('PASS class '+sect+' all five attacks, '+result.basic+' normal attacks, '+result.casts.length+' skill casts, cooldowns '+result.expected);

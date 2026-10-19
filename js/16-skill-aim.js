@@ -6,7 +6,7 @@
   window.getClassCombatSafe=combat;
   const range=index=>index===1?(P.ap?.w===1?185:180):index===3?(P.ap?.w===1?320:340):(P.ap?.w===1?240:280);
   const camera=()=>gameCamera();
-  function aim(point){try{if(window.kiemCombat)kiemCombat.state.aim={...point};}catch(e){}try{if(window.moonCombat)moonCombat.state.aim={...point};}catch(e){}try{if(window.newClassCombat)newClassCombat.state.aim={...point};}catch(e){}state.visible=true;}
+  function aim(point){try{if(window.kiemCombat)kiemCombat.state.aim={...point};}catch(e){}try{if(window.moonCombat)moonCombat.state.aim={...point};}catch(e){}try{if(window.newClassCombat)newClassCombat.state.aim={...point};}catch(e){}}
   cv.addEventListener('pointermove',event=>{
     if(event.pointerType!=='mouse'||paused())return;
     const c=camera(),b=cv.getBoundingClientRect();aim({x:c.x+(event.clientX-b.left)/b.width*W/Z,y:c.y+(event.clientY-b.top)/b.height*H/Z});
@@ -16,16 +16,17 @@
   function overCancel(event){const b=cancel.getBoundingClientRect();return event.clientX>=b.left&&event.clientX<=b.right&&event.clientY>=b.top&&event.clientY<=b.bottom;}
   function finish(event,abort=false){
     const drag=state.drag;if(!drag||event.pointerId!==drag.id)return;
-    const canceled=abort||overCancel(event);state.drag=null;cancel.classList.remove('active');
+    const canceled=abort||overCancel(event);state.drag=null;state.visible=false;cancel.classList.remove('active');
+    if(drag.button?.hasPointerCapture(drag.id))drag.button.releasePointerCapture(drag.id);
     if(canceled){try{if(window.kiemCombat)kiemCombat.state.aim=drag.previous;}catch(e){}try{if(window.moonCombat)moonCombat.state.aim=drag.previous;}catch(e){}try{if(window.newClassCombat)newClassCombat.state.aim=drag.previous;}catch(e){}return;}
     skill(drag.index);
   }
   for(const [button,index]of [...sb.children].map((b,i)=>[b,i]).concat([[$('bs'),0]])){
     button.addEventListener('pointerenter',()=>{state.index=index;});
     button.addEventListener('pointerdown',event=>{
-      if(event.button!==0||paused()||button.disabled||state.drag)return;
+      if(event.button!==0||paused()||window.worldMap?.dialog.isOpen()||button.disabled||state.drag)return;
       event.preventDefault();event.stopPropagation();state.index=index;
-      state.drag={id:event.pointerId,index,x:event.clientX,y:event.clientY,previous:combat().state.aim?{...combat().state.aim}:null};
+      state.drag={id:event.pointerId,index,x:event.clientX,y:event.clientY,button,previous:combat().state.aim?{...combat().state.aim}:null};
       if(!combat().state.aim)aim({x:P.x+(P.dir===2?P.f:0)*range(index),y:P.y+(P.dir===1?-1:P.dir===2?0:1)*range(index)});
       button.setPointerCapture(event.pointerId);cancel.classList.add('active');state.visible=true;
     });
@@ -37,6 +38,7 @@
     });
     button.addEventListener('pointerup',event=>finish(event));
     button.addEventListener('pointercancel',event=>finish(event,true));
+    button.addEventListener('lostpointercapture',event=>finish(event,true));
     // Click tổng hợp sau pointerup không được cast thêm; Enter vẫn dùng được.
     button.addEventListener('click',event=>{if(event.detail>0){event.preventDefault();event.stopImmediatePropagation();}},true);
   }
@@ -46,8 +48,12 @@
     if(event.key===' ')state.index=0;
     if(event.key==='Escape'&&state.drag)finish({pointerId:state.drag.id},true);
   });
-  const oldDraw=dr;
-  dr=function(){oldDraw();if(paused()||!state.visible)return;
+  const abort=()=>{if(state.drag)finish({pointerId:state.drag.id},true);else state.visible=false;};
+  const isPreviewing=()=>!!state.drag&&state.visible&&!paused()&&!window.worldMap?.dialog.isOpen();
+  addEventListener('blur',abort);document.addEventListener('visibilitychange',()=>{if(document.hidden)abort();});
+  const oldUpdate=up;up=function(dt){if(paused()||window.worldMap?.dialog.isOpen()||P.hp<=0)abort();oldUpdate(dt);};
+  const oldRespawn=classCombat.onRespawn;classCombat.onRespawn=function(...args){abort();return oldRespawn.apply(this,args);};
+  function drawPreview(){if(!isPreviewing())return;
     let point=null;try{point=combat()?.state?.aim;}catch(e){}if(!point)return;
     const index=state.index,c=camera(),dx=point.x-P.x,dy=point.y-P.y,d=Math.hypot(dx,dy)||1;
     const limit=index===1?(P.ap.w===0?180:185):range(index),length=index===0&&P.ap.w===0?limit:Math.min(limit,d);
@@ -67,6 +73,7 @@
       g.beginPath();g.arc(end.x,end.y,3,0,Math.PI*2);g.stroke();
     }
     g.restore();
-  };
-  window.skillAim={state};
+  }
+  const oldDraw=dr;dr=function(){oldDraw();drawPreview();};
+  window.skillAim={state,isPreviewing,drawPreview,cancel:abort};
 })();

@@ -186,7 +186,7 @@
         try{
           const cc=window.getClassCombatSafe?getClassCombatSafe():window.classCombat;
           const aimPt=cc?.state?.aim;
-          if(aimPt&&window.skillAim?.state?.visible){
+          if(aimPt&&window.skillAim?.isPreviewing()){
             g.save();g.globalCompositeOperation='lighter';g.globalAlpha=.20;
             g.fillStyle=SECT[sect()];
             g.beginPath();g.ellipse(aimPt.x,aimPt.y,40,20,0,0,6.3);g.fill();

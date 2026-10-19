@@ -43,7 +43,7 @@ Thấy người chơi khác cùng bản đồ, chat và biểu cảm. Quái farm
 ## Điều khiển
 
 - WASD/mũi tên/chạm kéo: di chuyển; Tab/chạm quái: chọn mục tiêu; F: đánh thường; Z: auto.
-- 1–4/Space: skill; chuột/chạm kéo nút skill để ngắm. Tự mở ở cấp 10/20/30/40; nâng chiêu tại Truyền Công Các.
+- 1–4/Space: skill; chuột/chạm kéo nút skill để ngắm. Tự mở ở cấp 10/20/30/40; nâng chiêu tại Truyền Công Các. Mũi tên/vùng ngắm chỉ hiện lúc giữ hoặc kéo nút chiêu, ẩn ngay khi thả/hủy. Rê chuột và Auto vẫn chọn đúng hướng bắn nhưng không để dấu ngắm trên map.
 - Q: đả tọa; B: tăng tầng/đột phá tại vùng an toàn; M: bản đồ; E: tương tác NPC.
 - I: túi cơ bản 30 ô, nhẫn trữ vật mở thêm tối đa 40 ô; U: thuộc tính. Kéo đồ vào mười ô trang bị, kéo về ô túi trống để tháo. Trên mobile kéo bằng chạm hoặc chọn đồ rồi nhấn Trang bị.
 

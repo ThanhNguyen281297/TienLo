@@ -76,7 +76,6 @@
     try { if (window.kiemCombat) kiemCombat.state.aim = { x: point.x, y: point.y }; } catch (e) {}
     try { if (window.moonCombat) moonCombat.state.aim = { x: point.x, y: point.y }; } catch (e) {}
     try { if (window.newClassCombat) newClassCombat.state.aim = { x: point.x, y: point.y }; } catch (e) {}
-    try { if (window.skillAim) skillAim.state.visible = true; } catch (e) {}
   }
   function findTarget() {
     const candidates=[];
