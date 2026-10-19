@@ -21,13 +21,14 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    for(let i=1;i<=10;i++){
     const id='mask-'+gender.toLowerCase()+'-'+i;
     await page.evaluate(id=>{gmEquipment.take(id,true);worldMap.dialog.close();hud();},id);
-    await page.waitForFunction(id=>!!characterMasks.load(equipmentData.byId.get(id).art).image,id,{polling:50});
+    await page.waitForFunction(id=>!!characterMasks.load(P.ap).image,id,{polling:50});
     await page.evaluate(()=>characterMasks.refreshAvatar(true));
     assert.equal(await page.locator('#player-avatar').getAttribute('data-mask-id'),id);
     const hash=await page.locator('#player-avatar').evaluate(c=>c.toDataURL());assert.notEqual(hash,original);hashes.push(hash);
     assert.equal(await page.evaluate(()=>P.world.equip.matna.id),id);
    }
    assert.equal(new Set(hashes).size,10);
+   assert(await page.evaluate(()=>{const f=characterMasks.frameFor(P.ap,'truoc'),c=document.createElement('canvas');c.width=c.height=300;equipmentProgression.outline(c.getContext('2d'),f.image,70,40,150,190,15);return c.getContext('2d').getImageData(0,0,300,300).data.some((v,i)=>i%4===3&&v>0);}), 'Enhancement outline must support a complete atlas sprite');
    const rejected=await page.evaluate(gender=>{const before=JSON.stringify(P.world),other=gender==='Nam'?'nu':'nam';gmEquipment.take('mask-'+other+'-1',true);return before===JSON.stringify(P.world);},gender);assert(rejected,'GM must reject wrong gender before granting an item');
    await page.evaluate(gender=>{const item=inventory.addItem('mask-'+(gender==='Nam'?'nu':'nam')+'-1');inventory.equipItem(item.uid);},gender);
    assert.equal(await page.evaluate(()=>P.world.equip.matna.gender),gender);
@@ -37,7 +38,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    assert.equal(await page.evaluate(()=>P.world.equip.matna.variant),4);
    assert(await page.evaluate(()=>account.flush()));await page.reload({waitUntil:'load'});await page.waitForFunction(()=>account.state.ready&&P.ap,null,{polling:50});
    assert.equal(await page.evaluate(()=>P.world.equip.matna.id),'mask-'+gender.toLowerCase()+'-4');
-   await page.waitForFunction(()=>!!characterMasks.load(P.world.equip.matna.art).image,null,{polling:50});await page.evaluate(()=>{hud();gmTest.enabled=true;gmEquipment.open();});
+   await page.waitForFunction(()=>!!characterMasks.load(P.ap).image,null,{polling:50});await page.evaluate(()=>{hud();gmTest.enabled=true;gmEquipment.open();});
    await page.getByRole('combobox',{name:'Lọc ô trang bị GM'}).selectOption('matna');assert.equal(await page.locator('[data-gm-item]').count(),20);
    assert(await page.locator('[data-gm-item="mask-'+(gender==='Nam'?'nu':'nam')+'-1"]').getByRole('button',{name:'Mặc thử'}).isDisabled());
    await page.evaluate(()=>{worldMap.dialog.close();hud();dr();});await page.screenshot({path:path.join(__dirname,'artifacts/masks-hud-'+gender+'.png')});
@@ -48,8 +49,8 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     await page.screenshot({path:path.join(__dirname,'artifacts/masks-hud-'+gender+'-'+size.width+'.png')});
    }
    // Load all masks once to inspect real body poses with remote appearances.
-   await page.evaluate(()=>equipmentRules.masks.forEach(m=>characterMasks.load(m.art)));
-   await page.waitForFunction(()=>equipmentRules.masks.every(m=>characterMasks.load(m.art).image),null,{polling:50});
+   await page.evaluate(()=>{for(const gender of ['Nam','Nu'])for(let w=0;w<4;w++)characterMasks.load({w,gender});});
+   await page.waitForFunction(()=>['Nam','Nu'].every(gender=>[0,1,2,3].every(w=>characterMasks.load({w,gender}).image)),null,{polling:50});
    const audit=await page.evaluate(()=>{
     const c=document.createElement('canvas');c.width=240;c.height=280;const ctx=c.getContext('2d',{willReadFrequently:true});
     const pixels=(ap,dir,f)=>{ctx.resetTransform();ctx.clearRect(0,0,240,280);ctx.setTransform(4,0,0,4,120,240);drawChar(ctx,0,0,dir,f,false,0,false,ap);return ctx.getImageData(0,0,240,280).data;};
@@ -59,32 +60,32 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
      pixels(ap,dir,f);const before=pixels(ap,dir,f);ap.maskId=m.id;const after=pixels(ap,dir,f);
      let changes=0,lower=0;for(let n=0;n<before.length;n++){if(before[n]!==after[n]){changes++;if(n>=240*190*4)lower++;}}
      if(dir===1?changes!==0:changes<50)throw Error('Face missing/rear face shown '+m.id+' class '+w+' dir '+dir+' '+changes);
-     if(lower)throw Error('Mask changed lower outfit '+m.id+' class '+w+' dir '+dir+' facing '+f+' '+lower);
+     // Expressions are now whole-body redraws; lower outfit pixels can differ.
      cases++;
     }
     return cases;
    });assert.equal(audit,320);
   }
-  const nativeAudit=await proofPage.evaluate(async()=>{
-   let protectedPixels=0,cases=0;
-   for(const gender of ['Nam','Nu'])for(let w=0;w<4;w++)for(const direction of ['truoc','trai','phai']){
-    const image=new Image();image.src='Character/'+characterClasses[w].folder+'/'+gender+'/'+direction+'.png';await image.decode();
-    for(const variant of [4,8]){
-     const head=characterMasks.headFor({w,gender,maskId:'mask-'+gender.toLowerCase()+'-'+variant},direction,image);
-     const ref=document.createElement('canvas');ref.width=head.width;ref.height=head.height;const ctx=ref.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,head.px,head.py,head.width,head.height,0,0,head.width,head.height);
-     const a=ctx.getImageData(0,0,head.width,head.height).data,b=head.canvas.getContext('2d').getImageData(0,0,head.width,head.height).data,m=head.skinMask.getContext('2d').getImageData(0,0,head.width,head.height).data;
-     for(let i=0;i<a.length;i+=4){
-      if(!a[i+3]&&b[i+3])throw Error('New silhouette outside native head '+gender+' '+w+' '+direction);
-      const red=gender==='Nu'&&a[i]>=190&&a[i]>=a[i+1]*1.65&&a[i]>=a[i+2]*1.45;
-      if(m[i+3]||red)continue;
-      if((a[i+3]>32&&a[i+3]!==b[i+3])||[0,1,2].some(c=>Math.abs(a[i+c]*a[i+3]-b[i+c]*b[i+3])/255>3))throw Error('Changed hair/head accessory '+gender+' '+w+' '+direction+' '+JSON.stringify({a:Array.from(a.slice(i,i+4)),b:Array.from(b.slice(i,i+4))}));
-      protectedPixels++;
-     }
+  const nativeAudit=await proofPage.evaluate(()=>{
+   let cases=0,draws=0;
+   const originalRender=renderArtwork,read=CanvasRenderingContext2D.prototype.getImageData;
+   const c=document.createElement('canvas');c.width=300;c.height=300;
+   try{
+    CanvasRenderingContext2D.prototype.getImageData=function(){throw Error('Runtime must not edit facial pixels');};
+    window.renderArtwork=function(...args){draws++;return originalRender(...args);};
+    for(const gender of ['Nam','Nu'])for(let w=0;w<4;w++)for(let variant=1;variant<=10;variant++)for(const direction of ['truoc','trai','phai']){
+     const ap={w,gender,maskId:'mask-'+gender.toLowerCase()+'-'+variant},f=characterMasks.frameFor(ap,direction);
+     if(!f||f.width<70||f.height<140)throw Error('Incomplete native sprite '+JSON.stringify(ap)+direction);
+     const g=characterMasks.drawBody(c.getContext('2d'),c,ap,direction,0,0,42,42,{x:123,y:215});
+     const sx=g.width/f.width,sy=g.height/f.height;
+     if(Math.abs(g.x+f.anchor[0]*sx-123)>1e-8||Math.abs(g.y+f.anchor[1]*sy-215)>1e-8)throw Error('Moving floor anchor');
+     if(Math.abs(sx/sy-f.pixelAspect)>1e-8)throw Error('Incorrect authored pixel aspect');
+     if(characterMasks.frameFor(ap,'sau'))throw Error('A face must never appear on rear view');
      cases++;
     }
-   }
-   return{cases,protectedPixels,cache:characterMasks.cacheSize,limit:characterMasks.headLimit};
-  });assert.equal(nativeAudit.cases,48);assert(nativeAudit.protectedPixels>100000);assert(nativeAudit.cache<=nativeAudit.limit);
+   }finally{window.renderArtwork=originalRender;CanvasRenderingContext2D.prototype.getImageData=read;}
+   return{cases,draws,cache:characterMasks.cacheSize,limit:characterMasks.frameLimit,atlases:characterMasks.atlasCount};
+  });assert.equal(nativeAudit.cases,240);assert.equal(nativeAudit.draws,240);assert.equal(nativeAudit.atlases,8);assert(nativeAudit.cache<=nativeAudit.limit);
   await proofPage.setViewportSize({width:1600,height:1290});
   await proofPage.evaluate(()=>{
    const c=document.createElement('canvas');c.id='mask-proof';c.width=1600;c.height=1290;c.style.cssText='position:fixed;inset:0;width:1600px;height:1290px;z-index:99999';document.body.append(c);const ctx=c.getContext('2d');ctx.fillStyle='#273e47';ctx.fillRect(0,0,c.width,c.height);
@@ -93,17 +94,15 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     ctx.save();ctx.translate(x,y);ctx.scale(4,4);drawChar(ctx,0,0,row===2||row===3?2:row===4?1:0,row===2?-1:1,false,0,false,ap);ctx.restore();ctx.fillStyle='#e9d9ac';ctx.font='13px Arial';ctx.textAlign='center';ctx.fillText(characterClasses[w].name+' · '+gender,x,y+20);ctx.fillText(['Mặt gốc','Mặt nạ 8 · trước','Mặt nạ 8 · trái','Mặt nạ 4 · phải','Quay lưng'][row],x,y+39);
    }
   });await proofPage.screenshot({path:path.join(__dirname,'artifacts/masks-all-classes.png')});
-  await proofPage.evaluate(async()=>{
+  await proofPage.setViewportSize({width:1600,height:1080});
+  await proofPage.evaluate(()=>{
    $('mask-proof').remove();const c=document.createElement('canvas');c.id='face-proof';c.width=1600;c.height=1080;c.style.cssText='position:fixed;inset:0;width:1600px;height:1080px;z-index:99999';document.body.append(c);const ctx=c.getContext('2d');ctx.fillStyle='#3c4c55';ctx.fillRect(0,0,1600,1080);
-   for(const [row,gender]of ['Nam','Nu'].entries()){
-    const image=new Image();image.src='Character/Kiem/'+gender+'/truoc.png';await image.decode();
-    for(const [col,variant]of [1,2,3,4,8].entries()){
-     const ap={w:0,gender,maskId:'mask-'+gender.toLowerCase()+'-'+variant},h=characterMasks.headFor(ap,'truoc',image),x=col*320,y=row*530;
-     const w=300,hh=w*h.height/h.width;ctx.drawImage(image,h.px,h.py,h.width,h.height,x+10,y,w,hh);ctx.drawImage(h.canvas,x+10,y+260,w,hh);
-     ctx.fillStyle='white';ctx.font='15px Arial';ctx.fillText(gender+' '+variant+' · trên: gốc / dưới: đổi biểu cảm',x+10,y+520);
-    }
+   for(const [row,gender]of ['Nam','Nu'].entries())for(let col=0;col<10;col++){
+    const ap={w:0,gender,maskId:'mask-'+gender.toLowerCase()+'-'+(col+1)},f=characterMasks.frameFor(ap,'truoc');
+    const height=Math.min(320,145*f.anchor[1]/f.width);characterMasks.drawBody(ctx,f.image,ap,'truoc',0,0,140,height,{x:80+col*160,y:430+row*530});
+    ctx.fillStyle='white';ctx.textAlign='center';ctx.font='15px Arial';ctx.fillText(gender+' '+(col+1),80+col*160,475+row*530);
    }
   });await proofPage.screenshot({path:path.join(__dirname,'artifacts/masks-face-details.png')});
-  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 20 native expressions, 320 poses, 48 pixel audits preserve native hair/head silhouette, bounded cache, original outfits/rear views, matching HUD portraits, equip/remove, gender, GM, drag/drop, DB restore and phone HUD');
+  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 20 masks, 8 whole-character atlases, 240 baked expression frames, 320 poses, single-pass rendering without facial pixel edits, stable feet/proportions, bounded cache, matching HUD, equip/remove, gender, GM, drag/drop, DB restore and phone HUD');
  }finally{if(browser)await browser.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

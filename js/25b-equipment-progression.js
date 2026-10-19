@@ -21,9 +21,9 @@
  }
  const masks=new WeakMap(),scratches=new WeakMap();
  function outline(ctx,image,x,y,width,height,n,fallbackTone){
-  const tone=color(n)||fallbackTone;if(!tone||!image.complete||!image.naturalWidth)return;
+  const tone=color(n)||fallbackTone,iw=image.naturalWidth||image.width,ih=image.naturalHeight||image.height;if(!tone||image.complete===false||!iw||!ih)return;
   let byColor=masks.get(image);if(!byColor){byColor=new Map();masks.set(image,byColor);}let mask=byColor.get(tone);
-  const pad=8,h=256,w=Math.round(h*image.naturalWidth/image.naturalHeight);
+  const pad=8,h=256,w=Math.round(h*iw/ih);
   if(!mask){mask=document.createElement('canvas');mask.width=w+pad*2;mask.height=h+pad*2;const c=mask.getContext('2d');for(let i=0;i<12;i++){const a=i*Math.PI/6;c.drawImage(image,pad+Math.cos(a)*2.6,pad+Math.sin(a)*2.6,w,h);}c.globalCompositeOperation='source-in';c.fillStyle=tone;c.fillRect(0,0,mask.width,mask.height);c.globalCompositeOperation='destination-out';c.drawImage(image,pad,pad,w,h);byColor.set(tone,mask);}
   const sx=width/w,sy=height/h,dx=x-pad*sx,dy=y-pad*sy,dw=mask.width*sx,dh=mask.height*sy;
   ctx.save();ctx.globalAlpha*=.8;ctx.drawImage(mask,dx,dy,dw,dh);

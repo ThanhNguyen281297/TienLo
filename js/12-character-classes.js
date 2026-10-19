@@ -233,13 +233,15 @@
     const bodyHeight = fit ? fit.height : 42;
     const footOffset = fit ? bodyHeight * (1 - fit.feet[direction] / fit.sourceHeight) : 0;
     const bodyImage=images[gender][direction],bodyWidth=bodyHeight*bodyImage.naturalWidth/(bodyImage.naturalHeight||1);
+    let renderedBody=null;
     if(ready(bodyImage)){
       const left=x-bodyWidth/2,top=y-bob+footOffset-bodyHeight;
-      if(window.characterMasks)characterMasks.drawBody(ctx,bodyImage,ap,direction,left,top,bodyWidth,bodyHeight);
+      if(window.characterMasks)renderedBody=characterMasks.drawBody(ctx,bodyImage,ap,direction,left,top,bodyWidth,bodyHeight,{x,y:y-bob});
       else renderArtwork(ctx,bodyImage,left,top,bodyWidth,bodyHeight);
     }
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
-    window.equipmentProgression?.outline(ctx,bodyImage,x-bodyWidth/2,y-bob+footOffset-bodyHeight,bodyWidth,bodyHeight,bodyLevel||0);
+    const outlined=renderedBody||{image:bodyImage,x:x-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
+    window.equipmentProgression?.outline(ctx,outlined.image,outlined.x,outlined.y,outlined.width,outlined.height,bodyLevel||0);
     // Facing away: the complete back mount sits in front of the rear sprite, including long hair.
     if(dir===1)drawBackItem();
     drawWeapon();
