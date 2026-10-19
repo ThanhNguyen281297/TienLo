@@ -54,6 +54,26 @@ class EquipmentTest(unittest.TestCase):
             self.player['ap']['w']=cls;self.player['world']['equip']={'dichuyen':self.make('footstep-6')}
             server.valid_player(self.player)
         self.assertFalse(equipment.normalize(self.player))
+    def test_twenty_cosmetic_masks_require_gender_and_allow_every_class(self):
+        self.assertEqual(len(equipment.RULES['masks']),20)
+        for gender in ('Nam','Nu'):
+            masks=[m for m in equipment.RULES['masks'] if m['gender']==gender]
+            self.assertEqual([m['variant'] for m in masks],list(range(1,11)))
+            for meta in masks:
+                self.assertEqual(meta['art'],f"Item/MatNa/{gender}/{meta['variant']}.png")
+                self.assertFalse(set(meta)&set(equipment.STAT_KEYS))
+                for cls in range(4):
+                    p=copy.deepcopy(self.player);p['ap'].update(w=cls,gender=gender)
+                    p['world']['equip']['matna']=self.make(meta['id'])
+                    server.valid_player(p)
+                    self.assertEqual(equipment.bonuses(p),{})
+                    p['ap']['gender']='Nu' if gender=='Nam' else 'Nam'
+                    with self.assertRaisesRegex(ValueError,'giới tính'):server.valid_player(p)
+        # Owning another gender's mask is allowed; altering its catalog gender isn't.
+        self.player['world']['bag']=[self.make('mask-nu-1')]
+        server.valid_player(self.player)
+        self.player['world']['bag'][0]['gender']='Nam'
+        with self.assertRaises(ValueError):server.valid_player(self.player)
     def test_v5_adds_empty_mask_without_changing_gear_or_currency(self):
         equipment.normalize(self.player)
         self.player['world']['equip']['dichuyen']=self.make('footstep-6')

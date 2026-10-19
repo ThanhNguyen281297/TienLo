@@ -1,0 +1,9 @@
+/* Keep the avatar inside the existing HUD footprint on desktop and phones. */
+#hud .hud-identity{display:flex;align-items:center;gap:8px;min-width:0;grid-column:1/-1}
+#hud #player-avatar{position:static;inset:auto;display:block;flex:0 0 44px;width:44px;height:44px;box-sizing:border-box;border:1px solid #d6ba7c;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3d5864,#142632 75%);box-shadow:0 1px 5px #0006;image-rendering:auto}
+#hud .hud-identity-text{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+#hud .hud-identity-text b{line-height:1.3;overflow-wrap:anywhere}
+#hud .hud-identity-text #gd{float:none;font:11px Arial,sans-serif;color:#e9d7a8}
+.item-gender-requirement{font:12px/1.6 Arial,sans-serif;color:#bcd8dc}
+@media(max-width:700px){#hud .hud-identity{gap:6px}#hud #player-avatar{flex-basis:32px;width:32px;height:32px}#hud .hud-identity-text{gap:2px}}
+@media(orientation:landscape) and (max-height:520px){#hud #player-avatar{flex-basis:30px;width:30px;height:30px}#hud .hud-identity{gap:5px}#hud .hud-identity-text{gap:2px}}

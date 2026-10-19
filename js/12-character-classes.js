@@ -236,6 +236,7 @@
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
     const bodyImage=images[gender][direction],bodyWidth=bodyHeight*bodyImage.naturalWidth/(bodyImage.naturalHeight||1);
     window.equipmentProgression?.outline(ctx,bodyImage,x-bodyWidth/2,y-bob+footOffset-bodyHeight,bodyWidth,bodyHeight,bodyLevel||0);
+    window.characterMasks?.drawFace(ctx,ap,direction,x-bodyWidth/2,y-bob+footOffset-bodyHeight,bodyWidth,bodyHeight);
     // Facing away: the complete back mount sits in front of the rear sprite, including long hair.
     if(dir===1)drawBackItem();
     drawWeapon();

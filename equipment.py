@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 RULES = json.loads((ROOT/'Item'/'equipment.json').read_text(encoding='utf-8'))
-TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails') for t in RULES[group]}
+TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails','masks') for t in RULES[group]}
 STAT_KEYS = ('atk','hp','mp','armor','crit','dodge','skill')
 
 def pool(item):
@@ -109,7 +109,7 @@ def validate(player, db=None, owner=None):
         seen.add(uid)
         meta=TEMPLATES.get(item.get('id'))
         if meta:
-            for key in ('slot','classIndex','capacity','variant','art','req','rarity','price',*STAT_KEYS):
+            for key in ('slot','classIndex','gender','capacity','variant','art','req','rarity','price',*STAT_KEYS):
                 if item.get(key,0)!=meta.get(key,0):raise ValueError('Chỉ số trang bị không hợp lệ.')
         elif item.get('slot') in RULES['slots']:raise ValueError('Trang bị tiện ích không hợp lệ.')
         allowed=pool(item)
@@ -126,6 +126,7 @@ def validate(player, db=None, owner=None):
             if (roll and roll['item_id']!=item['id']) or lines!=expected:raise ValueError('Dòng tẩy luyện phải do server cấp.')
     for slot,item in equip.items():
         if item and (item.get('slot')!=slot or (slot not in RULES['sharedSlots'] and item.get('classIndex',player['ap']['w'])!=player['ap']['w'])):raise ValueError('Trang bị không phù hợp ô hoặc class.')
+        if item and item.get('gender') and item['gender']!=player['ap'].get('gender','Nam'):raise ValueError('Mặt nạ không phù hợp giới tính nhân vật.')
 
 def bonuses(player):
     result={}

@@ -1,6 +1,6 @@
 /* Shared catalog. Ratios use basis points; affixes do not scale with enhancement. */
 (function(){
- const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations,...rules.trails],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
+ const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations,...rules.trails,...rules.masks],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
  const pool=item=>item?.slot==='phapbao'?rules.offense:item?.slot==='ngoc'?rules.defense:[];
  const defaults=item=>pool(item).slice(0,5).map(r=>({key:r.key,value:r.min}));
  const capacity=p=>30+(byId.get(p?.equip?.gioi?.id)?.capacity||0);

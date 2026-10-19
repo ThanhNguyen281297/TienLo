@@ -57,7 +57,7 @@ Tên dịch vụ/NPC là chữ nhỏ dưới chân, không có mô tả trên đ
 
 Cấp nhân vật (1–200) và tu vi tách riêng. Đánh quái/nhận thưởng nhiệm vụ cho EXP tự lên cấp, giữ EXP dư; EXP cần cho cấp tiếp theo là `100 + 45×(cấp−1) + 12×(cấp−1)²`. Mỗi cấp thêm 6 HP, 2 MP và 0,8 Công gốc. Tu vi vẫn giữ 15 cảnh giới × 10 tầng, dùng đạo hạnh, Linh Thạch và đan để tăng tầng/đột phá. Đả tọa và Tu Vi Đan chỉ tăng tu vi. Nhân vật cũ giữ nguyên tu vi/đạo hạnh; level khởi tạo bằng `cảnh giới×10 + tầng`, EXP level bằng 0. Hai thanh EXP/tu vi hiện trên HUD.
 
-Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới bắt đầu với túi và mười ô trang bị trống. Bật GM mở kho 100 vật phẩm để lấy/mặc thử; bốn ô trái cần đúng class, bốn ô phải dùng chung. Chỉ bốn ô trái cường hóa +15. Bí cảnh chỉ thưởng Linh Thạch; bộ trang bị và các loại mảnh đã được gỡ.
+Bốn phái: Kiếm Tông, Minh Nguyệt Tông, Lôi Thương Tông, Thiên Cơ Môn. Có 15 cảnh giới × 10 tầng. Nhân vật mới bắt đầu với túi và mười ô trang bị trống. Bật GM mở kho 120 vật phẩm để lấy/mặc thử; bốn ô trái cần đúng class, bốn ô phải dùng chung. Chỉ bốn ô trái cường hóa +15. Bí cảnh chỉ thưởng Linh Thạch; bộ trang bị và các loại mảnh đã được gỡ.
 
 Tên nhân vật hiển thị nhỏ (6,5 px trong thế giới) dưới chân, chỉ giữ đạo hiệu. 14 ảnh `Item/DHCanhGioi` làm danh hiệu phía trên đầu theo tu vi Luyện Khí–Đạo Tổ, cho cả nhân vật của bạn và người chơi khác; Phàm Nhân chưa có ảnh danh hiệu. Trong **Khác → GM → GM Công cụ**, chọn cảnh giới và tầng 1–10 rồi **Đặt cảnh giới**; giữ level, EXP, điểm thuộc tính, trang bị và nguyên liệu. Tắt GM khóa chức năng này. Kiểm tra bằng `node tests/realm-titles.test.cjs`.
 

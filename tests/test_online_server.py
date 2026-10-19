@@ -20,12 +20,14 @@ class OnlineServerTest(unittest.TestCase):
         a=self.social_user('aura_one',3);b=self.social_user('aura_two')
         saved=self.request('/api/characters',cookie=a[0])[1]['character'];p=saved['player']
         p['world']['equip']['dichuyen']=dict(server.equipment_rules.TEMPLATES['footstep-6'],uid='trail-one')
+        p['world']['equip']['matna']=dict(server.equipment_rules.TEMPLATES['mask-nam-8'],uid='mask-one')
         self.assertEqual(self.request('/api/characters',{'csrf':a[1],'revision':saved['revision'],'player':p},a[0])[0],201)
-        self.assertEqual(self.request('/api/world',{'csrf':a[1],'map':'hub','x':1000,'y':1100,'hp':100,'ap':{'realm':14,'trailId':'footstep-1'}},a[0])[0],200)
+        self.assertEqual(self.request('/api/world',{'csrf':a[1],'map':'hub','x':1000,'y':1100,'hp':100,'ap':{'realm':14,'trailId':'footstep-1','maskId':'mask-nu-2'}},a[0])[0],200)
         status,data,_=self.request('/api/world',{'csrf':b[1],'map':'hub','x':1000,'y':1100,'hp':100},b[0])
         self.assertEqual(status,200)
         peer=next(v for v in data['players'] if v['name']=='aura_one')
         self.assertEqual((peer['ap']['realm'],peer['ap']['trailId']),(3,'footstep-6'))
+        self.assertEqual(peer['ap']['maskId'],'mask-nam-8')
 
     def test_level_legacy_read_and_persistence_preserve_cultivation(self):
         cookie,csrf=self.register('legacy_level');p=self.player();p.update(r=4,stage=7,xp=321)

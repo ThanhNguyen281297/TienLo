@@ -123,7 +123,7 @@
     const r = Math.random();
     // Boss/elite luôn rớt đồ xanh trở lên + chắc chắn 1 Thăng Vị Đan (30% thêm 1).
     if (isBoss) {
-      const available=TEMPLATES.filter(t=>t.slot&&t.slot!=='dichuyen'&&(t.classIndex===undefined||equipmentRules.sharedSlots.includes(t.slot)||t.classIndex===P.ap.w)&&t.req<=cultivationLevel()+10);
+      const available=TEMPLATES.filter(t=>t.slot&&!['dichuyen','matna'].includes(t.slot)&&(t.classIndex===undefined||equipmentRules.sharedSlots.includes(t.slot)||t.classIndex===P.ap.w)&&t.req<=cultivationLevel()+10);
       const tier=Math.max(...available.map(t=>({pham:0,huyen:1,linh:2,tien:3}[t.rarity])));
       const pool=available.filter(t=>({pham:0,huyen:1,linh:2,tien:3}[t.rarity])===tier).map(t=>t.id);
       const id = pool[Math.floor(Math.random() * pool.length)];
@@ -161,12 +161,15 @@
     const lvl = typeof cultivationLevel === 'function' ? cultivationLevel() : 0;
     if (!window.gmTest?.enabled && lvl < (item.req || 0)) return msg('Cần cấp ' + item.req + ' để mặc ' + item.name + '.');
     if(!equipmentRules.sharedSlots.includes(item.slot)&&item.classIndex!==undefined&&item.classIndex!==P.ap.w)return msg('Trang bị thuộc tông môn khác.');
+    const gender=equipmentData.byId.get(item.id)?.gender;
+    if(gender&&gender!==(P.ap.gender||'Nam'))return msg('Mặt nạ dành cho nhân vật '+(gender==='Nu'?'nữ':'nam')+'.');
     const nextCapacity=item.slot==='gioi'?30+(equipmentData.byId.get(item.id)?.capacity||0):equipmentData.capacity(p);
     if(p.bag.length-1+(p.equip[item.slot]?1:0)>nextCapacity)return msg('Nhẫn mới không đủ sức chứa. Hãy dọn túi trước.');
     p.bag.splice(idx, 1);
     const old = p.equip[item.slot];
     if (old) p.bag.push(old);
     p.equip[item.slot] = item;
+    window.characterMasks?.refreshAvatar();
     P.hp = Math.min(mhp(), P.hp); P.mp = Math.min(mmp(), P.mp);
     saveCharacter(); openBag();
   }
@@ -176,6 +179,7 @@
     if (!old) return;
     if (p.bag.length+1 > (slot==='gioi'?30:equipmentData.capacity(p))) return msg('Túi không đủ chỗ sau khi tháo nhẫn/trang bị.');
     p.equip[slot] = null;
+    window.characterMasks?.refreshAvatar();
     p.bag.push(old);
     P.hp=Math.min(mhp(),P.hp);P.mp=Math.min(mmp(),P.mp);
     saveCharacter(); openBag();
@@ -277,6 +281,7 @@
       if(p.bag.some(i=>i.cell===index))return msg('Chọn ô túi trống để tháo trang bị.');
       if(p.bag.length+1>(slot==='gioi'?30:equipmentData.capacity(p))||index>=(slot==='gioi'?30:equipmentData.capacity(p)))return msg('Không đủ ô sau khi tháo trang bị.');
       p.equip[slot]=null;item.cell=index;p.bag.push(item);
+      window.characterMasks?.refreshAvatar();
       P.hp=Math.min(mhp(),P.hp);P.mp=Math.min(mmp(),P.mp);
     }else{
       const item=p.bag.find(i=>i.uid===source);if(!item)return;
@@ -348,6 +353,7 @@
       const actions=document.createElement('div');actions.className='item-actions';details.append(actions);
       function action(label,fn){const button=document.createElement('button');button.textContent=label;button.onclick=fn;actions.append(button);}
       if(equipmentRules.classSlots.includes(item.slot)){const requirement=document.createElement('p');requirement.className='item-class-requirement';requirement.textContent='Class yêu cầu: '+equipmentRules.classes[item.classIndex];requirement.style.color=item.classIndex===P.ap.w?'#9de0bd':'#ff9f9f';details.append(requirement);}
+      const gender=equipmentData.byId.get(item.id)?.gender;if(gender){const requirement=document.createElement('p');requirement.className='item-gender-requirement';requirement.textContent='Giới tính: '+(gender==='Nu'?'Nữ':'Nam')+' · Dùng chung bốn class';requirement.style.color=gender===(P.ap.gender||'Nam')?'#9de0bd':'#ff9f9f';details.append(requirement);}
       window.equipmentSystem?.describe(details,item);
       if(equipmentData.pool(item).length)action('Tẩy luyện · 60 ◈ / 12 LN',()=>equipmentSystem.reforge(item.uid));
       if(equipmentRules.enhanceSlots.includes(item.slot))action('Cường hóa +'+equipmentProgression.level(item),()=>{if(equipmentProgression.enhance(item.uid))openBag();});
@@ -370,6 +376,7 @@
     TEMPLATES.filter(t => t.slot && t.source!=='rift').forEach(t => {
       const wi=['moc-kiem','huyen-kiem','linh-kiem','tien-kiem'].indexOf(t.id),name=wi<0?t.name:equipmentRules.weaponNames[P.ap.w][wi];
       if(!equipmentRules.sharedSlots.includes(t.slot)&&t.classIndex!==undefined&&t.classIndex!==P.ap.w)return;
+      if(t.gender&&t.gender!==(P.ap.gender||'Nam'))return;
       dialog.action(name + ' [' + RARITY[t.rarity].name + '] · ' + t.price + ' ◈ · ' + statText(t), () => buyItem(t.id, false), P.gold < t.price);
     });
   }

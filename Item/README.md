@@ -14,7 +14,7 @@ Bốn ô trái: vũ khí, đạo bào, hộ thối, giày; có `classIndex` bắ
 
 Bốn ô phải: pháp bảo lưng, hộ thuẫn, nhẫn trữ vật và pháp trận; dùng chung cho mọi class, không cường hóa. Chỉ `classIndex` của bốn ô này ghi kiểu ảnh gốc. Nhẫn thêm 10/20/30/40 ô cho túi 30 ô; không thể tháo nếu túi không đủ chỗ. Pháp bảo, thuẫn và pháp trận hiển thị theo món đang mặc.
 
-Nhân vật mới không có đồ, thuốc hay trứng trong túi và không mặc món nào. Bật GM mở kho 100 vật phẩm, lọc/tìm và lấy đồ hoặc mặc thử. GM bỏ yêu cầu cấp để thử, vẫn giữ giới hạn class của bốn ô trái.
+Nhân vật mới không có đồ, thuốc hay trứng trong túi và không mặc món nào. Bật GM mở kho 120 vật phẩm, lọc/tìm và lấy đồ hoặc mặc thử. GM bỏ yêu cầu cấp để thử, vẫn giữ giới hạn class của bốn ô trái.
 
 Pháp bảo và hộ thuẫn luôn có năm dòng khác loại. Đồ mới có năm dòng tối thiểu; tẩy luyện tiêu 60 Linh Thạch và 12 Linh Nguyên, server chọn lại cả năm dòng. Số phần trăm trong JSON là basis point: `100` = 1%. Dòng cố định dùng số nguyên, riêng hồi sinh lực chia 100 HP/giây. Dòng tẩy luyện không nhân theo cường hóa. Tổng né giới hạn 20%, bạo kích 35%, kháng sát thương 15%.
 
@@ -35,7 +35,7 @@ Kỹ năng thuẫn cộng 35% giáp hiện tại (tối thiểu 6, tối đa 25)
 
 ## Ô mặt nạ
 
-Ô `matna` nằm chính giữa vũ khí và pháp bảo ở hàng trên, dùng chung cho mọi class và không nằm trong bốn ô cường hóa. Catalog version 6 thêm ô trống vào bản lưu cũ, giữ nguyên vật phẩm, chỉ số và tiền. `MatNa/slot.svg` chỉ là biểu tượng ô trống; thư mục hiện chưa có ảnh/vật phẩm mặt nạ nên chưa thêm món mới vào GM/cửa hàng hoặc lớp ngoại hình nhân vật.
+Ô `matna` nằm chính giữa vũ khí và pháp bảo ở hàng trên, dùng chung cho mọi class và không nằm trong bốn ô cường hóa. Catalog version 6 thêm ô trống vào bản lưu cũ, giữ nguyên vật phẩm, chỉ số và tiền. `MatNa/slot.svg` là biểu tượng ô trống. `MatNa/Nam/1..10.png` và `MatNa/Nu/1..10.png` là 20 mặt nạ ngoại hình, không tăng chỉ số: dùng chung bốn class cùng giới tính, lấy qua kho GM hoặc mua tại Bảo Khí Các. Khi mặc, mặt nạ gắn theo gương mặt/tư thế và đổi avatar HUD; khi quay lưng giữ tóc sau, không vẽ mặt phía sau đầu. Khi tháo trả lại mặt gốc. `js/35l-character-masks.js` quản lý ảnh và neo gương mặt theo từng class; người chơi online nhận `maskId` từ trang bị đã lưu trên server. Ảnh gốc giữ nguyên, runtime cache 384px và nạp khi cần. Kiểm tra bằng `node tests/character-masks.test.cjs`.
 
 ## Di chuyển dữ liệu
 
