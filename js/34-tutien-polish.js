@@ -119,20 +119,7 @@
   try{
     const _dc=drawChar;
     drawChar=function(ctx,x,y,dir,facing,moving,phase,attacking,ap){
-      try{
-        const mine=ap===P.ap,idx=Number.isInteger(ap?.w)?ap.w:sect();
-        if(!window.characterAuras?.realmFor(ap)&&!window.characterAuras?.trailFor(ap)){
-        // vòng hồ quang cảnh giới dưới chân
-        ctx.save();
-        ctx.globalCompositeOperation='lighter';
-        const rc=realmColor(),pulse=reduced?0:Math.sin(envT*3)*1.5;
-        ctx.strokeStyle=rc;ctx.globalAlpha=mine?.5:.3;ctx.lineWidth=1.4;
-        ctx.beginPath();ctx.ellipse(x,y+1,15+pulse,6+pulse*.4,0,0,6.3);ctx.stroke();
-        ctx.strokeStyle=SECT[idx];ctx.globalAlpha=mine?.35:.2;ctx.lineWidth=1;
-        ctx.beginPath();ctx.ellipse(x,y+1,21+pulse*1.4,8.5+pulse*.5,0,0,6.3);ctx.stroke();
-        ctx.restore();
-        }
-      }catch(e){}
+      // Equipped formations and the old ambient foot rings are hidden.
       _dc(ctx,x,y,dir,facing,moving,phase,attacking,ap);
       try{
         // tia sáng khi đánh + hồi máu đả tọa

@@ -86,6 +86,10 @@ def valid_player(p):
     ap = p.get('ap')
     if not isinstance(ap, dict) or type(ap.get('w')) is not int or ap['w'] not in range(4) or ap.get('gender') not in ('Nam', 'Nu'):
         raise ValueError('Tông môn hoặc giới tính không hợp lệ.')
+    if 'face' in ap and (type(ap['face']) is not int or not 1<=ap['face']<=10):
+        raise ValueError('Dung mạo không hợp lệ.')
+    if 'outfitStyle' in ap and ap['outfitStyle'] not in ['class',*[s['id'] for s in equipment_rules.RULES['outfitStyles']]]:
+        raise ValueError('Màu trang phục không hợp lệ.')
     for key, low, high in [('r',0,14),('stage',1,10),('gold',0,10**9),('xp',0,10**9),('hp',0,10**7),('mp',0,10**7),('x',0,2000),('y',0,2000)]:
         value = p.get(key)
         if type(value) not in (int,float) or not math.isfinite(value) or not low <= value <= high:
@@ -606,6 +610,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi'),('trailId','dichuyen'),('maskId','matna')]})
+            peer['ap']['robeId']=(equipment.get('daobao') or {}).get('id')
             peer['ap']['realm']=int(p['r'])
             with connect() as shield_db:peer['ap']['shieldState']=equipment_rules.shield_state(shield_db,uid,p)
             ack_sustain=body.get('ackSustain',[])

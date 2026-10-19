@@ -16,6 +16,20 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import server
 
 class OnlineServerTest(unittest.TestCase):
+    def test_face_and_robe_appearance_are_derived_from_saved_character(self):
+        a=self.register('outfit_owner');b=self.social_user('robe_view')
+        p=self.player('outfit_owner');p['ap'].update(face=7,outfitStyle='huyen-da')
+        p['world']['map']='hub'
+        robe=dict(server.equipment_rules.TEMPLATES['outfit-huyen-da-daobao-class-0'],uid='robe-one')
+        p['world'].setdefault('equip',{})['daobao']=robe
+        self.assertEqual(self.request('/api/characters',{'csrf':a[1],'revision':0,'player':p},a[0])[0],201)
+        self.assertEqual(self.request('/api/world',{'csrf':a[1],'map':'hub','x':1000,'y':1100,'hp':100,'ap':{'face':2,'robeId':'outfit-xich-diem-daobao-class-0'}},a[0])[0],200)
+        status,data,_=self.request('/api/world',{'csrf':b[1],'map':'hub','x':1000,'y':1100,'hp':100},b[0])
+        self.assertEqual(status,200)
+        peer=next(v for v in data['players'] if v['name']=='outfit_owner')
+        self.assertEqual(peer['ap']['face'],7)
+        self.assertEqual(peer['ap']['robeId'],robe['id'])
+
     def test_saved_cosmetic_trail_and_realm_are_broadcast(self):
         a=self.social_user('aura_one',3);b=self.social_user('aura_two')
         saved=self.request('/api/characters',cookie=a[0])[1]['character'];p=saved['player']

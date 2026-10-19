@@ -109,7 +109,7 @@ def validate(player, db=None, owner=None):
         seen.add(uid)
         meta=TEMPLATES.get(item.get('id'))
         if meta:
-            for key in ('slot','classIndex','gender','capacity','variant','art','req','rarity','price',*STAT_KEYS):
+            for key in ('slot','classIndex','gender','capacity','variant','art','req','rarity','price','outfitStyle',*STAT_KEYS):
                 if item.get(key,0)!=meta.get(key,0):raise ValueError('Chỉ số trang bị không hợp lệ.')
         elif item.get('slot') in RULES['slots']:raise ValueError('Trang bị tiện ích không hợp lệ.')
         allowed=pool(item)

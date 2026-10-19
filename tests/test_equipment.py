@@ -2,6 +2,7 @@
 import copy
 import json
 import re
+import struct
 from pathlib import Path
 import sys
 import tempfile
@@ -12,6 +13,43 @@ import server
 import equipment
 
 class EquipmentTest(unittest.TestCase):
+    def test_five_colored_outfits_are_canonical_class_gear(self):
+        styles=equipment.RULES['outfitStyles']
+        self.assertEqual(len(styles),5)
+        gear=[t for t in equipment.RULES['classGear'] if t.get('outfitStyle')]
+        self.assertEqual(len(gear),60)
+        png=(server.ROOT/equipment.RULES['outfitIconAtlas']).read_bytes()
+        self.assertEqual(png[:8],b'\x89PNG\r\n\x1a\n')
+        self.assertEqual(png[25],6)
+        width,height=struct.unpack('>II',png[16:24])
+        self.assertEqual(len({tuple(t['iconRect']) for t in gear}),15)
+        for item in gear:
+            x,y,w,h=item['iconRect']
+            self.assertTrue(x>=0 and y>=0 and w>150 and h>150 and x+w<=width and y+h<=height)
+        for cls in range(4):
+            for style in styles:
+                matching=[g for g in gear if g['classIndex']==cls and g['outfitStyle']==style['id']]
+                self.assertEqual({g['slot'] for g in matching},{'daobao','chan','giay'})
+                for item in matching:
+                    self.assertEqual(item['req'],0)
+                    self.assertNotIn('setId',item)
+        equipment.normalize(self.player)
+        self.player['ap'].update(face=7,outfitStyle=styles[0]['id'])
+        robe=self.make('outfit-'+styles[0]['id']+'-daobao-class-0')
+        self.player['world']['equip']['daobao']=robe
+        server.valid_player(self.player)
+        robe['outfitStyle']=styles[1]['id']
+        with self.assertRaises(ValueError):server.valid_player(self.player)
+
+    def test_creation_face_and_color_bounds(self):
+        for face in (0,11,True,1.5,'1'):
+            self.player['ap']['face']=face
+            with self.assertRaises(ValueError):server.valid_player(self.player)
+        self.player['ap'].update(face=10,outfitStyle='unknown')
+        with self.assertRaises(ValueError):server.valid_player(self.player)
+        self.player['ap']['outfitStyle']='class'
+        server.valid_player(self.player)
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
         self.location=patch.object(server,'DATABASE',Path(self.temp.name)/'test.sqlite3');self.location.start();server.init_db()

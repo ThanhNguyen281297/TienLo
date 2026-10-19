@@ -13,7 +13,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    await page.addInitScript(()=>requestAnimationFrame=()=>0);
    await page.goto('http://127.0.0.1:'+port,{waitUntil:'load'});await page.locator('[data-mode=register]').click();await page.locator('#account-name').fill('mask_'+gender.toLowerCase());await page.locator('#account-password').fill('test-password-123');await page.locator('.account-submit').click();await page.waitForFunction(()=>account.state.ready,null,{polling:50});
    await page.locator('.gender-choice button').nth(gender==='Nu'?1:0).click();await page.locator('#nm').fill('Mat Na '+gender);await page.locator('#ok').click();await page.waitForFunction(()=>P.ap,null,{polling:50});
-   assert.equal(await page.evaluate(()=>P.world.bag.length),0);assert.equal(await page.evaluate(()=>Object.values(P.world.equip).filter(Boolean).length),0);
+   assert.equal(await page.evaluate(()=>P.world.bag.length),0);assert.equal(await page.evaluate(()=>Object.values(P.world.equip).filter(Boolean).length),3);
    await page.evaluate(()=>{P.world.tutorial=true;worldMap.travel('hub');E=[];gmTest.enabled=true;hud();});
    await page.waitForFunction(()=>{characterMasks.refreshAvatar(true);return $('player-avatar').getContext('2d').getImageData(64,64,1,1).data[3]>0;},null,{polling:50});
    await page.waitForTimeout(100);await page.evaluate(()=>characterMasks.refreshAvatar(true));const original=await page.locator('#player-avatar').evaluate(c=>{window.avatarBaseline=Array.from(c.getContext('2d').getImageData(0,0,128,128).data);return c.toDataURL();});await page.locator('#player-avatar').screenshot({path:path.join(__dirname,'artifacts/masks-avatar-original-'+gender+'.png')});
@@ -24,7 +24,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
     await page.waitForFunction(id=>!!characterMasks.load(P.ap).image,id,{polling:50});
     await page.evaluate(()=>characterMasks.refreshAvatar(true));
     assert.equal(await page.locator('#player-avatar').getAttribute('data-mask-id'),id);
-    const hash=await page.locator('#player-avatar').evaluate(c=>c.toDataURL());assert.notEqual(hash,original);hashes.push(hash);
+    const hash=await page.locator('#player-avatar').evaluate(c=>c.toDataURL());if(i===1){const diff=await page.evaluate(()=>{const a=$('player-avatar').getContext('2d').getImageData(0,0,128,128).data;return {face:P.ap.face,ap:P.ap,mean:a.reduce((n,v,i)=>n+Math.abs(v-avatarBaseline[i]),0)/a.length};});assert(diff.mean<3,'Default face and mask 1 must match: '+gender);}else assert(hash!==original,'Expression must change: '+gender+' '+i);hashes.push(hash);
     assert.equal(await page.evaluate(()=>P.world.equip.matna.id),id);
    }
    assert.equal(new Set(hashes).size,10);
@@ -59,7 +59,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
      const ap={w,gender:m.gender,realm:0,maskId:null,backId:null,formationId:null,shieldId:null,ringId:null,trailId:null,weaponId:null};
      pixels(ap,dir,f);const before=pixels(ap,dir,f);ap.maskId=m.id;const after=pixels(ap,dir,f);
      let changes=0,lower=0;for(let n=0;n<before.length;n++){if(before[n]!==after[n]){changes++;if(n>=240*190*4)lower++;}}
-     if(dir===1?changes!==0:changes<50)throw Error('Face missing/rear face shown '+m.id+' class '+w+' dir '+dir+' '+changes);
+     if(dir===1||m.variant===1?changes!==0:changes<50)throw Error('Face missing/rear face shown '+m.id+' class '+w+' dir '+dir+' '+changes);
      // Expressions are now whole-body redraws; lower outfit pixels can differ.
      cases++;
     }

@@ -16,7 +16,7 @@
     for(const gender of ['Nam','Nu'])for(const direction of ['truoc','sau','trai','phai']){
       const img=new Image();img.src='Character/'+info.folder+'/'+gender+'/'+direction+'.png';result[gender][direction]=img;
     }
-    for(const [key,folder] of [['vukhi','VuKhi'],['vong','PhapTran'],['lung','PhapBao']]){
+    for(const [key,folder] of [['vukhi','VuKhi']]){
       const img=new Image();img.src=characterEquipmentArt(index,key);result[key]=img;
     }
     return result;
@@ -115,18 +115,6 @@
     renderArtwork(ctx,img, x - width / 2, y - height, width, height);
   }
 
-  function footRing(ctx, img, x, y, color) {
-    if (!ready(img)) return;
-    ctx.save();
-    ctx.imageSmoothingEnabled = true;
-    ctx.globalAlpha = .52 + Math.sin(tm * 3) * .06;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 2;
-    // Ảnh đã có phối cảnh: giữ hình vòng, chỉ thu chiều cao cho mặt đất.
-    renderArtwork(ctx,img, x - 44, y - 17, 88, 40);
-    ctx.restore();
-  }
-
   // Weapon effects remain in the fixed local weapon coordinates.
   const reducedWeaponMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const weaponTones=['#59bfff','#4de2b7','#a77aff','#f3c76b'];
@@ -195,22 +183,17 @@
     const bob = moving ? Math.abs(Math.sin(phase)) * 1.2 : Math.sin(tm * 2) * .4;
     ctx.save();
     ctx.imageSmoothingEnabled = true;
-    const ring=window.equipmentSystem?.formationImage(ap,images.vong)||(!window.equipmentSystem?images.vong:null);
-    if(ring)footRing(ctx, ring, x, y, info.color);
+    // Pháp trận/pháp bảo retain equipment stats but have no world decoration.
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,false);
-    const back=window.equipmentSystem?.backImage(ap,images.lung)||(!window.equipmentSystem?images.lung:null);
     // The weapon keeps its class angle; the back mount follows the spine.
     const angle = [-.18,-.3,.12,-.2][index];
     const weapon = window.characterWeapon.position(index, x, y, bob);
     const wx = weapon.x, wy = weapon.y;
     const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
     const weaponColor=weaponTones[index];
-    const drawBackItem = () => {
-      if (!back||!ready(back)) return;
-      window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm);
-    };
     const drawWeapon = () => {
+      if(ap===tp&&!P.ap)return;
       if ((ap===P.ap&&!gear)||(ap!==P.ap&&ap?.weaponId===null)||!ready(images.vukhi)) return;
       ctx.save();
       ctx.translate(wx, wy);
@@ -226,8 +209,6 @@
       weaponEnergy(ctx,index,quality,attacking,true);
       ctx.restore();
     };
-    // Facing the camera hides the back mount; facing away reveals it over the back.
-    if(dir!==1)drawBackItem();
     const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
     const fit = index === 2 && gender === 'Nam' ? spearMaleFit : null;
     const bodyHeight = fit ? fit.height : 42;
@@ -242,8 +223,6 @@
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
     const outlined=renderedBody||{image:bodyImage,x:x-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
     window.equipmentProgression?.outline(ctx,outlined.image,outlined.x,outlined.y,outlined.width,outlined.height,bodyLevel||0);
-    // Facing away: the complete back mount sits in front of the rear sprite, including long hair.
-    if(dir===1)drawBackItem();
     drawWeapon();
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,true);
     window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap);

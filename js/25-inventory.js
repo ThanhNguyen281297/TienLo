@@ -260,6 +260,7 @@
   }
   let selectedUid=null;
   function itemIcon(item,slot) {
+    const costume=window.characterWardrobe?.itemIcon(item);if(costume)return costume;
     const wornArt=equipmentData.appearance(item);if(wornArt)return artworkURL(wornArt);
     if(item?.art)return artworkURL(item.art);
     if(item?.slot==='ngoc'||slot==='ngoc')return artworkURL('Item/Thuan/'+(item?.variant||1)+'.png');
