@@ -1,6 +1,6 @@
 /* Outfit palette rendering, base face/color choices and three-piece starter gear. */
 (function(){
- const styles=equipmentRules.outfitStyles,byStyle=new Map(styles.map(s=>[s.id,s])),rearCache=new Map(),iconCache=new Map();
+ const styles=equipmentRules.outfitStyles,byStyle=new Map(styles.map(s=>[s.id,s])),iconCache=new Map();
  const atlas=new Image();atlas.src=artworkURL(equipmentRules.outfitIconAtlas);
  function styleOf(ap){
   if(!ap)return 'class';
@@ -24,7 +24,7 @@
   const cls=ap.w||0,female=ap.gender==='Nu',rear=direction==='sau';
   // The complete head is a protected region. This shader changes garment colors,
   // never facial features, skin, outlines or gold embroidery.
-  const neckline=rear?(female?.46:.49):(female?.50:cls===1?.61:.55);
+  const neckline=rear?.50:(female?.50:cls===1?.61:.55);
   for(let y=Math.ceil(h*neckline);y<h;y++)for(let x=0;x<w;x++){
    const i=(y*w+x)*4;if(!p[i+3])continue;
    const [hue,sat,value]=hsv(p[i],p[i+1],p[i+2]);if(value<.10)continue;
@@ -37,13 +37,6 @@
    for(let c=0;c<3;c++)p[i+c]=color[c];
   }
   ctx.putImageData(pixels,0,0);return canvas;
- }
- function rear(body,ap){
-  const style=styleOf(ap);if(style==='class'||!body.complete||!body.naturalWidth)return body;
-  const key=(ap.w||0)+'/'+ap.gender+'/'+style;if(rearCache.has(key))return rearCache.get(key);
-  const canvas=document.createElement('canvas');canvas.height=480;canvas.width=Math.round(480*body.naturalWidth/body.naturalHeight);
-  canvas.getContext('2d').drawImage(body,0,0,canvas.width,canvas.height);
-  const result=paint(canvas,ap,'sau',style);rearCache.set(key,result);if(rearCache.size>24)rearCache.delete(rearCache.keys().next().value);return result;
  }
  function itemIcon(item){
   const meta=equipmentData.byId.get(item?.id);if(!meta?.iconRect)return null;
@@ -101,7 +94,7 @@
  #cr .color-options small{font:10px Arial}#cr .color-options button[aria-pressed=true]{border-color:#e1bc73;background:#353021}#cr #ok:disabled{opacity:.5;cursor:wait}
  @media(max-width:600px){#cr .creator-preview{position:static}#cr .creator-faces canvas{max-width:42px}#cr .sect-choice small{display:none}#cr .sect-choice{min-height:64px}#cr .sect-choice b{font-size:12px}}
  `;document.head.append(style);
- window.characterWardrobe={styles,styleOf,paint,rear,itemIcon,refreshCreator};
+ window.characterWardrobe={styles,styleOf,paint,itemIcon,refreshCreator};
  atlas.onload=()=>{for(const node of document.querySelectorAll('[data-item-id],[data-gm-item]')){
   const item=equipmentData.byId.get(node.dataset.itemId||node.dataset.gmItem),img=node.querySelector('img');
   if(item?.iconRect&&img)img.src=itemIcon(item);

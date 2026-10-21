@@ -50,7 +50,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    }
    // Load all masks once to inspect real body poses with remote appearances.
    await page.evaluate(()=>{for(const gender of ['Nam','Nu'])for(let w=0;w<4;w++)characterMasks.load({w,gender});});
-   await page.waitForFunction(()=>['Nam','Nu'].every(gender=>[0,1,2,3].every(w=>characterMasks.load({w,gender}).image)),null,{polling:50});
+   await page.waitForFunction(()=>['Nam','Nu'].every(gender=>[0,1,2,3].every(w=>characterMasks.load({w,gender}).image&&characterMasks.loadRear({w,gender}).image)),null,{polling:50});
    const audit=await page.evaluate(()=>{
     const c=document.createElement('canvas');c.width=240;c.height=280;const ctx=c.getContext('2d',{willReadFrequently:true});
     const pixels=(ap,dir,f)=>{ctx.resetTransform();ctx.clearRect(0,0,240,280);ctx.setTransform(4,0,0,4,120,240);drawChar(ctx,0,0,dir,f,false,0,false,ap);return ctx.getImageData(0,0,240,280).data;};
@@ -80,7 +80,8 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
      const sx=g.width/f.width,sy=g.height/f.height;
      if(Math.abs(g.x+f.anchor[0]*sx-123)>1e-8||Math.abs(g.y+f.anchor[1]*sy-215)>1e-8)throw Error('Moving floor anchor');
      if(Math.abs(sx/sy-f.pixelAspect)>1e-8)throw Error('Incorrect authored pixel aspect');
-     if(characterMasks.frameFor(ap,'sau'))throw Error('A face must never appear on rear view');
+     const rear=characterMasks.frameFor(ap,'sau'),baseRear=characterMasks.frameFor({...ap,maskId:null},'sau');
+     if(!rear||rear!==baseRear)throw Error('Masks must not change the rear body');
      cases++;
     }
    }finally{window.renderArtwork=originalRender;CanvasRenderingContext2D.prototype.getImageData=read;}

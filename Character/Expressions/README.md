@@ -2,9 +2,11 @@
 
 Ảnh được tạo bằng ImageGen tích hợp (built-in), nền PNG RGBA trong suốt. Bộ ảnh gồm 8 atlas tại `Character/Expressions/{Kiem,Liem,Thuong,Quat}/{Nam,Nu}.png`, tổng cộng 240 tư thế: 10 biểu cảm × 3 hướng × 4 class × 2 giới tính.
 
-Mỗi ô chứa nguyên nhân vật. Game dùng `manifest.json` để đọc trọn sprite và neo ở bàn chân. Không ghép mắt, miệng, mặt hoặc đầu vào cơ thể gốc. Hướng quay lưng giữ sprite gốc vì không nhìn thấy mặt. Trang bị và hiệu ứng vẫn được vẽ theo lớp của hệ thống trang bị. Avatar HUD lấy từ cùng hình nhân vật đã chọn.
+Mỗi ô chứa nguyên nhân vật. Game dùng `manifest.json` để đọc trọn sprite và neo ở bàn chân. Không ghép mắt, miệng, mặt hoặc đầu vào cơ thể gốc. Hướng quay lưng dùng 8 sprite vẽ lại tại `Rear/{Nam,Nu}.png`, cùng tỷ lệ chibi của ba hướng mới; không dùng thân ảnh cũ có tỷ lệ dài và mảnh. Các lựa chọn mặt dùng chung hướng quay lưng; màu đạo bào áp dụng đủ bốn hướng. Trang bị và hiệu ứng vẫn được vẽ theo lớp của hệ thống trang bị. Pháp trận đang mặc được chiếu xuống mặt đất, dưới nhân vật; tháo ra sẽ hết hình. Avatar HUD lấy từ cùng hình nhân vật đã chọn.
 
-Các đường đăng ký ô trong atlas nằm ngoài vùng nguồn `rect` và không được vẽ vào game. `tests/build_expression_manifest.py` chỉ đọc PNG để tạo metadata, không chỉnh ảnh; cần Pillow khi chạy công cụ này. CI và game dùng metadata đã lưu, không cần Pillow. Cache sprite giới hạn 64 mục; atlas chỉ nạp khi có nhân vật đang dùng mặt nạ tương ứng.
+Các đường đăng ký ô trong atlas nằm ngoài vùng nguồn `rect` và không được vẽ vào game. `tests/build_expression_manifest.py` chỉ đọc PNG để tạo metadata, không chỉnh ảnh; cần Pillow khi chạy công cụ này. CI và game dùng metadata đã lưu, không cần Pillow. Cache sprite giới hạn 64 mục; atlas nạp theo class và giới tính đang hiển thị. Hai atlas quay lưng dùng bố cục 2×2: Kiếm, Liềm, Thương, Quạt. Điểm neo và toàn bộ thân ảnh dùng chung phép tính hình học với các hướng khác, không thay kích thước khi xoay người.
+
+Kiểm tra hướng quay lưng/pháp trận: `node tests/character-ground-rendering.test.cjs` kiểm tra 32 tư thế, đủ 7 pháp trận × 4 class × 2 giới tính × 4 hướng; xuất ảnh đối chiếu vào `tests/artifacts/character-{directions,formations}-fixed.png`.
 
 `pixelAspect` hiệu chỉnh tỷ lệ của nguyên sprite ở hàng cuối bị ép chiều cao trong hai atlas Liềm nam / Thương nữ. Phép hiệu chỉnh áp dụng cho toàn bộ nhân vật và cả điểm neo chân; không điều chỉnh riêng mắt, miệng hoặc mặt. Kiểm tra asset giới hạn độ biến thiên tỷ lệ giữa các biểu cảm cùng class và hướng nhìn.
 

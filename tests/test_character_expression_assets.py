@@ -40,5 +40,24 @@ class CharacterExpressions(unittest.TestCase):
         index=(ROOT/'index.html').read_text(encoding='utf-8-sig')
         self.assertLess(index.index('js/35l-expression-frames.js'),index.index('js/35l-character-masks.js'))
 
+    def test_complete_rear_sprites_match_body_proportions(self):
+        data=json.loads((ROOT/'Character/Expressions/manifest.json').read_text(encoding='utf-8'))
+        self.assertEqual(set(data['rears']),set(data['atlases']))
+        self.assertEqual(len({f['file'] for f in data['rears'].values()}),2)
+        for key,frame in data['rears'].items():
+            with self.subTest(rear=key):
+                png=(ROOT/frame['file']).read_bytes()
+                self.assertEqual(png[25],6)
+                self.assertEqual(list(struct.unpack('>II',png[16:24])),frame['size'])
+                x,y,w,h=frame['rect'];ax,ay=frame['anchor']
+                self.assertGreater(w,300)
+                self.assertGreater(h,500)
+                self.assertTrue(0<x and 0<y and x+w<frame['size'][0] and y+h<frame['size'][1])
+                self.assertTrue(0<ax<w and h-8<=ay<=h)
+                self.assertEqual(frame['pixelAspect'],1)
+                front=[f for f in data['atlases'][key]['frames'] if f['direction']=='truoc']
+                reference=sum(f['rect'][2]*f['pixelAspect']/f['anchor'][1] for f in front)/len(front)
+                self.assertTrue(.8<=(w/ay)/reference<=1.25,'Rear must match the new body, not the old slender source')
+
 
 if __name__=='__main__': unittest.main()

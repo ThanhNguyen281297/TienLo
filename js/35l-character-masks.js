@@ -1,7 +1,7 @@
 /* Mask expressions are baked into complete character sprites. No face overlays. */
 (function(){
  const masks=new Map(equipmentRules.masks.map(item=>[item.id,item]));
- const atlases=new Map(),frames=new Map(),frameLimit=64,empty=document.createElement('canvas');empty.width=empty.height=1;
+ const atlases=new Map(),rearAtlases=new Map(),frames=new Map(),frameLimit=64,empty=document.createElement('canvas');empty.width=empty.height=1;
  const genderOf=ap=>ap?.gender==='Nu'?'Nu':'Nam';
  const classOf=ap=>Number.isInteger(ap?.w)&&ap.w>=0&&ap.w<4?ap.w:0;
  const atlasKey=ap=>characterClasses[classOf(ap)].folder+'/'+genderOf(ap);
@@ -16,6 +16,7 @@
  }
  function load(ap=P.ap){
   if(!ap)return null;
+  loadRear(ap);
   const key=atlasKey(ap);if(atlases.has(key))return atlases.get(key);
   const meta=characterExpressionFrames.atlases[key],entry={image:null,failed:false,meta};
   atlases.set(key,entry);
@@ -25,14 +26,26 @@
   };
   image.onerror=()=>{entry.failed=true;};image.src=artworkURL(meta.file);return entry;
  }
+ function loadRear(ap=P.ap){
+  if(!ap)return null;
+  const meta=characterExpressionFrames.rears[atlasKey(ap)];
+  if(rearAtlases.has(meta.file))return rearAtlases.get(meta.file);
+  const entry={image:null,failed:false};rearAtlases.set(meta.file,entry);
+  const image=new Image();image.onload=()=>{
+   if(image.naturalWidth!==meta.size[0]||image.naturalHeight!==meta.size[1]){entry.failed=true;return;}
+   entry.image=image;window.characterWardrobe?.refreshCreator();
+  };
+  image.onerror=()=>{entry.failed=true;};image.src=artworkURL(meta.file);return entry;
+ }
  function frameFor(ap,direction='truoc'){
-  const item=faceFor(ap);
-  if(!item||!characterExpressionFrames.directions.includes(direction))return null;
-  const atlas=load(ap);if(!atlas.image)return null;
+  const item=faceFor(ap),rear=direction==='sau';
+  if(!item||(!rear&&!characterExpressionFrames.directions.includes(direction)))return null;
+  const atlas=rear?loadRear(ap):load(ap);if(!atlas.image)return null;
   const style=window.characterWardrobe?.styleOf(ap)||'class';
-  const key=atlasKey(ap)+'/'+item.variant+'/'+direction+'/'+style;
+  // Rear artwork is shared across face choices: a mask never paints a rear face.
+  const key=atlasKey(ap)+'/'+(rear?'rear':item.variant)+'/'+direction+'/'+style;
   if(frames.has(key)){const frame=frames.get(key);frames.delete(key);frames.set(key,frame);return frame;}
-  const meta=atlas.meta.frames.find(f=>f.variant===item.variant&&f.direction===direction);
+  const meta=rear?characterExpressionFrames.rears[atlasKey(ap)]:atlas.meta.frames.find(f=>f.variant===item.variant&&f.direction===direction);
   if(!meta)return null;
   const [x,y,width,height]=meta.rect,canvas=document.createElement('canvas');
   canvas.width=width;canvas.height=height;
@@ -51,8 +64,7 @@
  }
  function drawBody(ctx,body,ap,direction,x,y,width,height,feet){
   const frame=frameFor(ap,direction);
-  const fallback=direction==='sau'?(window.characterWardrobe?.rear(body,ap)||body):empty;
-  const result=frame?geometry(frame,feet?.x??x+width/2,feet?.y??y+height,height):{image:fallback,x,y,width,height};
+  const result=frame?geometry(frame,feet?.x??x+width/2,feet?.y??y+height,height):{image:empty,x,y,width,height};
   renderArtwork(ctx,result.image,result.x,result.y,result.width,result.height);
   return result;
  }
@@ -78,7 +90,7 @@
  }
  const previousHud=hud;hud=function(){previousHud();refreshAvatar();};
  addEventListener('tienlo-auth',()=>refreshAvatar(true));
- window.characterMasks={forAppearance,faceFor,portrait,load,frameFor,geometry,drawBody,frameLimit,
-  get cacheSize(){return frames.size;},get atlasCount(){return atlases.size;},refreshAvatar};
+ window.characterMasks={forAppearance,faceFor,portrait,load,loadRear,frameFor,geometry,drawBody,frameLimit,
+  get cacheSize(){return frames.size;},get atlasCount(){return atlases.size;},get rearAtlasCount(){return rearAtlases.size;},refreshAvatar};
  refreshAvatar();
 })();

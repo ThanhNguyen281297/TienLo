@@ -183,7 +183,8 @@
     const bob = moving ? Math.abs(Math.sin(phase)) * 1.2 : Math.sin(tm * 2) * .4;
     ctx.save();
     ctx.imageSmoothingEnabled = true;
-    // Pháp trận/pháp bảo retain equipment stats but have no world decoration.
+    // Only an equipped formation is projected onto the ground beneath the body.
+    window.equipmentSystem?.drawFormation(ctx,x,y,ap);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,false);
     // The weapon keeps its class angle; the back mount follows the spine.
