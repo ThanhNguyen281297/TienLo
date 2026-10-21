@@ -16,7 +16,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(require('node:
     const death=await page.evaluate(()=>{const before=P.gold;hit(E[0],10000);const reward=P.gold-before;hit(E[0],10000);return {reward,second:P.gold-before,mode:creatureArt.frame(creatureArt.corpses[0]).mode,count:creatureArt.corpses.length};});assert(death.reward>0);assert.equal(death.reward,death.second);assert.equal(death.mode,'death');assert.equal(death.count,1);
     await page.evaluate(()=>stepCreatures(1));assert.equal(await page.evaluate(()=>creatureArt.corpses.length),0);await page.evaluate(()=>stepCreatures(7.1));assert(await page.evaluate(()=>E[0].hp>0&&E[0].dead===0&&worldMap.canWalk(E[0])));
     // Every sheet selects a single frame; hurt animations have five rather than six.
-    assert(await page.evaluate(()=>Object.values(creatureArt.species).every(k=>k.sheets[k.hurt-1]===5&&k.sheets[k.death-1]===6)));
+    assert(await page.evaluate(()=>['BoNgua','Tho','Nhen','Doi'].every(name=>{const k=creatureArt.species[name];return k.sheets[k.hurt-1]===5&&k.sheets[k.death-1]===6;})));
     await page.evaluate(()=>{worldMap.travel('sword');P.x=1000;P.y=1700;P.acd=100;P.hp=mhp();P.mp=mmp();E=[0,1,3,4].map((t,i)=>({t,x:910+i*60,y:1650,hx:910+i*60,hy:1650,hp:T[t].hp,dead:0,cd:100,fr:0,fl:0,worldMap:true}));stepCreatures(.01);});await page.screenshot({path:path.join(__dirname,'artifacts/monster-lineup.png')});
     const cleanCreatures=await page.evaluate(()=>{
       const results=[];const ellipse=g.ellipse.bind(g),stroke=g.stroke.bind(g),draw=g.drawImage.bind(g);

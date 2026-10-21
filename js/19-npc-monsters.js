@@ -34,7 +34,7 @@
     else if(window.fieldEffects?.immobilized(e)){mode='idle';age=0;}
     else if(s.hurt>0){mode='hurt';age=s.hurtAge;fps=13;}
     else if(s.attack>0&&!window.fieldEffects?.blocksAttack(e)){mode='attack';age=s.attackAge;fps=10;}
-    else if(s.moving){mode='move';fps=9;}
+    else if(s.moving||s.networkMovingUntil>performance.now()){mode='move';fps=9;}
     const sheet=kind[mode],count=kind.sheets[sheet-1],index=['hurt','attack','death'].includes(mode)?Math.min(count-1,Math.floor(age*fps)):Math.floor(age*fps)%count;
     const pose=kind.poses[sheet-1][index];
     return {kind,mode,sheet,index,image:pose.image,count,rect:pose.rect,sourceHeight:pose.sourceHeight,padding:pose.padding};
@@ -110,5 +110,6 @@
   const css=document.createElement('style');css.textContent='.v{background:none!important}#npc-dialog-portrait{float:right;width:70px;height:95px;object-fit:contain;margin:0 22px 10px 16px;filter:drop-shadow(0 3px 5px #0005)}';document.head.appendChild(css);
   window.creatureArt={reaction:state,species,npcImages,corpses,frame,drawNpc,decorateDialog,npcHeight:s=>npcRoles[s.id]?(s.id==='rank'?68:60):36,
     onNetworkDamage(e,dead){const s=state(e);react(e);e.fl=.1;if(dead&&!corpses.some(c=>c.id===e.id&&c.age<.95)){corpses.push({...e,corpse:true,age:0});s.attack=0;}},
+    onNetworkMove(e,moving){if(moving)state(e).networkMovingUntil=performance.now()+400;},
     onAttack(e){const s=state(e);s.attack=.6;s.attackAge=0;},ready:()=>Object.values(npcImages).every(ready)&&Object.values(species).every(s=>s.images.every(ready))};
 })();

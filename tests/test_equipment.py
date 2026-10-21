@@ -30,7 +30,7 @@ class EquipmentTest(unittest.TestCase):
     def test_five_colored_outfits_are_canonical_class_gear(self):
         styles=equipment.RULES['outfitStyles']
         self.assertEqual(len(styles),5)
-        gear=[t for t in equipment.RULES['classGear'] if t.get('outfitStyle')]
+        gear=[t for t in equipment.RULES['classGear'] if t['id'].startswith('outfit-')]
         self.assertEqual(len(gear),60)
         png=(server.ROOT/equipment.RULES['outfitIconAtlas']).read_bytes()
         self.assertEqual(png[:8],b'\x89PNG\r\n\x1a\n')

@@ -34,7 +34,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
   const ornamentChanges=plain.reduce((n,v,i)=>n+(v!==data[i]),0),error=plain.reduce((n,v,i)=>n+Math.abs(v-data[i]),0);if(error>30)throw Error('Hidden ornaments still rendered '+JSON.stringify({ornamentChanges,error}));
   if(equipmentSystem.backImage(ap)!==null||equipmentSystem.formationImage(ap)!==null)throw Error('Hidden ornaments exposed');
   if(characterMasks.cacheSize>characterMasks.frameLimit)throw Error('Unbounded costume cache');
-  return{poses,changed,heads,items:equipmentRules.classGear.filter(t=>t.outfitStyle).length,cache:characterMasks.cacheSize};
+  return{poses,changed,heads,items:equipmentRules.classGear.filter(t=>t.id.startsWith("outfit-")).length,cache:characterMasks.cacheSize};
  });assert.equal(audit.poses,160);assert.equal(audit.items,60);
  // A robe controls the outfit even if boots/belt come from other colors.
  await page.evaluate(()=>{gmTest.enabled=true;gmEquipment.take('outfit-thanh-truc-daobao-class-0',true);worldMap.dialog.close();});assert.equal(await page.evaluate(()=>characterWardrobe.styleOf(P.ap)),'thanh-truc');assert.equal(await page.evaluate(()=>P.world.equip.giay.outfitStyle),'xich-diem');

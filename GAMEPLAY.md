@@ -1,5 +1,24 @@
 # Thiết kế gameplay Tiên Lộ Online
 
+## Tứ Phương Bí Cảnh và lôi đài — 21/10/2026
+
+| Cổng trong Thiên Vân Thành | Bí cảnh | Level vào / trang bị | Tỉ lệ rơi đồ quái thường |
+| --- | --- | --- | --- |
+| Đông | Thanh Mộc Linh Cảnh | 10 | 25% |
+| Tây | Huyền Thủy Long Uyên | 25 | 30% |
+| Nam | Xích Diệm Hoang Vực | 45 | 35% |
+| Bắc | U Minh Cốt Giới | 70 | 40% |
+
+Mỗi bí cảnh có 24 quái thường và một thủ lĩnh, phòng chung mọi cảnh giới tu vi. Server kiểm tra level nhân vật khi vào. Khu cửa về thành an toàn; quái thường hồi sau 12 giây, thủ lĩnh sau 90 giây. 12 loài mới có 20 tư thế/loài: đứng, di chuyển, đánh, trúng đòn, chết; ảnh gốc giữ nguyên. Atlas tải theo bí cảnh, đợi tải xong mới tham chiến.
+
+Thủ lĩnh luôn cấp một món cho mỗi người đủ điều kiện nhận thưởng. Quái thường dùng tỉ lệ trong bảng. Server chọn một trong bốn ô vũ khí/đạo bào/hộ thối/giày, đúng class và cấp bí cảnh; tổng 64 mẫu mới. Điều kiện mặc dùng level nhân vật. Các mẫu này không bán ở cửa hàng; GM vẫn lấy thử được. Đồ rơi lưu SQLite độc lập, không mất khi túi đầy, tải lại hoặc restart. **Chiến lợi phẩm** nhận vào chỗ trống, tối đa 30 món/lượt; tự nhận khi về thành còn chỗ. Giao dịch có revision và đánh dấu đã nhận cùng lần cập nhật nhân vật.
+
+**Khác → Lôi đài** mở danh sách đạo hữu ở thành, lời mời và các trận đang diễn ra. Lời mời có hiệu lực 60 giây, cần đối thủ chấp nhận; hai người tự chuyển vào Thiên Vân Lôi Đài, đếm ngược 3 giây rồi đấu tối đa 600 giây. Bắt đầu đầy HP/MP. Hạ gục kết thúc sớm; hết 10 phút so tổng sát thương thực đã trừ HP, bằng nhau là hòa. Xin thua rời sân; mất kết nối quá 30 giây xử thua, cả hai mất kết nối là hòa. Đấu giao hữu không trừ Linh Thạch và không rơi đồ. Thời hạn, HP, MP, cooldown, vị trí, sát thương và kết quả do server quản lý, lưu trạng thái qua restart; client chỉ gửi ý định tung chiêu.
+
+Người khác chọn **Xem** ở trận đang diễn ra để vào vòng khán đài. Camera bao quát hai đấu thủ, hiện HP, thời gian, tổng sát thương và số khán giả. Khán giả chỉ đi vòng ngoài, không dùng skill hoặc gây sát thương; các trận cách ly phòng. Kết quả hiện 8 giây rồi về thành. Khi đang đấu, dùng **Xin thua** để rời; khán giả có thể rời bất kỳ lúc nào.
+
+Kiểm tra: `python tests/test_expeditions_duels.py` và `node tests/expeditions-duel-game.test.cjs`. [Tệp ảnh và prompt](Character/Monsters/ANIMATION.md).
+
 ## Cấp nhân vật và tu vi — 18/10/2026
 
 - Level 1–200 tự tăng bằng EXP từ quái và phần thưởng nhiệm vụ; giữ toàn bộ EXP dư qua nhiều cấp. Cấp cuối không tích thêm EXP. Cần `100 + 45n + 12n²` EXP, với `n = cấp−1`: cấp 1 cần 100, cấp 2 cần 157, cấp 10 cần 1.477, cấp 50 cần 31.117 EXP. Mỗi cấp +6 HP, +2 MP, +0,8 Công gốc; server tính HP/Công theo cùng công thức.

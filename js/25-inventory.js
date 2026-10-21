@@ -116,7 +116,7 @@
     msg('Nhặt được ' + n + ' Thăng Vị Đan! (đang có ' + p.thangViDan + ')');
   }
   function rollDrop(e, arena = false) {
-    if(e.rift)return;
+    if(e.rift||e.expedition)return;
     const p = progress();
     const isBoss = e.t === 2 || e.elite || e.boss || e.challenge;
     const valley = e.map === 'valley' || e.valley;
@@ -158,8 +158,7 @@
     if (idx < 0) return;
     const item = p.bag[idx];
     if (!item.slot) return msg('Vật phẩm này không trang bị được.');
-    const lvl = typeof cultivationLevel === 'function' ? cultivationLevel() : 0;
-    if (!window.gmTest?.enabled && lvl < (item.req || 0)) return msg('Cần cấp ' + item.req + ' để mặc ' + item.name + '.');
+    if (!window.gmTest?.enabled && characterLevel() < (item.req || 0)) return msg('Cần cấp nhân vật ' + item.req + ' để mặc ' + item.name + '.');
     if(!equipmentRules.sharedSlots.includes(item.slot)&&item.classIndex!==undefined&&item.classIndex!==P.ap.w)return msg('Trang bị thuộc tông môn khác.');
     const gender=equipmentData.byId.get(item.id)?.gender;
     if(gender&&gender!==(P.ap.gender||'Nam'))return msg('Mặt nạ dành cho nhân vật '+(gender==='Nu'?'nữ':'nam')+'.');
@@ -374,7 +373,7 @@
   function openShopEquip() {
     // Gọi từ Bảo Khí Các: giữ dialog gốc, thêm quầy đồ mới.
     dialog.line('Trang bị đúng class và đồ dùng chung');
-    TEMPLATES.filter(t => t.slot && t.source!=='rift').forEach(t => {
+    TEMPLATES.filter(t => t.slot && t.source!=='rift'&&!t.id.startsWith('exp-')).forEach(t => {
       const wi=['moc-kiem','huyen-kiem','linh-kiem','tien-kiem'].indexOf(t.id),name=wi<0?t.name:equipmentRules.weaponNames[P.ap.w][wi];
       if(!equipmentRules.sharedSlots.includes(t.slot)&&t.classIndex!==undefined&&t.classIndex!==P.ap.w)return;
       if(t.gender&&t.gender!==(P.ap.gender||'Nam'))return;
