@@ -439,6 +439,39 @@
       "rarity": "pham",
       "art": "Item/PhapTran/7.png",
       "desc": "Pháp trận dưới chân, mọi tông môn đều trang bị được."
+    },
+    {
+      "id": "formation-4",
+      "name": "Huyền Băng Bát Quái Trận",
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/1.png",
+      "desc": "Pháp trận hỗ trợ kỹ năng, mọi tông môn đều trang bị được."
+    },
+    {
+      "id": "formation-5",
+      "name": "Tử Vi Tinh Hà Trận",
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/2.png",
+      "desc": "Pháp trận hỗ trợ kỹ năng, mọi tông môn đều trang bị được."
+    },
+    {
+      "id": "formation-6",
+      "name": "Thanh Hư Lưỡng Nghi Trận",
+      "slot": "phaptran",
+      "skill": 0.01,
+      "price": 40,
+      "req": 0,
+      "rarity": "pham",
+      "art": "Item/PhapTran/3.png",
+      "desc": "Pháp trận hỗ trợ kỹ năng, mọi tông môn đều trang bị được."
     }
   ],
   "rings": [

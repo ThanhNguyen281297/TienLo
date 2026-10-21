@@ -13,6 +13,20 @@ import server
 import equipment
 
 class EquipmentTest(unittest.TestCase):
+    def test_seven_shared_formations_preserve_existing_items(self):
+        formations=equipment.RULES['formations']
+        self.assertEqual([f['id'] for f in formations],[f'formation-{i}' for i in range(7)])
+        self.assertEqual([f['art'] for f in formations[:4]],[
+            'Item/PhapTran/5.png','Item/PhapTran/6.png','Item/PhapTran/8.png','Item/PhapTran/7.png'])
+        self.assertEqual(len({f['art'] for f in formations}),7)
+        for cls in range(4):
+            self.player['ap']['w']=cls
+            equipment.normalize(self.player)
+            for formation in formations:
+                self.player['world']['equip']['phaptran']=self.make(formation['id'])
+                server.valid_player(self.player)
+                self.assertEqual(equipment.TEMPLATES[formation['id']]['art'],formation['art'])
+
     def test_five_colored_outfits_are_canonical_class_gear(self):
         styles=equipment.RULES['outfitStyles']
         self.assertEqual(len(styles),5)
