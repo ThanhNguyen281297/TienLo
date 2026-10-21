@@ -33,6 +33,7 @@ class OnlineServerTest(unittest.TestCase):
     def test_saved_cosmetic_trail_and_realm_are_broadcast(self):
         a=self.social_user('aura_one',3);b=self.social_user('aura_two')
         saved=self.request('/api/characters',cookie=a[0])[1]['character'];p=saved['player']
+        with server.connect() as db:db.execute("UPDATE users SET gm=1 WHERE username='aura_one'")
         p['world']['equip']['dichuyen']=dict(server.equipment_rules.TEMPLATES['footstep-6'],uid='trail-one')
         p['world']['equip']['matna']=dict(server.equipment_rules.TEMPLATES['mask-nam-8'],uid='mask-one')
         self.assertEqual(self.request('/api/characters',{'csrf':a[1],'revision':saved['revision'],'player':p},a[0])[0],201)
@@ -425,9 +426,9 @@ class OnlineServerTest(unittest.TestCase):
             return self.request('/api/world',{'csrf':csrf,'map':'sword','x':1105,'y':490,'batch':extra.pop('batch',server.secrets.token_hex(8)),**extra},cookie)
         initial=frame(a,ca)[1];mob=initial['mobs'][0]
         second=frame(b,cb,emote='wave')[1];self.assertEqual(second['players'][0]['name'],'Kiếm Một')
-        first=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(first['mobs'][0]['hp'],10)
-        replay=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(replay['mobs'][0]['hp'],10)
-        killed=frame(b,cb,hits=[{'id':mob['id'],'power':10}])[1];self.assertEqual(killed['mobs'][0]['hp'],0);self.assertEqual(len(killed['rewards']),1)
+        first=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(first['mobs'][0]['hp'],mob['hp']-10)
+        replay=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(replay['mobs'][0]['hp'],mob['hp']-10)
+        killed=frame(b,cb,hits=[{'id':mob['id'],'power':50}])[1];self.assertEqual(killed['mobs'][0]['hp'],0);self.assertEqual(len(killed['rewards']),1)
         reward=frame(a,ca)[1]['rewards'];self.assertEqual(len(reward),1)
         acknowledged=frame(a,ca,ack=[reward[0]['eventId']])[1];self.assertEqual(acknowledged['rewards'],[])
         self.assertEqual(self.request('/api/chat',{'csrf':ca,'text':'Xin chào <script>'},a)[0],200)

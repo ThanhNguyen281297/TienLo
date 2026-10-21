@@ -11,7 +11,7 @@ dr=function(){const now=performance.now(),dt=Math.min(.05,(now-lt)/1000);lt=now;
  const vw=W/Z,vh=H/Z,{x:cx,y:cy}=gameCamera(vw,vh);
  g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.fillStyle='#171310';g.fillRect(0,0,W,H);
  g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);drawGround(cx,cy,vw,vh);window.worldMap?.drawGroundDetails(g,cx,cy,vw,vh);window.classCombat?.drawGroundEffects(g);
- if(P.med||P.xp>=need()){const c=P.med?'95,224,192':'217,164,65',p=Math.sin(tm*4);g.lineWidth=2;for(let i=0;i<3;i++){g.strokeStyle='rgba('+c+','+(.7-i*.2)+')';g.beginPath();g.ellipse(P.x,P.y+2,14+i*6+p*2,6+i*2.5+p,0,0,6.3);g.stroke()}glow(P.x,P.y,40,'rgba('+c+',.8)',.3)}
+ if(P.med){const c=P.med?'95,224,192':'217,164,65',p=Math.sin(tm*4);g.lineWidth=2;for(let i=0;i<3;i++){g.strokeStyle='rgba('+c+','+(.7-i*.2)+')';g.beginPath();g.ellipse(P.x,P.y+2,14+i*6+p*2,6+i*2.5+p,0,0,6.3);g.stroke()}glow(P.x,P.y,40,'rgba('+c+',.8)',.3)}
  const it=[];
  window.worldMap?.queueActors(it,cx,cy,vw,vh);
  for(const e of E)if(!e.dead&&e.x>cx-60&&e.x<cx+vw+60&&e.y>cy-60&&e.y<cy+vh+60)it.push([e.y+T[e.t].s/2,()=>mon(e)]);
@@ -22,6 +22,6 @@ dr=function(){const now=performance.now(),dt=Math.min(.05,(now-lt)/1000);lt=now;
  g.save();g.globalCompositeOperation='lighter';for(const p of PT){p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.m<.7)p.vy+=60*dt;g.globalAlpha=Math.max(0,p.l/p.m);g.fillStyle=p.c;g.fillRect(p.x,p.y,p.s,p.s)}g.restore();
  for(let i=PT.length-1;i>=0;i--)if(PT[i].l<=0)PT.splice(i,1);
  g.textAlign='center';g.lineJoin='round';g.lineWidth=1.8;g.strokeStyle='rgba(7,18,26,.94)';
- for(const f of X){g.save();const age=.9-f.l,pop=age<.12?.85+age/.12*.25:1.1-Math.min(1,(age-.12)/.2)*.1;g.translate(f.x,f.y);g.scale(pop,pop);g.font=(f.strong?'700 12px':'600 10px')+' Arial,sans-serif';g.globalAlpha=Math.min(1,f.l*2.8);g.strokeText(f.t,0,0);g.fillStyle=f.strong?'#ffe5a0':f.c;g.fillText(f.t,0,0);g.restore();}g.globalAlpha=1;
+ for(const f of X){g.save();const age=.9-f.l,pop=age<.12?.85+age/.12*.25:1.1-Math.min(1,(age-.12)/.2)*.1;g.translate(f.x,f.y);g.scale(pop,pop);g.font=(f.damage?(f.critical?'900 22px':'800 16px'):(f.strong?'700 12px':'600 10px'))+' Arial,sans-serif';g.globalAlpha=Math.min(1,f.l*2.8);g.lineWidth=f.damage?3:1.8;const text=(f.critical?'✦ ':'')+f.t;g.strokeText(text,0,0);g.fillStyle=f.damage?f.c:f.strong?'#ffe5a0':f.c;g.fillText(text,0,0);g.restore();}g.globalAlpha=1;
  g.setTransform(1,0,0,1,0,0);
 };

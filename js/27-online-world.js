@@ -7,7 +7,7 @@
   hit=function(enemy,power){
     if(enemy.network){
       if(enemy.dead||enemy.hp<=0)return;
-      if(state.hits.length<32)state.hits.push({id:enemy.id,power:power*(enemy.boss||enemy.elite||enemy.t===2?1+(bonusStats().bossDamage||0):1)*(Math.random()<(bonusStats().crit||0)?1.6+(bonusStats().critDamage||0):1)});
+      if(state.hits.length<32)state.hits.push({id:enemy.id,power:power*(enemy.boss||enemy.elite||enemy.t===2?1+(bonusStats().bossDamage||0):1)});
       spark(enemy.x,enemy.y-20,characterClasses[P.ap.w].color,5);
       return;
     }
@@ -33,9 +33,11 @@
       for(const peer of data.players){if(peer.cast&&peer.cast.id!==state.remoteCasts?.get(peer.id)){state.remoteCasts??=new Map();state.remoteCasts.set(peer.id,peer.cast.id);const color=characterClasses[peer.ap.w].color;window.combatVisuals?.pulse(peer.cast.x,peer.cast.y,peer.cast.index===3?145:peer.cast.index===2?100:45,color,.65);spark(peer.x,peer.y-25,color,8);}}
       equipmentSystem.receive(data.shield);
       window.duelArena?.receive(data.duel);window.expeditionsGame?.updatePending(data.pendingDrops);
+      window.adventureGame?.receiveWallet(data.adventureWallet);
       const sustainIds=P.world.sustainIds??=[];for(const event of data.sustain||[]){if(!sustainIds.includes(event.id)){equipmentSystem.sustain(event.amount);sustainIds.push(event.id);if(sustainIds.length>100)sustainIds.shift();}}
       state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);
       if(data.shared){
+        const ownHits=new Set();for(const hit of data.combatHits||[]){damageNumber(hit.x,hit.y-48,hit.amount,hit.critical);ownHits.add(hit.id);}
         const previous=new Map(E.filter(e=>e.network).map(e=>[e.id,e]));
         for(const reward of data.rewards){
           const claimed=P.world.networkRewardIds??=[];
@@ -48,7 +50,7 @@
           account.flush().then(ok=>{if(ok)state.acks.push(reward.eventId);});
         }
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
-        E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;window.creatureArt?.onNetworkMove(e,Math.hypot(e.x-snapshot.x,e.y-snapshot.y)>.1);if(snapshot.attackSerial!==e.attackSerial&&snapshot.attackSerial)window.creatureArt?.onAttack(e);if(damage>0&&e.hp>0){fx(snapshot.x,snapshot.y-T[snapshot.t].s,damage,'#ffe0a0');window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
+        E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;window.creatureArt?.onNetworkMove(e,Math.hypot(e.x-snapshot.x,e.y-snapshot.y)>.1);if(snapshot.attackSerial!==e.attackSerial&&snapshot.attackSerial)window.creatureArt?.onAttack(e);if(damage>0&&e.hp>0){if(!ownHits.has(snapshot.id))damageNumber(snapshot.x,snapshot.y-48,damage,false);window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
         if(data.damage&&!worldMap.isSafe(P)){
           const bonus=bonusStats();if(window.combatDefense?.evading()||classCombat.isDashing()||Math.random()<Math.min(.2,bonus.dodge||0)){window.combatDefense?.dodge();}else{const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)*(window.equipmentSystem?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }
@@ -64,6 +66,7 @@
   worldMap.queueActors=function(items,cx,cy,vw,vh){queue(items,cx,cy,vw,vh);queuePeers(items,cx,cy,vw,vh);};
   function queuePeers(items,cx,cy,vw,vh){if(!account.state.ready)return;
     for(const peer of state.players){peer.drawX+=(peer.x-peer.drawX)*.22;peer.drawY+=(peer.y-peer.drawY)*.22;peer.drawLift+=((peer.airborne||0)-peer.drawLift)*.22;
+      peer.ap.meditating=!!peer.med;
       if(peer.drawX<cx-80||peer.drawX>cx+vw+80||peer.drawY<cy-100||peer.drawY>cy+vh+80)continue;
       const moving=!peer.med&&Math.hypot(peer.x-peer.drawX,peer.y-peer.drawY)>.5;
       items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,moving,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);const displayName=(window.communityGame?.isAlly(peer.id)?'◆ ':'')+peer.name;drawWorldCaption(g,displayName,peer.drawX,peer.drawY-peer.drawLift+14,'#96efda',6.5);

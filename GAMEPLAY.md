@@ -1,5 +1,43 @@
 # Thiết kế gameplay Tiên Lộ Online
 
+## Tiến trình mới, quyền GM và chuyển động — 21/10/2026
+
+Phần này thay thế luật rơi trang bị của bản bí cảnh trước.
+
+- Quái luyện công chung chỉ rơi **đạo bào, hộ thối, giày cấp 10**, phẩm chất Thường, đúng class; tỉ lệ 12%/lần hạ quái. Đồ đầy túi vẫn lưu Chiến lợi phẩm. EXP, đạo hạnh, Linh Nguyên và Linh Thạch tiếp tục là tài nguyên riêng.
+- Bốn bí cảnh chung không rơi trang bị trực tiếp nữa. Quái thường rơi một mảnh với tỉ lệ 25/30/35/40%; thủ lĩnh chắc chắn cho 3/4/5/6 mảnh tương ứng. Mảnh lưu riêng trong SQLite, không chiếm ô túi và không bị bản lưu JSON ghi đè. Thưởng cũ đã rơi trước cập nhật vẫn nhận được.
+- Ghép đồ thành công 100%: **Thường 10 → Hiếm 15 → Cực hiếm 20 → Siêu phẩm 25 → Thần phẩm 30 mảnh**. Mỗi công thức hiển thị class, giới tính, level, chỉ số và giá; phải đạt cả level món đồ lẫn mốc phẩm chất 1/10/25/45/70. Chọn chính xác món cần ghép, không quay ngẫu nhiên. Túi đầy hoặc giao dịch lỗi không trừ mảnh. Đồ cũ giữ nguyên ID và chỉ số; Thần phẩm thêm tối đa 15% chỉ số phẳng trên mẫu nguồn, không tăng trần dòng tẩy luyện.
+- 12 chương chính tuyến **Tứ Linh Ấn** đi từ nhập môn, bảo vệ sơn môn, gặp Vân Châu, khám phá và hạ thủ lĩnh bốn bí cảnh đến khép vết nứt U Minh. Chính tuyến tuần tự, tám nhiệm vụ phụ theo mốc, ba nhiệm vụ sư môn/ngày. Theo dõi mục tiêu chính ngay trên HUD; báo cáo tại vùng an toàn. Server xác nhận tiến độ và chống nhận thưởng lặp.
+- Sư môn là phái cố định của nhân vật, tách với tông môn do người chơi lập. Mỗi ngày UTC+7: hạ 15 quái tại bãi phái mình (+20 cống hiến), hạ 12 quái bí cảnh (+30), hạ một thủ lĩnh bí cảnh (+40). Kho **Trấn Sơn** có bốn món level 25 đúng class: vũ khí 180, mỗi áo/hộ thối/giày 120 cống hiến. Những mẫu này chỉ đổi cống hiến, không nằm trong danh sách ghép. Cống hiến, mảnh và trạng thái nhận thưởng lưu SQLite.
+- Hướng dẫn nhập môn theo thao tác: di chuyển, chọn/đánh quái, mở túi/kéo trang bị, nhập điểm thuộc tính và đả tọa. Có **Để sau**, xem lại tại Hướng dẫn. Hoàn tất bước di chuyển tự mở đường truyền tống theo tiến trình nhập môn. Skill vẫn mở cấp 10/20/30/40.
+- Tẩy luyện pháp bảo/thuẫn: 60 Linh Thạch, không cần Linh Nguyên. Khóa từng dòng giá 40, mở khóa miễn phí; mỗi lượt tẩy thêm 25/dòng đã khóa. Dòng khóa giữ nguyên cả loại lẫn giá trị, các dòng mới không trùng; khóa đủ năm dòng thì cần mở một dòng mới tẩy. Trần thuộc tính giữ như cũ, không pay-to-max. Khóa và kết quả do server cấp.
+- Để không làm kẹt đột phá khi bỏ đan rơi ngẫu nhiên, Đan Phòng có công thức Thăng Vị Đan: `8 + 3×cảnh giới` Linh Nguyên và `60×(cảnh giới+1)` Linh Thạch mỗi viên. Công thức Đột Phá Đan cũ giữ nguyên.
+- Quái luyện công đầu game: HP gốc 26/48/38/64; EXP 28/40/34/52. Bãi theo cảnh giới tăng độ khó nhẹ hơn. Quái bí cảnh có HP `(65+level×5)`, thủ lĩnh ×7; giảm hệ số đánh thường và tăng EXP để hạn chế phải đứng đánh quá lâu. Đây là cân bằng ban đầu, cần theo dõi thời gian hạ boss và tốc độ kiếm mảnh khi có người chơi thực.
+- Sát thương thường màu kem, chữ 16 world-pixel; chí mạng cam và dấu ✦, chữ 22. Mốc chí mạng dựa vào roll thực, không đoán theo độ lớn sát thương. Quái online roll chí mạng trên server và trả phản hồi riêng từng đòn.
+- Bốn atlas di chuyển/đả tọa, tám rig nam/nữ, 160 tư thế mới. Giữ phần thân trên/dung mạo hiện tại; đổi pha chân, tà áo và chân xếp bằng. Hiệu ứng cảnh giới chỉ bao quanh người đang đả tọa; danh hiệu vẫn giữ luật hiển thị cũ. Pháp bảo đã bật lại theo món đang mang, neo sau lưng và giữ đầu ở lớp dễ nhìn. [Asset và prompt ImageGen](Character/Motion/README.md).
+
+### GM theo tài khoản
+
+`users.gm` là INTEGER 0/1, mặc định 0; migration tự thêm cột, không cấp quyền cho ai. UI chỉ hiển thị GM cho tài khoản được cấp. API cấp vật phẩm/đặt cảnh giới đọc quyền mới từ DB ở mỗi request, không tin cờ GM trong JSON. Tài khoản thường không thể thêm trang bị mới bằng API lưu nhân vật; trang bị mới phải từ giao dịch server hoặc ba món trang phục lúc tạo nhân vật. Đây chưa phải việc chuyển toàn bộ mô phỏng/currency cũ sang server.
+
+Trong MobaXterm bằng root, sau khi deploy:
+
+```bash
+python3 /opt/tienlo/deploy/set-gm.py ten_dang_nhap --enable
+python3 /opt/tienlo/deploy/set-gm.py ten_dang_nhap --disable
+```
+
+Hoặc SQL trực tiếp (nếu đã cài sqlite3):
+
+```bash
+sqlite3 /var/lib/tienlo/tienlo.sqlite3 "UPDATE users SET gm=1 WHERE username='ten_dang_nhap';"
+sqlite3 /var/lib/tienlo/tienlo.sqlite3 "SELECT id,username,gm FROM users;"
+```
+
+Đổi 1 thành 0 để thu hồi. Đăng xuất/đăng nhập lại cập nhật nút GM; không cần restart. Script không tạo tài khoản và không khởi tạo DB mới.
+
+Tham khảo cách dẫn người mới và phân nhóm mục tiêu từ [FFXIV Starter Guide](https://starter-guide.finalfantasyxiv.com/) và [Guild Wars 2 New Player Guide](https://www.guildwars2.com/en/new-player-guide/); cốt truyện, nhiệm vụ và công thức trên là thiết kế riêng cho Tiên Lộ.
+
 ## Tứ Phương Bí Cảnh và lôi đài — 21/10/2026
 
 | Cổng trong Thiên Vân Thành | Bí cảnh | Level vào / trang bị | Tỉ lệ rơi đồ quái thường |

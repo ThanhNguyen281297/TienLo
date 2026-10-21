@@ -18,8 +18,9 @@ function spawn(i){const a=Math.random()*6.28,d=Math.random(),t=d<.5?0:d<.88?1:2;
  E[i]={t,x,y,hx:x,hy:y,hp:T[t].hp,dead:0,cd:0,fr:0,fl:0}}
 for(let i=0;i<32;i++)spawn(i);
 const fx=(x,y,t,c)=>{X.push({x,y,t,c,l:.9,vx:((X.length%3)-1)*5,strong:typeof t==='number'&&t>atk()*1.5});if(X.length>64)X.shift();};
+function damageNumber(x,y,value,critical=false){fx(x,y,Math.max(1,Math.round(value)),critical?'#ffad44':'#fff2d3');Object.assign(X[X.length-1],{damage:true,critical,strong:critical});}
 const near=r=>{let b=null,bd=r*r;for(const e of E){if(e.dead)continue;const d=(e.x-P.x)**2+(e.y-P.y)**2;if(d<bd){bd=d;b=e}}return b};
-function hit(e,v){if(e.dead||e.hp<=0)return;const k=T[e.t];v=Math.round(v);e.hp-=v;fx(e.x,e.y-k.s,v,'#ffd27a');
+function hit(e,v){if(e.dead||e.hp<=0)return;const k=T[e.t];v=Math.round(v);e.hp-=v;damageNumber(e.x,e.y-k.s-12,v,!!e.criticalHit);
  if(e.hp<=0){e.dead=8;if(e.rift)return;const experience=e.xpReward??k.xp;gainExperience(experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
 function cast(){if(P.scd>0||P.mp<10)return;const e=near(320);let vx=P.f,vy=0;
  if(e){const d=Math.hypot(e.x-P.x,e.y-P.y)||1;vx=(e.x-P.x)/d;vy=(e.y-P.y)/d}

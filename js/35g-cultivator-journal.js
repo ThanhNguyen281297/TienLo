@@ -35,7 +35,7 @@
     card('Luyện công · Linh Mạch Cốc','Quái cho Linh Nguyên x2, EXP và tu vi nhiều hơn 20%, nhưng khỏe hơn 15%. Dùng nguyên liệu luyện đan và cường hóa.',p.tutorial?'Đã mở · quái chung, có thể tổ đội':'Cần hoàn thành nhập môn',()=>travel('valley'),'Đến Linh Mạch Cốc',!p.tutorial||!safe);
     const level=cultivationLevel();
     card('Vân Hải Bí Cảnh','3 đợt + Hộ Pháp. Thắng: '+(120+level*4)+' Linh Thạch.',(p.riftClears||0)+' lần thắng',spiritRift.open,'Xem bí cảnh',!safe||!p.tutorial);
-    card('Tứ Phương Bí Cảnh','Bốn cổng tại Thiên Vân Thành: cấp 10, 25, 45, 70. Quái rơi trang bị đúng class; thủ lĩnh chắc chắn rơi đồ.','Trang bị theo cấp · Chơi chung',()=>expeditionsGame.open(),'Chọn bí cảnh');
+    card('Tứ Phương Bí Cảnh','Bốn cổng tại Thiên Vân Thành: cấp 10, 25, 45, 70. Quái rơi mảnh linh khí; thủ lĩnh luôn cho 3–6 mảnh.','Ghép đồ 5 phẩm chất · Chơi chung',()=>expeditionsGame.open(),'Chọn bí cảnh');
     card('Thiên Vân Lôi Đài','Thách đấu có xác nhận. Trận tối đa 10 phút, quá giờ so sát thương; đạo hữu khác được vào khán đài xem.','PK 1 vs 1 · Có khán giả',()=>duelArena.open(),'Mở lôi đài');
     card('Đấu trường · 30 lượt','2 lượt/ngày; vào là tiêu lượt. Mỗi 5 lượt có thủ lĩnh; hoàn thành thêm 300 Linh Thạch.','Đã thắng '+(p.arenaClears||0)+' lần',()=>world.openArena(),'Kiểm tra lượt',!safe||!p.tutorial);
     const boss=communityGame.state.boss||communityGame.state.social?.worldBoss;

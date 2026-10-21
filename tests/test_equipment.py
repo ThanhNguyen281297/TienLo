@@ -14,7 +14,7 @@ import equipment
 
 class EquipmentTest(unittest.TestCase):
     def test_seven_shared_formations_preserve_existing_items(self):
-        formations=equipment.RULES['formations']
+        formations=[f for f in equipment.RULES['formations'] if not f['id'].startswith('mythic-')]
         self.assertEqual([f['id'] for f in formations],[f'formation-{i}' for i in range(7)])
         self.assertEqual([f['art'] for f in formations[:4]],[
             'Item/PhapTran/5.png','Item/PhapTran/6.png','Item/PhapTran/8.png','Item/PhapTran/7.png'])
@@ -68,7 +68,7 @@ class EquipmentTest(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory()
         self.location=patch.object(server,'DATABASE',Path(self.temp.name)/'test.sqlite3');self.location.start();server.init_db()
         self.player=dict(nm='Tester',ap=dict(w=0,gender='Nam'),r=0,stage=1,gold=1000,xp=0,hp=100,mp=20,x=1000,y=1100,world=dict(map='hub',bag=[],equip={},essence=1000))
-        with server.connect() as db:db.execute("INSERT INTO users VALUES(1,'tester','unused',0)")
+        with server.connect() as db:db.execute("INSERT INTO users(id,username,password,created_at) VALUES(1,'tester','unused',0)")
     def tearDown(self):
         self.location.stop();self.temp.cleanup()
     def insert(self,player=None):
@@ -249,7 +249,7 @@ class EquipmentTest(unittest.TestCase):
         uid=self.player['world']['equip']['phapbao']['uid']
         request=dict(action='reforge',uid=uid,opId='operation-1',revision=1)
         with server.connect() as db:result=equipment.action(db,1,request)
-        p=result['character']['player'];self.assertEqual((p['gold'],p['world']['essence']),(940,988))
+        p=result['character']['player'];self.assertEqual((p['gold'],p['world']['essence']),(940,1000))
         lines=p['world']['equip']['phapbao']['affixes'];self.assertEqual(len(lines),5);self.assertEqual(len({r['key'] for r in lines}),5)
         with server.connect() as db:
             equipment.validate(p,db,1)

@@ -4,6 +4,7 @@ import equipment as equipment_rules
 import progression
 import expeditions
 import duels
+import adventure
 import hashlib
 import hmac
 import json
@@ -68,10 +69,13 @@ def init_db():
           used INTEGER NOT NULL, PRIMARY KEY(user_id, day));
         CREATE INDEX IF NOT EXISTS session_expiry ON sessions(expires_at);
         ''')
+        if 'gm' not in {r['name'] for r in db.execute('PRAGMA table_info(users)')}:
+            db.execute('ALTER TABLE users ADD COLUMN gm INTEGER NOT NULL DEFAULT 0 CHECK(gm IN (0,1))')
         community.init_db(db)
         equipment_rules.init_db(db,collection_item)
         expeditions.init_db(db)
         duels.init_db(db)
+        adventure.init_db(db)
 
 
 def password_hash(password, salt=None):
@@ -121,7 +125,7 @@ def valid_player(p):
             raise ValueError('Vật phẩm không hợp lệ.')
         if type(item.get('enhance',0)) is not int or not 0<=item.get('enhance',0)<=15:raise ValueError('Cường hóa chỉ từ +0 đến +15.')
         if item['id'].startswith('rift-') or item.get('setId'):raise ValueError('Bộ trang bị đã ngừng sử dụng.')
-        if item.get('rarity') not in ('pham','huyen','linh','tien'):raise ValueError('Phẩm chất không hợp lệ.')
+        if item.get('rarity') not in ('pham','huyen','linh','tien','than'):raise ValueError('Phẩm chất không hợp lệ.')
         for key in ('atk','hp','mp','armor','crit','dodge','skill','heal','mana','xp','price','req','qty'):
             if key in item and (type(item[key]) not in (int,float) or not math.isfinite(item[key]) or not 0<=item[key]<=10000):
                 raise ValueError('Chỉ số vật phẩm không hợp lệ.')
@@ -198,6 +202,12 @@ def damage_mob(mob,damage,owner,now,key):
         for contributor in eligible:
             event_id=secrets.token_hex(12)
             expeditions.queue_drop(db,contributor,mob,event_id)
+            adventure.record_kill(db,contributor,mob,event_id)
+            if not mob.get('expedition') and mob.get('map')!='worldboss' and secrets.randbelow(100)<12:
+                row=db.execute('SELECT player FROM characters WHERE user_id=?',(contributor,)).fetchone()
+                if row:
+                    cls=json.loads(row['player'])['ap']['w'];slot=secrets.choice(('daobao','chan','giay'))
+                    db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id,contributor,mob['map'],f'train-10-{slot}-class-{cls}',time.time()))
             EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id})
             EVENTS[contributor]=EVENTS[contributor][-100:]
 
@@ -284,11 +294,11 @@ def room_mobs(key):
         scene, rank = key.split(':'); rank = int(rank)
         camps = FARM_LAYOUT['mines' if scene=='valley' else 'camps']
         size = FARM_LAYOUT['valley' if scene=='valley' else 'camp']
-        base = {0:(20,10),1:(60,28),3:(40,18),4:(80,32)}
+        base = {0:(26,28),1:(48,40),3:(38,34),4:(64,52)}
         mobs = []
         for ci,entry in enumerate(camps):
             cx,cy,t,camp = (entry[k] for k in ('x','y','t','id'))
-            level=rank*10+([0,3,6,9][ci] if scene!='valley' else 0)
+            level=rank*8+([0,2,4,6][ci] if scene!='valley' else 0)
             hp=round(base[t][0]*(1+level*.11)*(1.15 if scene=='valley' else 1))
             for slot,offset in enumerate(FARM_LAYOUT['slots'][:size['perCamp']]):
                 x=cx+offset['x']*size['rx']; y=cy+offset['y']*size['ry']
@@ -416,7 +426,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         try: cookie.load(self.headers.get('Cookie','')); token=cookie['tienlo_session'].value
         except (KeyError,ValueError): return None
         with connect() as db:
-            return db.execute('SELECT s.*, u.username FROM sessions s JOIN users u ON u.id=s.user_id WHERE token=? AND expires_at>?', (session_key(token),int(time.time()))).fetchone()
+            return db.execute('SELECT s.*, u.username, u.gm FROM sessions s JOIN users u ON u.id=s.user_id WHERE token=? AND expires_at>?', (session_key(token),int(time.time()))).fetchone()
 
     def body(self):
         length=int(self.headers.get('Content-Length','0'))
@@ -435,7 +445,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/health': return self.reply(200,{'ok':True,'storage':'sqlite'})
         if path.startswith('/api/'):
             user=self.identity()
-            if path=='/api/session': return self.reply(200,{'user':{'id':user['user_id'],'username':user['username']} if user else None,'csrf':user['csrf'] if user else None})
+            if path=='/api/session': return self.reply(200,{'user':{'id':user['user_id'],'username':user['username'],'gm':bool(user['gm'])} if user else None,'csrf':user['csrf'] if user else None})
             if not user: return self.reply(401,{'error':'Vui lòng đăng nhập.'})
             if path=='/api/characters':
                 with connect() as db: row=db.execute('SELECT * FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
@@ -444,6 +454,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/community': return self.community(user)
             if path=='/api/duel': return self.duel(user)
             if path=='/api/expedition': return self.expedition(user)
+            if path=='/api/adventure': return self.adventure(user)
             if path=='/api/arena': return self.arena(user,False)
             if path=='/api/rankings':
                 with connect() as db: rows=db.execute("SELECT json_extract(player,'$.nm') AS name, json_extract(player,'$.ap.w') AS sect, json_extract(player,'$.r') AS realm, json_extract(player,'$.stage') AS stage, COALESCE(json_extract(player,'$.world.kills'),0) AS kills FROM characters ORDER BY realm DESC,stage DESC,kills DESC LIMIT 50").fetchall()
@@ -486,6 +497,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/community': return self.community(user,body)
         if path=='/api/duel': return self.duel(user,body)
         if path=='/api/expedition': return self.expedition(user,body)
+        if path=='/api/adventure': return self.adventure(user,body)
         if path=='/api/arena': return self.arena(user,True)
         if path=='/api/characters': return self.save_character(user,body)
         if path=='/api/world': return self.world(user,body)
@@ -543,7 +555,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 db.execute('DELETE FROM sessions WHERE user_id=? OR expires_at<=?',(uid,now))
                 db.execute('INSERT INTO sessions VALUES(?,?,?,?)',(session_key(token),uid,csrf,now+604800))
             with WORLD_LOCK:PEERS.pop(uid,None)
-            return self.reply(200,{'user':{'id':uid,'username':username},'csrf':csrf},self.cookie(token))
+            return self.reply(200,{'user':{'id':uid,'username':username,'gm':bool(row['gm']) if path!='/api/register' else False},'csrf':csrf},self.cookie(token))
         finally: AUTH_WORK.release()
 
     def save_character(self,user,body):
@@ -558,6 +570,15 @@ class GameHandler(SimpleHTTPRequestHandler):
             row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
             if row and row['revision']!=revision: return self.reply(409,{'error':'Nhân vật đã được cập nhật ở phiên khác. Tải lại để tiếp tục.','conflict':True})
             equipment_rules.validate(player,db,uid)
+            if not user['gm']:
+                old_items={i['uid']:i['id'] for i in equipment_rules.items(json.loads(row['player'])) if i.get('slot')} if row else {}
+                gear=[i for i in equipment_rules.items(player) if i.get('slot')]
+                if row:
+                    if any(old_items.get(i['uid'])!=i['id'] for i in gear):return self.reply(403,{'error':'Trang bị phải nhận từ quái, ghép mảnh hoặc đổi cống hiến trên server.'})
+                else:
+                    starter=player.get('world',{}).get('equip',{})
+                    valid_starter=lambda i:i['slot'] in ('daobao','chan','giay') and (i['id'].startswith('outfit-') or i['id'] in {f'{base}-class-{player["ap"]["w"]}' for base in ('vai-bao','chan-0','vai-giay')})
+                    if len(gear)>3 or any(not valid_starter(i) or (starter.get(i['slot']) or {}).get('uid')!=i['uid'] for i in gear):return self.reply(403,{'error':'Nhân vật mới chỉ có ba món trang phục khởi đầu.'})
             if row:
                 old=json.loads(row['player'])
                 if old['ap']!=player['ap'] or old['nm']!=player['nm']: return self.reply(400,{'error':'Không thể đổi phái, giới tính hoặc đạo hiệu của nhân vật.'})
@@ -594,6 +615,17 @@ class GameHandler(SimpleHTTPRequestHandler):
             result=duels.snapshot(db,user['user_id'],PEERS) if body is None else duels.action(db,user['user_id'],body,PEERS,player_max_hp,player_attack)
         return self.reply(200,result)
 
+    def adventure(self,user,body=None):
+        try:
+            with DB_LOCK, connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                row=db.execute('SELECT player FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
+                if not row:raise ValueError('Hãy tạo nhân vật trước.')
+                result=adventure.snapshot(db,user['user_id'],json.loads(row['player'])) if body is None else adventure.action(db,user['user_id'],body,bool(user['gm']))
+            return self.reply(409 if result.get('conflict') else 200,result)
+        except PermissionError as error:return self.reply(403,{'error':str(error)})
+        except ValueError as error:return self.reply(409,{'error':str(error)})
+
     def expedition(self,user,body=None):
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
@@ -624,6 +656,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             for key in list(PEERS):
                 if now-PEERS[key]['seen']>15: PEERS.pop(key,None); EVENTS.pop(key,None)
             previous=PEERS.get(uid,{})
+            with DB_LOCK, connect() as db:adventure.record_world(db,uid,scene,x,y,previous,bool(body.get('med')))
             with DB_LOCK, connect() as db:
                 duel=duels.world_step(db,uid,body,PEERS)
             if duel:
@@ -671,6 +704,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             peer['paused']=bool(body.get('paused'))
             register_skill_field(peer,body,now)
             PEERS[uid]=peer; key=room_for(peer)
+            combat_hits=[]
             shared=scene in ('sword','moon','thunder','mystic','valley','worldboss') or scene in expeditions.MAPS
             mobs=[];fields=[]
             if shared:
@@ -712,8 +746,15 @@ class GameHandler(SimpleHTTPRequestHandler):
                     if type(power) not in (int,float) or not math.isfinite(power) or power<=0: continue
                     attack=player_attack(p)
                     before=mob['hp']
-                    damage_mob(mob,min(power,attack*6)*field_vulnerability(mob),uid,now,key);hit_times.append(now)
+                    stats=equipment_rules.bonuses(p);attrs=p.get('world',{}).get('attrs',{});gear=p.get('world',{}).get('equip',{})
+                    chance=min(.35,stats.get('crit',0)+attrs.get('nhanh',0)*.006+sum((i or {}).get('crit',0) for i in gear.values()))
+                    critical=secrets.randbelow(10000)<round(chance*10000)
+                    multiplier=1.6+stats.get('critDamage',0) if critical else 1
+                    damage_mob(mob,min(power,attack*6)*multiplier*field_vulnerability(mob),uid,now,key);hit_times.append(now)
                     dealt=max(0,before-mob['hp'])
+                    if dealt:combat_hits.append(dict(id=mob['id'],x=mob['x'],y=mob['y'],amount=dealt,critical=critical))
+                    if dealt:
+                        with connect() as db:adventure.add(db,uid,'attack')
                     if dealt and len(peer['sustain'])<100:peer['sustain'].append({'id':secrets.token_hex(12),'amount':dealt})
                 peer['hitTimes']=hit_times
                 register_pet_cast(peer,body,p,now,mobs)
@@ -738,7 +779,10 @@ class GameHandler(SimpleHTTPRequestHandler):
             messages=[m for m in CHAT if (m.get('channel','world')=='world' and m['map']==scene) or (m.get('channel')=='party' and party and m.get('group')==party['party_id']) or (m.get('channel')=='guild' and guild and m.get('group')==guild['guild_id'])]
             result={'shield':peer['ap']['shieldState'],'sustain':peer.get('sustain',[]),'boss':community.boss_view(mobs[0],uid,peer['attack']) if scene=='worldboss' and mobs else None,'bossEvents':peer.get('bossEvents',[]),'damage':damage,'players':peers,'fields':public_fields,'mobs':[public_mob(m) | {'dead':max(0,m['dead']-now) if m['dead'] else 0} for m in mobs], 'rewards':EVENTS[uid][:],'chat':messages,'shared':shared,'online':len(PEERS),'x':x,'y':y}
             result['duel']=duel
-            with connect() as db:result['pendingDrops']=expeditions.pending(db,uid)
+            result['combatHits']=combat_hits
+            with connect() as db:
+                result['pendingDrops']=expeditions.pending(db,uid)
+                result['adventureWallet']=adventure.wallet(db,uid)
         return self.reply(200,result)
 
 

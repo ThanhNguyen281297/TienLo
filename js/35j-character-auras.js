@@ -79,12 +79,13 @@
   if(!front){for(let n=0;n<9;n++){const p=(t*.14+n*.618)%1,a=n*2.4+t*.2;ctx.globalAlpha=Math.sin(p*Math.PI)*.56;ctx.fillStyle=meta.realm>=10?'#ffe6ac':'#bceaff';ctx.beginPath();ctx.arc(x+Math.cos(a)*w*(.2+p*.18),y-p*h*.82,.45+(1-p)*.35,0,TAU);ctx.fill();}}
   ctx.restore();
  }
+ const meditating=ap=>ap===P.ap?!!P.med:!!ap?.meditating;
  const draw=drawChar;drawChar=function(ctx,x,y,dir,facing,moving,phase,attacking,ap,...rest){
-  const realm=realmFor(ap),trail=trailFor(ap);drawRealm(ctx,x,y,realm,false);
+  const realm=meditating(ap)?realmFor(ap):null,trail=trailFor(ap);drawRealm(ctx,x,y,realm,false);
   if(ctx!==g&&trail)renderStep(ctx,{variant:trail.variant,x,y:y+1,angle:0,seed:0},reduced.matches?.4:.25+(Math.sin(clock()*2)+1)*.15);
   draw(ctx,x,y,dir,facing,moving,phase,attacking,ap,...rest);drawRealm(ctx,x,y,realm,true);
  };
- const height=characterNameHeight;characterNameHeight=ap=>Math.max(height(ap),realmFor(ap)?Math.ceil(realmSize(realmFor(ap)).h*.87+8):0);
+ const height=characterNameHeight;characterNameHeight=ap=>Math.max(height(ap),meditating(ap)&&realmFor(ap)?Math.ceil(realmSize(realmFor(ap)).h*.87+8):0);
  const respawn=classCombat.onRespawn;classCombat.onRespawn=function(...args){reset();return respawn(...args);};
  window.characterAuras={steps,styles,load,trailFor,realmFor,renderStep,drawRealm,walk,reset,MAX_STEPS,bodyNameHeight:height,hasTrail:()=>!!trailFor()};
 })();

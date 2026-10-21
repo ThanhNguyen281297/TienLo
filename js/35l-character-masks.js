@@ -62,7 +62,9 @@
   return {image:frame.image,x:footX-frame.anchor[0]*sx,y:footY-height,
    width:frame.width*sx,height:frame.height*scale};
  }
- function drawBody(ctx,body,ap,direction,x,y,width,height,feet){
+ function drawBody(ctx,body,ap,direction,x,y,width,height,feet,motion){
+  const animated=window.characterAnimation?.draw(ctx,ap,direction,feet?.x??x+width/2,feet?.y??y+height,height,motion);
+  if(animated)return animated;
   const frame=frameFor(ap,direction);
   const result=frame?geometry(frame,feet?.x??x+width/2,feet?.y??y+height,height):{image:empty,x,y,width,height};
   renderArtwork(ctx,result.image,result.x,result.y,result.width,result.height);

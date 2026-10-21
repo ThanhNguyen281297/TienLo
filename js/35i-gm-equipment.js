@@ -1,13 +1,13 @@
 /* Explicit GM sandbox: inspect every current template and equip matching items. */
 (function(){
  const d=worldMap.dialog,button=document.createElement('button');button.id='gm-equipment-button';button.textContent='GM · Công cụ';button.hidden=true;button.onclick=()=>open();$('bt').append(button);
- function take(id,wear=false){if(!gmTest.enabled)return msg('Bật GM để dùng kho trang bị.');const template=inventory.templates.find(t=>t.id===id);if(!template)return;
+ async function take(id,wear=false){if(!gmTest.enabled)return msg('Tài khoản không có quyền GM.');const template=inventory.templates.find(t=>t.id===id);if(!template)return;
   if(wear&&equipmentRules.classSlots.includes(template.slot)&&template.classIndex!==P.ap.w)return msg('Chỉ mặc trang bị bên trái đúng class.');
   if(wear&&template.gender&&template.gender!==(P.ap.gender||'Nam'))return msg('Mặt nạ không phù hợp giới tính nhân vật.');
-  const item=inventory.addItem(id);if(!item)return;const equipped=!!(wear&&item.slot);if(equipped)inventory.equipItem(item.uid);else msg('GM: đã lấy '+item.name+'.');return item;
+  try{const before=new Set(P.world.bag.map(i=>i.uid));await account.transact('/api/adventure',{action:'gm_item',id,opId:crypto.randomUUID()});const item=P.world.bag.find(i=>!before.has(i.uid));if(!item)return;if(wear&&item.slot)inventory.equipItem(item.uid);else msg('GM: đã lấy '+item.name+'.');return item;}catch(e){msg(e.message);}
  }
- function setRealm(realm,stage=1){if(!gmTest.enabled||!P.ap||!Number.isInteger(realm)||realm<0||realm>=R.length||!Number.isInteger(stage)||stage<1||stage>10)return false;
-  P.r=realm;P.stage=stage;const p=worldMap.progress(),training=p.trainingRealm||0;p.trainingRealm=Math.min(training,realm);
+ async function setRealm(realm,stage=1){if(!gmTest.enabled||!P.ap||!Number.isInteger(realm)||realm<0||realm>=R.length||!Number.isInteger(stage)||stage<1||stage>10)return false;
+  try{await account.transact('/api/adventure',{action:'gm_realm',realm,stage,opId:crypto.randomUUID()});}catch(e){msg(e.message);return false;}const p=worldMap.progress(),training=p.trainingRealm||0;p.trainingRealm=Math.min(training,realm);
   if(training!==p.trainingRealm&&worldMap.isSectMap(worldMap.state.scene)){E=[];for(let i=0;i<(worldMap.farmPopulation?.()||24);i++)worldMap.generateFarm(i);}
   P.hp=mhp();P.mp=mmp();cultivation.refresh();saveCharacter();msg('GM: '+cultivation.realmName());return true;
  }
@@ -15,7 +15,7 @@
   const fields=ui.node('div','gm-catalog-tools'),realmLabel=ui.node('label','','Cảnh giới'),realm=ui.node('select',''),stageLabel=ui.node('label','','Tầng'),stage=ui.node('select','');realm.id='gm-realm';stage.id='gm-stage';realm.setAttribute('aria-label','Cảnh giới GM');stage.setAttribute('aria-label','Tầng GM');
   R.forEach((name,i)=>{const option=ui.node('option','',name);option.value=i;realm.append(option);});for(let i=1;i<=10;i++){const option=ui.node('option','',String(i));option.value=i;stage.append(option);}realm.value=P.r;stage.value=P.stage||1;realmLabel.append(realm);stageLabel.append(stage);fields.append(realmLabel,stageLabel);form.append(fields);
   const status=ui.node('output','','Hiện tại: '+cultivation.realmName()),apply=ui.node('button','visual-action','Đặt cảnh giới');status.id='gm-realm-status';apply.id='gm-set-realm';apply.type='submit';form.append(apply,status,ui.node('p','visual-note','Đổi thẳng cảnh giới và tầng để test. Giữ nguyên level, EXP và điểm thuộc tính; không tốn nguyên liệu.'));
-  form.onsubmit=event=>{event.preventDefault();if(setRealm(Number(realm.value),Number(stage.value)))status.textContent='Đã đặt: '+cultivation.realmName();};root.append(form);
+  form.onsubmit=async event=>{event.preventDefault();apply.disabled=true;try{if(await setRealm(Number(realm.value),Number(stage.value)))status.textContent='Đã đặt: '+cultivation.realmName();}finally{apply.disabled=false;}};root.append(form);
  }
  function open(){if(!gmTest.enabled||!P.ap||paused())return;d.show('GM · Công cụ','Chọn cảnh giới hoặc lấy đồ miễn phí để thử. Mặc thử bỏ qua yêu cầu cấp; 4 ô bên trái vẫn phải đúng class.');const ui=visualUI,root=$('world-content');realmControls(root);const tools=ui.node('div','gm-catalog-tools');root.append(tools);
   const search=ui.node('input','');search.type='search';search.placeholder='Tìm tên trang bị…';search.setAttribute('aria-label','Tìm trang bị GM');tools.append(search);

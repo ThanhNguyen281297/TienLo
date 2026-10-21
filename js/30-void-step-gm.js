@@ -2,14 +2,15 @@
 (function(){
   const tears=[],colors=['#68cfff','#60ffd0','#b18aff','#ffd876'];
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  window.gmTest={enabled:false};
+  let requested=false;window.gmTest={get enabled(){return requested&&account.state.user?.gm===true;}};
   const button=document.createElement('button');button.id='gm-skills';
   button.type='button';button.textContent='GM · Test skill';button.setAttribute('aria-pressed','false');
   button.title='Bật/tắt thử 4 kỹ năng, hồi linh lực và xóa hồi chiêu. Mở GM Công cụ để đặt cảnh giới/tầng hoặc lấy trang bị. Tăng tầng, đột phá và cường hóa miễn phí.';
-  $('bt').appendChild(button);
+  button.hidden=true;$('bt').appendChild(button);
+  addEventListener('tienlo-auth',()=>{requested=false;button.hidden=account.state.user?.gm!==true;button.setAttribute('aria-pressed','false');});
   button.onclick=()=>{
-    if(!P.ap)return;
-    gmTest.enabled=!gmTest.enabled;window.dispatchEvent(new CustomEvent('tienlo-gm-change',{detail:{enabled:gmTest.enabled}}));button.setAttribute('aria-pressed',String(gmTest.enabled));
+    if(!P.ap||account.state.user?.gm!==true)return;
+    requested=!requested;window.dispatchEvent(new CustomEvent('tienlo-gm-change',{detail:{enabled:gmTest.enabled}}));button.setAttribute('aria-pressed',String(gmTest.enabled));
     button.textContent=gmTest.enabled?'GM · Đang test · Tắt':'GM · Test skill';
     getClassCombat().state.cooldown.fill(0);P.mp=gmTest.enabled?Math.max(mmp(),...combatMana[P.ap.w]):Math.min(P.mp,mmp());cultivation.refresh();
     msg(gmTest.enabled?'GM Test: mở tạm 4 skill, hồi linh lực, không chờ hồi chiêu; tăng tầng, đột phá và cường hóa miễn phí.':'Đã tắt GM Test, khôi phục điều kiện kỹ năng và chi phí tu luyện, cường hóa.');

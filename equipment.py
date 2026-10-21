@@ -121,6 +121,8 @@ def validate(player, db=None, owner=None):
         if any(not isinstance(line,dict) or set(line)!={'key','value'} or line.get('key') not in lookup or type(line.get('value')) is not int or not lookup[line['key']]['min']<=line['value']<=lookup[line['key']]['max'] for line in lines):raise ValueError('Dòng tẩy luyện vượt giới hạn.')
         if len({line['key'] for line in lines})!=5:raise ValueError('Không được trùng dòng tẩy luyện.')
         if db is not None:
+            lock=db.execute('SELECT indices FROM equipment_locks WHERE user_id=? AND item_uid=?',(owner,uid)).fetchone()
+            if item.get('locks',[])!=(json.loads(lock['indices']) if lock else []):raise ValueError('Khóa dòng phải do server cấp.')
             roll=db.execute('SELECT item_id,lines FROM equipment_rolls WHERE user_id=? AND item_uid=?',(owner,uid)).fetchone()
             expected=json.loads(roll['lines']) if roll else defaults(item)
             if (roll and roll['item_id']!=item['id']) or lines!=expected:raise ValueError('Dòng tẩy luyện phải do server cấp.')
@@ -142,6 +144,7 @@ def init_db(db, collection):
     CREATE TABLE IF NOT EXISTS shield_cooldowns(user_id INTEGER PRIMARY KEY REFERENCES users(id),ready_at REAL NOT NULL,active_until REAL NOT NULL,source_uid TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS equipment_migration_versions(user_id INTEGER NOT NULL,revision INTEGER NOT NULL,player TEXT NOT NULL,PRIMARY KEY(user_id,revision));
     CREATE TABLE IF NOT EXISTS equipment_ops(user_id INTEGER NOT NULL,op_id TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(user_id,op_id));''')
+    db.execute('CREATE TABLE IF NOT EXISTS equipment_locks(user_id INTEGER NOT NULL REFERENCES users(id),item_uid TEXT NOT NULL,indices TEXT NOT NULL,PRIMARY KEY(user_id,item_uid))')
     for row in db.execute('SELECT * FROM characters').fetchall():
         player=json.loads(row['player'])
         if normalize(player,collection):
@@ -174,7 +177,7 @@ def action(db, owner, body):
     if body.get('action')=='shield_end':
         db.execute('UPDATE shield_cooldowns SET active_until=0 WHERE user_id=?',(owner,))
         return {'shield':shield_state(db,owner,player)}
-    if body.get('action')=='reforge' and isinstance(body.get('opId'),str):
+    if body.get('action') in ('reforge','lock') and isinstance(body.get('opId'),str):
         prior=db.execute('SELECT result FROM equipment_ops WHERE user_id=? AND op_id=?',(owner,body['opId'])).fetchone()
         if prior:return {'character':dict(id=row['id'],player=player,revision=row['revision'])}
     if body.get('revision')!=row['revision']:return {'conflict':True,'error':'Nhân vật đã thay đổi. Tải lại để tiếp tục.'}
@@ -184,8 +187,9 @@ def action(db, owner, body):
         state=shield_state(db,owner,player);now=time.time()
         if now<state['readyAt']:raise ValueError('Hộ thuẫn chưa hồi chiêu.')
         db.execute('INSERT INTO shield_cooldowns VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,active_until=excluded.active_until,source_uid=excluded.source_uid',(owner,now+RULES['shield']['cooldown'],now+RULES['shield']['duration'],shield['uid']))
+        __import__('adventure').add(db,owner,'shield')
         return {'shield':shield_state(db,owner,player)}
-    if op!='reforge':raise ValueError('Thao tác không hợp lệ.')
+    if op not in ('reforge','lock'):raise ValueError('Thao tác không hợp lệ.')
     opid=body.get('opId')
     if not isinstance(opid,str) or not 8<=len(opid)<=100:raise ValueError('Thiếu mã giao dịch.')
     prior=db.execute('SELECT result FROM equipment_ops WHERE user_id=? AND op_id=?',(owner,opid)).fetchone()
@@ -194,17 +198,31 @@ def action(db, owner, body):
     if not community.safe(player):raise ValueError('Về thành để tẩy luyện.')
     item=next((i for i in items(player) if i['uid']==body.get('uid')),None)
     if not item or not pool(item):raise ValueError('Chỉ tẩy luyện pháp bảo hoặc hộ thuẫn.')
+    saved_locks=db.execute('SELECT indices FROM equipment_locks WHERE user_id=? AND item_uid=?',(owner,item['uid'])).fetchone()
+    locked=json.loads(saved_locks['indices']) if saved_locks else []
     price=RULES['reforge']
-    if player['gold']<price['gold'] or w.get('essence',0)<price['essence']:raise ValueError('Cần 60 Linh Thạch và 12 Linh Nguyên.')
-    player['gold']-=price['gold'];w['essence']-=price['essence']
-    choices=list(pool(item));lines=[]
-    for _ in range(5):
-        rule=choices.pop(secrets.randbelow(len(choices)))
-        # Lower rolls are common; max rolls stay possible but rare.
-        value=rule['min']+min(secrets.randbelow(rule['max']-rule['min']+1),secrets.randbelow(rule['max']-rule['min']+1))
-        lines.append(dict(key=rule['key'],value=value))
-    item['affixes']=lines
-    db.execute('INSERT INTO equipment_rolls VALUES(?,?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET item_id=excluded.item_id,lines=excluded.lines',(owner,item['uid'],item['id'],json.dumps(lines)))
+    if op=='lock':
+        index=body.get('index')
+        if type(index) is not int or index not in range(5):raise ValueError('Dòng không hợp lệ.')
+        cost=0 if index in locked else price['lockGold']
+        if player['gold']<cost:raise ValueError('Cần '+str(cost)+' Linh Thạch để khóa dòng.')
+        player['gold']-=cost
+        locked.remove(index) if index in locked else locked.append(index);locked.sort();item['locks']=locked
+        db.execute('INSERT INTO equipment_locks VALUES(?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET indices=excluded.indices',(owner,item['uid'],json.dumps(locked)))
+    else:
+        if len(locked)==5:raise ValueError('Đã khóa cả 5 dòng. Hãy mở ít nhất một dòng để tẩy luyện.')
+        cost=price['gold']+len(locked)*price['perLockedGold']
+        if player['gold']<cost:raise ValueError('Cần '+str(cost)+' Linh Thạch.')
+        player['gold']-=cost
+        old=item.get('affixes') or defaults(item);used={old[i]['key'] for i in locked};choices=[r for r in pool(item) if r['key'] not in used];lines=[]
+        for i in range(5):
+            if i in locked:lines.append(old[i]);continue
+            rule=choices.pop(secrets.randbelow(len(choices)))
+            value=rule['min']+min(secrets.randbelow(rule['max']-rule['min']+1),secrets.randbelow(rule['max']-rule['min']+1))
+            lines.append(dict(key=rule['key'],value=value))
+        item['affixes']=lines;item['locks']=locked
+        db.execute('INSERT INTO equipment_rolls VALUES(?,?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET item_id=excluded.item_id,lines=excluded.lines',(owner,item['uid'],item['id'],json.dumps(lines)))
+        __import__('adventure').add(db,owner,'reforge')
     revision=row['revision']+1
     db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,int(time.time()),owner))
     result={'character':dict(id=row['id'],player=player,revision=revision)}

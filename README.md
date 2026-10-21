@@ -1,6 +1,8 @@
 # Tiên Lộ 2D Online
 
-Mới: bốn bí cảnh chung tại bốn cổng Thiên Vân Thành, yêu cầu cấp **10 / 25 / 45 / 70**; 12 loài quái mới có hoạt ảnh và rơi trang bị đúng class, đúng cấp bí cảnh. Mở **Khác → Bí cảnh** để chọn cổng, **Chiến lợi phẩm** để nhận đồ khi túi đầy. Lôi đài nằm trong **Khác → Lôi đài**: thách đấu có chấp nhận, tối đa 10 phút, hết giờ so tổng sát thương; người khác chọn trận để vào khán đài. Xem quy tắc trong [GAMEPLAY.md](GAMEPLAY.md) và [atlas quái cùng bộ prompt ImageGen](Character/Monsters/ANIMATION.md).
+Mới: hoạt ảnh bước đi/đả tọa cho bốn class, sát thương thường/chí mạng dễ đọc và pháp bảo đã hiển thị lại. Quái luyện công chỉ rơi ba món áo/hộ thối/giày cấp 10. Bốn bí cảnh cấp **10 / 25 / 45 / 70** cho mảnh để ghép đồ theo năm phẩm chất, giá **10 / 15 / 20 / 25 / 30 mảnh**. **Khác → Nhiệm vụ** mở chính tuyến Tứ Linh Ấn, nhiệm vụ phụ, sư môn/cống hiến, ghép đồ và hướng dẫn. GM theo trường `users.gm`, mặc định tắt; xem lệnh cấp quyền trong [GAMEPLAY.md](GAMEPLAY.md). [Sprite nhân vật/prompt ImageGen](Character/Motion/README.md), [sprite quái](Character/Monsters/ANIMATION.md).
+
+Lôi đài trong **Khác → Lôi đài**: thách đấu có chấp nhận, tối đa 10 phút, hết giờ so tổng sát thương; người khác chọn trận để vào khán đài.
 
 Game tu tiên HTML5 Canvas: bốn phái, bản đồ tông môn, thành chung, farm hợp tác, đấu trường, tu luyện và trang bị.
 

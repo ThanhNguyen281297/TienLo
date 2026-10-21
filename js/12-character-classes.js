@@ -187,11 +187,13 @@
     window.equipmentSystem?.drawFormation(ctx,x,y,ap);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,false);
+    const back=window.equipmentSystem?.backImage(ap);
+    if(back&&dir!==1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm);
     // The weapon keeps its class angle; the back mount follows the spine.
     const angle = [-.18,-.3,.12,-.2][index];
     const weapon = window.characterWeapon.position(index, x, y, bob);
     const wx = weapon.x, wy = weapon.y;
-    const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
+    const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3,than:4}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
     const weaponColor=weaponTones[index];
     const drawWeapon = () => {
       if(ap===tp&&!P.ap)return;
@@ -218,13 +220,14 @@
     let renderedBody=null;
     if(ready(bodyImage)){
       const left=x-bodyWidth/2,top=y-bob+footOffset-bodyHeight;
-      if(window.characterMasks)renderedBody=characterMasks.drawBody(ctx,bodyImage,ap,direction,left,top,bodyWidth,bodyHeight,{x,y:y-bob});
+      if(window.characterMasks)renderedBody=characterMasks.drawBody(ctx,bodyImage,ap,direction,left,top,bodyWidth,bodyHeight,{x,y:y-bob},{moving,phase,meditating:ap===P.ap?!!P.med:!!ap?.meditating});
       else renderArtwork(ctx,bodyImage,left,top,bodyWidth,bodyHeight);
     }
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
     const outlined=renderedBody||{image:bodyImage,x:x-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
     window.equipmentProgression?.outline(ctx,outlined.image,outlined.x,outlined.y,outlined.width,outlined.height,bodyLevel||0);
     drawWeapon();
+    if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm);
     window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,true);
     window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,true);
@@ -236,7 +239,7 @@
     const color = classes[classOf(AP())].color;
     sh(P.x, P.y + 2, 17, 5, .3);
     glow(P.x, P.y - 14, 42, color, .28);
-    drawChar(g, P.x, P.y - 3, P.dir || 0, P.f, false, 0, false, AP());
+    drawChar(g, P.x, P.y, 0, P.f, false, 0, false, AP());
   };
   // Vũ khí class thay cho phi kiếm tự sinh ở cảnh giới cao.
   orbit = function () {};

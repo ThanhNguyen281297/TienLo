@@ -1,6 +1,16 @@
 # Triển khai Tiên Lộ Online trên Ubuntu
 
-Bản này hỗ trợ tài khoản, bản lưu SQLite, người chơi chung bản đồ, chat/biểu cảm và quái farm chung. Đây là bản alpha cho nhóm chơi nhỏ. Chưa có PvP/giao dịch; chiến đấu đấu trường là instance riêng. Kiểm tra khoảng cách, giới hạn hit và revision đã có, nhưng tiến trình/trang bị và việc sử dụng skill vẫn gửi từ client. Không dùng cho kinh tế có tiền thật hoặc server cạnh tranh cần chống gian lận hoàn chỉnh.
+Quyền GM được quản lý bằng `users.gm` (0/1), tự thêm khi service chạy bản mới; mặc định mọi tài khoản đều không có GM. Trong phiên root MobaXterm:
+
+```bash
+python3 /opt/tienlo/deploy/set-gm.py ten_dang_nhap --enable
+# Thu hồi:
+python3 /opt/tienlo/deploy/set-gm.py ten_dang_nhap --disable
+```
+
+Đăng xuất/đăng nhập lại để cập nhật UI. SQL tương đương: `UPDATE users SET gm=1 WHERE username='ten_dang_nhap';`. Mảnh, cống hiến, nhiệm vụ, khóa dòng và kết quả tẩy luyện nằm trong các bảng SQLite riêng; giữ toàn bộ file DB khi triển khai. Xem luật mới và lệnh kiểm tra trong [GAMEPLAY.md](GAMEPLAY.md).
+
+Bản này hỗ trợ tài khoản, bản lưu SQLite, người chơi/quái chung, tổ đội, tông môn, boss, bí cảnh và lôi đài PvP có khán giả. Đây là bản alpha cho nhóm nhỏ: các giao dịch mảnh/cống hiến/tẩy luyện và chiến đấu PvP do server quản lý; một phần tiến trình và mô phỏng PvE cũ vẫn ở client, chưa chuyển toàn bộ game sang mô hình chống gian lận trên server.
 
 ## Triển khai bằng mật khẩu SSH trên máy bạn
 

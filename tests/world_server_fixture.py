@@ -13,13 +13,13 @@ with tempfile.TemporaryDirectory() as directory:
     server.DATABASE=Path(directory)/'world.sqlite3';server.init_db()
     with server.connect() as db:
         for uid,name,w,realm,kills in [(1,'Vân Kiếm',0,3,7),(2,'Nguyệt Hoa',1,2,9)]:
-            db.execute('INSERT INTO users VALUES(?,?,?,?)',(uid,'fixture_'+str(uid),'unused-test-password',int(time.time())))
+            db.execute('INSERT INTO users(id,username,password,created_at) VALUES(?,?,?,?)',(uid,'fixture_'+str(uid),'unused-test-password',int(time.time())))
             player={'nm':name,'ap':{'w':w,'gender':'Nam'},'r':realm,'stage':1,'world':{'kills':kills}}
             db.execute('INSERT INTO characters VALUES(?,?,?,?,?)',(uid,str(uid),json.dumps(player,ensure_ascii=False),1,int(time.time())))
     class FixtureHandler(server.GameHandler):
         def identity(self):
             uid=2 if 'fixture-user=2' in self.headers.get('Cookie','') else 1
-            return {'user_id':uid,'username':'fixture_'+str(uid),'csrf':'test-only','token':'test-only'}
+            return {'user_id':uid,'username':'fixture_'+str(uid),'csrf':'test-only','token':'test-only','gm':1}
         def post_route(self):
             # Old arena tests send bare {} and test the ledger mechanics, not auth.
             if self.path=='/api/arena':

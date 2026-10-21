@@ -14,6 +14,7 @@ import server
 import equipment
 import expeditions
 import duels
+import adventure
 
 class ExpeditionDuels(unittest.TestCase):
     def setUp(self):
@@ -23,7 +24,7 @@ class ExpeditionDuels(unittest.TestCase):
         with server.connect() as db:
             for uid in range(1,5):
                 p=copy.deepcopy(self.player);p['nm']='Dao Huu '+str(uid)
-                db.execute('INSERT INTO users VALUES(?,?,?,?)',(uid,'user_'+str(uid),'unused',0))
+                db.execute('INSERT INTO users(id,username,password,created_at) VALUES(?,?,?,?)',(uid,'user_'+str(uid),'unused',0))
                 db.execute('INSERT INTO characters VALUES(?,?,?,?,?)',(uid,str(uid),json.dumps(p),1,0))
                 self.peers[uid]=dict(id=uid,name=p['nm'],map='hub',seen=time.monotonic(),x=1000,y=1100)
         self.db=server.connect()
@@ -62,15 +63,13 @@ class ExpeditionDuels(unittest.TestCase):
             png=(root/meta['file']).read_bytes();self.assertEqual(png[25],6);self.assertEqual(list(struct.unpack('>II',png[16:24])),meta['size']);self.assertEqual(len(meta['frames']),20)
             for f in meta['frames']:
                 x,y,w,h=f['rect'];self.assertTrue(w>30 and h>30 and x>=0 and y>=0 and x+w<=meta['size'][0] and y+h<=meta['size'][1]);self.assertTrue(0<=f['anchor'][0]<=w and 0<f['anchor'][1]<=h)
-    def test_drop_own_class_correct_tier_and_exactly_once(self):
+    def test_boss_fragment_reward_exactly_once(self):
         mob=expeditions.room('rift-fire',0)['mobs'][-1]
         expeditions.queue_drop(self.db,1,mob,'event-a');expeditions.queue_drop(self.db,1,mob,'event-a');self.db.commit()
-        self.assertEqual(expeditions.pending(self.db,1),1);self.assertEqual(expeditions.pending(self.db,2),0)
-        first=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual(len(first['claimed']),1);self.assertEqual(first['claimed'][0]['req'],45);self.assertEqual(first['claimed'][0]['classIndex'],0)
-        second=expeditions.claim(self.db,1,dict(revision=2));self.assertEqual(second['claimed'],[]);self.assertEqual(len(second['character']['player']['world']['bag']),1)
+        self.assertEqual(expeditions.pending(self.db,1),0);self.assertEqual(adventure.wallet(self.db,1)['fragments'],5);self.assertEqual(adventure.wallet(self.db,2)['fragments'],0)
     def test_full_bag_keeps_pending_and_revision_conflicts(self):
         p=copy.deepcopy(self.player);p['world']['bag']=[dict(equipment.TEMPLATES['moc-kiem-class-0'],uid=str(i)) for i in range(30)]
-        self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(p),));expeditions.queue_drop(self.db,1,expeditions.room('rift-wood',0)['mobs'][-1],'event-b')
+        self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(p),));self.db.execute("INSERT INTO expedition_drops VALUES('event-b',1,'sword','exp-10-giay-class-0',0,NULL)")
         self.assertTrue(expeditions.claim(self.db,1,dict(revision=0))['conflict']);result=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual(result['claimed'],[]);self.assertEqual(result['pending'],1)
     def test_low_level_cannot_receive_high_tier_drop(self):
         p=copy.deepcopy(self.player);p['level']=1;self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(p),));expeditions.queue_drop(self.db,1,expeditions.room('rift-void',0)['mobs'][-1],'blocked');self.assertEqual(expeditions.pending(self.db,1),0)

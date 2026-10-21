@@ -24,9 +24,9 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    await a.evaluate(()=>{P.x=1000;P.y=1130;hud();dr();});await a.screenshot({path:path.join(__dirname,'artifacts/'+scene+'.png')});
   }
   await a.evaluate(()=>{const boss=E.find(e=>e.boss);for(let i=0;i<12;i++)hit(boss,1e6);});
-  await a.waitForFunction(()=>expeditionsGame.pending>0,null,{polling:100,timeout:10000});await a.evaluate(()=>expeditionsGame.claim());
-  assert(await a.evaluate(()=>P.world.bag.some(i=>i.id.startsWith('exp-70-')&&i.req===70&&i.classIndex===P.ap.w)));assert.equal(await a.evaluate(()=>expeditionsGame.pending),0);
-  assert(await a.evaluate(()=>account.flush()));await a.reload({waitUntil:'load'});await a.waitForFunction(()=>account.state.ready&&P.ap,null,{polling:50});assert(await a.evaluate(()=>P.world.bag.some(i=>i.id.startsWith('exp-70-'))));
+  await a.evaluate(()=>adventureGame.refresh());await a.waitForFunction(()=>adventureGame.state.data?.fragments>=6,null,{polling:100,timeout:10000});
+  assert.equal(await a.evaluate(()=>expeditionsGame.pending),0);assert.equal(await a.evaluate(()=>P.world.bag.filter(i=>i.slot).length),0);
+  assert(await a.evaluate(()=>account.flush()));await a.reload({waitUntil:'load'});await a.waitForFunction(()=>account.state.ready&&P.ap,null,{polling:50});await a.evaluate(()=>adventureGame.refresh());assert.equal(await a.evaluate(()=>adventureGame.state.data.fragments),6);
   for(const page of pages)await page.evaluate(()=>{worldMap.switchScene('hub');P.hp=mhp();P.mp=mmp();});
   await a.waitForTimeout(600);await a.evaluate(()=>duelArena.refresh());const target=await b.evaluate(()=>account.state.user.id);await a.evaluate(id=>duelArena.action('invite',{target:id}),target);
   await b.evaluate(()=>duelArena.refresh());const invitation=await b.evaluate(()=>duelArena.state.data.invites.find(i=>i.target===account.state.user.id)?.id);assert(invitation);await b.evaluate(id=>duelArena.action('accept',{id}),invitation);
@@ -38,6 +38,6 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
   for(const [page,name]of [[a,'duel-fighter'],[spectator,'duel-spectator']]){await page.evaluate(()=>{hud();dr();});await page.screenshot({path:path.join(__dirname,'artifacts/'+name+'.png')});}
   await spectator.setViewportSize({width:844,height:390});await spectator.evaluate(()=>{rs();hud();dr();});assert(await spectator.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await spectator.screenshot({path:path.join(__dirname,'artifacts/duel-spectator-mobile.png')});
   const gold=await b.evaluate(()=>P.gold);await b.evaluate(()=>duelArena.leave());await a.waitForFunction(()=>duelArena.current()?.status==='finished',null,{polling:100,timeout:10000});assert.equal(await a.evaluate(()=>duelArena.current().winner),await a.evaluate(()=>account.state.user.id));assert.equal(await b.evaluate(()=>worldMap.state.scene),'hub');assert.equal(await b.evaluate(()=>P.gold),gold);
-  await spectator.evaluate(()=>duelArena.leave());assert.equal(await spectator.evaluate(()=>worldMap.state.scene),'hub');assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 4 level-gated shared maps / 12 animated species, real level-70 boss drop and SQLite reload, consensual duel, authoritative skill damage, protected spectator ring/camera, mobile and surrender without currency loss.');
+  await spectator.evaluate(()=>duelArena.leave());assert.equal(await spectator.evaluate(()=>worldMap.state.scene),'hub');assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);console.log('PASS 4 level-gated shared maps / 12 animated species, real level-70 boss fragments and SQLite reload, consensual duel, authoritative skill damage, protected spectator ring/camera, mobile and surrender without currency loss.');
  }catch(e){console.error(log.slice(-3000));throw e;}finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

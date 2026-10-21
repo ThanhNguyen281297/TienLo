@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 import equipment
 import progression
+import adventure
 
 RULES=json.loads((Path(__file__).parent/'Map/expeditions.json').read_text(encoding='utf-8'))
 MAPS={m['id']:m for m in RULES['maps']}
@@ -29,13 +30,13 @@ def room(scene,now):
         cx,cy=centers[i//6] if not boss else (1000,850)
         ox,oy=offsets[i%6] if not boss else (0,0)
         x,y=cx+ox,cy+oy
-        level=rule['level']+(10 if boss else i%5);hp=round((90+level*7)*(4 if boss else 1))
+        level=rule['level']+(5 if boss else i%5);hp=round((65+level*5)*(7 if boss else 1))
         mobs.append(dict(id=f'{scene}:0:{i}',t=4 if boss else [0,1,3,4][i%4],skin=skin,
           name=RULES['species'][skin]['name']+(' · Thủ lĩnh' if boss else ''),level=level,
           x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,worldMap=True,network=True,
           map=scene,expedition=True,boss=boss,elite=boss,camp='expedition',campX=1000,campY=1100,
-          campRX=620,campRY=340,attackScale=(1+level*.04)*(1.6 if boss else 1),
-          xpReward=round(level*(12 if boss else 2.4)),materialYield=0,contributors={}))
+          campRX=620,campRY=340,attackScale=(1+level*.025)*(1.4 if boss else .85),
+          xpReward=round(level*(24 if boss else 5)),materialYield=0,contributors={}))
     return dict(mobs=mobs,updated=now)
 
 def equipment_pool(scene,cls):
@@ -50,8 +51,11 @@ def queue_drop(db,uid,mob,event_id):
     if not row:return
     player=json.loads(row['player'])
     if progression.level(player)<rule['level']:return
-    item_id=secrets.choice(equipment_pool(mob['map'],player['ap']['w']))
-    db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id,uid,mob['map'],item_id,time.time()))
+    fragment_event='fragment:'+event_id
+    if db.execute('SELECT 1 FROM adventure_events WHERE user_id=? AND id=?',(uid,fragment_event)).fetchone():return
+    db.execute('INSERT INTO adventure_events VALUES(?,?)',(uid,fragment_event))
+    amount=3+list(MAPS).index(mob['map']) if mob.get('boss') else 1
+    adventure.grant_fragments(db,uid,amount)
 
 def pending(db,uid):
     return db.execute('SELECT COUNT(*) FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL',(uid,)).fetchone()[0]
