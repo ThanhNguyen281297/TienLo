@@ -88,7 +88,7 @@
     g.fillStyle='#192830';g.fillRect(e.x-barWidth/2,y-3,barWidth,3);
     const hp=g.createLinearGradient(0,y-3,0,y);hp.addColorStop(0,boss?'#ffd08a':'#e88c7a');hp.addColorStop(1,boss?'#bf783c':'#a74440');g.fillStyle=hp;g.fillRect(e.x-barWidth/2,y-3,barWidth*ratio,3);
     g.font=(boss?'600 9px':'8px')+' Arial,sans-serif';g.textAlign='center';g.strokeStyle='#112029';g.lineWidth=2;
-    const name=(boss?'◆ ':'')+(e.name||T[e.t].n);g.strokeText(name,e.x,y-7);g.fillStyle=selected?'#fff0bc':boss?'#ffe2a4':'#ebf2ec';g.fillText(name,e.x,y-7);g.restore();
+    const name=(boss?'◆ ':'')+(e.name||T[e.t].n)+(e.level?' · Lv.'+e.level:'');g.strokeText(name,e.x,y-7);g.fillStyle=selected?'#fff0bc':boss?'#ffe2a4':'#ebf2ec';g.fillText(name,e.x,y-7);g.restore();
   };
   const previousHit=hit;
   hit=function(e,power){if(e.dead||e.hp<=0)return;const s=state(e),origin={x:e.x,y:e.y};previousHit(e,power);

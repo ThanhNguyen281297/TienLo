@@ -7,8 +7,7 @@
   try{const before=new Set(P.world.bag.map(i=>i.uid));await account.transact('/api/adventure',{action:'gm_item',id,opId:crypto.randomUUID()});const item=P.world.bag.find(i=>!before.has(i.uid));if(!item)return;if(wear&&item.slot)inventory.equipItem(item.uid);else msg('GM: đã lấy '+item.name+'.');return item;}catch(e){msg(e.message);}
  }
  async function setRealm(realm,stage=1){if(!gmTest.enabled||!P.ap||!Number.isInteger(realm)||realm<0||realm>=R.length||!Number.isInteger(stage)||stage<1||stage>10)return false;
-  try{await account.transact('/api/adventure',{action:'gm_realm',realm,stage,opId:crypto.randomUUID()});}catch(e){msg(e.message);return false;}const p=worldMap.progress(),training=p.trainingRealm||0;p.trainingRealm=Math.min(training,realm);
-  if(training!==p.trainingRealm&&worldMap.isSectMap(worldMap.state.scene)){E=[];for(let i=0;i<(worldMap.farmPopulation?.()||24);i++)worldMap.generateFarm(i);}
+  try{await account.transact('/api/adventure',{action:'gm_realm',realm,stage,opId:crypto.randomUUID()});}catch(e){msg(e.message);return false;}
   P.hp=mhp();P.mp=mmp();cultivation.refresh();saveCharacter();msg('GM: '+cultivation.realmName());return true;
  }
  function realmControls(root){const ui=visualUI,form=ui.node('form','gm-realm-controls');form.id='gm-realm-form';form.append(ui.node('h3','','GM · Cảnh giới'));

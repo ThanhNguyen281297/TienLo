@@ -72,10 +72,10 @@
   addEventListener('pagehide',()=>{
     if(location.protocol!=='file:'&&state.ready&&!state.restoring&&!state.conflict&&P.ap&&!saving){navigator.sendBeacon('/api/characters',new Blob([JSON.stringify({csrf:state.csrf,revision:state.revision,player:snapshot()})],{type:'application/json'}));}
   });
-  async function transact(path,data){
+  async function transact(path,data,options={}){
     if(state.restoring||!await flush())throw new Error('Chưa lưu được nhân vật. Hãy thử lại.');
     clearTimeout(timer);state.restoring=true;
-    try{const result=await api(path,{...data,revision:state.revision});if(result.character){state.revision=result.character.revision;restore(result.character);}return result;}
+    try{const result=await api(path,{...data,revision:state.revision});if(result.character){state.revision=result.character.revision;if(options.live){P.world.bag=structuredClone(result.character.player.world.bag);}else restore(result.character);}return result;}
     catch(e){if(e.conflict||!e.status){try{const latest=await api('/api/characters');if(latest.character){state.revision=latest.character.revision;restore(latest.character);}}catch{}}throw e;}
     finally{state.restoring=false;}
   }

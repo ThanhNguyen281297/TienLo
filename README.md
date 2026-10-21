@@ -1,3 +1,7 @@
+# Cập nhật: Sơn Hà và lò cường hóa
+
+Sáu vùng săn theo cấp, tự nhặt đồ với option giới hạn, NPC có sprite hoạt ảnh, cường hóa tại lò bằng đá và Linh Nguyên. Chi tiết cơ chế, bảng chi phí, asset và kiểm thử: [MMORPG.md](MMORPG.md). Phần bên dưới mô tả các hệ thống hiện có; mục chọn tầng luyện công/Chiến lợi phẩm và cường hóa trong túi đã được thay thế.
+
 # Tiên Lộ 2D Online
 
 Mới: hoạt ảnh bước đi/đả tọa cho bốn class, sát thương thường/chí mạng dễ đọc và pháp bảo đã hiển thị lại. Quái luyện công chỉ rơi ba món áo/hộ thối/giày cấp 10. Bốn bí cảnh cấp **10 / 25 / 45 / 70** cho mảnh để ghép đồ theo năm phẩm chất, giá **10 / 15 / 20 / 25 / 30 mảnh**. **Khác → Nhiệm vụ** mở chính tuyến Tứ Linh Ấn, nhiệm vụ phụ, sư môn/cống hiến, ghép đồ và hướng dẫn. GM theo trường `users.gm`, mặc định tắt; xem lệnh cấp quyền trong [GAMEPLAY.md](GAMEPLAY.md). [Sprite nhân vật/prompt ImageGen](Character/Motion/README.md), [sprite quái](Character/Monsters/ANIMATION.md).

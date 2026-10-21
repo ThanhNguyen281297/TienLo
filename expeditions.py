@@ -60,15 +60,41 @@ def queue_drop(db,uid,mob,event_id):
 def pending(db,uid):
     return db.execute('SELECT COUNT(*) FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL',(uid,)).fetchone()[0]
 
+def queue_farm_drop(db,uid,mob,event_id):
+    row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
+    if not row:return
+    player=json.loads(row['player']);cls=player['ap']['w'];level=mob.get('level',1)
+    if not mob.get('expedition') and secrets.randbelow(100)<16:
+        tier=max((t for t in (10,25,45,70) if t<=max(10,level)),default=10)
+        iid=f'exp-{tier}-{secrets.choice(("daobao","chan","giay"))}-class-{cls}' if tier>10 else f'train-10-{secrets.choice(("daobao","chan","giay"))}-class-{cls}'
+        db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-gear',uid,mob['map'],iid,time.time()))
+    if secrets.randbelow(100)<35 or mob.get('boss'):
+        db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-stone',uid,mob['map'],'cuong-hoa-thach',time.time()))
+    if level>=30 and (mob.get('boss') or secrets.randbelow(100)<12):
+        db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-refined',uid,mob['map'],'tinh-luyen-thach',time.time()))
+
 def claim(db,uid,body):
     row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
     if not row:raise ValueError('Hãy tạo nhân vật trước.')
     if body.get('revision')!=row['revision']:return {'conflict':True,'error':'Nhân vật đã cập nhật. Vui lòng thử lại.'}
     player=json.loads(row['player']);world=player.setdefault('world',{});bag=world.setdefault('bag',[])
-    count=max(0,equipment.capacity(world)-len(bag));claimed=[]
-    for drop in db.execute('SELECT * FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL ORDER BY created_at,id LIMIT ?', (uid,min(30,count))).fetchall():
+    claimed=[]
+    for drop in db.execute("SELECT * FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL ORDER BY (item_id IN ('cuong-hoa-thach','tinh-luyen-thach')) DESC,created_at,id LIMIT 60", (uid,)).fetchall():
         item=dict(equipment.TEMPLATES[drop['item_id']],uid=drop['id'])
-        bag.append(item);claimed.append(item)
+        stack=next((i for i in bag if i['id']==item['id'] and i.get('type')=='material' and i.get('qty',1)<9999),None)
+        if stack:stack['qty']=stack.get('qty',1)+1;item['qty']=1
+        else:
+            if len(bag)>=equipment.capacity(world):continue
+            if item.get('type')=='material':item['qty']=1
+            elif item.get('slot') in equipment.RULES['enhanceSlots']:
+                keys=list(equipment.DROP_OPTIONS);lines=[]
+                for _ in range(1+secrets.randbelow(3)):
+                    key=keys.pop(secrets.randbelow(len(keys)));low,high=equipment.DROP_OPTIONS[key]
+                    lines.append(dict(key=key,value=low+min(secrets.randbelow(high-low+1),secrets.randbelow(high-low+1))))
+                item['options']=lines
+                db.execute('INSERT OR REPLACE INTO equipment_drop_rolls VALUES(?,?,?,?)',(uid,item['uid'],item['id'],json.dumps(lines)))
+            bag.append(item)
+        claimed.append(item)
         db.execute('UPDATE expedition_drops SET claimed_at=? WHERE id=? AND claimed_at IS NULL',(time.time(),drop['id']))
     if claimed:
         equipment.validate(player,db,uid)

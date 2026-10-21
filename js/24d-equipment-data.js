@@ -1,6 +1,8 @@
 /* Shared catalog. Ratios use basis points; affixes do not scale with enhancement. */
 (function(){
  const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations,...rules.trails,...rules.masks],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
+ const materials=[{id:'cuong-hoa-thach',type:'material',name:'Cường Hóa Thạch',rarity:'huyen',price:8,art:'Item/NguyenLieu/cuong-hoa-v1.png',desc:'Nguyên liệu cường hóa tại Luyện Khí Phường.'},{id:'tinh-luyen-thach',type:'material',name:'Tinh Luyện Thạch',rarity:'linh',price:20,art:'Item/NguyenLieu/tinh-luyen-v1.png',desc:'Nguyên liệu cường hóa từ +10.'}];
+ const optionStats=item=>Object.fromEntries((item?.options||[]).map(o=>[o.key,o.value/(['crit','dodge'].includes(o.key)?1000:1)]));
  const pool=item=>item?.slot==='phapbao'?rules.offense:item?.slot==='ngoc'?rules.defense:[];
  const defaults=item=>pool(item).slice(0,5).map(r=>({key:r.key,value:r.min}));
  const capacity=p=>30+(byId.get(p?.equip?.gioi?.id)?.capacity||0);
@@ -31,5 +33,5 @@
   return meta?.art||null;
  }
  function affixStats(p){const out={};for(const item of Object.values(p.equip||{})){if(!item)continue;for(const line of item.affixes||[]){const rule=pool(item).find(r=>r.key===line.key);if(rule)out[line.key]=(out[line.key]||0)+line.value/(rule.percent?10000:rule.key==='regen'?100:1);}}return out;}
- window.equipmentData={rules,templates,byId,pool,defaults,capacity,canonicalId,normalize,affixStats,collection,appearance,shieldVariant};
+ window.equipmentData={materials,optionStats,rules,templates,byId,pool,defaults,capacity,canonicalId,normalize,affixStats,collection,appearance,shieldVariant};
 })();

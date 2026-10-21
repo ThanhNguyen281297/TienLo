@@ -37,6 +37,6 @@
  };
  const previousFrame=creatureArt.frame;creatureArt.frame=e=>pose(e)||previousFrame(e);
  creatureArt.ensureSpecies=name=>kinds.get(name)?.ensure();
- creatureArt.thumbnail=name=>{const kind=kinds.get(name);if(!kind)return null;const image=kind.ensure();if(!ready(image))return null;const f=pose({skin:name,hx:0});return raster(f,128).toDataURL();};
+ creatureArt.thumbnail=name=>{const kind=kinds.get(name);if(!kind)return creatureArt.species[name]?.poses?.[0]?.[0]?.image?.src||null;const image=kind.ensure();if(!ready(image))return null;const f=pose({skin:name,hx:0});return raster(f,128).toDataURL();};
  window.expeditionMonsters={kinds,pose};
 })();

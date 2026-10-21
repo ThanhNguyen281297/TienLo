@@ -32,7 +32,7 @@
     if(next>=0&&p.tutorial)button('Tới Truyền Công Các',trainer,main).disabled=!safe;
     const q=p.sectQuest||{status:'none',kills:0};
     card('Bài tập nhập môn','Hạ 3 yêu thú sau khi nhận bài từ Sư phụ. Thưởng 35 Linh Thạch, 20 EXP và 20 tu vi.',q.status==='claimed'?'Đã nhận thưởng':q.status==='active'?'Tiến độ '+Math.min(3,q.kills||0)+'/3':'Chưa nhận bài tập',()=>{const home=world.sectMapFor(P.ap.w);if(world.state.scene!==home)travel(home);if(world.state.scene===home)world.handleService('mentor');},'Gặp Sư phụ',!safe);
-    card('Luyện công · Linh Mạch Cốc','Quái cho Linh Nguyên x2, EXP và tu vi nhiều hơn 20%, nhưng khỏe hơn 15%. Dùng nguyên liệu luyện đan và cường hóa.',p.tutorial?'Đã mở · quái chung, có thể tổ đội':'Cần hoàn thành nhập môn',()=>travel('valley'),'Đến Linh Mạch Cốc',!p.tutorial||!safe);
+    card('Sơn Hà · Vùng săn','Sáu vùng cấp 1–67, mỗi vùng sáu bãi quái; chạy dọc đường chính để sang vùng tiếp theo. Đồ và nguyên liệu tự vào túi.','Cấp quái cố định · 48 quái/vùng',()=>overworldGame.openRoutes(),'Chọn vùng săn');
     const level=cultivationLevel();
     card('Vân Hải Bí Cảnh','3 đợt + Hộ Pháp. Thắng: '+(120+level*4)+' Linh Thạch.',(p.riftClears||0)+' lần thắng',spiritRift.open,'Xem bí cảnh',!safe||!p.tutorial);
     card('Tứ Phương Bí Cảnh','Bốn cổng tại Thiên Vân Thành: cấp 10, 25, 45, 70. Quái rơi mảnh linh khí; thủ lĩnh luôn cho 3–6 mảnh.','Ghép đồ 5 phẩm chất · Chơi chung',()=>expeditionsGame.open(),'Chọn bí cảnh');

@@ -10,6 +10,14 @@ ROOT = Path(__file__).resolve().parent
 RULES = json.loads((ROOT/'Item'/'equipment.json').read_text(encoding='utf-8'))
 TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails','masks') for t in RULES[group]}
 STAT_KEYS = ('atk','hp','mp','armor','crit','dodge','skill')
+MATERIALS={
+ 'cuong-hoa-thach':dict(id='cuong-hoa-thach',type='material',name='Cường Hóa Thạch',rarity='huyen',price=8,art='Item/NguyenLieu/cuong-hoa-v1.png',desc='Nguyên liệu đặt vào lò rèn để cường hóa trang bị.'),
+ 'tinh-luyen-thach':dict(id='tinh-luyen-thach',type='material',name='Tinh Luyện Thạch',rarity='linh',price=20,art='Item/NguyenLieu/tinh-luyen-v1.png',desc='Nguyên liệu bổ sung cho cường hóa từ +10 đến +15.')}
+TEMPLATES.update(MATERIALS)
+DROP_OPTIONS={'atk':(1,3),'hp':(5,20),'mp':(3,12),'armor':(1,2),'crit':(2,8),'dodge':(2,6)}
+
+def option_stats(item):
+    return {line['key']:line['value']/(1000 if line['key'] in ('crit','dodge') else 1) for line in item.get('options',[])}
 
 def pool(item):
     return RULES['offense'] if item.get('slot')=='phapbao' else RULES['defense'] if item.get('slot')=='ngoc' else []
@@ -109,9 +117,18 @@ def validate(player, db=None, owner=None):
         seen.add(uid)
         meta=TEMPLATES.get(item.get('id'))
         if meta:
-            for key in ('slot','classIndex','gender','capacity','variant','art','req','rarity','price','outfitStyle',*STAT_KEYS):
+            for key in ('type','slot','classIndex','gender','capacity','variant','art','req','rarity','price','outfitStyle',*STAT_KEYS):
                 if item.get(key,0)!=meta.get(key,0):raise ValueError('Chỉ số trang bị không hợp lệ.')
         elif item.get('slot') in RULES['slots']:raise ValueError('Trang bị tiện ích không hợp lệ.')
+        if item.get('id') in MATERIALS and (type(item.get('qty',1)) is not int or not 1<=item.get('qty',1)<=9999):raise ValueError('Số lượng nguyên liệu không hợp lệ.')
+        options=item.get('options',[])
+        if options:
+            if not isinstance(options,list) or not 1<=len(options)<=3:raise ValueError('Option trang bị không hợp lệ.')
+            if any(not isinstance(v,dict) or set(v)!={'key','value'} or v.get('key') not in DROP_OPTIONS or type(v.get('value')) is not int or not DROP_OPTIONS[v['key']][0]<=v['value']<=DROP_OPTIONS[v['key']][1] for v in options):raise ValueError('Option vượt giới hạn.')
+            if len({v['key'] for v in options})!=len(options):raise ValueError('Option không được trùng.')
+        if db is not None:
+            rolled=db.execute('SELECT item_id,options FROM equipment_drop_rolls WHERE user_id=? AND item_uid=?',(owner,uid)).fetchone()
+            if options!=(json.loads(rolled['options']) if rolled else []) or (rolled and rolled['item_id']!=item['id']):raise ValueError('Option phải do server cấp.')
         allowed=pool(item)
         if not allowed:
             if item.get('affixes'):raise ValueError('Trang bị không có dòng tẩy luyện.')
@@ -134,12 +151,14 @@ def bonuses(player):
     result={}
     for item in player.get('world',{}).get('equip',{}).values():
         if not item:continue
+        for key,value in option_stats(item).items():result[key]=result.get(key,0)+value
         for line in item.get('affixes',[]):
             rule=next((r for r in pool(item) if r['key']==line.get('key')),None)
             if rule:result[line['key']]=result.get(line['key'],0)+line['value']/(10000 if rule['percent'] else 100 if rule['key']=='regen' else 1)
     return result
 
 def init_db(db, collection):
+    db.execute('CREATE TABLE IF NOT EXISTS equipment_drop_rolls(user_id INTEGER NOT NULL,item_uid TEXT NOT NULL,item_id TEXT NOT NULL,options TEXT NOT NULL,PRIMARY KEY(user_id,item_uid))')
     db.executescript('''CREATE TABLE IF NOT EXISTS equipment_rolls(user_id INTEGER NOT NULL REFERENCES users(id),item_uid TEXT NOT NULL,item_id TEXT NOT NULL,lines TEXT NOT NULL,PRIMARY KEY(user_id,item_uid));
     CREATE TABLE IF NOT EXISTS shield_cooldowns(user_id INTEGER PRIMARY KEY REFERENCES users(id),ready_at REAL NOT NULL,active_until REAL NOT NULL,source_uid TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS equipment_migration_versions(user_id INTEGER NOT NULL,revision INTEGER NOT NULL,player TEXT NOT NULL,PRIMARY KEY(user_id,revision));

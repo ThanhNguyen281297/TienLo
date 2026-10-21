@@ -68,7 +68,7 @@ def record_kill(db,uid,mob,event):
         if mob.get('boss'):
             for key in ('boss:'+scene,'riftBosses','daily:'+day()+':riftBosses'):add(db,uid,key)
     row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
-    if row and scene==SECT_MAPS[json.loads(row['player'])['ap']['w']]:
+    if row and (scene.startswith('field-') or scene==SECT_MAPS[json.loads(row['player'])['ap']['w']]):
         add(db,uid,'daily:'+day()+':sectKills')
 
 def grant_fragments(db,uid,amount):
@@ -100,7 +100,7 @@ def quests(db,uid,player):
 def recipes(player):
     result=[];cls=player['ap']['w'];gender=player['ap'].get('gender','Nam')
     for item in equipment.TEMPLATES.values():
-        if item.get('source')=='sect':continue
+        if item.get('source')=='sect' or item.get('type')=='material':continue
         if item.get('classIndex',cls)!=cls or item.get('gender',gender)!=gender:continue
         quality=next((q for q in QUALITIES if q[0]==item['rarity']),QUALITIES[0])
         result.append(dict(id=item['id'],cost=quality[3],level=max(quality[4],item.get('req',0)),quality=quality[0]))
@@ -118,6 +118,7 @@ def grant_item(db,uid,player,iid):
     if len(bag)>=equipment.capacity(player['world']):raise ValueError('Túi đầy. Hãy dọn một ô trước khi nhận trang bị.')
     item=dict(equipment.TEMPLATES[iid],uid=secrets.token_hex(16))
     if equipment.pool(item):item['affixes']=equipment.defaults(item)
+    if item.get('type')=='material':item['qty']=1
     bag.append(item);return item
 
 def gain(player,xp):

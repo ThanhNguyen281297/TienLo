@@ -5,6 +5,8 @@ import progression
 import expeditions
 import duels
 import adventure
+import overworld
+import forging
 import hashlib
 import hmac
 import json
@@ -38,7 +40,7 @@ PEERS, ROOMS, EVENTS = {}, {}, defaultdict(list)
 CHAT = deque(maxlen=100)
 SECTS = ('Kiếm Tông', 'Minh Nguyệt Tông', 'Lôi Thương Tông', 'Thiên Cơ Môn')
 STATIC_FILES = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()}
-MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'valley', 'arena', 'worldboss', 'duel', *expeditions.MAPS)
+MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'valley', 'arena', 'worldboss', 'duel', *expeditions.MAPS, *overworld.MAPS)
 EVASION_COOLDOWNS = (6,5,8,5)
 
 
@@ -153,7 +155,7 @@ def valid_player(p):
 
 def equipment_stats(player):
     gear=player.get('world',{}).get('equip',{})
-    attack=sum(max(0,min(100,item.get('atk',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in gear.items() if isinstance(item,dict))
+    attack=equipment_rules.bonuses(player).get('atk',0)+sum(max(0,min(100,item.get('atk',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in gear.items() if isinstance(item,dict))
     return attack,1,0
 
 
@@ -170,7 +172,7 @@ def player_attack(player):
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
-    hp=sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
+    hp=equipment_rules.bonuses(player).get('hp',0)+sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
     return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
 
@@ -203,11 +205,7 @@ def damage_mob(mob,damage,owner,now,key):
             event_id=secrets.token_hex(12)
             expeditions.queue_drop(db,contributor,mob,event_id)
             adventure.record_kill(db,contributor,mob,event_id)
-            if not mob.get('expedition') and mob.get('map')!='worldboss' and secrets.randbelow(100)<12:
-                row=db.execute('SELECT player FROM characters WHERE user_id=?',(contributor,)).fetchone()
-                if row:
-                    cls=json.loads(row['player'])['ap']['w'];slot=secrets.choice(('daobao','chan','giay'))
-                    db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id,contributor,mob['map'],f'train-10-{slot}-class-{cls}',time.time()))
+            expeditions.queue_farm_drop(db,contributor,mob,event_id)
             EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id})
             EVENTS[contributor]=EVENTS[contributor][-100:]
 
@@ -259,8 +257,8 @@ def register_pet_cast(peer,body,player,now,mobs):
 
 def room_for(peer):
     if peer['map']=='duel':return 'duel:'+str(peer.get('duelId','lobby'))
-    if peer['map'] in expeditions.MAPS:return peer['map']+':0'
-    return 'worldboss:0' if peer['map']=='worldboss' else peer['map'] + ':' + str(peer.get('trainingRealm', 0))
+    if peer['map'] in expeditions.MAPS or peer['map'] in overworld.MAPS:return peer['map']+':0'
+    return 'worldboss:0' if peer['map']=='worldboss' else peer['map'] + ':0'
 
 
 def farm_portal_routes(scene):
@@ -282,6 +280,9 @@ def valid_farm_teleport(scene,previous,destination):
 
 
 def room_mobs(key):
+    if key.split(':')[0] in overworld.MAPS:
+        if key not in ROOMS:ROOMS[key]=overworld.room(key.split(':')[0])
+        return ROOMS[key]
     if key.split(':')[0] in expeditions.MAPS:
         if key not in ROOMS:ROOMS[key]=expeditions.room(key.split(':')[0],time.monotonic())
         return ROOMS[key]
@@ -291,7 +292,7 @@ def room_mobs(key):
             ROOMS[key]={'mobs':[boss],'updated':time.monotonic()}
         return ROOMS[key]
     if key not in ROOMS:
-        scene, rank = key.split(':'); rank = int(rank)
+        scene, rank = key.split(':'); rank = 0
         camps = FARM_LAYOUT['mines' if scene=='valley' else 'camps']
         size = FARM_LAYOUT['valley' if scene=='valley' else 'camp']
         base = {0:(26,28),1:(48,40),3:(38,34),4:(64,52)}
@@ -571,13 +572,20 @@ class GameHandler(SimpleHTTPRequestHandler):
             if row and row['revision']!=revision: return self.reply(409,{'error':'Nhân vật đã được cập nhật ở phiên khác. Tải lại để tiếp tục.','conflict':True})
             equipment_rules.validate(player,db,uid)
             if not user['gm']:
-                old_items={i['uid']:i['id'] for i in equipment_rules.items(json.loads(row['player'])) if i.get('slot')} if row else {}
+                old_gear={i['uid']:i for i in equipment_rules.items(json.loads(row['player']))} if row else {}
+                old_items={uid:i['id'] for uid,i in old_gear.items() if i.get('slot')}
+                if row and any(i.get('enhance',0)!=old_gear.get(i['uid'],{}).get('enhance',0) for i in equipment_rules.items(player)):
+                    return self.reply(403,{'error':'Cường hóa phải thực hiện tại NPC Luyện Khí.'})
+                if row and any(i.get('type')=='material' and (i['id']!=old_gear.get(i['uid'],{}).get('id') or i.get('qty',1)!=old_gear.get(i['uid'],{}).get('qty',1)) for i in equipment_rules.items(player)):
+                    return self.reply(403,{'error':'Nguyên liệu phải nhận và tiêu hao qua server.'})
                 gear=[i for i in equipment_rules.items(player) if i.get('slot')]
                 if row:
                     if any(old_items.get(i['uid'])!=i['id'] for i in gear):return self.reply(403,{'error':'Trang bị phải nhận từ quái, ghép mảnh hoặc đổi cống hiến trên server.'})
                 else:
                     starter=player.get('world',{}).get('equip',{})
                     valid_starter=lambda i:i['slot'] in ('daobao','chan','giay') and (i['id'].startswith('outfit-') or i['id'] in {f'{base}-class-{player["ap"]["w"]}' for base in ('vai-bao','chan-0','vai-giay')})
+                    if any(i.get('type')=='material' for i in equipment_rules.items(player)):
+                        return self.reply(403,{'error':'Nhân vật mới chưa có nguyên liệu cường hóa.'})
                     if len(gear)>3 or any(not valid_starter(i) or (starter.get(i['slot']) or {}).get('uid')!=i['uid'] for i in gear):return self.reply(403,{'error':'Nhân vật mới chỉ có ba món trang phục khởi đầu.'})
             if row:
                 old=json.loads(row['player'])
@@ -596,7 +604,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 db.execute('BEGIN IMMEDIATE')
                 row=db.execute('SELECT player FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
                 if not row:raise ValueError('Hãy tạo nhân vật trước.')
-                result=equipment_rules.action(db,user['user_id'],body) if body is not None else {'shield':equipment_rules.shield_state(db,user['user_id'],json.loads(row['player']))}
+                result=(forging.action(db,user['user_id'],body,bool(user['gm'])) if body.get('action')=='enhance' else equipment_rules.action(db,user['user_id'],body)) if body is not None else {'shield':equipment_rules.shield_state(db,user['user_id'],json.loads(row['player']))}
             return self.reply(409 if result.get('conflict') else 200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
@@ -648,6 +656,8 @@ class GameHandler(SimpleHTTPRequestHandler):
         if not character: return self.reply(409,{'error':'Hãy tạo nhân vật trước.'})
         p=json.loads(character['player']); scene=body.get('map','hub')
         if scene not in MAPS: raise ValueError()
+        if scene in overworld.MAPS and progression.level(p)<overworld.MAPS[scene]['entry']:
+            return self.reply(403,{'error':'Chưa đủ cấp vào vùng săn này.'})
         if scene in expeditions.MAPS and progression.level(p)<expeditions.MAPS[scene]['level']:
             return self.reply(403,{'error':'Chưa đủ cấp vào bí cảnh này.'})
         x,y=body.get('x'),body.get('y')
@@ -656,13 +666,13 @@ class GameHandler(SimpleHTTPRequestHandler):
             for key in list(PEERS):
                 if now-PEERS[key]['seen']>15: PEERS.pop(key,None); EVENTS.pop(key,None)
             previous=PEERS.get(uid,{})
-            with DB_LOCK, connect() as db:adventure.record_world(db,uid,scene,x,y,previous,bool(body.get('med')))
             with DB_LOCK, connect() as db:
                 duel=duels.world_step(db,uid,body,PEERS)
             if duel:
                 scene='duel';x,y=duel['x'],duel['y']
             elif scene=='duel':return self.reply(409,{'error':'Bạn chưa tham gia trận đấu hoặc khán đài.'})
             if scene in expeditions.MAPS and not expeditions.inside(x,y):x,y=1000,1380
+            if scene in overworld.MAPS and not overworld.inside(x,y):x,y=1000,1770
             if scene=='worldboss' and abs(x-1000)/300+abs(y-1100)/150>=1:
                 x,y=1000,1210
             if previous and now-previous['seen']<.12: return self.reply(429,{'error':'Cập nhật quá nhanh.'})
@@ -674,7 +684,8 @@ class GameHandler(SimpleHTTPRequestHandler):
                     if now-previous.get('portalAt',0)>=.8 and valid_farm_teleport(scene,previous,(x,y)):
                         previous['portalAt']=now
                     else:x,y=previous['x'],previous['y']
-            rank=max(0,min(int(p['r']),int(p.get('world',{}).get('trainingRealm',0))))
+            with DB_LOCK, connect() as db:adventure.record_world(db,uid,scene,x,y,previous,bool(body.get('med')))
+            rank=0
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
@@ -705,7 +716,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             register_skill_field(peer,body,now)
             PEERS[uid]=peer; key=room_for(peer)
             combat_hits=[]
-            shared=scene in ('sword','moon','thunder','mystic','valley','worldboss') or scene in expeditions.MAPS
+            shared=scene in ('sword','moon','thunder','mystic','valley','worldboss') or scene in expeditions.MAPS or scene in overworld.MAPS
             mobs=[];fields=[]
             if shared:
                 room=room_mobs(key); mobs=room['mobs']
@@ -721,7 +732,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                             with connect() as db:community.save_boss(db,mob)
                         continue
                     if not mob['dead']:
-                        nearest=min((v for v in members if v.get('hp',1)>0 and not (scene in expeditions.MAPS and expeditions.safe(v['x'],v['y']))),key=lambda v:math.hypot(v['x']-mob['x'],v['y']-mob['y']),default=None)
+                        nearest=min((v for v in members if v.get('hp',1)>0 and not (scene in expeditions.MAPS and expeditions.safe(v['x'],v['y'])) and not (scene in overworld.MAPS and overworld.safe(v['x'],v['y']))),key=lambda v:math.hypot(v['x']-mob['x'],v['y']-mob['y']),default=None)
                         tx,ty=mob['hx'],mob['hy']
                         if nearest and math.hypot(nearest['x']-mob['x'],nearest['y']-mob['y'])<190 and math.hypot(nearest['x']-mob['hx'],nearest['y']-mob['hy'])<110: tx,ty=nearest['x'],nearest['y']
                         distance=math.hypot(tx-mob['x'],ty-mob['y'])
@@ -764,6 +775,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             shapes=FARM_LAYOUT['main']
             rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1
             if scene in expeditions.MAPS:safe=expeditions.safe(x,y)
+            if scene in overworld.MAPS:safe=overworld.safe(x,y)
             if shared and scene!='worldboss' and not safe and now-peer.get('damageAt',0)>=1:
                 for m in mobs:
                     if not m['dead'] and not field_attack_blocked(m) and math.hypot(m['x']-x,m['y']-y)<30:

@@ -1,3 +1,7 @@
+# Cập nhật: Sơn Hà và lò cường hóa
+
+Sáu vùng săn theo cấp, tự nhặt đồ với option giới hạn, NPC có sprite hoạt ảnh, cường hóa tại lò bằng đá và Linh Nguyên. Chi tiết cơ chế, bảng chi phí, asset và kiểm thử: [MMORPG.md](MMORPG.md). Phần bên dưới mô tả các hệ thống hiện có; mục chọn tầng luyện công/Chiến lợi phẩm và cường hóa trong túi đã được thay thế.
+
 # Thiết kế gameplay Tiên Lộ Online
 
 ## Tiến trình mới, quyền GM và chuyển động — 21/10/2026

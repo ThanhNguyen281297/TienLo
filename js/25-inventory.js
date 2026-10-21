@@ -16,7 +16,7 @@
     {id:'tu-vi-dan',type:'consume',name:'Tu Vi Đan',rarity:'huyen',price:25,xp:30,desc:'+30 đạo hạnh.'}
   ];
   for(const [species,name] of [['BoNgua','Linh Đường Lang'],['Tho','Nguyệt Thố'],['Nhen','Huyết Nhện'],['Doi','Băng Dực Dơi']])TEMPLATES.push({id:'egg-'+species,type:'egg',species,name:'Trứng '+name,rarity:'huyen',price:0,desc:'Ấp để nở linh thú '+name+'.'});
-  TEMPLATES.push(...equipmentData.templates);
+  TEMPLATES.push(...equipmentData.templates,...equipmentData.materials);
   const BY_ID = Object.fromEntries(TEMPLATES.map(t => [t.id, t]));
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'it-' + Date.now() + '-' + Math.floor(Math.random() * 1e9));
 
@@ -55,6 +55,7 @@
   function statText(t) {
     if(window.equipmentProgression&&t.slot){const original=t;t={...t};for(const key of ['atk','hp','mp','armor','crit','dodge','skill'])t[key]=equipmentProgression.stat(original,key);}
     const parts = [];
+    if(t.options?.length)parts.push('Option: '+t.options.map(o=>({atk:'Công',hp:'HP',mp:'MP',armor:'Giáp',crit:'Bạo kích',dodge:'Né'}[o.key])+' +'+(['crit','dodge'].includes(o.key)?(o.value/10)+'%':o.value)).join(' / '));
     if (t.atk) parts.push('Công+' + t.atk);
     if (t.hp) parts.push('Máu+' + t.hp);
     if (t.mp) parts.push('Linh+' + t.mp);
@@ -327,7 +328,7 @@
       const gender=equipmentData.byId.get(item.id)?.gender;if(gender){const requirement=document.createElement('p');requirement.className='item-gender-requirement';requirement.textContent='Giới tính: '+(gender==='Nu'?'Nữ':'Nam')+' · Dùng chung bốn class';requirement.style.color=gender===(P.ap.gender||'Nam')?'#9de0bd':'#ff9f9f';details.append(requirement);}
       window.equipmentSystem?.describe(details,item);
       if(equipmentData.pool(item).length)action('Tẩy luyện · '+(60+(item.locks?.length||0)*25)+' ◈',()=>equipmentSystem.reforge(item.uid));
-      if(equipmentRules.enhanceSlots.includes(item.slot))action('Cường hóa +'+equipmentProgression.level(item),()=>{if(equipmentProgression.enhance(item.uid))openBag();});
+      if(equipmentRules.enhanceSlots.includes(item.slot)){const note=document.createElement('p');note.textContent='Cường hóa tại NPC Luyện Khí trong Thiên Vân Thành.';details.append(note);}
       if(item.type==='egg')action('Ấp trứng',()=>spiritPets.startHatch(item.uid));
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
@@ -338,7 +339,7 @@
     const resources=document.createElement('div');resources.className='bag-resources';resources.textContent='Linh Nguyên '+(p.essence||0)+' · Đột Phá Đan '+(p.breakthroughPills||0)+' · Thăng Vị Đan '+(p.thangViDan||0);bag.append(resources);
     const shop=document.createElement('div');shop.className='quick-shop';bag.append(shop);
     ['hoi-huyet-dan','hoi-linh-dan'].forEach(id=>{const t=BY_ID[id],button=document.createElement('button');button.textContent=t.name+' · '+t.price+' ◈';button.onclick=()=>buyItem(id);button.disabled=P.gold<t.price;shop.append(button);});
-    dialog.action('Cường hóa trang bị',equipmentProgression.open);dialog.action('Linh thú',()=>spiritPets.open());
+    dialog.action('Linh thú',()=>spiritPets.open());
     dialog.action('Thuộc tính (U)',openAttrs);
   }
   function openShopEquip() {

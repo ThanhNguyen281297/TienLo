@@ -48,7 +48,7 @@ class AdventureTests(unittest.TestCase):
                 mob=dict(id=slot,t=0,map='sword',hp=1,maxHp=1,x=1000,y=1100,contributors={},dead=0)
                 with patch('server.secrets.randbelow',return_value=0),patch('server.secrets.choice',return_value=slot):server.damage_mob(mob,10,1,now,'sword:0')
             ids=[r['item_id'] for r in self.db.execute('SELECT item_id FROM expedition_drops WHERE user_id=1')]
-            self.assertEqual(set(ids),{'train-10-'+slot+'-class-0' for slot in ('daobao','chan','giay')})
+            self.assertEqual(set(ids),{'train-10-'+slot+'-class-0' for slot in ('daobao','chan','giay')}|{'cuong-hoa-thach'})
             self.assertEqual(adventure.count(self.db,1,'kills'),3)
         finally:server.PEERS.clear();server.PEERS.update(old_peers);server.EVENTS.clear();server.EVENTS.update(old_events)
     def test_gm_grant_and_realm_are_server_actions(self):

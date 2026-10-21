@@ -91,6 +91,7 @@ def apply_reward(player,payload):
 def safe(player):
     scene=player.get('world',{}).get('map')
     if scene=='hub':return True
+    if scene in __import__('overworld').MAPS:return __import__('overworld').safe(player.get('x',0),player.get('y',0))
     return scene in ('sword','moon','thunder','mystic','valley') and abs(player['x']-1000)/300+abs(player['y']-1100)/160<.9
 
 
