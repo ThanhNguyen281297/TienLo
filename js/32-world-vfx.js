@@ -10,7 +10,7 @@
   }
   const hitBefore=hit;
   hit=function(enemy,power){const hp=enemy?.hp,result=hitBefore(enemy,power);
-    if(enemy&&!enemy.network&&hp>0&&enemy.hp<hp)contact(enemy,enemy.hp<=0);
+    if(enemy&&!enemy.network&&hp>0&&enemy.hp<hp&&!(window.basicCombat?.state.dealing&&window.basicEffects?.available(P.ap?.w)))contact(enemy,enemy.hp<=0);
     return result;
   };
   function paintIcons(){const sect=P.ap?.w??tp.w??0;

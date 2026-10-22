@@ -2,7 +2,7 @@
 (function () {
   const profiles = combatBalance.profiles.map(profile=>profile.basic);
   const state = { combo: 0, sect: null, target: null, gap: 0, serial: 0,
-    projectiles: [], swings: [], effects: [], lastHit: null };
+    projectiles: [], swings: [], effects: [], casts: [], lastHit: null, dealing: false };
   let enemies = E;
   const sect = () => P.ap?.w ?? 0;
   const profile = () => profiles[sect()];
@@ -28,7 +28,7 @@
   function clearChain() { state.combo = 0; state.target = null; state.gap = 0; state.lastHit = null; }
   function reset() {
     clearChain(); state.sect = null;
-    state.projectiles.length = state.swings.length = state.effects.length = 0;
+    state.projectiles.length = state.swings.length = state.effects.length = state.casts.length = 0;
     P.acd = 0;
   }
   function syncEnemies() {
@@ -48,7 +48,11 @@
     enemy.fr = Math.max(enemy.fr || 0, seconds);
     enemy.cd = Math.max(enemy.cd || 0, seconds);
   }
-  function strike(enemy, power) { if (live(enemy)) hit(enemy, power); }
+  function strike(enemy, power) {
+    if (!live(enemy)) return;
+    const before=state.dealing;state.dealing=true;
+    try { hit(enemy,power); } finally { state.dealing=before; }
+  }
   function finisher(enemy, attack) {
     if (attack.sect === 0 && attack.step === 3) {
       stagger(enemy, .18);
@@ -63,7 +67,7 @@
     const d = distance(start, end) || 1, dx = (end.x - start.x) / d, dy = (end.y - start.y) / d;
     state.projectiles.push({ ...attack, ...options, x: start.x, y: start.y, start, end,
       control: { x: (start.x + end.x) / 2 - dy * bend, y: (start.y + end.y) / 2 + dx * bend },
-      angle: Math.atan2(dy, dx), size: options.size || 18, duration: options.duration || .25,
+      angle: Math.atan2(dy, dx), viewAngle: Math.atan2(dy, dx), size: options.size || 18, duration: options.duration || .25,
       age: 0, returning: false, outHits: new Set(), backHits: new Set(), trail: [] });
   }
   function launch(attack, target) {
@@ -102,7 +106,10 @@
     state.sect = sect(); state.target = target; state.gap = 0;
     const step = state.combo, p = profile();
     const attack = { sect: sect(), step, power: atk() * p.power[step], volley: { id: ++state.serial, marked: new Set(), refunded: false } };
-    face(target); launch(attack, target);
+    face(target);
+    // Presentation follows the accepted attack, never a second damage event.
+    state.casts.push({sect:attack.sect,step,x:P.x,y:P.y,angle:Math.atan2(target.y-P.y,target.x-P.x),age:0,duration:Math.min(.3,p.interval*.85),id:attack.volley.id});
+    launch(attack, target);
     state.combo = (step + 1) % p.steps;
     state.lastHit = { sect: sect(), step, name: p.name };
     // Trận Lôi tăng tốc đánh 25% (chu kỳ ngắn hơn 20%).
@@ -155,6 +162,8 @@
       const end = p.returning ? home(p.sect) : p.end;
       const pos = quadratic(p.start, p.control, end, clamp(p.age / p.duration, 0, 1));
       p.x = pos.x; p.y = pos.y; p.angle = Math.atan2(pos.y - old.y, pos.x - old.x);
+      const turn=Math.atan2(Math.sin(p.angle-p.viewAngle),Math.cos(p.angle-p.viewAngle));
+      p.viewAngle+=turn*(1-Math.exp(-24*dt));
       p.trail.push(old); if (p.trail.length > 10) p.trail.shift();
       const hits = p.returning ? p.backHits : p.outHits;
       for (const enemy of E) {
@@ -188,6 +197,8 @@
     advanceProjectiles(dt);
     for (const e of state.effects) e.age += dt;
     state.effects = state.effects.filter(e => e.age < e.duration);
+    for (const cast of state.casts) cast.age += dt;
+    state.casts = state.casts.filter(c => c.age < c.duration);
   }
   function refresh() {
     if (!P.ap) return;

@@ -1,7 +1,7 @@
 /* Vẽ cảnh đang dùng: actor theo chiều sâu, ánh sáng và hạt chiến đấu. */
 const PT=[],rn=(a,b)=>a+Math.random()*(b-a);
 function spark(x,y,c,n){for(let i=0;i<n;i++){const a=rn(0,6.28),s=rn(30,120);PT.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-25,l:rn(.25,.6),m:.6,c,s:rn(1.5,3)})}}
-const _hit=hit;hit=function(e,v){const k=T[e.t];_hit(e,v);spark(e.x,e.y-k.s/2,e.hp<=0?'#ffd27a':'#fff1b8',e.hp<=0?20:7)};
+const _hit=hit;hit=function(e,v){const k=T[e.t];_hit(e,v);if(!(window.basicCombat?.state.dealing&&window.basicEffects?.available(P.ap?.w)))spark(e.x,e.y-k.s/2,e.hp<=0?'#ffd27a':'#fff1b8',e.hp<=0?20:7)};
 let human, mon, drawGround, sit, orbit;
 function sh(x,y,w,h,a=.28){g.fillStyle='rgba(20,15,10,'+a+')';g.beginPath();g.ellipse(x,y,w,h,0,0,6.3);g.fill()}
 function glow(x,y,r,c,a){const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,c);gr.addColorStop(1,'rgba(0,0,0,0)');g.save();g.globalCompositeOperation='lighter';g.globalAlpha=a;g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2);g.restore()}

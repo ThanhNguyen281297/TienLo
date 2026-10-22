@@ -65,7 +65,9 @@ async function installHelpers(page) {
       });
       await page.route('**/fonts.googleapis.com/**', route => route.abort());
       await page.addInitScript(() => { window.requestAnimationFrame = () => 0; });
-      await require('./test-account.cjs')(page);await page.goto('http://127.0.0.1:' + port, { waitUntil: 'networkidle' });
+      await require('./test-account.cjs')(page);
+      await page.route('**/api/adventure',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({quests:[],recipes:[],shop:[],tutorial:{},fragments:0,merit:0})}));
+      await page.goto('http://127.0.0.1:' + port, { waitUntil: 'networkidle' });
       await page.locator('#nm').fill('Kiểm tra combo'); await page.locator('#ok').click();
       await page.waitForFunction(() => !!window.basicCombat && creatureArt.ready());
       await installHelpers(page);
@@ -242,6 +244,7 @@ async function installHelpers(page) {
       basicCombat.attack(enemy); worldMap.travel('hub');
       const map = { combo: basicCombat.state.combo, effects: basicCombat.state.effects.length, projectiles: basicCombat.state.projectiles.length };
       worldMap.travel('sword'); basicReset(1); E = [basicEnemy('recreate', P.x + 150, P.y)]; basicCombat.attack(E[0]);
+      P.ap=null;cr.style.display='flex';
       $('ok').onclick();
       const creator = { combo: basicCombat.state.combo, effects: basicCombat.state.effects.length, projectiles: basicCombat.state.projectiles.length };
       return { respawn, map, creator };

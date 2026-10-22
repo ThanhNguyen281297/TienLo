@@ -7,8 +7,9 @@
   hit=function(enemy,power){
     if(enemy.network){
       if(enemy.dead||enemy.hp<=0)return;
-      if(state.hits.length<32)state.hits.push({id:enemy.id,power:power*(enemy.boss||enemy.elite||enemy.t===2?1+(bonusStats().bossDamage||0):1)});
-      spark(enemy.x,enemy.y-20,characterClasses[P.ap.w].color,5);
+      const basic=!!(window.basicCombat?.state.dealing&&window.basicEffects?.available(P.ap?.w));
+      if(state.hits.length<32)state.hits.push({id:enemy.id,basic,power:power*(enemy.boss||enemy.elite||enemy.t===2?1+(bonusStats().bossDamage||0):1)});
+      if(!basic)spark(enemy.x,enemy.y-20,characterClasses[P.ap.w].color,5);
       return;
     }
     return localHit(enemy,power);
@@ -37,6 +38,7 @@
       const sustainIds=P.world.sustainIds??=[];for(const event of data.sustain||[]){if(!sustainIds.includes(event.id)){equipmentSystem.sustain(event.amount);sustainIds.push(event.id);if(sustainIds.length>100)sustainIds.shift();}}
       state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);
       if(data.shared){
+        const ownBasicHits=new Set((batch.hits||[]).filter(h=>h.basic).map(h=>h.id));
         const ownHits=new Set();for(const hit of data.combatHits||[]){damageNumber(hit.x,hit.y-48,hit.amount,hit.critical);ownHits.add(hit.id);}
         const previous=new Map(E.filter(e=>e.network).map(e=>[e.id,e]));
         for(const reward of data.rewards){
@@ -50,7 +52,7 @@
           account.flush().then(ok=>{if(ok)state.acks.push(reward.eventId);});
         }
         if(state.acks.length>100)state.acks.splice(0,state.acks.length-100);
-        E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;window.creatureArt?.onNetworkMove(e,Math.hypot(e.x-snapshot.x,e.y-snapshot.y)>.1);if(snapshot.attackSerial!==e.attackSerial&&snapshot.attackSerial)window.creatureArt?.onAttack(e);if(damage>0&&e.hp>0){if(!ownHits.has(snapshot.id))damageNumber(snapshot.x,snapshot.y-48,damage,false);window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
+        E=data.mobs.map(snapshot=>{const e=previous.get(snapshot.id);if(e){const damage=e.hp-snapshot.hp;window.creatureArt?.onNetworkMove(e,Math.hypot(e.x-snapshot.x,e.y-snapshot.y)>.1);if(snapshot.attackSerial!==e.attackSerial&&snapshot.attackSerial)window.creatureArt?.onAttack(e);if(damage>0&&e.hp>0){if(!ownHits.has(snapshot.id))damageNumber(snapshot.x,snapshot.y-48,damage,false);window.creatureArt?.onNetworkDamage(e,snapshot.hp<=0);if(!ownBasicHits.has(snapshot.id))window.worldVFX?.confirmedHit(e,damage,snapshot.hp<=0);}Object.assign(e,snapshot);return e;}return snapshot;});
         if(data.damage&&!worldMap.isSafe(P)){
           const bonus=bonusStats();if(window.combatDefense?.evading()||classCombat.isDashing()||Math.random()<Math.min(.2,bonus.dodge||0)){window.combatDefense?.dodge();}else{const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)*(window.equipmentSystem?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }
