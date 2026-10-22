@@ -1,0 +1,7 @@
+/* Hide scroll tracks while keeping wheel, touch and click-drag scrolling. */
+(function(){
+ const css=document.createElement('style');css.textContent='*{scrollbar-width:none;-ms-overflow-style:none}*::-webkit-scrollbar{display:none;width:0;height:0}#world-dialog>section,.inventory-dialog,.equipment-item-popup,#hud-more-menu{overscroll-behavior:contain}';document.head.append(css);
+ const selectors=['#world-dialog>section','.equipment-item-popup','#hud-more-menu'];
+ function install(root){for(const el of root.querySelectorAll(selectors.join(','))){if(el.dataset.dragScroll)return;el.dataset.dragScroll='1';let start=null,moved=false;el.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0||e.target.closest('button,input,select,textarea,a,[contenteditable="true"]'))return;start={y:e.clientY,top:el.scrollTop,id:e.pointerId};moved=false;});el.addEventListener('pointermove',e=>{if(!start||e.pointerId!==start.id)return;const dy=e.clientY-start.y;if(!moved&&Math.abs(dy)<5)return;moved=true;el.scrollTop=start.top-dy;e.preventDefault();});for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,e=>{if(start&&e.pointerId===start.id){start=null;if(moved){el.dataset.dragged='1';setTimeout(()=>delete el.dataset.dragged,0);}}});}}
+ install(document);new MutationObserver(()=>install(document)).observe(document.body,{childList:true,subtree:true});
+})();

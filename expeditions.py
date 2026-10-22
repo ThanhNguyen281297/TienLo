@@ -61,6 +61,7 @@ def pending(db,uid):
     return db.execute('SELECT COUNT(*) FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL',(uid,)).fetchone()[0]
 
 def queue_farm_drop(db,uid,mob,event_id):
+    if mob.get('tower'):return
     row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
     if not row:return
     player=json.loads(row['player']);cls=player['ap']['w'];level=mob.get('level',1)

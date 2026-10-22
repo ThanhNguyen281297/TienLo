@@ -8,6 +8,7 @@ import adventure
 import overworld
 import forging
 import trade
+import tower
 import hashlib
 import hmac
 import json
@@ -41,7 +42,7 @@ PEERS, ROOMS, EVENTS = {}, {}, defaultdict(list)
 CHAT = deque(maxlen=100)
 SECTS = ('Kiếm Tông', 'Minh Nguyệt Tông', 'Lôi Thương Tông', 'Thiên Cơ Môn')
 STATIC_FILES = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()}
-MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'valley', 'arena', 'worldboss', 'duel', *expeditions.MAPS, *overworld.MAPS)
+MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'tower', 'worldboss', 'duel', *expeditions.MAPS, *overworld.MAPS)
 EVASION_COOLDOWNS = (6,5,8,5)
 
 
@@ -80,6 +81,7 @@ def init_db():
         expeditions.init_db(db)
         duels.init_db(db)
         adventure.init_db(db)
+        tower.init_db(db)
 
 
 def password_hash(password, salt=None):
@@ -195,7 +197,7 @@ def damage_mob(mob,damage,owner,now,key):
         return
     mob['hp']=max(0,mob['hp']-max(1,round(damage)));mob['contributors'][owner]=now
     if mob['hp']>0:return
-    mob['dead']=now+(90 if mob.get('expedition') and mob.get('boss') else 12 if mob.get('expedition') else 8)
+    mob['dead']=10**30 if mob.get('tower') else now+(90 if mob.get('expedition') and mob.get('boss') else 12 if mob.get('expedition') else 8)
     eligible={uid for uid,stamp in mob['contributors'].items() if uid in PEERS and room_for(PEERS[uid])==key and now-stamp<15}
     with connect() as db:
         for ally in community.party_allies(db,eligible):
@@ -207,6 +209,7 @@ def damage_mob(mob,damage,owner,now,key):
             event_id=secrets.token_hex(12)
             expeditions.queue_drop(db,contributor,mob,event_id)
             adventure.record_kill(db,contributor,mob,event_id)
+            if mob.get('tower'):tower.record_kill(db,contributor,mob)
             expeditions.queue_farm_drop(db,contributor,mob,event_id)
             EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id})
             EVENTS[contributor]=EVENTS[contributor][-100:]
@@ -258,6 +261,7 @@ def register_pet_cast(peer,body,player,now,mobs):
 
 
 def room_for(peer):
+    if peer['map']=='tower':return 'tower:'+str(peer['id'])+':'+peer['towerToken']
     if peer['map']=='duel':return 'duel:'+str(peer.get('duelId','lobby'))
     if peer['map'] in expeditions.MAPS or peer['map'] in overworld.MAPS:return peer['map']+':0'
     return 'worldboss:0' if peer['map']=='worldboss' else peer['map'] + ':0'
@@ -282,6 +286,12 @@ def valid_farm_teleport(scene,previous,destination):
 
 
 def room_mobs(key):
+    if key.split(':')[0]=='hub':return dict(mobs=[],updated=time.monotonic())
+    if key.startswith('tower:'):
+        if key not in ROOMS:
+            _,uid,token=key.split(':')
+            with DB_LOCK, connect() as db:ROOMS[key]=tower.room(db,int(uid),token)
+        return ROOMS[key]
     if key.split(':')[0] in overworld.MAPS:
         if key not in ROOMS:ROOMS[key]=overworld.room(key.split(':')[0])
         return ROOMS[key]
@@ -305,7 +315,7 @@ def room_mobs(key):
             hp=round(base[t][0]*(1+level*.11)*(1.15 if scene=='valley' else 1))
             for slot,offset in enumerate(FARM_LAYOUT['slots'][:size['perCamp']]):
                 x=cx+offset['x']*size['rx']; y=cy+offset['y']*size['ry']
-                mobs.append(dict(id=f'{key}:{ci}:{slot}',t=t,x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,
+                mobs.append(dict(id=f'{key}:{ci}:{slot}',t=t,level=max(1,level+1),x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,
                     worldMap=True,network=True,map=scene,camp=camp,campX=cx,campY=cy,campRX=size['rx'],campRY=size['ry'],attackScale=(1+level*.04)*(1.15 if scene=='valley' else 1),
                     xpReward=round(base[t][1]*(1+level*.08)*(1.2 if scene=='valley' else 1)),materialYield=(1+rank//3)*(2 if scene=='valley' else 1),contributors={}))
         ROOMS[key] = {'mobs':mobs,'updated':time.monotonic()}
@@ -459,7 +469,8 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/duel': return self.duel(user)
             if path=='/api/expedition': return self.expedition(user)
             if path=='/api/adventure': return self.adventure(user)
-            if path=='/api/arena': return self.arena(user,False)
+            if path=='/api/arena': return self.reply(410,{'error':'Đấu trường cũ đã đóng. Hãy đến Vạn Tầng Tháp.'})
+            if path=='/api/tower': return self.tower(user)
             if path=='/api/rankings':
                 with connect() as db: rows=db.execute("SELECT json_extract(player,'$.nm') AS name, json_extract(player,'$.ap.w') AS sect, json_extract(player,'$.r') AS realm, json_extract(player,'$.stage') AS stage, COALESCE(json_extract(player,'$.world.kills'),0) AS kills FROM characters ORDER BY realm DESC,stage DESC,kills DESC LIMIT 50").fetchall()
                 return self.reply(200,[dict(name=r['name'],sect=SECTS[r['sect']],realm=r['realm'],stage=r['stage'],kills=r['kills']) for r in rows])
@@ -519,7 +530,8 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/duel': return self.duel(user,body)
         if path=='/api/expedition': return self.expedition(user,body)
         if path=='/api/adventure': return self.adventure(user,body)
-        if path=='/api/arena': return self.arena(user,True)
+        if path=='/api/arena': return self.reply(410,{'error':'Đấu trường cũ đã đóng. Hãy đến Vạn Tầng Tháp.'})
+        if path=='/api/tower': return self.tower(user,body)
         if path=='/api/characters': return self.save_character(user,body)
         if path=='/api/world': return self.world(user,body)
         if path=='/api/chat':
@@ -677,6 +689,19 @@ class GameHandler(SimpleHTTPRequestHandler):
             result={'pending':expeditions.pending(db,user['user_id']),'drops':[dict(equipment_rules.TEMPLATES[r['item_id']],dropId=r['id']) for r in db.execute('SELECT id,item_id FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL ORDER BY created_at,id LIMIT 30',(user['user_id'],)).fetchall()]} if body is None else expeditions.claim(db,user['user_id'],body)
         return self.reply(409 if result.get('conflict') else 200,result)
 
+    def tower(self,user,body=None):
+        try:
+            with WORLD_LOCK,DB_LOCK,connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                uid=user['user_id']
+                if body is not None and trade.locked(db,uid):raise ValueError('Mở khóa giao dịch trước.')
+                result=tower.snapshot(db,uid) if body is None else tower.action(db,uid,body)
+                if body is not None:
+                    for key in list(ROOMS):
+                        if key.startswith('tower:'+str(uid)+':'):ROOMS.pop(key,None)
+            return self.reply(200,result)
+        except ValueError as error:return self.reply(409,{'error':str(error)})
+
     def arena(self,user,consume):
         day=datetime.now(timezone(timedelta(hours=7))).date().isoformat(); uid=user['user_id']
         with DB_LOCK, connect() as db:
@@ -708,6 +733,11 @@ class GameHandler(SimpleHTTPRequestHandler):
             if duel:
                 scene='duel';x,y=duel['x'],duel['y']
             elif scene=='duel':return self.reply(409,{'error':'Bạn chưa tham gia trận đấu hoặc khán đài.'})
+            tower_run=None
+            if scene=='tower':
+                with DB_LOCK,connect() as db:tower_run=tower.run(db,uid)
+                if not tower_run or tower_run['status'] not in ('fighting','cleared','claimed'):return self.reply(409,{'error':'Tầng tháp đã kết thúc. Hãy trở về thành.'})
+                if not (610<=x<=1390 and 790<=y<=1480) or abs(x-1000)/460+abs(y-1100)/300>=.98:x,y=1000,1380
             if scene in expeditions.MAPS and not expeditions.inside(x,y):x,y=1000,1380
             if scene in overworld.MAPS and not overworld.inside(x,y):x,y=1000,1770
             if scene=='worldboss' and abs(x-1000)/300+abs(y-1100)/150>=1:
@@ -736,6 +766,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if not isinstance(ack_sustain,list) or len(ack_sustain)>100:raise ValueError()
             peer['sustain']=[event for event in peer.get('sustain',[]) if event['id'] not in ack_sustain]
             peer['pet']=next((pet for pet in p.get('world',{}).get('pets',[]) if pet['id']==p.get('world',{}).get('activePet')),None)
+            if tower_run:peer['towerToken']=tower_run['token']
             peer['attack']=player_attack(p);peer['maxHp']=player_max_hp(p);health=body.get('hp',p['hp']);peer['hp']=max(0,min(peer['maxHp'],health)) if type(health) in (int,float) and math.isfinite(health) else 0
             if duel and not duel['viewer']:peer['hp']=duel['hp']
             # Presentation only: height grants no speed exception or damage immunity.
@@ -753,7 +784,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             register_skill_field(peer,body,now)
             PEERS[uid]=peer; key=room_for(peer)
             combat_hits=[]
-            shared=scene in ('sword','moon','thunder','mystic','valley','worldboss') or scene in expeditions.MAPS or scene in overworld.MAPS
+            shared=scene in ('sword','moon','thunder','mystic','worldboss','tower') or scene in expeditions.MAPS or scene in overworld.MAPS
             mobs=[];fields=[]
             if shared:
                 room=room_mobs(key); mobs=room['mobs']

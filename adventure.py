@@ -8,30 +8,31 @@ import progression
 
 QUALITIES=(('pham','Thường','#d4cbb6',10,1),('huyen','Hiếm','#70df9c',15,10),('linh','Cực hiếm','#6fc8ff',20,25),('tien','Siêu phẩm','#cf9cff',25,45),('than','Thần phẩm','#ffcc70',30,70))
 MAIN=[
- ('awakening','Duyên khởi Thiên Vân','Sư phụ phát hiện linh mạch phía bắc đang suy yếu. Trước hết, hãy làm quen thân pháp.', 'walk',120,1,120,30,0),
- ('first-blood','Dấu vết yêu khí','Hạ yêu thú ngoài sân tông môn, tìm dấu vết của U Minh Giáo.','kills',5,1,400,60,0),
- ('city','Mật thư của Sư phụ','Mang tin đến Thiên Vân Thành; Vân Châu đang chờ bên quảng trường.','visit:hub',1,1,600,80,5),
- ('watch','Giữ bình yên sơn môn','Bảo vệ đệ tử mới khỏi làn sóng yêu thú.','kills',20,1,1200,100,5),
- ('wood-gate','Vết nứt phương Đông','Đạt cấp 10 và bước vào Thanh Mộc Linh Cảnh để truy nguồn độc khí.','visit:rift-wood',1,10,1500,150,2),
- ('wood-seal','Phong ấn Mộc Linh','Hạ Độc Giác Thiềm Vương. Mảnh ngọc tìm được hé lộ một long uyên bị nguyền rủa.','boss:rift-wood',1,10,2200,180,3),
- ('forging','Khôi phục linh khí','Ghép một món trang bị tại Luyện Khí Phường bằng mảnh linh khí.','craft',1,10,1500,100,2),
- ('tide-seal','Tiếng gọi Long Uyên','Hạ thủ lĩnh Huyền Thủy Long Uyên, thu hồi ngọc ấn thứ hai.','boss:rift-tide',1,25,9000,350,4),
- ('fire-gate','Tro tàn Xích Diệm','Khám phá Xích Diệm Hoang Vực. U Minh Giáo đã đánh thức linh hỏa.','visit:rift-fire',1,45,22000,450,3),
- ('fire-seal','Phượng hỏa tái sinh','Đánh bại phượng hoàng bị yêu khí chi phối; bảo vệ ngọc ấn thứ ba.','boss:rift-fire',1,45,30000,550,5),
- ('void-gate','Đường vào U Minh','Theo ba ngọc ấn đến U Minh Cốt Giới, tìm kẻ đứng sau đại loạn.','visit:rift-void',1,70,65000,700,4),
- ('final-seal','Bốn ấn quy nguyên','Hạ Cốt Long, khép vết nứt hư không và giữ lại bình yên cho Thiên Vân.','boss:rift-void',1,70,90000,1000,8),
+ ('awakening','Duyên khởi Thiên Vân','Dạo bước quanh quảng trường, gặp Vân Châu để bắt đầu hành trình.','walk',120,1,120,30,0),
+ ('first-blood','Dấu vết yêu khí','Đến Thanh Phong Trúc Lâm và hạ 10 yêu thú từ cấp 1.','hunt:1',10,1,500,80,1),
+ ('watch','Con đường tu tiên','Hạ 25 yêu thú từ cấp 3 trong các vùng săn.','hunt:3',25,3,1200,120,2),
+ ('city','Mật thư Thiên Vân','Đạt cấp 5 rồi trở lại Thiên Vân Thành.','visit:hub',1,5,1500,150,2),
+ ('wood-gate','Thanh Mộc trừ yêu','Hạ 50 yêu thú từ cấp 10 để lần theo vết nứt phương Đông.','hunt:10',50,10,4500,250,3),
+ ('wood-seal','Phong ấn Mộc Linh','Tham chiến hạ thủ lĩnh Thanh Mộc Linh Cảnh.','boss:rift-wood',1,10,6000,300,5),
+ ('forging','Linh khí thành hình','Tới NPC Luyện Khí trong thành để ghép một trang bị.','craft',1,10,3000,200,2),
+ ('mountain-hunt','Vượt núi tìm đạo','Hạ 100 yêu thú từ cấp 20.','hunt:20',100,20,10000,450,5),
+ ('tide-seal','Tiếng gọi Long Uyên','Hạ thủ lĩnh Huyền Thủy Long Uyên.','boss:rift-tide',1,25,15000,550,6),
+ ('snow-hunt','Phong tuyết vô ngại','Hạ 150 yêu thú từ cấp 35.','hunt:35',150,35,24000,650,7),
+ ('fire-gate','Tro tàn Xích Diệm','Hạ 200 yêu thú từ cấp 45 rồi tìm tới Xích Diệm Hoang Vực.','hunt:45',200,45,36000,800,8),
+ ('fire-seal','Phượng hỏa tái sinh','Hạ phượng hoàng trong bí cảnh Xích Diệm.','boss:rift-fire',1,45,42000,900,10),
+ ('void-gate','Đường vào U Minh','Hạ 300 yêu thú từ cấp 60.','hunt:60',300,60,65000,1200,12),
+ ('final-seal','Bốn ấn quy nguyên','Hạ Cốt Long tại U Minh Cốt Giới để giữ bình yên Thiên Vân.','boss:rift-void',1,70,90000,1800,15),
+ ('immortal-hunt','Tiên lộ vô cùng','Hạ 500 yêu thú từ cấp 80.','hunt:80',500,80,140000,2400,20),
 ]
-SIDE=[
- ('hunter','Dược điền bị quấy phá','Giúp dân thành dọn yêu thú để mở lại đường hái thuốc.','kills',12,1,650,80,1),
- ('veteran','Đường núi an yên','Hạ 60 yêu thú. Những chuyến hàng đầu tiên đã về đến thành.','kills',60,10,2200,160,2),
- ('wanderer','Tứ phái đồng tâm','Ghé sân của cả bốn phái, nối lại liên lạc giữa các sơn môn.','sects',4,1,900,100,2),
- ('artisan','Linh khí thành hình','Ghép ba món, giúp thợ rèn khôi phục bí thuật đã thất truyền.','craft',3,10,2200,180,3),
- ('refiner','Tinh luyện hộ thân','Tẩy luyện một pháp bảo hoặc hộ thuẫn.','reforge',1,10,1800,160,2),
- ('guardian','Lá chắn sinh tử','Dùng kỹ năng hộ thuẫn ba lần.','shield',3,10,1800,160,2),
- ('rift-hunter','Trừ yêu tứ cảnh','Hạ 100 yêu thú trong bí cảnh.','riftKills',100,25,8500,320,4),
- ('champion','Bốn linh ấn','Hạ thủ lĩnh tại cả bốn bí cảnh.','seals',4,70,45000,700,5),
+SIDE=[]
+DAILY=[
+ ('daily-rift','Khám phá bí cảnh','Tham gia một bí cảnh trong ngày.','riftVisits',1,10,1500,150,2),
+ ('daily-explorer','Dấu chân tam cảnh','Tham gia ba bí cảnh khác nhau trong ngày.','riftVisits',3,45,8000,500,5),
+ ('daily-hunter','Thiên yêu trảm','Hạ 1.000 quái trong ngày.','kills',1000,1,6000,500,5),
+ ('daily-ten-thousand','Vạn yêu trảm','Hạ 10.000 quái trong ngày.','kills',10000,10,30000,1800,15),
+ ('daily-tower','Phá trận đăng tháp','Nhận thưởng ba tầng tháp khác nhau trong ngày.','towerFloors',3,1,3000,300,4),
+ ('daily-boss','Bí cảnh trấn yêu','Hạ một thủ lĩnh bí cảnh trong ngày.','riftBosses',1,10,3500,250,3),
 ]
-DAILY=[('sect-patrol','Tuần sơn','Bảo vệ bãi luyện công của sư môn.','sectKills',15,1,500,40,20),('sect-hunt','Trừ yêu sư môn','Hạ yêu thú trong bất kỳ bí cảnh nào.','riftKills',12,10,1800,70,30),('sect-boss','Trấn áp yêu vương','Tham chiến hạ một thủ lĩnh bí cảnh.','riftBosses',1,10,2500,100,40)]
 SECT_MAPS=('sword','moon','thunder','mystic')
 
 def day():return datetime.now(timezone(timedelta(hours=7))).date().isoformat()
@@ -42,6 +43,7 @@ def init_db(db):
     CREATE TABLE IF NOT EXISTS adventure_counters(user_id INTEGER NOT NULL REFERENCES users(id),key TEXT NOT NULL,value REAL NOT NULL,PRIMARY KEY(user_id,key));
     CREATE TABLE IF NOT EXISTS adventure_claims(user_id INTEGER NOT NULL REFERENCES users(id),quest TEXT NOT NULL,day TEXT NOT NULL,PRIMARY KEY(user_id,quest,day));
     CREATE TABLE IF NOT EXISTS adventure_events(user_id INTEGER NOT NULL REFERENCES users(id),id TEXT NOT NULL,PRIMARY KEY(user_id,id));
+    CREATE TABLE IF NOT EXISTS adventure_quest_starts(user_id INTEGER NOT NULL REFERENCES users(id),quest TEXT NOT NULL,baseline REAL NOT NULL,PRIMARY KEY(user_id,quest));
     CREATE TABLE IF NOT EXISTS adventure_ops(user_id INTEGER NOT NULL REFERENCES users(id),id TEXT NOT NULL,PRIMARY KEY(user_id,id));
     ''')
 
@@ -62,6 +64,8 @@ def record_kill(db,uid,mob,event):
     if db.execute('SELECT 1 FROM adventure_events WHERE user_id=? AND id=?',(uid,event)).fetchone():return
     db.execute('INSERT INTO adventure_events VALUES(?,?)',(uid,event));wallet(db,uid)
     scene=mob.get('map','');add(db,uid,'kills')
+    for minimum in (1,3,10,20,35,45,60,80):
+        if mob.get('level',1)>=minimum:add(db,uid,'hunt:'+str(minimum))
     add(db,uid,'daily:'+day()+':kills')
     if scene.startswith('rift-'):
         for key in ('riftKills','daily:'+day()+':riftKills'):add(db,uid,key)
@@ -75,7 +79,10 @@ def grant_fragments(db,uid,amount):
     wallet(db,uid);db.execute('UPDATE adventure_wallet SET fragments=fragments+? WHERE user_id=?',(amount,uid))
 
 def record_world(db,uid,scene,x,y,previous,med):
-    if scene=='duel':return
+    if scene in ('duel','tower'):return
+    if scene.startswith('rift-') and previous.get('map')!=scene:
+        key='daily:'+day()+':visit:'+scene
+        if not count(db,uid,key):add(db,uid,key);add(db,uid,'daily:'+day()+':riftVisits')
     if count(db,uid,'visit:'+scene)==0:add(db,uid,'visit:'+scene)
     if previous.get('map')==scene:
         distance=__import__('math').hypot(x-previous['x'],y-previous['y'])
@@ -89,11 +96,16 @@ def progress(db,uid,key,daily=False):
 
 def quests(db,uid,player):
     claimed={(r['quest'],r['day']) for r in db.execute('SELECT quest,day FROM adventure_claims WHERE user_id=?',(uid,))};result=[];prior=True
-    for group,rows in (('main',MAIN),('side',SIDE),('sect',DAILY)):
+    for group,rows in (('main',MAIN),('daily',DAILY)):
         for row in rows:
-            ident,title,story,key,target,level,xp,gold,extra=row;today=day() if group=='sect' else '';done=(ident,today) in claimed
-            value=progress(db,uid,key,group=='sect');unlocked=progression.level(player)>=level and (prior if group=='main' else True)
-            result.append(dict(id=ident,title=title,story=story,kind=group,key=key,target=target,value=min(target,int(value)),level=level,claimed=done,unlocked=unlocked,ready=unlocked and value>=target and not done,xp=xp,gold=gold,fragments=extra if group!='sect' else 0,merit=extra if group=='sect' else 0))
+            ident,title,story,key,target,level,xp,gold,extra=row;today=day() if group=='daily' else '';done=(ident,today) in claimed
+            value=progress(db,uid,key,group=='daily');unlocked=progression.level(player)>=level and (prior if group=='main' else True)
+            if group=='main' and key.startswith('hunt:'):
+                baseline=db.execute('SELECT baseline FROM adventure_quest_starts WHERE user_id=? AND quest=?',(uid,ident)).fetchone()
+                if unlocked and baseline is None:
+                    db.execute('INSERT INTO adventure_quest_starts VALUES(?,?,?)',(uid,ident,value));baseline={'baseline':value}
+                value=max(0,value-(baseline['baseline'] if baseline else value))
+            result.append(dict(id=ident,title=title,story=story,kind=group,key=key,target=target,value=min(target,int(value)),level=level,claimed=done,unlocked=unlocked,ready=unlocked and value>=target and not done,xp=xp,gold=gold,fragments=extra,merit=0))
             if group=='main':prior=prior and done
     return result
 
@@ -111,7 +123,7 @@ def shop(player):
     return [dict(id=f'sect-{slot}-class-{cls}',merit=180 if slot=='vukhi' else 120) for slot in ('vukhi','daobao','chan','giay')]
 
 def snapshot(db,uid,player):
-    return dict(**wallet(db,uid),quests=quests(db,uid,player),recipes=recipes(player),shop=shop(player),qualities=[dict(id=q[0],name=q[1],color=q[2],cost=q[3],level=q[4]) for q in QUALITIES],tutorial={key:count(db,uid,key) for key in ('walk','attack','ui:bag','ui:attrs','meditate')})
+    return dict(**wallet(db,uid),quests=quests(db,uid,player),recipes=recipes(player),shop=[],qualities=[dict(id=q[0],name=q[1],color=q[2],cost=q[3],level=q[4]) for q in QUALITIES],tutorial={key:count(db,uid,key) for key in ('walk','attack','ui:bag','ui:attrs','meditate')})
 
 def grant_item(db,uid,player,iid):
     bag=player['world']['bag']
@@ -162,6 +174,8 @@ def action(db,uid,body,gm=False):
             player['r']=realm;player['stage']=stage
         else:raise ValueError('Lệnh GM không hợp lệ.')
     elif op in ('craft','sect_buy'):
+        if op=='sect_buy':raise ValueError('Nhiệm vụ và cửa hàng sư môn đã đóng.')
+        if player['world'].get('map')!='hub' or __import__('math').hypot(player['x']-1240,player['y']-1210)>110:raise ValueError('Hãy tới NPC Luyện Khí để ghép trang bị.')
         if not __import__('community').safe(player):raise ValueError('Về vùng an toàn để ghép hoặc đổi đồ.')
         iid=body.get('id');offers=recipes(player) if op=='craft' else shop(player);offer=next((r for r in offers if r['id']==iid),None)
         if not offer:raise ValueError('Công thức không hợp lệ với class/giới tính.')
@@ -174,7 +188,7 @@ def action(db,uid,body,gm=False):
         quest=next((q for q in quests(db,uid,player) if q['id']==body.get('id')),None)
         if not quest or not quest['ready']:raise ValueError('Nhiệm vụ chưa hoàn thành hoặc đã nhận thưởng.')
         if not __import__('community').safe(player):raise ValueError('Về vùng an toàn để báo cáo nhiệm vụ.')
-        db.execute('INSERT INTO adventure_claims VALUES(?,?,?)',(uid,quest['id'],day() if quest['kind']=='sect' else ''))
+        db.execute('INSERT INTO adventure_claims VALUES(?,?,?)',(uid,quest['id'],day() if quest['kind']=='daily' else ''))
         player['gold']=min(10**9,player['gold']+quest['gold']);gain(player,quest['xp']);grant_fragments(db,uid,quest['fragments']);db.execute('UPDATE adventure_wallet SET merit=merit+? WHERE user_id=?',(quest['merit'],uid))
     else:raise ValueError('Thao tác không hợp lệ.')
     equipment.validate(player,db,uid);revision=row['revision']+1

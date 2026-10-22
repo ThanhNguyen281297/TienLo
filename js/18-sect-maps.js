@@ -2,13 +2,13 @@
 (function(){
   const world=worldMap,dialog=world.dialog,START={x:1000,y:1110};
   const maps={
-    hub:{id:'hub',name:'Thiên Vân Thành',description:'Hub trung lập · nhiệm vụ, shop, cường hóa, đấu trường',spawn:{x:1000,y:1100}},
+    hub:{id:'hub',name:'Thiên Vân Thành',description:'Thành trung lập · nhiệm vụ, giao dịch, lò rèn và Vạn Tầng Tháp',spawn:{x:1000,y:1100}},
+    tower:{id:'tower',name:'Vạn Tầng Tháp',description:'Thử thách tháp · mỗi tầng có thưởng mảnh trang bị',spawn:{x:1000,y:1380},color:'#e6c477',classIndex:0,mentor:'Trấn Tháp Sứ',dais:'Vạn Tầng Tháp'},
     sword:{id:'sword',name:'Vạn Kiếm Sơn',description:'Vạn Kiếm Đài · Thiên Kiếm · luyện công và thử thách',spawn:{...START},color:'#81dbc7',classIndex:0,mentor:'Thanh Huyền',dais:'Vạn Kiếm Đài'},
     moon:{id:'moon',name:'Nguyệt Hồ Cung',description:'Minh Nguyệt Đài · hồ trăng · luyện công và thử thách',spawn:{...START},color:'#c7eeff',classIndex:1,mentor:'Nguyệt Dao',dais:'Minh Nguyệt Đài'},
     thunder:{id:'thunder',name:'Lôi Vân Phong',description:'Lôi điện trên mây · võ đài trường thương',spawn:{...START},color:'#beacff',classIndex:2,mentor:'Lôi Chấn',dais:'Cửu Tiêu Lôi Đài'},
     mystic:{id:'mystic',name:'Thiên Cơ Các',description:'Linh phù, thư các và trận pháp giữa vườn ngọc',spawn:{...START},color:'#e9dc9b',classIndex:3,mentor:'Huyền Cơ',dais:'Bát Quái Thiên Cơ Đài'}
   };
-  maps.valley={id:'valley',name:'Linh Mạch Cốc',description:'Mạch linh hội tụ · Linh Nguyên x2 · quái khỏe hơn',spawn:{...START},color:'#9fe8b8'};
   const sectIds=['sword','moon','thunder','mystic'];
   world.sectMaps=maps;world.sectIds=sectIds;world.sectMapFor=index=>sectIds[index]||'sword';world.isSectMap=id=>sectIds.includes(id);
   world.isValley=id=>id==='valley';world.valleyId='valley';

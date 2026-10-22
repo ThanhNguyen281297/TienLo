@@ -123,7 +123,7 @@ def validate(player, db=None, owner=None):
         if item.get('id') in MATERIALS and (type(item.get('qty',1)) is not int or not 1<=item.get('qty',1)<=9999):raise ValueError('Số lượng nguyên liệu không hợp lệ.')
         options=item.get('options',[])
         if options:
-            if not isinstance(options,list) or not 1<=len(options)<=3:raise ValueError('Option trang bị không hợp lệ.')
+            if not isinstance(options,list) or not 1<=len(options)<=6:raise ValueError('Option trang bị cần từ 1 đến 6 dòng.')
             if any(not isinstance(v,dict) or set(v)!={'key','value'} or v.get('key') not in DROP_OPTIONS or type(v.get('value')) is not int or not DROP_OPTIONS[v['key']][0]<=v['value']<=DROP_OPTIONS[v['key']][1] for v in options):raise ValueError('Option vượt giới hạn.')
             if len({v['key'] for v in options})!=len(options):raise ValueError('Option không được trùng.')
         if db is not None:
@@ -134,9 +134,9 @@ def validate(player, db=None, owner=None):
             if item.get('affixes'):raise ValueError('Trang bị không có dòng tẩy luyện.')
             continue
         lines=item.get('affixes',[]);lookup={r['key']:r for r in allowed}
-        if not isinstance(lines,list) or len(lines)!=5:raise ValueError('Pháp bảo và hộ thuẫn cần đúng 5 dòng.')
+        if not isinstance(lines,list) or not 1<=len(lines)<=6:raise ValueError('Pháp bảo và hộ thuẫn cần từ 1 đến 6 dòng.')
         if any(not isinstance(line,dict) or set(line)!={'key','value'} or line.get('key') not in lookup or type(line.get('value')) is not int or not lookup[line['key']]['min']<=line['value']<=lookup[line['key']]['max'] for line in lines):raise ValueError('Dòng tẩy luyện vượt giới hạn.')
-        if len({line['key'] for line in lines})!=5:raise ValueError('Không được trùng dòng tẩy luyện.')
+        if len({line['key'] for line in lines})!=len(lines):raise ValueError('Không được trùng dòng tẩy luyện.')
         if db is not None:
             lock=db.execute('SELECT indices FROM equipment_locks WHERE user_id=? AND item_uid=?',(owner,uid)).fetchone()
             if item.get('locks',[])!=(json.loads(lock['indices']) if lock else []):raise ValueError('Khóa dòng phải do server cấp.')
@@ -196,9 +196,9 @@ def action(db, owner, body):
     if body.get('action')=='shield_end':
         db.execute('UPDATE shield_cooldowns SET active_until=0 WHERE user_id=?',(owner,))
         return {'shield':shield_state(db,owner,player)}
-    if body.get('action') in ('reforge','lock') and isinstance(body.get('opId'),str):
+    if body.get('action') in ('reforge','lock','transfer') and isinstance(body.get('opId'),str):
         prior=db.execute('SELECT result FROM equipment_ops WHERE user_id=? AND op_id=?',(owner,body['opId'])).fetchone()
-        if prior:return {'character':dict(id=row['id'],player=player,revision=row['revision'])}
+        if prior:return json.loads(prior['result'])
     if body.get('revision')!=row['revision']:return {'conflict':True,'error':'Nhân vật đã thay đổi. Tải lại để tiếp tục.'}
     if op=='shield':
         shield=player.get('world',{}).get('equip',{}).get('ngoc')
@@ -208,13 +208,48 @@ def action(db, owner, body):
         db.execute('INSERT INTO shield_cooldowns VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,active_until=excluded.active_until,source_uid=excluded.source_uid',(owner,now+RULES['shield']['cooldown'],now+RULES['shield']['duration'],shield['uid']))
         __import__('adventure').add(db,owner,'shield')
         return {'shield':shield_state(db,owner,player)}
-    if op not in ('reforge','lock'):raise ValueError('Thao tác không hợp lệ.')
+    if op not in ('reforge','lock','transfer'):raise ValueError('Thao tác không hợp lệ.')
     opid=body.get('opId')
     if not isinstance(opid,str) or not 8<=len(opid)<=100:raise ValueError('Thiếu mã giao dịch.')
     prior=db.execute('SELECT result FROM equipment_ops WHERE user_id=? AND op_id=?',(owner,opid)).fetchone()
     if prior:return json.loads(prior['result'])
     w=player.get('world',{})
-    if not community.safe(player):raise ValueError('Về thành để tẩy luyện.')
+    if not community.safe(player):raise ValueError('Về thành để tẩy luyện hoặc chuyển thuộc tính.')
+    if op=='transfer':
+        validate(player,db,owner)
+        if player.get('world',{}).get('map')!='hub' or __import__('math').hypot(player['x']-1240,player['y']-1210)>110:raise ValueError('Hãy tới NPC Luyện Khí để chuyển thuộc tính.')
+        bag=player.get('world',{}).get('bag',[]);source=next((i for i in bag if i['uid']==body.get('sourceUid')),None);target=next((i for i in bag if i['uid']==body.get('targetUid')),None)
+        if not source or not target or source is target or source.get('slot')!=target.get('slot') or source.get('classIndex')!=target.get('classIndex'):raise ValueError('Chọn hai món cùng ô trang bị và cùng class trong túi.')
+        mode='affixes' if pool(source) else 'options' if source.get('options') else None
+        target_mode='affixes' if pool(target) else 'options' if target.get('options') or mode=='options' else None
+        if not mode or mode!=target_mode:raise ValueError('Hai món cần cùng loại dòng thuộc tính.')
+        source_lines=source.get(mode,[]);target_lines=target.get(mode,[]);si=body.get('sourceIndex');ti=body.get('targetIndex')
+        if type(si) is not int or si not in range(len(source_lines)):raise ValueError('Dòng nguồn không hợp lệ.')
+        if ti=='append':
+            if len(target_lines)>=6:raise ValueError('Trang bị đã đủ 6 dòng.')
+            ti=len(target_lines)
+        if type(ti) is not int or ti not in range(len(target_lines)+1):raise ValueError('Dòng đích không hợp lệ.')
+        line=dict(source_lines[si]);pool_rules=pool(target) if mode=='affixes' else [{'key':k,'min':v[0],'max':v[1]} for k,v in DROP_OPTIONS.items()];allowed={rule['key']:rule for rule in pool_rules};rule=allowed.get(line['key'])
+        if not rule or not rule['min']<=line['value']<=rule['max'] or any(i!=ti and x['key']==line['key'] for i,x in enumerate(target_lines)):raise ValueError('Dòng thuộc tính không phù hợp món đích.')
+        cost=100+int(target.get('req',0))*10
+        if player.get('gold',0)<cost:raise ValueError('Cần '+str(cost)+' Linh Thạch để chuyển dòng.')
+        player['gold']-=cost
+        if ti<len(target_lines):target_lines[ti]=line
+        else:target_lines.append(line)
+        target[mode]=target_lines
+        if mode=='affixes':target['locks']=[]
+        bag.remove(source)
+        for table in ('equipment_locks','equipment_rolls','equipment_drop_rolls'):db.execute('DELETE FROM '+table+' WHERE user_id=? AND item_uid=?',(owner,source['uid']))
+        db.execute('DELETE FROM equipment_locks WHERE user_id=? AND item_uid=?',(owner,target['uid']))
+        if mode=='affixes':db.execute('INSERT INTO equipment_rolls VALUES(?,?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET item_id=excluded.item_id,lines=excluded.lines',(owner,target['uid'],target['id'],json.dumps(target_lines)))
+        else:db.execute('INSERT INTO equipment_drop_rolls VALUES(?,?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET item_id=excluded.item_id,options=excluded.options',(owner,target['uid'],target['id'],json.dumps(target_lines)))
+        __import__('adventure').add(db,owner,'affixTransfer')
+        validate(player,db,owner)
+        revision=row['revision']+1
+        db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,int(time.time()),owner))
+        result={'character':dict(id=row['id'],player=player,revision=revision),'transferred':line,'consumed':source['name'],'target':target['name'],'gold':cost}
+        db.execute('INSERT INTO equipment_ops VALUES(?,?,?)',(owner,opid,json.dumps(result,ensure_ascii=False)))
+        return result
     item=next((i for i in items(player) if i['uid']==body.get('uid')),None)
     if not item or not pool(item):raise ValueError('Chỉ tẩy luyện pháp bảo hoặc hộ thuẫn.')
     saved_locks=db.execute('SELECT indices FROM equipment_locks WHERE user_id=? AND item_uid=?',(owner,item['uid'])).fetchone()
@@ -222,19 +257,20 @@ def action(db, owner, body):
     price=RULES['reforge']
     if op=='lock':
         index=body.get('index')
-        if type(index) is not int or index not in range(5):raise ValueError('Dòng không hợp lệ.')
+        if type(index) is not int or index not in range(len(item.get('affixes') or defaults(item))):raise ValueError('Dòng không hợp lệ.')
         cost=0 if index in locked else price['lockGold']
         if player['gold']<cost:raise ValueError('Cần '+str(cost)+' Linh Thạch để khóa dòng.')
         player['gold']-=cost
         locked.remove(index) if index in locked else locked.append(index);locked.sort();item['locks']=locked
         db.execute('INSERT INTO equipment_locks VALUES(?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET indices=excluded.indices',(owner,item['uid'],json.dumps(locked)))
     else:
-        if len(locked)==5:raise ValueError('Đã khóa cả 5 dòng. Hãy mở ít nhất một dòng để tẩy luyện.')
+        old=item.get('affixes') or defaults(item);line_count=len(old)
+        if len(locked)>=line_count:raise ValueError('Đã khóa tất cả dòng. Hãy mở ít nhất một dòng để tẩy luyện.')
         cost=price['gold']+len(locked)*price['perLockedGold']
         if player['gold']<cost:raise ValueError('Cần '+str(cost)+' Linh Thạch.')
         player['gold']-=cost
-        old=item.get('affixes') or defaults(item);used={old[i]['key'] for i in locked};choices=[r for r in pool(item) if r['key'] not in used];lines=[]
-        for i in range(5):
+        used={old[i]['key'] for i in locked};choices=[r for r in pool(item) if r['key'] not in used];lines=[]
+        for i in range(line_count):
             if i in locked:lines.append(old[i]);continue
             rule=choices.pop(secrets.randbelow(len(choices)))
             value=rule['min']+min(secrets.randbelow(rule['max']-rule['min']+1),secrets.randbelow(rule['max']-rule['min']+1))

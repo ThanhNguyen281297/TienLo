@@ -307,7 +307,7 @@
       const item=p.equip[slot],button=document.createElement('button');button.type='button';button.className='item-cell gear-slot gear-'+i;button.dataset.equipSlot=slot;button.style.setProperty('--rarity',RARITY[item?.rarity||'pham'].color);button.setAttribute('aria-label',SLOTS[slot]+': '+(item?.name||'trống'));
       const img=document.createElement('img');img.src=itemIcon(item,slot);img.alt='';button.append(img);
       const label=document.createElement('small');label.textContent=SLOTS[slot];button.append(label);
-      if(item){button.classList.add('occupied');window.equipmentProgression?.decorate(button,item);dragSource(button,'equip:'+slot);button.onclick=()=>showDetails(item,true);}
+      if(item){button.classList.add('occupied');window.equipmentProgression?.decorate(button,item);dragSource(button,'equip:'+slot);button.onclick=()=>showDetails(item,true,button);}
       else button.onclick=()=>{const item=p.bag.find(i=>i.uid===selectedUid);if(item){if(item.slot!==slot)return msg('Chọn trang bị phù hợp '+SLOTS[slot]+'.');equipItem(item.uid);}};
       dropTarget(button);paper.append(button);
     });
@@ -321,13 +321,17 @@
       const button=document.createElement('button');button.type='button';button.className='item-cell';button.dataset.bagCell=i;button.setAttribute('aria-label',item?item.name:'Ô trống '+(i+1));dropTarget(button);
       if(item){button.classList.add('occupied');window.equipmentProgression?.decorate(button,item);button.dataset.itemId=item.id;button.style.setProperty('--rarity',RARITY[item.rarity].color);const img=document.createElement('img');img.src=itemIcon(item);img.alt='';button.append(img);
         if(item.qty>1){const qty=document.createElement('span');qty.className='item-qty';qty.textContent=item.qty;button.append(qty);}
-        button.title=item.name+' · '+statText(item);button.onclick=()=>{selectedUid=item.uid;grid.querySelectorAll('.selected').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');showDetails(item,false);};dragSource(button,item.uid);
+        button.title=item.name+' · '+statText(item);button.onclick=()=>{selectedUid=item.uid;grid.querySelectorAll('.selected').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');showDetails(item,false,button);};dragSource(button,item.uid);
       }else{const label=document.createElement('span');label.className='cell-index';label.textContent=i+1;button.append(label);}
       grid.append(button);
     });
-    const details=document.createElement('div');details.className='item-details';details.setAttribute('aria-live','polite');bag.append(details);
-    function showDetails(item,equipped){
-      details.replaceChildren();const panel=itemCards.render(details,item,{owned:true,compare:!equipped});
+    const details=document.createElement('div');details.className='item-details item-details-hint';details.textContent='Chạm vật phẩm để xem thuộc tính';bag.append(details);
+    const popup=document.createElement('aside');popup.className='equipment-item-popup';popup.hidden=true;popup.setAttribute('aria-live','polite');document.body.append(popup);
+    new MutationObserver(()=>{if($('world-dialog').hidden)popup.remove();else if(!$('world-title').textContent.startsWith('Hành trang'))popup.hidden=true;}).observe($('world-dialog'),{attributes:true,attributeFilter:['hidden']});
+    new MutationObserver(()=>{if(!$('world-title').textContent.startsWith('Hành trang'))popup.hidden=true;}).observe($('world-title'),{childList:true,subtree:true});
+    const closePopup=document.createElement('button');closePopup.type='button';closePopup.className='equipment-item-popup-close';closePopup.textContent='×';closePopup.setAttribute('aria-label','Đóng thông tin vật phẩm');closePopup.onclick=()=>popup.hidden=true;
+    function showDetails(item,equipped,anchor){
+      popup.replaceChildren(closePopup);const panel=itemCards.render(popup,item,{owned:true,compare:!equipped});
       const actions=document.createElement('div');actions.className='item-detail-actions';panel.append(actions);
       function action(label,fn){const button=document.createElement('button');button.type='button';button.textContent=label;button.onclick=fn;actions.append(button);return button;}
       if(equipmentData.pool(item).length)action('Tẩy luyện · '+(60+(item.locks?.length||0)*25)+' ◈',()=>equipmentSystem.reforge(item.uid));
@@ -337,8 +341,11 @@
         if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
         action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
       }
+      popup.hidden=false;const rect=anchor?.getBoundingClientRect()||grid.getBoundingClientRect(),mobile=matchMedia('(max-width:700px)').matches,w=Math.min(370,innerWidth-24);popup.style.width=w+'px';popup.style.maxHeight=Math.min(innerHeight*.72,560)+'px';
+      if(mobile){popup.style.left='12px';popup.style.top=Math.max(12,Math.min(innerHeight-popup.offsetHeight-12,rect.top-popup.offsetHeight-10))+'px';}
+      else{const left=rect.right+w+12<innerWidth?rect.right+12:Math.max(12,rect.left-w-12);popup.style.left=left+'px';popup.style.top=Math.max(12,Math.min(innerHeight-popup.offsetHeight-12,rect.top))+'px';}
     }
-    const selected=p.bag.find(i=>i.uid===selectedUid);if(selected)showDetails(selected,false);else details.textContent='Chọn vật phẩm';
+    const selected=p.bag.find(i=>i.uid===selectedUid);if(selected)showDetails(selected,false,grid.querySelector('.selected'));
     const resources=document.createElement('div');resources.className='bag-resources';resources.textContent='Linh Nguyên '+(p.essence||0)+' · Đột Phá Đan '+(p.breakthroughPills||0)+' · Thăng Vị Đan '+(p.thangViDan||0);bag.append(resources);
     const shop=document.createElement('div');shop.className='quick-shop';bag.append(shop);
     ['hoi-huyet-dan','hoi-linh-dan'].forEach(id=>{const t=BY_ID[id],button=document.createElement('button');button.textContent=t.name+' · '+t.price+' ◈';button.onclick=()=>buyItem(id);button.disabled=P.gold<t.price;shop.append(button);});
@@ -346,9 +353,8 @@
     dialog.action('Thuộc tính (U)',openAttrs);
   }
   function openShopEquip() {
-    dialog.line('Trang bị ghép bằng mảnh linh khí hoặc đổi cống hiến sư môn.');
-    dialog.action('Ghép trang bị',()=>window.adventureGame?.open('craft'));
-    dialog.action('Cửa hàng sư môn',()=>window.adventureGame?.open('sect'));
+    dialog.line('Trang bị mới được ghép tại lò rèn trong Thiên Vân Thành.');
+    dialog.action('Đến lò rèn',()=>window.equipmentProgression?.open());
   }
   // Tiêm quầy đồ vào Bảo Khí Các có sẵn.
   const prevShow = dialog.show;
@@ -374,7 +380,7 @@
     if (k === 'u' && !e.repeat) openAttrs();
   });
   const style = document.createElement('style');
-  style.textContent = '#bag-button,#attr-button{border-color:#7fd8c4}#world-content .world-line{white-space:normal}';
+  style.textContent = '#bag-button,#attr-button{border-color:#7fd8c4}#world-content .world-line{white-space:normal}.equipment-item-popup{position:fixed;z-index:120;overflow:auto;overscroll-behavior:contain;padding:18px 14px 14px;box-sizing:border-box;border:1px solid #8ea99c;border-radius:14px;background:linear-gradient(145deg,#172b3af7,#101b29fa);box-shadow:0 18px 55px #000b;color:#d9e2dc}.equipment-item-popup .item-details{margin:0;max-height:none;background:transparent;border:0;padding:4px}.equipment-item-popup-close{position:sticky;float:right;top:0;z-index:2;width:30px;height:30px;min-height:30px;padding:0;font-size:20px}.item-details-hint{min-height:0;padding:8px;text-align:center;font-size:11px}.equipment-item-popup::-webkit-scrollbar{display:none}.equipment-item-popup{scrollbar-width:none}';
   document.head.appendChild(style);
   window.inventory = { statText, itemIcon, registerTemplates(items){for(const item of items){if(equipmentData.pool(item).length&&!item.affixes)item.affixes=equipmentData.defaults(item);if(BY_ID[item.id])continue;TEMPLATES.push(item);BY_ID[item.id]=item;}}, equipItem, unequip, useItem, moveToBag, openBag, openAttrs, addItem, buyItem, progress, templates: TEMPLATES, bonus: () => window.bonusStats() };
 })();

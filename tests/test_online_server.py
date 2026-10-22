@@ -408,16 +408,10 @@ class OnlineServerTest(unittest.TestCase):
         self.assertEqual(self.request('/api/logout',{'csrf':csrf},cookie)[0],200)
         self.assertEqual(self.request('/api/characters',cookie=cookie)[0],401)
         with server.connect() as db:self.assertNotIn('test-password',db.execute('SELECT password FROM users LIMIT 1').fetchone()[0])
-    def test_arena_transaction_concurrency(self):
+    def test_retired_daily_arena_endpoint_is_closed(self):
         cookie,csrf=self.register('arena_user')
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            statuses=list(pool.map(lambda _:self.request('/api/arena',{'csrf':csrf},cookie)[0],range(4)))
-        self.assertEqual(sorted(statuses),[200,200,429,429]);self.assertEqual(self.request('/api/arena',cookie=cookie)[1]['remaining'],0)
-        other,other_csrf=self.register('arena_other');self.assertEqual(self.request('/api/arena',cookie=other)[1]['remaining'],2)
-        with patch.object(server,'datetime') as clock:
-            clock.now.return_value=datetime(2040,1,2,tzinfo=timezone.utc)
-            self.assertEqual(self.request('/api/arena',cookie=cookie)[1]['remaining'],2)
-            self.assertEqual(self.request('/api/arena',{'csrf':csrf},cookie)[1]['remaining'],1)
+        self.assertEqual(self.request('/api/arena',cookie=cookie)[0],410)
+        self.assertEqual(self.request('/api/arena',{'csrf':csrf},cookie)[0],410)
     def test_world_shared_hp_rewards_idempotent_chat_and_emote(self):
         a,ca=self.register('world_a');b,cb=self.register('world_b')
         for cookie,csrf,name in [(a,ca,'Kiếm Một'),(b,cb,'Kiếm Hai')]:self.assertEqual(self.request('/api/characters',{'player':self.player(name),'revision':0,'csrf':csrf},cookie)[0],201)

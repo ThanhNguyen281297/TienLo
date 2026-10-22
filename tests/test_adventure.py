@@ -1,4 +1,4 @@
-"""Economy, authorization, story ordering, daily merit and locked affix tests."""
+"""Economy, authorization, level story, daily quests and locked affix tests."""
 import copy
 import json
 import sys
@@ -86,14 +86,19 @@ class AdventureTests(unittest.TestCase):
         self.assertEqual(adventure.count(self.db,1,'kills'),1);self.assertEqual(adventure.progress(self.db,1,'sectKills',True),1)
         with patch('adventure.day',return_value='2099-01-01'):self.assertEqual(adventure.progress(self.db,1,'sectKills',True),0)
     def test_main_story_order_and_claim_once(self):
-        adventure.add(self.db,1,'walk',120);adventure.add(self.db,1,'kills',20)
+        adventure.add(self.db,1,'walk',120)
         with self.assertRaises(ValueError):self.act('quest_claim',id='first-blood')
         result=self.act('quest_claim',id='awakening');self.assertEqual(result['character']['player']['gold'],3030)
         with self.assertRaises(ValueError):self.act('quest_claim',id='awakening')
-        self.assertTrue(next(q for q in result['adventure']['quests'] if q['id']=='first-blood')['ready'])
-    def test_sect_daily_merit_and_store(self):
-        adventure.add(self.db,1,'daily:'+adventure.day()+':sectKills',15);r=self.act('quest_claim',id='sect-patrol');self.assertEqual(r['adventure']['merit'],20)
-        self.db.execute('UPDATE adventure_wallet SET merit=200 WHERE user_id=1');r=self.act('sect_buy',id='sect-vukhi-class-0');self.assertEqual(r['adventure']['merit'],20);self.assertEqual(r['character']['player']['world']['bag'][-1]['classIndex'],0)
+        for i in range(10):adventure.record_kill(self.db,1,dict(map='sword',level=1),'story-'+str(i))
+        latest=adventure.snapshot(self.db,1,result['character']['player'])
+        self.assertTrue(next(q for q in latest['quests'] if q['id']=='first-blood')['ready'])
+    def test_only_main_and_daily_quests_remain(self):
+        snapshot=adventure.snapshot(self.db,1,self.player)
+        self.assertEqual({q['kind'] for q in snapshot['quests']},{'main','daily'})
+        self.assertEqual(snapshot['shop'],[])
+        with self.assertRaises(ValueError):self.act('sect_buy',id='sect-vukhi-class-0')
+        self.assertEqual(adventure.wallet(self.db,1)['merit'],0)
     def test_locked_lines_stay_exact_and_cost_gold_only(self):
         item=dict(equipment.TEMPLATES['back-class-0'],uid='back',affixes=equipment.defaults(dict(slot='phapbao')));self.player['world']['equip']['phapbao']=item;self.db.execute('UPDATE characters SET player=?',(json.dumps(self.player),))
         a=equipment.action(self.db,1,dict(action='lock',uid='back',index=1,opId='lock-line-1',revision=1));p=a['character']['player'];self.assertEqual(p['gold'],2960);line=copy.deepcopy(p['world']['equip']['phapbao']['affixes'][1])
