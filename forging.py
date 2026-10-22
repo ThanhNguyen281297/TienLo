@@ -15,7 +15,10 @@ def action(db,owner,body,gm=False):
     if db.execute('SELECT 1 FROM equipment_ops WHERE user_id=? AND op_id=?',(owner,opid)).fetchone():return dict(character=dict(id=row['id'],player=player,revision=row['revision']))
     if body.get('revision')!=row['revision']:return dict(conflict=True,error='Nhân vật đã cập nhật. Hãy thử lại.')
     w=player['world']
-    if w.get('map')!='hub' or math.hypot(player.get('x',0)-1200,player.get('y',0)-1100)>100:raise ValueError('Hãy tới NPC Luyện Khí trong Thiên Vân Thành.')
+    # Keep server-side proximity in sync with the forge NPC coordinates in
+    # js/20-sect-layout-arena.js; otherwise the forge opens but every request
+    # is rejected by the server.
+    if w.get('map')!='hub' or math.hypot(player.get('x',0)-1240,player.get('y',0)-1210)>110:raise ValueError('Hãy tới NPC Luyện Khí trong Thiên Vân Thành.')
     item=next((i for i in equipment.items(player) if i['uid']==body.get('uid')),None)
     if not item or item.get('slot') not in equipment.RULES['enhanceSlots'] or item.get('classIndex')!=player['ap']['w']:raise ValueError('Chọn trang bị bên trái đúng class.')
     n=item.get('enhance',0)+1

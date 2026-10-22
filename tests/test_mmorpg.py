@@ -13,7 +13,7 @@ class MMORPGTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.old=server.DATABASE;server.DATABASE=Path(self.temp.name)/'game.sqlite3';server.init_db();self.db=server.connect()
         self.db.execute("INSERT INTO users(id,username,password,created_at) VALUES(1,'hero','unused',0)")
-        self.p=dict(nm='Hero',ap=dict(w=0,gender='Nam'),r=0,stage=1,hp=100,mp=20,xp=0,gold=3000,level=80,levelXp=0,x=1200,y=1100,world=dict(map='hub',bag=[],equip={},essence=50000))
+        self.p=dict(nm='Hero',ap=dict(w=0,gender='Nam'),r=0,stage=1,hp=100,mp=20,xp=0,gold=3000,level=80,levelXp=0,x=1240,y=1210,world=dict(map='hub',bag=[],equip={},essence=50000))
         equipment.normalize(self.p);server.progression.normalize(self.p)
         self.p['world']['equip']['vukhi']=dict(equipment.TEMPLATES['moc-kiem-class-0'],uid='sword')
         for iid in equipment.MATERIALS:self.p['world']['bag'].append(dict(equipment.MATERIALS[iid],uid=iid,qty=1000))

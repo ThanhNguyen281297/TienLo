@@ -19,7 +19,6 @@ import secrets
 import sqlite3
 import time
 from collections import defaultdict, deque
-from datetime import datetime, timezone, timedelta
 from functools import partial
 from http.cookies import SimpleCookie
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -69,8 +68,6 @@ def init_db():
           csrf TEXT NOT NULL, expires_at INTEGER NOT NULL);
         CREATE TABLE IF NOT EXISTS characters(user_id INTEGER PRIMARY KEY REFERENCES users(id),
           id TEXT UNIQUE NOT NULL, player TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1, updated_at INTEGER NOT NULL);
-        CREATE TABLE IF NOT EXISTS arena_visits(user_id INTEGER NOT NULL REFERENCES users(id), day TEXT NOT NULL,
-          used INTEGER NOT NULL, PRIMARY KEY(user_id, day));
         CREATE INDEX IF NOT EXISTS session_expiry ON sessions(expires_at);
         ''')
         if 'gm' not in {r['name'] for r in db.execute('PRAGMA table_info(users)')}:
@@ -269,9 +266,9 @@ def room_for(peer):
 
 def farm_portal_routes(scene):
     if scene not in FARM_LAYOUT['main']: return []
-    main_rx,main_ry=FARM_LAYOUT['main'][scene]; size=FARM_LAYOUT['valley' if scene=='valley' else 'camp']
+    main_rx,main_ry=FARM_LAYOUT['main'][scene]; size=FARM_LAYOUT['camp']
     result=[]
-    for camp in FARM_LAYOUT['mines' if scene=='valley' else 'camps']:
+    for camp in FARM_LAYOUT['camps']:
         dx,dy=camp['x']-1000,camp['y']-1100
         t=.62/(abs(dx)/main_rx+abs(dy)/main_ry);u=.66/(abs(dx)/size['rx']+abs(dy)/size['ry'])
         result.append(((1000+dx*t,1100+dy*t),(camp['x']-dx*u,camp['y']-dy*u)))
@@ -286,38 +283,40 @@ def valid_farm_teleport(scene,previous,destination):
 
 
 def room_mobs(key):
-    if key.split(':')[0]=='hub':return dict(mobs=[],updated=time.monotonic())
+    scene=key.split(':')[0]
+    if scene in ('hub','duel'):return dict(mobs=[],updated=time.monotonic())
+    if scene not in MAPS:return dict(mobs=[],updated=time.monotonic())
     if key.startswith('tower:'):
         if key not in ROOMS:
             _,uid,token=key.split(':')
             with DB_LOCK, connect() as db:ROOMS[key]=tower.room(db,int(uid),token)
         return ROOMS[key]
-    if key.split(':')[0] in overworld.MAPS:
-        if key not in ROOMS:ROOMS[key]=overworld.room(key.split(':')[0])
+    if scene in overworld.MAPS:
+        if key not in ROOMS:ROOMS[key]=overworld.room(scene)
         return ROOMS[key]
-    if key.split(':')[0] in expeditions.MAPS:
-        if key not in ROOMS:ROOMS[key]=expeditions.room(key.split(':')[0],time.monotonic())
+    if scene in expeditions.MAPS:
+        if key not in ROOMS:ROOMS[key]=expeditions.room(scene,time.monotonic())
         return ROOMS[key]
-    if key=='worldboss:0':
+    if scene=='worldboss':
         if key not in ROOMS:
             with connect() as db:boss=community.load_boss(db)
             ROOMS[key]={'mobs':[boss],'updated':time.monotonic()}
         return ROOMS[key]
     if key not in ROOMS:
         scene, rank = key.split(':'); rank = 0
-        camps = FARM_LAYOUT['mines' if scene=='valley' else 'camps']
-        size = FARM_LAYOUT['valley' if scene=='valley' else 'camp']
+        camps = FARM_LAYOUT['camps']
+        size = FARM_LAYOUT['camp']
         base = {0:(26,28),1:(48,40),3:(38,34),4:(64,52)}
         mobs = []
         for ci,entry in enumerate(camps):
             cx,cy,t,camp = (entry[k] for k in ('x','y','t','id'))
-            level=rank*8+([0,2,4,6][ci] if scene!='valley' else 0)
-            hp=round(base[t][0]*(1+level*.11)*(1.15 if scene=='valley' else 1))
+            level=rank*8+[0,2,4,6][ci]
+            hp=round(base[t][0]*(1+level*.11))
             for slot,offset in enumerate(FARM_LAYOUT['slots'][:size['perCamp']]):
                 x=cx+offset['x']*size['rx']; y=cy+offset['y']*size['ry']
                 mobs.append(dict(id=f'{key}:{ci}:{slot}',t=t,level=max(1,level+1),x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,
-                    worldMap=True,network=True,map=scene,camp=camp,campX=cx,campY=cy,campRX=size['rx'],campRY=size['ry'],attackScale=(1+level*.04)*(1.15 if scene=='valley' else 1),
-                    xpReward=round(base[t][1]*(1+level*.08)*(1.2 if scene=='valley' else 1)),materialYield=(1+rank//3)*(2 if scene=='valley' else 1),contributors={}))
+                    worldMap=True,network=True,map=scene,camp=camp,campX=cx,campY=cy,campRX=size['rx'],campRY=size['ry'],attackScale=1+level*.04,
+                    xpReward=round(base[t][1]*(1+level*.08)),materialYield=1+rank//3,contributors={}))
         ROOMS[key] = {'mobs':mobs,'updated':time.monotonic()}
     return ROOMS[key]
 
@@ -702,16 +701,6 @@ class GameHandler(SimpleHTTPRequestHandler):
             return self.reply(200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
-    def arena(self,user,consume):
-        day=datetime.now(timezone(timedelta(hours=7))).date().isoformat(); uid=user['user_id']
-        with DB_LOCK, connect() as db:
-            db.execute('BEGIN IMMEDIATE')
-            row=db.execute('SELECT used FROM arena_visits WHERE user_id=? AND day=?',(uid,day)).fetchone(); used=row['used'] if row else 0
-            if consume and used<2:
-                used+=1; db.execute('INSERT INTO arena_visits VALUES(?,?,?) ON CONFLICT(user_id,day) DO UPDATE SET used=excluded.used',(uid,day,used))
-            elif consume: return self.reply(429,{'error':'Hôm nay đã dùng hết 2 lượt đấu trường.','day':day,'used':used,'remaining':0})
-        return self.reply(200,{'day':day,'used':used,'remaining':max(0,2-used)})
-
     def world(self,user,body):
         uid=user['user_id']; now=time.monotonic()
         with connect() as db: character=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
@@ -771,7 +760,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if duel and not duel['viewer']:peer['hp']=duel['hp']
             # Presentation only: height grants no speed exception or damage immunity.
             airborne=body.get('airborne',0)
-            peer['airborne']=max(0,min(80,airborne)) if scene in ('sword','moon','thunder','mystic','valley') and type(airborne) in (int,float) and math.isfinite(airborne) else 0
+            peer['airborne']=max(0,min(80,airborne)) if scene in ('sword','moon','thunder','mystic') and type(airborne) in (int,float) and math.isfinite(airborne) else 0
             emote=body.get('emote')
             if emote in ('wave','heart','ready') and now-previous.get('emoteAt',0)>2: peer['emote']=emote; peer['emoteAt']=now
             cast=body.get('cast')

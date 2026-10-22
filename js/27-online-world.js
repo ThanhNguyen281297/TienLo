@@ -34,7 +34,7 @@
       for(const peer of data.players){if(peer.cast&&peer.cast.id!==state.remoteCasts?.get(peer.id)){state.remoteCasts??=new Map();state.remoteCasts.set(peer.id,peer.cast.id);const color=characterClasses[peer.ap.w].color;window.combatVisuals?.pulse(peer.cast.x,peer.cast.y,peer.cast.index===3?145:peer.cast.index===2?100:45,color,.65);spark(peer.x,peer.y-25,color,8);}}
       equipmentSystem.receive(data.shield);
       window.duelArena?.receive(data.duel);window.expeditionsGame?.updatePending(data.pendingDrops);
-      window.adventureGame?.receiveWallet(data.adventureWallet);
+      window.adventureGame?.receiveWallet?.(data.adventureWallet);
       const sustainIds=P.world.sustainIds??=[];for(const event of data.sustain||[]){if(!sustainIds.includes(event.id)){equipmentSystem.sustain(event.amount);sustainIds.push(event.id);if(sustainIds.length>100)sustainIds.shift();}}
       state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);
       if(data.shared){

@@ -412,6 +412,11 @@ class OnlineServerTest(unittest.TestCase):
         cookie,csrf=self.register('arena_user')
         self.assertEqual(self.request('/api/arena',cookie=cookie)[0],410)
         self.assertEqual(self.request('/api/arena',{'csrf':csrf},cookie)[0],410)
+
+    def test_duel_and_retired_maps_do_not_spawn_farm_mobs(self):
+        self.assertEqual(server.room_mobs('duel:match-1')['mobs'],[])
+        self.assertEqual(server.room_mobs('valley:0')['mobs'],[])
+        self.assertEqual(server.farm_portal_routes('valley'),[])
     def test_world_shared_hp_rewards_idempotent_chat_and_emote(self):
         a,ca=self.register('world_a');b,cb=self.register('world_b')
         for cookie,csrf,name in [(a,ca,'Kiếm Một'),(b,cb,'Kiếm Hai')]:self.assertEqual(self.request('/api/characters',{'player':self.player(name),'revision':0,'csrf':csrf},cookie)[0],201)
