@@ -229,14 +229,14 @@
     #world-interact{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:3;border:1px solid #e1c990;background:#243635f2;color:#f3e4c9;font-size:13px;max-width:90vw;min-height:42px}
     #world-dialog{position:fixed;inset:0;z-index:15;background:#0b151bdd;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;touch-action:pan-y}
     #world-dialog[hidden],#world-region[hidden],#world-minimap[hidden],#world-interact[hidden]{display:none!important}
-    #world-dialog section{position:relative;width:min(480px,100%);max-height:85vh;overflow:auto;box-sizing:border-box;border:1px solid #8b9b94;border-radius:16px;background:#1b2b31;padding:28px;color:#e4e5d4}
+    #world-dialog > section{position:relative;width:min(480px,100%);max-height:85vh;overflow:auto;box-sizing:border-box;border:1px solid #8b9b94;border-radius:16px;background:#1b2b31;padding:28px;color:#e4e5d4}
     #world-dialog h2{font-size:23px;color:#ead3a2;margin:8px 30px 12px 0}#world-description{font-size:13px;line-height:1.8;color:#b1c6c5}
     #world-dialog .world-close{position:absolute;right:10px;top:10px;width:38px;min-height:38px;padding:0;font-size:24px;background:#1a252a}
     .world-eyebrow{font-size:10px;letter-spacing:1.8px;color:#9bb3b0}#world-content{display:grid;gap:10px;margin-top:20px}
     #world-content button{text-align:left;background:#263c41;border:1px solid #607d7c;font-size:13px;line-height:1.6}
     #world-content button:hover:not(:disabled){background:#354e50}.world-line{margin:0;font-size:13px;line-height:1.9;border-bottom:1px solid #ffffff10;padding-bottom:8px}
     .world-overview{position:static;width:min(100%,300px);height:auto;aspect-ratio:1;margin:auto;border:1px solid #768f87;border-radius:10px;image-rendering:auto}
-    @media(max-width:700px){#world-minimap{width:82px;height:82px;right:8px;top:8px}#world-region{top:96px;right:8px;font-size:10px;max-width:130px}#world-interact{bottom:260px;font-size:12px}#world-dialog{padding:12px}#world-dialog section{padding:22px;max-height:90vh}}
+    @media(max-width:700px){#world-minimap{width:82px;height:82px;right:8px;top:8px}#world-region{top:96px;right:8px;font-size:10px;max-width:130px}#world-interact{bottom:260px;font-size:12px}#world-dialog{padding:12px}#world-dialog > section{padding:22px;max-height:90vh}}
   `;document.head.appendChild(css);
   function serviceCaption(s){
     if(s.farmPortal)return s.reverse?'Về đài':'Bãi '+s.route.name.split(' · ')[0];

@@ -10,10 +10,23 @@
  async function open(peer,point){if(!peer||peer.id===account.state.user?.id||!P.ap)return;target=peer;const serial=++epoch;panel.replaceChildren();panel.hidden=false;const header=node('header','player-menu-head');header.append(node('b','',peer.name),node('small','',peer.online===false?'Offline':'Online'));panel.append(header);actions(panel,{...peer,online:peer.online!==false});const x=point?.x??innerWidth/2,y=point?.y??innerHeight/2;panel.style.left=Math.max(8,Math.min(innerWidth-panel.offsetWidth-8,x+12))+'px';panel.style.top=Math.max(8,Math.min(innerHeight-panel.offsetHeight-8,y-30))+'px';try{const p=await account.api('/api/player/info?id='+peer.id);if(serial===epoch&&target?.id===peer.id)header.querySelector('small').textContent=equipmentRules.classes[p.ap.w]+' · Lv.'+p.level;}catch(e){msg(e.message);}}
  async function inspect(id){const p=await account.api('/api/player/info?id='+id);d.show(p.name,'');const root=$('world-content'),layout=node('div','player-profile');root.append(layout);const portrait=node('section','profile-portrait'),gear=node('section','profile-gear'),detail=node('div','profile-item-detail');layout.append(portrait,gear,detail);
   portrait.append(node('h3','',p.name),node('small','',equipmentRules.classes[p.ap.w]+' · Lv.'+p.level),node('small','',R[p.realm]+' '+p.stage));if(p.guild)portrait.append(node('small','',p.guild));
-  const preview=node('canvas');preview.width=320;preview.height=380;portrait.append(preview);const ap={...p.ap,realm:p.realm,meditating:false};for(const [key,slot]of [['weaponId','vukhi'],['robeId','daobao'],['backId','phapbao'],['shieldId','ngoc'],['formationId','phaptran'],['ringId','gioi'],['trailId','dichuyen'],['maskId','matna']])ap[key]=p.equip[slot]?.id||null;ap.weaponEnhance=p.equip.vukhi?.enhance||0;ap.backEnhance=p.equip.phapbao?.enhance||0;
-  const ctx=preview.getContext('2d');function paint(){if(!preview.isConnected)return;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,320,380);ctx.translate(160,290);ctx.scale(2.3,2.3);drawChar(ctx,0,0,0,1,false,tm*10,false,ap);requestAnimationFrame(paint);}paint();
+  const preview=node('canvas','profile-preview'),density=Math.max(1.5,Math.min(3,devicePixelRatio||1));
+  preview.width=Math.round(320*density);preview.height=Math.round(380*density);preview.setAttribute('role','img');preview.setAttribute('aria-label','Nhân vật '+p.name);portrait.append(preview);
+  const ap={...p.ap,realm:p.realm,meditating:false};
+  for(const [key,slot]of [['weaponId','vukhi'],['robeId','daobao'],['backId','phapbao'],['shieldId','ngoc'],['formationId','phaptran'],['ringId','gioi'],['trailId','dichuyen'],['maskId','matna']])ap[key]=p.equip[slot]?.id||null;
+  for(const [key,slot]of [['weaponEnhance','vukhi'],['backEnhance','phapbao'],['bodyEnhance','daobao']])ap[key]=p.equip[slot]?.enhance||0;
+  ap.weaponRarity=p.equip.vukhi?.rarity||'pham';
+  const ctx=preview.getContext('2d');
+  function paint(){
+   if(!preview.isConnected||!d.isOpen())return;
+   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,preview.width,preview.height);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+   ctx.setTransform(3.2*density,0,0,3.2*density,160*density,280*density);
+   drawChar(ctx,0,0,0,1,false,tm*10,false,ap,characterClasses[ap.w].color);
+   requestAnimationFrame(paint);
+  }
+  paint();
   const summary=node('div','profile-stat-pills');summary.append(node('span','','♥ '+p.stats.hp),node('span','','⚔ '+p.stats.attack));portrait.append(summary);
-  for(const [slot,label]of Object.entries(equipmentRules.slots)){const item=p.equip[slot],b=node('button','profile-slot');b.type='button';b.title=label;const img=node('img');img.src=inventory.itemIcon(item,slot);img.alt='';b.append(img,node('small','',label));if(item){equipmentProgression.decorate(b,item);b.onclick=()=>{detail.replaceChildren();itemCards.render(detail,item);};}else b.disabled=true;gear.append(b);}
+  for(const [slot,label]of Object.entries(equipmentRules.slots)){const item=p.equip[slot],b=node('button','profile-slot');b.type='button';b.dataset.profileSlot=slot;b.title=label;const img=node('img');img.src=inventory.itemIcon(item,slot);img.alt='';b.append(img,node('small','',label));if(item){equipmentProgression.decorate(b,item);b.onclick=()=>{detail.replaceChildren();itemCards.render(detail,item);};}else b.disabled=true;gear.append(b);}
   const first=Object.values(p.equip).find(Boolean);if(first)itemCards.render(detail,first);const menu=node('nav','profile-actions');root.append(menu);actions(menu,p);
  }
  function select(event){if(!P.ap||paused()||d.isOpen()||duelArena.fighting()||skillAim.state.visible)return;if(panel.contains(event.target))return;if(event.target!==cv){close();return;}if(event.type==='pointerdown'&&event.button!==0)return;const box=cv.getBoundingClientRect(),camera=gameCamera(),point={x:camera.x+(event.clientX-box.left)/box.width*W/Z,y:camera.y+(event.clientY-box.top)/box.height*H/Z};const peer=onlineWorld.state.players.filter(p=>{const x=p.drawX??p.x,y=(p.drawY??p.y)-(p.drawLift||0);return Math.abs(x-point.x)<27&&point.y>y-58&&point.y<y+18;}).sort((a,b)=>(b.drawY??b.y)-(a.drawY??a.y))[0];

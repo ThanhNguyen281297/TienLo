@@ -10,7 +10,7 @@
   const quality=equipmentRules.qualities.find(q=>q.id===item.rarity)||equipmentRules.qualities[0],n=equipmentProgression.level(item),panel=node('article','item-detail-panel item-card');panel.style.setProperty('--item-tone',quality.color);parent.append(panel);
   const header=node('header','item-card-head'),image=node('img');image.src=inventory.itemIcon(item,item.slot);image.alt='';const title=node('div');title.append(node('h4','','【'+quality.name+'】 '+item.name));header.append(image,title,node('strong','item-card-plus',n?'+'+n:''));panel.append(header);
   const meta=node('div','item-card-meta');meta.append(node('span','',equipmentRules.slots[item.slot]||({material:'Nguyên liệu',consume:'Đan dược'}[item.type])||'Vật phẩm'),node('span','','Lv.'+(item.req||0)));panel.append(meta);stars(panel,item);
-  if(equipmentRules.classSlots.includes(item.slot)){const line=node('p','item-class-requirement','Class yêu cầu: '+equipmentRules.classes[item.classIndex]);line.classList.toggle('item-wrong-class',item.classIndex!==P.ap?.w);panel.append(line);}
+  if(equipmentRules.classSlots.includes(item.slot)){const line=node('p','item-class-requirement','Class yêu cầu: '+equipmentRules.classes[item.classIndex]);line.classList.toggle('item-wrong-class',owned&&item.classIndex!==P.ap?.w);panel.append(line);}
   if(item.gender)panel.append(node('small','',item.gender==='Nu'?'Dành cho nữ':'Dành cho nam'));
   const lines=node('div','item-card-lines');panel.append(lines);
   const equipped=P.world?.equip?.[item.slot];
