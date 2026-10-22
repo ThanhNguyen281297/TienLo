@@ -87,9 +87,10 @@
   for(const x of [650,1350])for(const y of [780,950,1180,1340])decor.push({key:'lantern',x,y,w:24});
   for(const [x,y]of [[680,1240],[1330,770],[675,750]])decor.push({key:'sakura',x,y,w:90});
   decor.push({key:'statue',x:910,y:890,w:42},{key:'statue',x:1090,y:890,w:42});
-  const state={near:null,arena:null,guideStart:{...HUB},guideMove:false,guideSkill:false,region:'hub',scene:'hub',ready:false};
-  const defaults=()=>({quest:'none',kills:0,questKills:0,weapon:0,armor:0,upgrade:0,potions:0,tutorial:false,bestArena:null,attrs:{luc:0,the:0,nhanh:0,linh:0},attrPoints:0,bag:[],equip:{vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null},thangViDan:0});
-  function progress(){if(!P.world)P.world=defaults();const p=P.world;p.attrs??={luc:0,the:0,nhanh:0,linh:0};p.attrPoints??=0;p.bag??=[];p.equip??={vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null};p.thangViDan??=0;return p;}
+  const state={near:null,arena:null,region:'hub',scene:'hub',ready:false};
+  const defaults=()=>({quest:'none',kills:0,questKills:0,weapon:0,armor:0,upgrade:0,potions:0,tutorial:true,bestArena:null,attrs:{luc:0,the:0,nhanh:0,linh:0},attrPoints:0,bag:[],equip:{vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null},thangViDan:0});
+  function progress(){if(!P.world)P.world=defaults();// Legacy saves bypass the retired onboarding gate.
+    const p=P.world;p.tutorial=true;p.attrs??={luc:0,the:0,nhanh:0,linh:0};p.attrPoints??=0;p.bag??=[];p.equip??={vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null};p.thangViDan??=0;return p;}
   function isSafe(p){if(state.scene!=='hub'&&window.worldMap?.sceneSafety)return window.worldMap.sceneSafety(p);return safeRect(p);}
   const floor=document.createElement('canvas');floor.width=floor.height=M;
   function rebuild(){floor.getContext('2d').clearRect(0,0,M,M);state.ready=atlases.every(ready);}
@@ -151,7 +152,6 @@
     if(p.quest==='none'){line('Nhiệm vụ: hạ 5 yêu thú ngoài thành. Thưởng 80 Linh Thạch, 40 EXP và 40 tu vi.');action('Nhận nhiệm vụ',()=>{p.quest='active';p.questKills=0;saveCharacter();openQuest();});}
     else if(p.quest==='active'){line('Đã hạ '+p.questKills+'/5 yêu thú.');action('Nhận thưởng',()=>{if(p.quest!=='active'||p.questKills<5)return;p.quest='claimed';P.gold+=80;gainExperience(40);saveCharacter();openQuest();},p.questKills<5);}
     else line('Đã hoàn thành Hộ thành. Cảm ơn đạo hữu đã bảo vệ Thiên Vân Thành.');
-    if(!p.tutorial&&state.guideMove&&state.guideSkill){action('Hoàn tất hướng dẫn · +10 Linh Thạch',()=>{p.tutorial=true;P.gold+=10;P.x=HUB.x;P.y=HUB.y;P.hp=mhp();P.mp=mmp();saveCharacter();close();msg('Chào mừng đến Thiên Vân Thành! Hãy nhận nhiệm vụ và khám phá các tông môn.');});}
   }
   function openShop(){show('Bảo Khí Các','Trang bị đúng class và các món dùng chung. Linh Thạch: '+P.gold+' ◈');}
   function openForge(){window.equipmentProgression?.open();}
@@ -194,21 +194,17 @@
     regions.forEach(r=>line(r.name+' · '+r.description));line('Đi theo đường đá hoặc tới Truyền Tống Trận trong thành để dịch chuyển.');
   }mapButton.onclick=openMap;
   const tag=document.createElement('div');tag.id='world-region';document.body.appendChild(tag);
-  const guide=document.createElement('aside');guide.id='world-guide';document.body.appendChild(guide);
   function updateInterface(){
     const hidden=previousPaused();mapButton.hidden=tag.hidden=hidden;interactButton.hidden=hidden||dialogOpen||!state.near;
     if(state.near)interactButton.textContent=state.near.name+' · E';
     const region=regions.find(r=>r.id===state.scene)||regions[0];state.region=state.scene;tag.textContent=(window.worldMap?.sceneTitle?.()||region.name)+(isSafe(P)?' · An toàn':'');if(window.worldMap?.renderMini)window.worldMap.renderMini(minimap,200);else miniature(minimap);
-    guide.hidden=hidden||progress().tutorial||dialogOpen;
-    if(!guide.hidden){guide.innerHTML='<b>Những bước đầu tiên</b><p>'+(state.guideMove?'✓':'1.')+' Di chuyển bằng WASD / chạm kéo</p><p>'+(state.guideSkill?'✓':'2.')+' Ngắm và dùng skill 1 / Space</p><p>3. Gặp '+(state.scene==='hub'?'Vân Châu':'Sư phụ')+(state.scene==='hub'?' ở phía bắc quảng trường (E)':' ở sân phía tây (E)')+'</p>';}
   }
-  const originalSkill=skill;skill=function(index){if(dialogOpen)return;const before=P.mp;originalSkill(index);if(P.mp<before)state.guideSkill=true;resolve(P);if(moonCombat.state.blink)moonCombat.state.blink.end={x:P.x,y:P.y};};
+  const originalSkill=skill;skill=function(index){if(dialogOpen)return;originalSkill(index);resolve(P);if(moonCombat.state.blink)moonCombat.state.blink.end={x:P.x,y:P.y};};
   const originalUp=up;
   up=function(dt){if(dialogOpen){hud();updateInterface();return;}if(previousPaused()){updateInterface();return;}
     for(const e of E)if(e.worldMap&&!e.arena&&isSafe(e)){e.x=e.hx;e.y=e.hy;}
     if(state.scene==='hub'){stopArena();E.length=0;}originalUp(dt);const unblocked={x:P.x,y:P.y};resolve(P);
     if(kiemCombat.state.dash&&(P.x!==unblocked.x||P.y!==unblocked.y))kiemCombat.state.dash=null;
-    if(Math.hypot(P.x-state.guideStart.x,P.y-state.guideStart.y)>40)state.guideMove=true;
     state.near=services.reduce((best,s)=>Math.hypot(s.x-P.x,s.y-P.y)<62&&(!best||Math.hypot(s.x-P.x,s.y-P.y)<Math.hypot(best.x-P.x,best.y-P.y))?s:best,null);
     if(state.arena&&!state.arena.separate){const a=state.arena;a.age+=dt;if(Math.hypot(P.x-1250,P.y-1260)>145||P.hp<=0){stopArena();msg('Đã rời đấu trường.');}
       else if(a.enemies.every(e=>e.dead||e.hp<=0)){for(let i=E.length-1;i>=0;i--)if(E[i].arena)E.splice(i,1);
@@ -222,7 +218,7 @@
       if(state.near===s){g.strokeStyle='#f3db9b';g.lineWidth=1;g.beginPath();g.ellipse(s.x,s.y+3,18,7,0,0,Math.PI*2);g.stroke();}}
     g.restore();
   };
-  const create=$('ok').onclick;$('ok').onclick=()=>{create();if(!P.ap||cr.style.display!=='none')return;P.world=defaults();P.x=HUB.x;P.y=HUB.y;state.guideStart={...HUB};state.guideMove=state.guideSkill=false;stopArena();saveCharacter();updateInterface();};
+  const create=$('ok').onclick;$('ok').onclick=()=>{create();if(!P.ap||cr.style.display!=='none')return;P.world=defaults();P.x=HUB.x;P.y=HUB.y;stopArena();saveCharacter();updateInterface();};
   addEventListener('keydown',event=>{if(event.target instanceof HTMLInputElement)return;if(event.key==='Escape'){close();return;}if(event.key.toLowerCase()==='e'&&!event.repeat)interact();if(event.key.toLowerCase()==='m'&&!event.repeat)openMap();});
   // Không truyền thao tác trong hộp thoại sang điều khiển nhân vật.
   modal.addEventListener('keydown',event=>{if(event.key!=='Escape')event.stopPropagation();});
@@ -230,11 +226,9 @@
     #world-minimap{position:fixed;right:12px;top:12px;width:126px;height:126px;box-sizing:border-box;padding:5px;border:1px solid #b3a17e;background:#1c2d32dd;z-index:2;border-radius:12px}
     #world-minimap canvas{position:static;width:100%;height:100%;image-rendering:auto;border-radius:7px}
     #world-region{position:fixed;right:12px;top:145px;font-size:11px;color:#f2e3c5;background:#18292ee6;padding:7px 10px;border-radius:8px;pointer-events:none}
-    #world-guide{position:fixed;left:12px;top:190px;width:210px;padding:12px;background:#17282ede;border:1px solid #879b91;border-radius:12px;box-sizing:border-box;font-size:11px;pointer-events:none}
-    #world-guide b{color:#e5d1a5;font-size:12px}#world-guide p{line-height:1.6;margin:8px 0 0;color:#bfd0cb}
     #world-interact{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:3;border:1px solid #e1c990;background:#243635f2;color:#f3e4c9;font-size:13px;max-width:90vw;min-height:42px}
     #world-dialog{position:fixed;inset:0;z-index:15;background:#0b151bdd;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;touch-action:pan-y}
-    #world-dialog[hidden],#world-guide[hidden],#world-region[hidden],#world-minimap[hidden],#world-interact[hidden]{display:none!important}
+    #world-dialog[hidden],#world-region[hidden],#world-minimap[hidden],#world-interact[hidden]{display:none!important}
     #world-dialog section{position:relative;width:min(480px,100%);max-height:85vh;overflow:auto;box-sizing:border-box;border:1px solid #8b9b94;border-radius:16px;background:#1b2b31;padding:28px;color:#e4e5d4}
     #world-dialog h2{font-size:23px;color:#ead3a2;margin:8px 30px 12px 0}#world-description{font-size:13px;line-height:1.8;color:#b1c6c5}
     #world-dialog .world-close{position:absolute;right:10px;top:10px;width:38px;min-height:38px;padding:0;font-size:24px;background:#1a252a}
@@ -242,7 +236,7 @@
     #world-content button{text-align:left;background:#263c41;border:1px solid #607d7c;font-size:13px;line-height:1.6}
     #world-content button:hover:not(:disabled){background:#354e50}.world-line{margin:0;font-size:13px;line-height:1.9;border-bottom:1px solid #ffffff10;padding-bottom:8px}
     .world-overview{position:static;width:min(100%,300px);height:auto;aspect-ratio:1;margin:auto;border:1px solid #768f87;border-radius:10px;image-rendering:auto}
-    @media(max-width:700px){#world-minimap{width:82px;height:82px;right:8px;top:8px}#world-region{top:96px;right:8px;font-size:10px;max-width:130px}#world-guide{top:172px;left:8px;width:160px;padding:9px;font-size:10px}#world-guide b{font-size:11px}#world-interact{bottom:260px;font-size:12px}#world-dialog{padding:12px}#world-dialog section{padding:22px;max-height:90vh}}
+    @media(max-width:700px){#world-minimap{width:82px;height:82px;right:8px;top:8px}#world-region{top:96px;right:8px;font-size:10px;max-width:130px}#world-interact{bottom:260px;font-size:12px}#world-dialog{padding:12px}#world-dialog section{padding:22px;max-height:90vh}}
   `;document.head.appendChild(css);
   function serviceCaption(s){
     if(s.farmPortal)return s.reverse?'Về đài':'Bãi '+s.route.name.split(' · ')[0];

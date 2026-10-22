@@ -123,7 +123,7 @@
       _dc(ctx,x,y,dir,facing,moving,phase,attacking,ap);
       try{
         // tia sáng khi đánh + hồi máu đả tọa
-        if(attacking&&!reduced){
+        if(attacking&&!reduced&&!(ap===P.ap&&window.basicCombat?.poseActive())){
           ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35;
           ctx.strokeStyle=SECT[Number.isInteger(ap?.w)?ap.w:0];ctx.lineWidth=1.6;
           ctx.beginPath();ctx.arc(x,y-18,20+Math.sin(envT*14)*3,-.6,.9);ctx.stroke();

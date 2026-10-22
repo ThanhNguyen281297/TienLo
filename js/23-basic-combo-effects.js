@@ -1,4 +1,4 @@
-/* Authored class materials bend along real attack paths. Animation never deals damage. */
+/* Class artwork follows attack timing without dash streaks. Rendering never deals damage. */
 (function(){
  const combat=basicCombat,TAU=Math.PI*2,HEIGHT=18,reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const clamp=v=>Math.max(0,Math.min(1,v)),ease=v=>{v=clamp(v);return v*v*(3-2*v);},age=o=>clamp(o.age/(o.duration||.3));
@@ -11,17 +11,8 @@
   if(alpha<=.001||w<=0||h<=0)return;const sprite=part(sect,index);if(!sprite)return;
   ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha*=clamp(alpha);ctx.drawImage(sprite.image,...sprite.rect,-w*anchor,-h/2,w,h);ctx.restore();stats.parts++;
  }
- // Source strips follow local tangents: a texture bends through a sweep rather
- // than rotating or enlarging one finished spell illustration.
- function ribbon(ctx,sect,index,points,width,alpha=1){
-  const sprite=part(sect,index);if(!sprite||alpha<=.001||points.length<2)return;
-  const [sx,sy,sw,sh]=sprite.rect,n=points.length-1;ctx.save();ctx.globalAlpha*=clamp(alpha);
-  for(let i=0;i<n;i++){const a=points[i],b=points[i+1],dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);if(length<.01)continue;
-   const taper=.25+.75*Math.sin((i+.5)/n*Math.PI)**.65;ctx.save();ctx.translate(a.x,a.y);ctx.rotate(Math.atan2(dy,dx));ctx.drawImage(sprite.image,sx+sw*i/n,sy,Math.min(sw/n+.5,sw-sw*i/n),sh,-.15,-width*taper/2,length+.5,width*taper);ctx.restore();
-  }ctx.restore();stats.meshes++;
- }
+ // Basic attacks keep their painted shape without stretched dash trails.
  function curve(x,y,angle,r,start,end,count=18,flatten=.68){const points=[];for(let i=0;i<=count;i++){const a=start+(end-start)*i/count,u=Math.cos(a)*r,v=Math.sin(a)*r*flatten;points.push({x:x+Math.cos(angle)*u-Math.sin(angle)*v,y:y+Math.sin(angle)*u+Math.cos(angle)*v});}return points;}
- function ray(x,y,angle,from,to,count=12,bend=0){const points=[];for(let i=0;i<=count;i++){const p=i/count,d=from+(to-from)*p,side=Math.sin(p*Math.PI)*bend;points.push({x:x+Math.cos(angle)*d-Math.sin(angle)*side,y:y+Math.sin(angle)*d+Math.cos(angle)*side});}return points;}
  const envelope=p=>ease(p/.07)*Math.pow(1-ease((p-.58)/.42),.85);
  function cutArc(ctx,sect,index,x,y,angle,r,head,sign,alpha){
   // A moving cut reveals the painted cutting edge, anchored to the strike plane.
@@ -39,15 +30,12 @@
  }
  function sword(ctx,s){const p=age(s),r=s.radius||82,sign=s.step===1?-1:1,head=sign*(-1.12+2.24*ease((p-.1)/.36)),fade=envelope(p),x=s.x,y=s.y-HEIGHT;
   cutArc(ctx,0,0,x,y,s.angle,r,head,sign,fade);
-  ribbon(ctx,0,2,curve(x,y,s.angle,r*.82,head-sign*1.05,head),17,fade);
-  ribbon(ctx,0,2,curve(x,y,s.angle,r*.65,head-sign*.86,head-.03*sign),8,fade*.6);
   const tip=curve(x,y,s.angle,r*.82,head,head,1)[0];paint(ctx,0,3,tip.x,tip.y,5,15,s.angle+head+Math.PI/2,fade*.85);
  }
  function spear(ctx,s){const p=age(s),r=s.radius||115,x=s.x,y=s.y-HEIGHT,fade=envelope(p);
-  if(s.step===2){const head=-1.85+3.7*ease((p-.10)/.55);cutArc(ctx,2,2,x,y,s.angle,r,head,1,fade);ribbon(ctx,2,2,curve(x,y,s.angle,r*.85,head-1.25,head,22),24,fade);ribbon(ctx,2,1,curve(x,y,s.angle,r*.72,head-.9,head,15),10,fade*.6);return;}
+  if(s.step===2){const head=-1.85+3.7*ease((p-.10)/.55);cutArc(ctx,2,2,x,y,s.angle,r,head,1,fade);return;}
   const thrust=ease((p-.04)/.36)*(1-.52*ease((p-.55)/.45)),reach=12+(r-12)*thrust,heavy=s.step===3;
   for(const side of s.step===1?[-1,1]:[0]){const ox=x-Math.sin(s.angle)*side*5,oy=y+Math.cos(s.angle)*side*5;
-   ribbon(ctx,2,1,ray(ox,oy,s.angle,8,reach),heavy?18:12,fade*.8);
    paint(ctx,2,0,ox+Math.cos(s.angle)*reach,oy+Math.sin(s.angle)*reach,heavy?52:42,heavy?22:16,s.angle,fade,.96);
   }
   if(heavy&&p>.38)fragments(ctx,2,x+Math.cos(s.angle)*reach,y+Math.sin(s.angle)*reach,(p-.38)/.62,20,s.angle,3,.7);
@@ -58,18 +46,12 @@
   for(let n=0;n<5;n++){const a=-.93+n*.465;ctx.save();ctx.translate(x,y);ctx.rotate(c.angle+a*(.4+.6*open));ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w,-h*.24);ctx.lineTo(w,h*.24);ctx.closePath();ctx.clip();paint(ctx,3,0,w*.45,0,w,h,-a,fade*.86);ctx.restore();}
   for(let n=0;n<3;n++){const a=c.angle+(n-1)*.22;paint(ctx,3,3,x+Math.cos(a)*(10+19*open),y+Math.sin(a)*(10+19*open),5,16,a+Math.PI/2,fade*.7);}
  }
- function cast(ctx,c){const p=age(c),fade=envelope(p);if(c.sect===3)return fan(ctx,c);if(c.sect===2)return;
-  if(c.sect===0&&c.step<2)return;
-  const x=c.x+Math.cos(c.angle)*16,y=c.y-HEIGHT+Math.sin(c.angle)*10,spread=c.sect===1?22:15;
-  ribbon(ctx,c.sect,2,curve(x,y,c.angle,spread,-.85,.85,12),c.sect===1?12:8,fade*.65);
-  for(let n=0;n<(c.step===2?3:2);n++){const a=c.angle+(n-1)*.32;paint(ctx,c.sect,3,x+Math.cos(a)*spread*p,y+Math.sin(a)*spread*p,4,10,a,fade*.55);}
- }
+ function cast(ctx,c){if(c.sect===3)fan(ctx,c);}
  function flutter(ctx,p,x,y,w,h,alpha){const sprite=part(3,1);if(!sprite)return;const [sx,sy,sw,sh]=sprite.rect;ctx.save();ctx.translate(x,y);ctx.rotate(p.angle);ctx.globalAlpha*=alpha;
   for(let n=0;n<10;n++){const t=(n+.5)/10,bend=Math.sin(p.age*18-t*4)*(1-t)*h*.13;ctx.drawImage(sprite.image,sx+n*sw/10,sy,Math.min(sw/10+.4,sw-n*sw/10),sh,-w*.85+n*w/10,-h/2+bend,w/10+.15,h);}
   ctx.restore();stats.parts++;
  }
- function projectile(ctx,p){const direction=p.viewAngle??p.angle;const points=(p.trail||[]).slice(-12).concat(p).map(v=>({x:v.x,y:v.y-HEIGHT})),sect=p.sect,y=p.y-HEIGHT,alpha=p.returning?.67:1;
-  ribbon(ctx,sect,2,points,sect===1?17:sect===3?9:11,alpha*.7);
+ function projectile(ctx,p){const direction=p.viewAngle??p.angle;const sect=p.sect,y=p.y-HEIGHT,alpha=p.returning?.67:1;
   if(sect===0){paint(ctx,0,1,p.x,y,p.step===3?43:51,12,direction,alpha,.94);paint(ctx,0,5,p.x-3*Math.cos(direction),y-3*Math.sin(direction),6,6,0,alpha*.72);}
   else if(sect===1){const large=p.step===2;paint(ctx,1,1,p.x,y,large?54:40,large?39:29,direction,alpha,.64);for(let n=0;n<2;n++){const back=9+n*9,side=Math.sin(p.age*10+n*2)*(4+n);paint(ctx,1,5,p.x-Math.cos(direction)*back-Math.sin(direction)*side,y-Math.sin(direction)*back+Math.cos(direction)*side,8,10,direction,alpha*(.45-n*.12));}}
   else if(sect===3){const large=p.step===2;flutter(ctx,{...p,angle:direction},p.x,y,large?30:23,large?15:11,alpha);for(let n=0;n<3;n++){const back=10+n*7,side=Math.sin(p.age*14+n*2)*4;paint(ctx,3,n===2?5:3,p.x-Math.cos(direction)*back-Math.sin(direction)*side,y-Math.sin(direction)*back+Math.cos(direction)*side,n===2?6:4,n===2?6:10,direction+.4*Math.sin(p.age*8+n),alpha*(.5-n*.1));}}
@@ -79,7 +61,7 @@
  }
  function effect(ctx,e){const p=age(e),fade=(1-p)**1.35,r=Math.min(38,e.radius||22),sect=e.sect,x=e.x,y=e.y-HEIGHT;
   if(e.kind==='seal'){flutter(ctx,{angle:-.16,age:e.age},x,y,13,22,fade*.8);return;}
-  if(e.kind==='x'){for(const a of [-.6,.6])ribbon(ctx,0,2,ray(x,y,(e.angle||0)+a,-r*(.4+.6*ease(p)),r*(.4+.6*ease(p))),12,fade);fragments(ctx,0,x,y,p,r,0,3,.7);return;}
+  if(e.kind==='x'){for(const a of [-.6,.6])paint(ctx,0,1,x,y,r*1.8,9,(e.angle||0)+a,fade,.5);fragments(ctx,0,x,y,p,r,0,3,.7);return;}
   if(e.kind==='converge'){for(let n=0;n<3;n++){const a=n*TAU/3,pull=(1-ease(p/.7))*r*.65;paint(ctx,1,5,x+Math.cos(a)*pull,y+Math.sin(a)*pull*.65,12,16,a+.3,fade*.7);}return;}
   if(e.kind==='lightning'){fragments(ctx,2,x,y,p,r*1.2,e.angle||0,5,.85);shatter(ctx,e,p,r,fade*.8);return;}
   shatter(ctx,e,p,r,e.kind==='explode'?fade*.95:fade*.78);fragments(ctx,sect,x,y,p,r*(e.kind==='explode'?1.35:.9),e.angle||0,3,sect===3?.9:.72);
@@ -90,5 +72,5 @@
  combat.drawEffects=drawEffects;
  const previousDraw=dr;dr=function(){previousDraw();if(paused()||!P.ap)return;const camera=gameCamera();g.save();g.setTransform(Z,0,0,Z,-camera.x*Z,-camera.y*Z);drawEffects(g);g.restore();};
  const previousHud=hud;hud=function(){previousHud();updateIcon();};
- window.basicEffects={entries,load,available:sect=>!!ready(entries[sect]),ready:()=>entries.every(ready),draw:drawEffects,icon,updateIcon,stats,paint,ribbon};
+ window.basicEffects={entries,load,available:sect=>!!ready(entries[sect]),ready:()=>entries.every(ready),draw:drawEffects,icon,updateIcon,stats,paint};
 })();

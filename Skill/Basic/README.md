@@ -9,7 +9,7 @@ Bộ hình mới dùng riêng cho đòn thường, không thay các skill 1–4.
 
 Mỗi atlas có 6 thành phần: lưỡi năng lượng, đạn, dải kéo đuôi, mảnh nhỏ, hình va chạm và chi tiết phụ. Bản sinh đầu được giữ trong thư mục generated_images của Codex; source chỉ giữ bản v2 đã chọn. PNG gốc không bị sửa/cắt bằng script. `parts.json` lưu tọa độ tách phần khi render; `tests/build_basic_effects.py` chỉ đọc alpha để đo khoảng cách giữa các phần.
 
-`js/23-basic-combo-effects.js` dựng chuyển động theo tuổi đòn thật: dải ảnh uốn theo đường chém; phần lưỡi được quét lộ dần; mũi thương tiến–thu; nguyệt nhận bám đường đi/về; phù giấy và từng lông quạt biến dạng riêng; các mảnh va chạm tách và bay độc lập. Không dùng flipbook các ảnh chiêu hoàn chỉnh, không xoay ảnh vũ khí gốc để thay cho animation. Nút Đánh dùng icon ảnh theo class.
+`js/23-basic-combo-effects.js` dựng chuyển động theo tuổi đòn thật: phần lưỡi được quét lộ dần; mũi thương tiến–thu; nguyệt nhận bám đường đi/về; phù giấy và từng lông quạt biến dạng riêng; các mảnh va chạm tách và bay độc lập. Đã bỏ các dải ảnh kéo dài/dash phía sau đòn đánh và cung sáng phụ quanh người khi đánh thường. Không dùng flipbook các ảnh chiêu hoàn chỉnh, không xoay ảnh vũ khí gốc để thay cho animation. Nút Đánh dùng icon ảnh theo class.
 
 Sát thương, combo, tầm đánh, thời gian đánh, xuyên mục tiêu và lượt va chạm giữ nguyên. Cast cue chỉ được tạo khi đòn đã được chấp nhận. Đòn thường bỏ lớp hạt vuông và hình lóe kỹ năng cũ; các skill khác vẫn dùng hiệu ứng của chúng. Nhãn `basic` trong hàng đợi client chỉ dùng phân biệt hình phản hồi, không thay xử lý damage trên server.
 
@@ -39,7 +39,7 @@ Edit this game VFX component atlas for production-safe spacing. Preserve the SAM
 
 - `python tests/test_basic_effect_assets.py`: đọc PNG bằng standard library, kiểm tra alpha thật, 24 phần không cụt hình đậm, file/manifest và thứ tự nạp.
 - `node tests/basic-combos.test.cjs`: 14 nhịp combo thật, thời gian đánh/tầm đánh/mana, đạn đi-về, mục tiêu né, cooldown refund, ấn, AoE, reset, đấu trường và thao tác mobile.
-- `node tests/basic-effects.test.cjs`: khung ảnh thay đổi liên tục, dải ảnh biến dạng, render không gây thêm damage, tái hiện xác định theo simulation time, không thêm hạt vuông, bốn icon khác nhau và mobile. Xuất ảnh + đoạn demo trong `tests/artifacts/basic-four-class-effects.webm` (không đưa artifact kiểm thử vào bản triển khai).
+- `node tests/basic-effects.test.cjs`: khung ảnh thay đổi liên tục, không có dải dash kéo dài, render không gây thêm damage, tái hiện xác định theo simulation time, không thêm hạt vuông, bốn icon khác nhau và mobile. Kiểm tra đã bỏ các bảng hướng dẫn, tab Hướng dẫn và khóa truyền tống nhập môn. Xuất ảnh + đoạn demo trong `tests/artifacts/basic-four-class-effects.webm` (không đưa artifact kiểm thử vào bản triển khai).
 
 
 `node tests/basic-online-effects.test.cjs` dùng tài khoản SQLite/HTTP thật để kiểm tra đòn thường tới quái chung vẫn gây sát thương trên server và không phát lại lớp hạt vuông/ảnh lóe cũ.

@@ -142,7 +142,6 @@ ctx.restore();
   spawn=generate;
   function sceneSwitch(id,initial=false){
     if(!maps[id])return msg('Khu vực này chưa mở.');
-    if(!initial&&!world.progress().tutorial&&id!==scene())return msg('Hoàn tất hướng dẫn với Sư phụ trước khi truyền tống.');
     if(world.state.arena)world.stopArena();challenge.active=null;
     enemyCache[scene()]=scene()==='hub'?[]:E.filter(e=>e.worldMap&&!e.arena&&!e.challenge);
     world.state.scene=id;P.world.map=id;
@@ -152,15 +151,11 @@ ctx.restore();
     classCombat.onRespawn();B.length=SP.length=V.length=LT.length=X.length=PT.length=0;
     P.x=maps[id].spawn.x;P.y=maps[id].spawn.y;P.med=0;P.sl=0;P.acd=.3;K={};ptr=null;
     kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;world.state.near=null;
-    if(initial){world.state.guideStart={x:P.x,y:P.y};world.state.guideMove=world.state.guideSkill=false;}
     dialog.close();world.updateInterface();saveCharacter();msg(maps[id].name+' · '+(id==='hub'?'Hub an toàn. Gặp Vân Châu để nhận nhiệm vụ.':'Gặp Sư phụ ở sân phía tây hoặc đi tới khu luyện công.'));
   }
   world.switchScene=sceneSwitch;
   world.respawn=()=>{challenge.active=null;E=E.filter(e=>!e.challenge);P.x=maps[scene()].spawn.x;P.y=maps[scene()].spawn.y;};
-  function mentor(){const p=world.progress();dialog.show(maps[scene()].mentor+' · Nhập môn','Luyện di chuyển và ngắm chiêu tại đài. Bốn bãi quái ở bốn hướng; truyền tống phía tây nam và đấu trường phía đông nam sân trung tâm.');
-    if(!p.tutorial){dialog.line('Di chuyển: '+(world.state.guideMove?'Đã hoàn thành':'Chưa hoàn thành')+' · Học skill tại NPC trong thành sau khi nhập môn.');
-      dialog.action('Hoàn tất hướng dẫn · +10 Linh Thạch',()=>{p.tutorial=true;P.gold+=10;P.hp=mhp();P.mp=mmp();saveCharacter();dialog.close();msg('Đã nhập môn. Tới Truyền Tống Trận phía tây nam để sang Thiên Vân Thành học kỹ năng.');},!world.state.guideMove);
-    }
+  function mentor(){const p=world.progress();dialog.show(maps[scene()].mentor+' · Nhập môn','Nhiệm vụ và hoạt động sư môn.');
     if(!p.sectQuest)p.sectQuest={status:'none',kills:0};
     const q=p.sectQuest;if(q.status==='none'){dialog.line('Bài tập nhập môn: hạ 3 yêu thú tại bốn bãi luyện công. Thưởng 35 Linh Thạch, 20 EXP và 20 tu vi.');dialog.action('Nhận bài tập nhập môn',()=>{q.status='active';q.kills=0;saveCharacter();mentor();});}
     else if(q.status==='active'){dialog.line('Yêu thú: '+q.kills+'/3.');dialog.action('Nhận thưởng nhập môn',()=>{if(q.status!=='active'||q.kills<3)return;q.status='claimed';P.gold+=35;gainExperience(20);saveCharacter();mentor();},q.kills<3);}
