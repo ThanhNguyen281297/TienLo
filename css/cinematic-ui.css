@@ -1,0 +1,117 @@
+/* Cinematic xianxia skin. Loaded last; changes colour, depth and ornament only.
+   No sizes, positions or event targets of controls are altered. */
+:root{
+  --ci-gold:#e0c88c;--ci-gold-mid:#b99555;--ci-gold-deep:#7d5f2f;
+  --ci-ink:#050d14;--ci-jade:#7fd3bd;
+  --ci-glass:linear-gradient(155deg,#17353fee 0%,#0b1b25f4 55%,#07121bf7 100%);
+  --ci-ring:radial-gradient(circle at 34% 24%,#3f6170,#0d202b 62%,#050e15);
+}
+
+/* Screen vignette: a little more drama, still gentle at the centre. */
+.v{background:
+  radial-gradient(ellipse 92% 86% at 50% 47%,transparent 54%,#03080d44 76%,#02060bbb 100%),
+  linear-gradient(180deg,#0a1a2a30,transparent 22%,transparent 80%,#02060b40)}
+
+/* ---------- Identity panel ---------- */
+#hud{
+  background:var(--ci-glass)!important;
+  border:1px solid #cfb2735c!important;border-radius:14px!important;
+  box-shadow:0 10px 26px #000a,inset 0 1px 0 #ffffff22,inset 0 0 0 1px #02080d,inset 0 0 28px #3a8c8324!important;
+  backdrop-filter:blur(6px) saturate(1.25);-webkit-backdrop-filter:blur(6px) saturate(1.25)}
+#hud::before,#hud::after{content:'';position:absolute;width:15px;height:15px;pointer-events:none;border:1.5px solid var(--ci-gold);opacity:.85}
+#hud::before{left:-1px;top:-1px;border-right:0;border-bottom:0;border-top-left-radius:14px}
+#hud::after{right:-1px;bottom:-1px;border-left:0;border-top:0;border-bottom-right-radius:14px}
+#hud b{font-family:'Noto Serif',Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:.02em;color:#f6e6bd;text-shadow:0 1px 2px #000c,0 0 10px #d9a44155}
+#hud #gd,#hud .hud-identity-text #gd{color:#e6cf93;font-weight:600;text-shadow:0 1px 2px #000a}
+#hud #player-avatar{border-radius:50%;box-shadow:0 0 0 1px #02080d,0 0 0 2.5px #c9a96a,0 0 0 3.5px #02080d,0 3px 10px #000a;background:radial-gradient(circle at 50% 35%,#35586a,#0b1a24)}
+
+/* ---------- Bars ---------- */
+#hud .bar{
+  position:relative;overflow:hidden;height:9px;border-radius:99px;
+  background:linear-gradient(#02080d,#0c1c25);
+  border:1px solid #02080d!important;
+  box-shadow:inset 0 1px 3px #000d,0 0 0 1px #a98a5566,0 1px 0 #ffffff14}
+#hud .bar::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(180deg,#ffffff30,#ffffff00 46%,#00000033),
+    repeating-linear-gradient(90deg,transparent 0,transparent calc(25% - 1px),#02080d8c calc(25% - 1px),#02080d8c 25%)}
+#hud .bar i{border-radius:inherit;transition:width .22s cubic-bezier(.2,.7,.2,1)}
+#hp i{background:linear-gradient(#ff9272,#dc503a 48%,#8d2418)!important;box-shadow:0 0 9px #ff5a3d77,inset 0 1px #ffffff55}
+#mp i{background:linear-gradient(#b4f2ff,#43b4de 48%,#1b6a98)!important;box-shadow:0 0 9px #46c2ee66,inset 0 1px #ffffff55}
+#xp i{background:linear-gradient(#fff1b8,#e2b24c 50%,#98691f)!important;box-shadow:0 0 8px #f0c25a66,inset 0 1px #ffffff55}
+.mobile-hud #hud .bar{height:7px;margin:3px 0}
+
+/* ---------- Skill wheel ---------- */
+.mobile-hud #combat-wheel #sb .sk{
+  border:2px solid #dcc283!important;background:var(--ci-ring)!important;
+  box-shadow:0 0 0 2px #040b11,0 0 0 3px #a8864a99,inset 0 0 14px #000b,inset 0 2px 3px #ffffff38,0 7px 15px #000b!important}
+.mobile-hud #combat-wheel #sb .sk.lk{border-color:#7f7254!important;filter:saturate(.45) brightness(.82)}
+.mobile-hud #combat-wheel #sb .sk.lk::after{background:#050f17b8;color:#d8d2b4;letter-spacing:.02em}
+.mobile-hud #combat-wheel #basic-attack{
+  border:2px solid #f0d89a!important;
+  background:radial-gradient(circle at 34% 24%,#6a7d86,#1b303c 60%,#08121a)!important;
+  box-shadow:0 0 0 3px #060d13,0 0 0 4.5px #c4a566aa,0 0 22px #d9b56a40,inset 0 2px 8px #ffffff30,0 8px 20px #000c!important}
+.mobile-hud #combat-wheel #basic-attack[aria-pressed=true]{border-color:#c9f5d3!important;box-shadow:0 0 0 3px #060d13,0 0 0 4.5px #b4de7e,0 0 24px #b4de7e88,inset 0 2px 8px #ffffff30!important}
+.mobile-hud #combat-wheel #pet-skill,.mobile-hud #combat-wheel #shield-skill{border:2px solid #c8dcc2!important;background:var(--ci-ring)!important;box-shadow:0 0 0 2px #040b11,inset 0 0 12px #000a,0 5px 12px #000a!important}
+
+/* ---------- Joystick ---------- */
+.mobile-hud #move-joystick{
+  background:radial-gradient(circle,#0a1a2300 28%,#0a1a2380 64%,#d9c58a33 66%,#08141c70 70%);
+  box-shadow:inset 0 0 0 1px #e3cf9a40,inset 0 0 22px #0007,0 4px 18px #0005}
+.stick-orbit{border-color:#e3cf9a33!important}
+.stick-thumb{border:1.5px solid #e6d39e!important;background:radial-gradient(circle at 34% 26%,#cfe0d2cc,#2d5559ee 72%)!important;box-shadow:inset 0 2px 6px #ffffff40,0 4px 12px #000a!important}
+
+/* ---------- Bottom dock ---------- */
+body.mobile-hud #bt{
+  background:linear-gradient(180deg,#112431e6,#06111af2)!important;
+  border:1px solid #cfb2735e;border-radius:40px!important;
+  box-shadow:0 8px 24px #000a,inset 0 1px 0 #ffffff20,inset 0 0 0 1px #02080d;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mobile-hud #bt button,.mobile-hud #hud-more-menu button{
+  border:1.5px solid #cdb27a99!important;background:var(--ci-ring)!important;
+  box-shadow:0 0 0 1.5px #040b11,inset 0 2px 3px #ffffff30,inset 0 -3px 6px #0006,0 4px 9px #000a!important}
+.mobile-hud .hud-icon::before{filter:drop-shadow(0 1px 2px #000c)}
+.mobile-hud .hud-icon::after{color:#ecdfb8;font-weight:500;text-shadow:0 1px 3px #000,0 0 6px #000a}
+.mobile-hud #bt button[aria-pressed=true]{border-color:#bff0d4!important;background:radial-gradient(circle at 34% 24%,#4b8f7a,#173a3a 70%)!important;box-shadow:0 0 0 1.5px #040b11,0 0 14px #8fdeaf66,inset 0 2px 3px #ffffff38!important}
+.mobile-hud #hud-more-menu{
+  background:linear-gradient(150deg,#17333ff7,#08151ffa)!important;
+  border:1px solid #cfb27370!important;border-radius:22px!important;
+  box-shadow:0 14px 34px #000b,inset 0 1px 0 #ffffff22}
+
+/* ---------- Minimap, region, objective ---------- */
+#world-minimap{
+  background:linear-gradient(160deg,#173540e6,#07121bf2)!important;
+  border:1px solid #d2b87e99!important;border-radius:14px!important;
+  box-shadow:0 0 0 1px #02080d,0 0 0 3px #7d5f2f66,0 8px 20px #000a,inset 0 0 14px #000b!important}
+#world-region{
+  background:linear-gradient(90deg,#0a1a25e8,#14323ae8)!important;
+  border:1px solid #cfb27355;border-radius:99px!important;
+  padding:5px 12px!important;color:#f1e2bc!important;letter-spacing:.02em;
+  box-shadow:0 3px 10px #0008}
+#journey-objective{
+  border:1px solid #cfb27345!important;border-left:3px solid var(--ci-gold)!important;
+  border-radius:4px 12px 12px 4px!important;
+  background:linear-gradient(100deg,#0b1a25eb,#122c36d6)!important;
+  box-shadow:0 6px 18px #0008}
+#account-badge{background:#08141ccc!important;border:1px solid #cfb27340!important;border-radius:99px!important;backdrop-filter:blur(4px)}
+#world-interact{
+  background:linear-gradient(180deg,#183844f2,#0a1a24f5)!important;
+  border:1.5px solid #e0c88c!important;color:#fbefcb!important;
+  box-shadow:0 0 18px #e0c88c40,0 6px 16px #000a;font-weight:600}
+#target-frame{border:1px solid #cfb27355!important;border-radius:10px!important;background:linear-gradient(150deg,#16313cee,#08151fee)!important;box-shadow:0 6px 18px #000a}
+
+/* ---------- Log line: readable over any scenery ---------- */
+#log{color:#f6e5ba;text-shadow:0 1px 2px #000,0 0 10px #000b,0 0 18px #d9a44140}
+
+/* ---------- Dialogs ---------- */
+#world-dialog>section{
+  border:1px solid #cfb27366!important;border-radius:16px!important;
+  background:linear-gradient(150deg,#173340fb,#081622fd)!important;
+  box-shadow:0 22px 60px #000d,inset 0 1px 0 #ffffff1c,inset 0 0 0 1px #02080d,inset 0 0 40px #2f7a7418!important}
+#world-dialog h2{font-family:'Noto Serif',Georgia,serif;color:#f4e3b6;text-shadow:0 1px 2px #000a;
+  padding-bottom:8px;border-bottom:1px solid transparent;
+  border-image:linear-gradient(90deg,#d9bf84aa,#d9bf8400) 1}
+#world-dialog .world-eyebrow{color:#cdb27a;letter-spacing:.18em}
+.item-cell{border:1px solid #b99a5f33!important}
+.item-cell.occupied{box-shadow:inset 0 1px #ffffff22,inset 0 0 12px color-mix(in srgb,var(--rarity,#7fd3bd) 32%,transparent),0 0 0 1px color-mix(in srgb,var(--rarity,#7fd3bd) 55%,#02080d)}
+
+@media(prefers-reduced-motion:reduce){#hud .bar i{transition:none}}

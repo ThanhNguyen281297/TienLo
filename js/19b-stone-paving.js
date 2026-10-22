@@ -1,7 +1,8 @@
 /* Individual isometric stone slabs. Geometry is cached; no texture or floor image. */
 (function(){
   const halfWidth=22,halfHeight=11,models=new Map();
-  const colors=['#bfc3b8','#c4c6bb','#bdc2b8','#c8c9be','#c2c6bc','#c6c9bf','#bfc4ba','#c7c8bd'];
+  // Slightly deeper, warm/cool-varied slate so figures and light pools read against the floor.
+  const colors=['#a9b0a6','#b3b5a8','#a4aca4','#bab8a8','#aeb3a9','#b6b7aa','#a7afa3','#bcb9a9'];
   function outline(ctx,r){ctx.beginPath();if('rx' in r){ctx.moveTo(r.x,r.y-r.ry);ctx.lineTo(r.x+r.rx,r.y);ctx.lineTo(r.x,r.y+r.ry);ctx.lineTo(r.x-r.rx,r.y);ctx.closePath();}else ctx.rect(r.left,r.top,r.right-r.left,r.bottom-r.top);}
   function model(region){const key=JSON.stringify(region);if(models.has(key))return models.get(key);
     const b='rx' in region?{left:region.x-region.rx,right:region.x+region.rx,top:region.y-region.ry,bottom:region.y+region.ry}:region;
@@ -27,7 +28,7 @@
   }
   function draw(ctx,region,view){const m=model(region),b=m.bounds;
     if(view&&(b.right<view.x||b.left>view.x+view.width||b.bottom<view.y||b.top>view.y+view.height))return 0;
-    ctx.save();outline(ctx,region);ctx.clip();ctx.fillStyle='#9aa396';ctx.fillRect(b.left,b.top,b.right-b.left,b.bottom-b.top);
+    ctx.save();outline(ctx,region);ctx.clip();ctx.fillStyle='#7f8a80';ctx.fillRect(b.left,b.top,b.right-b.left,b.bottom-b.top);
     const batches=colors.map(()=>new Path2D()),light=new Path2D(),dark=new Path2D(),grain=new Path2D(),wear=new Path2D();let count=0;
     for(const tile of m.tiles){if(view&&(tile.x+halfWidth<view.x||tile.x-halfWidth>view.x+view.width||tile.y+halfHeight<view.y||tile.y-halfHeight>view.y+view.height))continue;
       batches[tile.color].addPath(tile.shape);light.addPath(tile.light);dark.addPath(tile.dark);grain.addPath(tile.grain);wear.addPath(tile.wear);count++;
