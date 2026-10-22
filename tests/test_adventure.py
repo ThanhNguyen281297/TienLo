@@ -60,6 +60,9 @@ class AdventureTests(unittest.TestCase):
             item=equipment.TEMPLATES[offer['id']];self.assertEqual(item.get('classIndex',0),0);self.assertNotEqual(item.get('gender'),'Nu')
         self.assertTrue(any(r['quality']=='than' for r in adventure.recipes(self.player)))
     def test_craft_currency_level_canonical_and_replay(self):
+        # Crafting is intentionally limited to the city forge NPC.
+        self.player['x']=1240;self.player['y']=1210
+        self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(self.player),))
         adventure.grant_fragments(self.db,1,100);result=self.act('craft',id='moc-kiem-class-0');self.assertEqual(result['adventure']['fragments'],90)
         self.assertEqual(result['character']['player']['world']['bag'][0]['atk'],equipment.TEMPLATES['moc-kiem-class-0']['atk'])
         replay=adventure.action(self.db,1,dict(action='craft',id='moc-kiem-class-0',opId='test-operation-1',revision=1));self.assertEqual(replay['adventure']['fragments'],90);self.assertEqual(len(replay['character']['player']['world']['bag']),1)
