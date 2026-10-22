@@ -34,6 +34,7 @@ jobs:
           python tests/test_adventure.py
           python tests/test_mmorpg.py
           python tests/test_basic_effect_assets.py
+          python tests/test_prune_releases.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done
@@ -69,8 +70,10 @@ jobs:
         run: |
           export RSYNC_RSH="ssh -i $HOME/.ssh/tienlo -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes"
           destination="$DEPLOY_USER@$DEPLOY_HOST"
+          $RSYNC_RSH "$destination" "python3 - --incoming $GITHUB_SHA --keep 5 --apply" < deploy/prune-releases.py
           $RSYNC_RSH "$destination" "mkdir -p /opt/tienlo-releases/$GITHUB_SHA"
-          rsync -az --delete --chmod=D755,F644 \
+          # Checkout timestamps change every run; compare content to reuse asset hardlinks.
+          rsync -az --checksum --no-times --delete --chmod=D755,F644 \
             --link-dest=/opt/tienlo \
             --exclude='/.git/' --exclude='/.github/' --exclude='/data/' \
             --exclude='/dist/' --exclude='/tests/' --exclude='/android/' --exclude='__pycache__/' \
