@@ -66,7 +66,8 @@ def queue_farm_drop(db,uid,mob,event_id):
     player=json.loads(row['player']);cls=player['ap']['w'];level=mob.get('level',1)
     if not mob.get('expedition') and secrets.randbelow(100)<16:
         tier=max((t for t in (10,25,45,70) if t<=max(10,level)),default=10)
-        iid=f'exp-{tier}-{secrets.choice(("daobao","chan","giay"))}-class-{cls}' if tier>10 else f'train-10-{secrets.choice(("daobao","chan","giay"))}-class-{cls}'
+        rand_cls=secrets.randbelow(4)
+        iid=f'exp-{tier}-{secrets.choice(("daobao","chan","giay"))}-class-{rand_cls}' if tier>10 else f'train-10-{secrets.choice(("daobao","chan","giay"))}-class-{rand_cls}'
         db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-gear',uid,mob['map'],iid,time.time()))
     if secrets.randbelow(100)<35 or mob.get('boss'):
         db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-stone',uid,mob['map'],'cuong-hoa-thach',time.time()))

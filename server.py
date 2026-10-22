@@ -7,6 +7,7 @@ import duels
 import adventure
 import overworld
 import forging
+import trade
 import hashlib
 import hmac
 import json
@@ -74,6 +75,7 @@ def init_db():
         if 'gm' not in {r['name'] for r in db.execute('PRAGMA table_info(users)')}:
             db.execute('ALTER TABLE users ADD COLUMN gm INTEGER NOT NULL DEFAULT 0 CHECK(gm IN (0,1))')
         community.init_db(db)
+        trade.init_db(db)
         equipment_rules.init_db(db,collection_item)
         expeditions.init_db(db)
         duels.init_db(db)
@@ -453,6 +455,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 return self.reply(200,{'character':{'id':row['id'],'player':progression.normalize(json.loads(row['player'])),'revision':row['revision']} if row else None})
             if path=='/api/equipment': return self.equipment(user)
             if path=='/api/community': return self.community(user)
+            if path=='/api/trade': return self.trade(user)
             if path=='/api/duel': return self.duel(user)
             if path=='/api/expedition': return self.expedition(user)
             if path=='/api/adventure': return self.adventure(user)
@@ -460,6 +463,14 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/rankings':
                 with connect() as db: rows=db.execute("SELECT json_extract(player,'$.nm') AS name, json_extract(player,'$.ap.w') AS sect, json_extract(player,'$.r') AS realm, json_extract(player,'$.stage') AS stage, COALESCE(json_extract(player,'$.world.kills'),0) AS kills FROM characters ORDER BY realm DESC,stage DESC,kills DESC LIMIT 50").fetchall()
                 return self.reply(200,[dict(name=r['name'],sect=SECTS[r['sect']],realm=r['realm'],stage=r['stage'],kills=r['kills']) for r in rows])
+            if path.startswith('/api/player/lookup'):
+                qs=urlsplit(self.path).query
+                from urllib.parse import parse_qs
+                params=parse_qs(qs)
+                name=params.get('name',[''])[0].strip()
+                if not name or len(name)<2:return self.reply(400,{'error':'Nhập tên tìm kiếm (ít nhất 2 ký tự).'})
+                with connect() as db: rows=db.execute("SELECT c.user_id id,json_extract(player,'$.nm') AS name, json_extract(player,'$.ap.w') AS sect, json_extract(player,'$.r') AS realm, json_extract(player,'$.stage') AS stage FROM characters c JOIN users u ON u.id=c.user_id WHERE json_extract(player,'$.nm') LIKE ? LIMIT 20",('%'+name+'%',)).fetchall()
+                return self.reply(200,[dict(id=r['id'],name=r['name'],sect=SECTS[r['sect']],realm=r['realm'],stage=r['stage'],online=bool(PEERS.get(r['id']))) for r in rows])
             return self.reply(404,{'error':'API không tồn tại.'})
         requested=Path(self.translate_path(self.path))
         target=requested.resolve()
@@ -613,8 +624,19 @@ class GameHandler(SimpleHTTPRequestHandler):
             with WORLD_LOCK, DB_LOCK, connect() as db:
                 db.execute('BEGIN IMMEDIATE')
                 result=community.action(db,user['user_id'],body,PEERS) if body is not None else community.snapshot(db,user['user_id'],PEERS)
+                # Gộp dữ liệu giao dịch vào snapshot khi GET
+                if body is None:
+                    result={**result,**trade.snapshot(db,user['user_id'])}
             return self.reply(200,result)
         except community.Conflict as error:return self.reply(409,{'error':str(error),'conflict':True})
+        except ValueError as error:return self.reply(409,{'error':str(error)})
+
+    def trade(self,user,body=None):
+        try:
+            with WORLD_LOCK, DB_LOCK, connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                result=trade.snapshot(db,user['user_id']) if body is None else trade.action(db,user['user_id'],body,PEERS)
+            return self.reply(200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
     def duel(self,user,body=None):

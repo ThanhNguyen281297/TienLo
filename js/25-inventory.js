@@ -321,17 +321,49 @@
     });
     const details=document.createElement('div');details.className='item-details';details.setAttribute('aria-live','polite');bag.append(details);
     function showDetails(item,equipped){
-      details.replaceChildren();const name=document.createElement('h4');name.textContent=item.name+(equipmentProgression.level(item)?' +'+equipmentProgression.level(item):'');name.style.color=RARITY[item.rarity].color;const desc=document.createElement('p');desc.textContent=(equipmentData.byId.get(item.id)?.desc||item.desc||'')+' · '+statText(item);details.append(name,desc);
-      const actions=document.createElement('div');actions.className='item-actions';details.append(actions);
-      function action(label,fn){const button=document.createElement('button');button.textContent=label;button.onclick=fn;actions.append(button);}
-      if(equipmentRules.classSlots.includes(item.slot)){const requirement=document.createElement('p');requirement.className='item-class-requirement';requirement.textContent='Class yêu cầu: '+equipmentRules.classes[item.classIndex];requirement.style.color=item.classIndex===P.ap.w?'#9de0bd':'#ff9f9f';details.append(requirement);}
-      const gender=equipmentData.byId.get(item.id)?.gender;if(gender){const requirement=document.createElement('p');requirement.className='item-gender-requirement';requirement.textContent='Giới tính: '+(gender==='Nu'?'Nữ':'Nam')+' · Dùng chung bốn class';requirement.style.color=gender===(P.ap.gender||'Nam')?'#9de0bd':'#ff9f9f';details.append(requirement);}
-      window.equipmentSystem?.describe(details,item);
+      details.replaceChildren();
+      const panel=document.createElement('div');panel.className='item-detail-panel';details.append(panel);
+      // Header: icon + name + stars + meta
+      const header=document.createElement('div');header.className='item-detail-header';panel.append(header);
+      const iconBox=document.createElement('div');iconBox.className='item-detail-icon';header.append(iconBox);
+      const iconImg=document.createElement('img');iconImg.src=itemIcon(item,item.slot);iconImg.alt='';iconBox.append(iconImg);
+      const info=document.createElement('div');info.className='item-detail-info';header.append(info);
+      const nameRow=document.createElement('div');nameRow.className='item-detail-name-row';info.append(nameRow);
+      const name=document.createElement('h4');name.textContent=item.name;name.style.color=RARITY[item.rarity].color;nameRow.append(name);
+      const rarityLabel=document.createElement('span');rarityLabel.className='rarity-label rarity-'+item.rarity+'-label';rarityLabel.textContent=RARITY[item.rarity].name;nameRow.append(rarityLabel);
+      const enhance=document.createElement('span');enhance.className='item-detail-enhance';enhance.textContent=equipmentProgression.level(item)?'+'+equipmentProgression.level(item):'';nameRow.append(enhance);
+      const stars=document.createElement('div');stars.className='item-detail-rarity-stars';info.append(stars);
+      const starCount={'pham':1,'huyen':2,'linh':3,'tien':4,'than':5}[item.rarity]||1;
+      for(let s=0;s<5;s++){const st=document.createElement('span');st.className='star'+(s<starCount?' filled':'');stars.append(st);}
+      const meta=document.createElement('div');meta.className='item-detail-meta';info.append(meta);
+      const slotLabel=document.createElement('span');slotLabel.className='meta-grade';slotLabel.textContent=SLOTS[item.slot]||item.type;meta.append(slotLabel);
+      const gradeLabel=document.createElement('span');gradeLabel.className='meta-level';gradeLabel.textContent='Bậc '+(item.req||0);meta.append(gradeLabel);
+      if(item.slot&&equipmentRules.enhanceSlots.includes(item.slot)){const lvlLabel=document.createElement('span');lvlLabel.className='meta-level';lvlLabel.textContent='Cường hóa '+(equipmentProgression.level(item)||0);meta.append(lvlLabel);}
+      const divider=document.createElement('div');divider.className='item-detail-divider';panel.append(divider);
+      // Stat lines with rarity colors
+      const statsBox=document.createElement('div');statsBox.className='item-detail-stats';panel.append(statsBox);
+      function addStat(nameText,valueText,rarityKey){const row=document.createElement('div');row.className='item-detail-stat';const nm=document.createElement('span');nm.className='stat-name';nm.textContent=nameText;const vl=document.createElement('span');vl.className='stat-value'+(rarityKey?' rarity-'+rarityKey:'');vl.textContent=valueText;row.append(nm,vl);statsBox.append(row);}
+      // Base stats from equipment data
+      const baseStats=[['Công',item.atk],['Máu',item.hp],['Linh',item.mp],['Giáp',item.armor],['Bạo kích',item.crit?Math.round(item.crit*100)+'%':0],['Né',item.dodge?Math.round(item.dodge*100)+'%':0],['Skill',item.skill?Math.round(item.skill*100)+'%':0]];
+      for(const [nm,val]of baseStats){if(val)addStat(nm,val+'',item.rarity);}
+      // Affix lines (option lines) colored by rarity
+      if(item.options&&item.options.length){for(const o of item.options){const keyMap={atk:'Công',hp:'HP',mp:'MP',armor:'Giáp',crit:'Bạo kích',dodge:'Né',skill:'Kỹ năng'};const kn=keyMap[o.key]||o.key;const unit=['crit','dodge'].includes(o.key)?'%':'';const val=(o.value/(['crit','dodge'].includes(o.key)?10:1)).toFixed(2);addStat(kn,'+'+val+unit,item.rarity);}}
+      if(item.heal)addStat('Hồi máu',item.heal+'',item.rarity);
+      if(item.mana)addStat('Hồi linh',item.mana+'',item.rarity);
+      if(item.xp)addStat('Đạo hạnh','+'+item.xp,item.rarity);
+      // Desc / awaken note
+      const desc=(equipmentData.byId.get(item.id)?.desc||item.desc||'');
+      if(desc){const d=document.createElement('div');d.className='item-detail-note';d.textContent=desc;panel.append(d);}
+      // Actions
+      const actions=document.createElement('div');actions.className='item-detail-actions';panel.append(actions);
+      function action(label,fn){const button=document.createElement('button');button.type='button';button.textContent=label;button.onclick=fn;actions.append(button);return button;}
+      if(equipmentRules.classSlots.includes(item.slot)){const req=document.createElement('div');req.className='item-detail-note';req.textContent='Class: '+equipmentRules.classes[item.classIndex]+(item.classIndex===P.ap.w?' · Đồng bộ':' · Không phù hợp');req.style.color=item.classIndex===P.ap.w?'#9de0bd':'#ff9f9f';panel.insertBefore(req,actions);}
       if(equipmentData.pool(item).length)action('Tẩy luyện · '+(60+(item.locks?.length||0)*25)+' ◈',()=>equipmentSystem.reforge(item.uid));
-      if(equipmentRules.enhanceSlots.includes(item.slot)){const note=document.createElement('p');note.textContent='Cường hóa tại NPC Luyện Khí trong Thiên Vân Thành.';details.append(note);}
+      if(equipmentRules.enhanceSlots.includes(item.slot)){action('Cường hóa',()=>{enhance(item.uid);dialog.close();});}
       if(item.type==='egg')action('Ấp trứng',()=>spiritPets.startHatch(item.uid));
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
-        if(item.slot)action('Trang bị',()=>equipItem(item.uid));if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
+        if(item.slot)action('Trang bị',()=>equipItem(item.uid));
+        if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
         action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
       }
     }

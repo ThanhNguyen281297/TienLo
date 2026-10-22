@@ -26,6 +26,10 @@ def init_db(db):
     CREATE TABLE IF NOT EXISTS community_ops(user_id INTEGER NOT NULL,operation_id TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(user_id,operation_id));
     CREATE TABLE IF NOT EXISTS world_boss_completions(encounter TEXT PRIMARY KEY);
     CREATE TABLE IF NOT EXISTS world_boss_state(id TEXT PRIMARY KEY,state TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS friends(user_id INTEGER NOT NULL REFERENCES users(id),friend_id INTEGER NOT NULL REFERENCES users(id),created_at REAL NOT NULL,PRIMARY KEY(user_id,friend_id));
+    CREATE TABLE IF NOT EXISTS friend_requests(id TEXT PRIMARY KEY,from_user_id INTEGER NOT NULL REFERENCES users(id),to_user_id INTEGER NOT NULL REFERENCES users(id),status TEXT NOT NULL DEFAULT 'pending',created_at REAL NOT NULL,expires_at REAL NOT NULL);
+    CREATE INDEX IF NOT EXISTS friend_lookup ON friends(user_id);
+    CREATE INDEX IF NOT EXISTS friend_request_to ON friend_requests(to_user_id,status);
     ''')
 
 
@@ -69,6 +73,13 @@ def snapshot(db,uid,peers):
     result['guilds']=[dict(r) for r in db.execute('SELECT g.id,g.name,g.points,COUNT(m.user_id) count FROM guilds g LEFT JOIN guild_members m ON m.guild_id=g.id GROUP BY g.id ORDER BY g.points DESC,g.created LIMIT 30')]
     result['rewards']=[{'id':r['id'],'title':r['title'],**json.loads(r['payload'])} for r in db.execute('SELECT * FROM community_rewards WHERE user_id=? AND claimed=0 ORDER BY created LIMIT 30',(uid,))]
     result['online']=[{'id':p['id'],'name':p['name'],'map':p['map']} for p in peers.values() if p['id']!=uid and time.monotonic()-p['seen']<15][:50]
+    # Danh sách bạn bè và lời mời kết bạn
+    friend_rows=db.execute('''SELECT f.friend_id id,json_extract(c.player,'$.nm') name,json_extract(c.player,'$.ap.w') sect FROM friends f JOIN characters c ON c.user_id=f.friend_id WHERE f.user_id=? ORDER BY f.created_at DESC LIMIT 100''',(uid,)).fetchall()
+    result['friends']=[{'id':r['id'],'name':r['name'],'sect':r['sect'],'online':bool(peers.get(r['id']))} for r in friend_rows]
+    req_rows=db.execute('''SELECT fr.id,fr.from_user_id id,json_extract(c.player,'$.nm') name FROM friend_requests fr JOIN characters c ON c.user_id=fr.from_user_id WHERE fr.to_user_id=? AND fr.status='pending' AND fr.expires_at>? ORDER BY fr.created_at DESC''',(uid,now)).fetchall()
+    result['friendRequests']=[{'id':r['id'],'id':r['id'],'name':r['name']} for r in req_rows]
+    sent_req_rows=db.execute('''SELECT fr.id,fr.to_user_id id,json_extract(c.player,'$.nm') name FROM friend_requests fr JOIN characters c ON c.user_id=fr.to_user_id WHERE fr.from_user_id=? AND fr.status='pending' AND fr.expires_at>? ORDER BY fr.created_at DESC''',(uid,now)).fetchall()
+    result['sentFriendRequests']=[{'id':r['id'],'id':r['id'],'name':r['name']} for r in sent_req_rows]
     return result
 
 
@@ -173,6 +184,32 @@ def action(db,uid,body,peers):
         reward=db.execute('SELECT * FROM community_rewards WHERE id=? AND user_id=? AND claimed=0',(body.get('id'),uid)).fetchone()
         if not reward:raise ValueError('Rương đã nhận hoặc không thuộc về bạn.')
         apply_reward(player,json.loads(reward['payload']));db.execute('UPDATE community_rewards SET claimed=1 WHERE id=?',(reward['id'],))
+    elif op=='friend_list':
+        pass
+    elif op=='friend_add':
+        if target is None or target==uid:raise ValueError('Chọn người chơi hợp lệ.')
+        if db.execute('SELECT 1 FROM friends WHERE user_id=? AND friend_id=?',(uid,target)).fetchone():raise ValueError('Đã là bạn bè.')
+        if db.execute('SELECT 1 FROM friends WHERE user_id=? AND friend_id=?',(target,uid)).fetchone():raise ValueError('Đã là bạn bè.')
+        existing=db.execute('SELECT * FROM friend_requests WHERE from_user_id=? AND to_user_id=? AND status=? AND expires_at>',(uid,target,'pending',now)).fetchone()
+        if existing:raise ValueError('Đã gửi lời mời kết bạn.')
+        rid=secrets.token_hex(12)
+        db.execute('INSERT INTO friend_requests VALUES(?,?,?,?,?,?)',(rid,uid,target,'pending',now,now+86400))
+    elif op=='friend_accept':
+        if not isinstance(body.get('id'),str):raise ValueError('Mã lời mời không hợp lệ.')
+        req=db.execute('SELECT * FROM friend_requests WHERE id=? AND to_user_id=? AND status=? AND expires_at>',(body.get('id'),uid,'pending',now)).fetchone()
+        if not req:raise ValueError('Lời mời kết bạn không tồn tại hoặc đã hết hạn.')
+        db.execute('UPDATE friend_requests SET status=? WHERE id=?',('accepted',body.get('id')))
+        db.execute('INSERT OR IGNORE INTO friends VALUES(?,?,?)',(req['from_user_id'],uid,now))
+        db.execute('INSERT OR IGNORE INTO friends VALUES(?,?,?)',(uid,req['from_user_id'],now))
+    elif op=='friend_decline':
+        if not isinstance(body.get('id'),str):raise ValueError('Mã lời mời không hợp lệ.')
+        db.execute('UPDATE friend_requests SET status=? WHERE id=? AND to_user_id=? AND status=?',('declined',body.get('id'),uid,'pending'))
+    elif op=='friend_remove':
+        if target is None or target==uid:raise ValueError('Chọn người chơi hợp lệ.')
+        db.execute('DELETE FROM friends WHERE user_id=? AND friend_id=?',(uid,target))
+        db.execute('DELETE FROM friends WHERE user_id=? AND friend_id=?',(target,uid))
+    elif op=='friend_requests':
+        pass
     else:raise ValueError('Thao tác không hợp lệ.')
     result={'ok':True,'changed':changed}
     if changed:
