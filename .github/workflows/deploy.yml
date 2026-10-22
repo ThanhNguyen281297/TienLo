@@ -35,11 +35,12 @@ jobs:
           python tests/test_mmorpg.py
           python tests/test_basic_effect_assets.py
           python tests/test_prune_releases.py
+          python tests/test_player_social.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done
           for file in deploy/*.sh; do bash -n "$file"; done
-          python -m compileall -q server.py community.py equipment.py progression.py expeditions.py duels.py adventure.py overworld.py forging.py deploy tests
+          python -m compileall -q server.py community.py trade.py equipment.py progression.py expeditions.py duels.py adventure.py overworld.py forging.py deploy tests
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

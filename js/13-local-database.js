@@ -51,6 +51,7 @@
   async function flush(){
     clearTimeout(timer);
     if(!state.ready||state.restoring||state.conflict||!P.ap)return;
+    if(window.tradeGame?.locked())return true;
     if(saving){pending=true;return new Promise(resolve=>saveWaiters.push(resolve));}
     saving=true;let ok=false;notice.textContent='Đang lưu…';
     try{
@@ -70,9 +71,10 @@
     catch(e){msg(e.message);logout.disabled=false;}
   };
   addEventListener('pagehide',()=>{
-    if(location.protocol!=='file:'&&state.ready&&!state.restoring&&!state.conflict&&P.ap&&!saving){navigator.sendBeacon('/api/characters',new Blob([JSON.stringify({csrf:state.csrf,revision:state.revision,player:snapshot()})],{type:'application/json'}));}
+    if(location.protocol!=='file:'&&state.ready&&!state.restoring&&!state.conflict&&P.ap&&!saving&&!window.tradeGame?.locked()){navigator.sendBeacon('/api/characters',new Blob([JSON.stringify({csrf:state.csrf,revision:state.revision,player:snapshot()})],{type:'application/json'}));}
   });
   async function transact(path,data,options={}){
+    if(path!=='/api/trade'&&window.tradeGame?.locked())throw new Error('Mở khóa giao dịch trước khi dùng dịch vụ.');
     if(state.restoring||!await flush())throw new Error('Chưa lưu được nhân vật. Hãy thử lại.');
     clearTimeout(timer);state.restoring=true;
     try{const result=await api(path,{...data,revision:state.revision});if(result.character){state.revision=result.character.revision;if(options.live){P.world.bag=structuredClone(result.character.player.world.bag);}else restore(result.character);}return result;}

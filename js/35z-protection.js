@@ -6,9 +6,7 @@
   // 1. Chặn hoàn toàn chuột phải trên toàn bộ trang web (capture phase - bắt sớm nhất)
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    return false;
+    // Keep game context menus reachable after suppressing the browser menu.
   }, true);
 
   // 2. Chặn F12 và tổ hợp phím mở Developer Tools / xem nguồn / lưu trang
@@ -47,44 +45,17 @@
 
   // 3. Chặn chọn văn bản và kéo thả (làm sạch giao diện game, tránh kéo ảnh/code)
   document.addEventListener('selectstart', function(e) {
+    if(e.target.closest?.('input,textarea,[contenteditable=true]'))return;
     e.preventDefault();
     e.stopImmediatePropagation();
     return false;
   }, true);
   document.addEventListener('dragstart', function(e) {
+    if(e.target.closest?.('[draggable=true],input,textarea,[contenteditable=true]'))return;
     e.preventDefault();
     e.stopImmediatePropagation();
     return false;
   }, true);
 
-  // 4. Làm mờ console nếu DevTools đã được mở trước khi script chạy
-  try {
-    var noop = function(){};
-    console.log = noop;
-    console.debug = noop;
-    console.info = noop;
-    console.warn = noop;
-    console.error = noop;
-    console.table = noop;
-    console.trace = noop;
-    console.dir = noop;
-    console.dirxml = noop;
-    console.group = noop;
-    console.groupCollapsed = noop;
-    console.groupEnd = noop;
-    console.time = noop;
-    console.timeEnd = noop;
-    console.profile = noop;
-    console.profileEnd = noop;
-    console.count = noop;
-    console.assert = noop;
-    console.clear = noop;
-    Object.defineProperty(window, 'console', {
-      configurable: false,
-      writable: false,
-      value: console
-    });
-  } catch (err) {
-    // Bỏ qua nếu môi trường không cho phép ghi đè console
-  }
+  // Keep diagnostic output available for real runtime failures.
 })();

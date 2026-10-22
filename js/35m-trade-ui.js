@@ -1,44 +1,29 @@
-/* Giao dịch giữa người chơi — gửi/nhận/lệnh mua bán vật phẩm ở vùng an toàn. */
+/* Both offers stay visible and versioned until both players lock and confirm. */
 (function(){
-  const world=worldMap,d=world.dialog;
-  const btn=document.createElement('button');btn.id='trade-button';btn.textContent='Giao dịch';btn.onclick=open;$('bt').append(btn);
-  const badge=document.createElement('span');badge.id='trade-badge';badge.className='community-badge';badge.hidden=true;badge.textContent='0';btn.appendChild(badge);
-  function open(){
-    if(!P.ap||paused()||d.isOpen())return;render();
-  }
-  async function load(){try{const res=await fetch('/api/trade');return await res.json();}catch(e){return {trade:{sent:[],received:[]}};}}
-  function render(){
-    d.show('Giao dịch','Trao đổi vật phẩm với người chơi khác tại vùng an toàn. Cả hai bên phải đồng ý.');
-    const content=$('world-content');content.replaceChildren();
-    const tabs=document.createElement('div');tabs.className='community-tabs';content.append(tabs);
-    for(const [id,label]of [['sent','Đã gửi'],['received','Đã nhận']]){
-      const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-pressed',String(panelMode===id));b.onclick=()=>{panelMode=id;render();};tabs.append(b);
-    }
-    const list=document.createElement('div');list.className='trade-list';content.append(list);
-    load().then(data=>renderOffers(data.trade||{sent:[],received:[]},list));
-  }
-  let panelMode='sent';
-  function renderOffers(trade,list){
-    list.replaceChildren();
-    const offers=panelMode==='sent'?trade.sent:trade.received;
-    if(!offers.length){list.textContent=panelMode==='sent'?'Chưa có lệnh giao dịch nào đang gửi.':'Không có lời mời giao dịch nào.';return;}
-    offers.forEach(o=>{
-      const card=document.createElement('div');card.className='trade-card';list.append(card);
-      const info=document.createElement('div');info.className='trade-info';card.append(info);
-      const nm=document.createElement('div');nm.className='trade-name';nm.textContent=(panelMode==='sent'?'Đến: ':'Từ: ')+o.name||'Người chơi';info.append(nm);
-      const status=document.createElement('div');status.className='trade-status';status.textContent=o.status;status.style.color=o.status==='pending'?'#cfb982':(o.status==='accepted'?'#8fd8a0':'#e08278');info.append(status);
-      const fromItems=document.createElement('div');fromItems.className='trade-items';fromItems.textContent='Bạn đưa: '+(o.items_from&&o.items_from.length?o.items_from.length+' món':'trống');card.append(fromItems);
-      const toItems=document.createElement('div');toItems.className='trade-items';toItems.textContent='Nhận lại: '+(o.items_to&&o.items_to.length?o.items_to.length+' món':'trống');card.append(toItems);
-      const act=document.createElement('div');act.className='trade-actions';card.append(act);
-      function tbtn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;act.append(b);return b;}
-      if(panelMode==='received'&&o.status==='pending'){
-        tbtn('Chấp nhận',async()=>{const sel=selectItemsForTrade();if(!sel)return;try{await account.transact('/api/trade',{action:'trade_accept',id:o.id,items_to:sel,operationId:crypto.randomUUID()});render();msg('Giao dịch thành công.');}catch(e){d.line(e.message);}});
-        tbtn('Từ chối',async()=>{try{await account.transact('/api/trade',{action:'trade_reject',id:o.id,operationId:crypto.randomUUID()});render();msg('Đã từ chối.');}catch(e){d.line(e.message);}});
-      }else if(panelMode==='sent'&&o.status==='pending'){
-        tbtn('Hủy',async()=>{try{await account.transact('/api/trade',{action:'trade_cancel',id:o.id,operationId:crypto.randomUUID()});render();msg('Đã hủy.');}catch(e){d.line(e.message);}});
-      }
-    });
-  }
-  function selectItemsForTrade(){return [];}
-  window.tradeGame={open,render,updateBadge:()=>{}};
+ const d=worldMap.dialog,state={data:null,id:null,busy:false,polling:false,settling:false,draft:[],gold:0,dirty:false},seen=new Set();let stamp='';
+ const node=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'';if(text!==undefined)e.textContent=text;return e;},uid=()=>account.state.user?.id;
+ const button=node('button','','Giao dịch');button.id='trade-button';button.onclick=()=>open();$('bt').append(button);const badge=node('span','community-badge');badge.hidden=true;button.append(badge);
+ const current=()=>state.data?.trades?.find(t=>t.id===state.id)||state.data?.trades?.find(t=>['pending','open'].includes(t.status));
+ const mine=t=>t?.offers[String(uid())],locked=()=>state.settling||!!(current()?.status==='open'&&current().expires>Date.now()/1000&&mine(current())?.locked);
+ function act(root,label,fn,disabled=false){const b=node('button','social-action',label);b.disabled=disabled;b.onclick=fn;root.append(b);return b;}
+ async function receive(data){const fresh=data.trades?.filter(t=>t.status==='completed'&&!seen.has(t.id))||[];
+  if(fresh.length&&data.currentRevision>account.state.revision){state.settling=true;try{const latest=await account.api('/api/characters');if(latest.character){account.state.revision=latest.character.revision;account.state.conflict=false;account.restore(latest.character);}}finally{state.settling=false;}}
+  for(const t of fresh){seen.add(t.id);msg('Giao dịch thành công.');}state.data=data;const count=data.trades.filter(t=>t.status==='pending'&&t.b===uid()).length;badge.hidden=!count;badge.textContent=count;
+ }
+ async function load(){if(state.polling||state.busy||!P.ap||!account.state.ready||account.state.restoring)return;state.polling=true;try{await receive(await account.api('/api/trade'));const clock=$('trade-seconds');if(clock&&current())clock.textContent=Math.max(0,Math.ceil(current().expires-Date.now()/1000))+'s';const next=JSON.stringify(state.data);if(d.isOpen()&&$('world-title').textContent==='Giao dịch'&&!state.dirty&&next!==stamp)render();}catch(e){if(d.isOpen()&&$('world-title').textContent==='Giao dịch')msg(e.message);}finally{state.polling=false;}}
+ async function call(action,extra={}){if(state.busy)return false;state.busy=true;try{const t=current(),data=await account.transact('/api/trade',{action,id:t?.id,version:t?.version,opId:crypto.randomUUID(),...extra});state.dirty=false;await receive(data);render();return true;}catch(e){msg(e.message);state.dirty=false;}finally{state.busy=false;}await load();render();return false;}
+ function cell(root,item,fn){const b=node('button','social-item');b.type='button';b.title=item?.name||'Ô giao dịch';b.setAttribute('aria-label',b.title);if(item){const img=node('img');img.src=inventory.itemIcon(item);img.alt='';b.append(img);if(item.qty>1)b.append(node('small','',item.qty));equipmentProgression.decorate(b,item);}if(fn)b.onclick=fn;root.append(b);return b;}
+ function render(){if(!state.data)return;stamp=JSON.stringify(state.data);d.show('Giao dịch','');const root=$('world-content'),t=current();
+  if(!t||!['pending','open'].includes(t.status)){root.append(node('p','social-empty',t?.status==='completed'?'✓ Đã trao đổi':t?.status==='expired'?'Lời mời hết hạn':'Chọn đạo hữu trong thành để giao dịch.'));for(const entry of state.data.trades.filter(t=>t.status==='pending'))act(root,entry.players.find(p=>p.id!==uid()).name,()=>{state.id=entry.id;render();});return;}
+  const other=t.players.find(p=>p.id!==uid());const head=node('header','trade-status-header'),clock=node('small','social-muted');clock.id='trade-seconds';head.append(node('b','',other.name),clock);root.append(head);clock.textContent=Math.max(0,Math.ceil(t.expires-Date.now()/1000))+'s';
+  if(t.status==='pending'){root.append(node('p','social-empty',t.b===uid()?'Mời trao đổi vật phẩm':'Đang chờ đồng ý…'));if(t.b===uid())act(root,'Đồng ý',()=>call('trade_accept'));act(root,t.b===uid()?'Từ chối':'Hủy lời mời',()=>call('trade_cancel'));return;}
+  const own=mine(t);if(!state.dirty){state.draft=own.items.map(i=>i.uid);state.gold=own.gold;}const board=node('div','trade-board');root.append(board);
+  for(const person of [...t.players].sort((a,b)=>(a.id===uid()?-1:1))){const offer=t.offers[String(person.id)],side=node('section','trade-side');board.append(side);side.append(node('h3','',person.id===uid()?'Bạn':person.name),node('small','trade-lock-state',offer.confirmed?'✓ Đã xác nhận':offer.locked?'🔒 Đã khóa':'Đang chọn'));const grid=node('div','trade-slots');side.append(grid);for(let i=0;i<8;i++)cell(grid,offer.items[i],offer.items[i]?()=>window.itemCards?.open(offer.items[i]):null);side.append(node('b','trade-currency','◈ '+offer.gold));}
+  if(!own.locked){const picker=node('div','trade-picker');root.append(picker);for(const item of P.world.bag.filter(i=>equipmentData.byId.has(i.id)||equipmentData.materials.some(m=>m.id===i.id))){const b=cell(picker,item,()=>{const i=state.draft.indexOf(item.uid);if(i>=0)state.draft.splice(i,1);else if(state.draft.length<8)state.draft.push(item.uid);else return msg('Tối đa 8 vật phẩm.');state.dirty=true;render();});b.classList.toggle('selected',state.draft.includes(item.uid));}
+   const label=node('label','trade-gold','◈ '),input=node('input');input.type='number';input.min=0;input.max=P.gold;input.step=1;input.value=state.gold;input.setAttribute('aria-label','Linh Thạch giao dịch');input.oninput=()=>{state.gold=Number(input.value);state.dirty=true;};label.append(input,node('small','',' / '+P.gold));root.append(label);act(root,'Đặt lên',()=>call('trade_offer',{items:state.draft,gold:state.gold}));}
+  const actions=node('div','social-actions');root.append(actions);act(actions,own.locked?'Mở khóa':'Khóa vật phẩm',async()=>{if(state.dirty&&!await call('trade_offer',{items:state.draft,gold:state.gold}))return;await call('trade_lock');});act(actions,own.confirmed?'Đã xác nhận':'Xác nhận trao đổi',()=>call('trade_confirm'),!Object.values(t.offers).every(o=>o.locked)||own.confirmed);act(actions,'Hủy',()=>call('trade_cancel'));
+ }
+ async function open(id){if(!P.ap||paused())return;if(id)state.id=id;state.dirty=false;await load();render();}
+ async function invite(target){worldMap.dialog.close();if(await call('trade_invite',{target})){state.id=state.data.trades.find(t=>['pending','open'].includes(t.status))?.id;render();}}
+ setInterval(load,900);addEventListener('tienlo-auth',()=>{state.data=null;state.id=null;state.dirty=false;seen.clear();});window.tradeGame={state,open,render,load,invite,locked,current,call,updateBadge:load};
 })();

@@ -463,6 +463,14 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/rankings':
                 with connect() as db: rows=db.execute("SELECT json_extract(player,'$.nm') AS name, json_extract(player,'$.ap.w') AS sect, json_extract(player,'$.r') AS realm, json_extract(player,'$.stage') AS stage, COALESCE(json_extract(player,'$.world.kills'),0) AS kills FROM characters ORDER BY realm DESC,stage DESC,kills DESC LIMIT 50").fetchall()
                 return self.reply(200,[dict(name=r['name'],sect=SECTS[r['sect']],realm=r['realm'],stage=r['stage'],kills=r['kills']) for r in rows])
+            if path=='/api/player/info':
+                from urllib.parse import parse_qs
+                try:
+                    target=int(parse_qs(urlsplit(self.path).query).get('id',['0'])[0])
+                    with WORLD_LOCK, DB_LOCK, connect() as db:
+                        result=trade.public(db,target,PEERS,True)
+                except ValueError:return self.reply(404,{'error':'Không tìm thấy nhân vật.'})
+                return self.reply(200,result)
             if path.startswith('/api/player/lookup'):
                 qs=urlsplit(self.path).query
                 from urllib.parse import parse_qs
@@ -507,6 +515,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             return self.reply(200,{'ok':True},self.cookie(clear=True))
         if path=='/api/equipment': return self.equipment(user,body)
         if path=='/api/community': return self.community(user,body)
+        if path=='/api/trade': return self.trade(user,body)
         if path=='/api/duel': return self.duel(user,body)
         if path=='/api/expedition': return self.expedition(user,body)
         if path=='/api/adventure': return self.adventure(user,body)
@@ -580,6 +589,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
             row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
+            if trade.locked(db,uid):return self.reply(409,{'error':'Mở khóa giao dịch trước khi đổi hành trang.'})
             if row and row['revision']!=revision: return self.reply(409,{'error':'Nhân vật đã được cập nhật ở phiên khác. Tải lại để tiếp tục.','conflict':True})
             equipment_rules.validate(player,db,uid)
             if not user['gm']:
@@ -613,6 +623,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         try:
             with DB_LOCK, connect() as db:
                 db.execute('BEGIN IMMEDIATE')
+                if body is not None and trade.locked(db,user['user_id']):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
                 row=db.execute('SELECT player FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
                 if not row:raise ValueError('Hãy tạo nhân vật trước.')
                 result=(forging.action(db,user['user_id'],body,bool(user['gm'])) if body.get('action')=='enhance' else equipment_rules.action(db,user['user_id'],body)) if body is not None else {'shield':equipment_rules.shield_state(db,user['user_id'],json.loads(row['player']))}
@@ -623,10 +634,11 @@ class GameHandler(SimpleHTTPRequestHandler):
         try:
             with WORLD_LOCK, DB_LOCK, connect() as db:
                 db.execute('BEGIN IMMEDIATE')
+                if body is not None and trade.locked(db,user['user_id']):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
                 result=community.action(db,user['user_id'],body,PEERS) if body is not None else community.snapshot(db,user['user_id'],PEERS)
                 # Gộp dữ liệu giao dịch vào snapshot khi GET
                 if body is None:
-                    result={**result,**trade.snapshot(db,user['user_id'])}
+                    result={**result,**trade.snapshot(db,user['user_id'],PEERS)}
             return self.reply(200,result)
         except community.Conflict as error:return self.reply(409,{'error':str(error),'conflict':True})
         except ValueError as error:return self.reply(409,{'error':str(error)})
@@ -635,8 +647,9 @@ class GameHandler(SimpleHTTPRequestHandler):
         try:
             with WORLD_LOCK, DB_LOCK, connect() as db:
                 db.execute('BEGIN IMMEDIATE')
-                result=trade.snapshot(db,user['user_id']) if body is None else trade.action(db,user['user_id'],body,PEERS)
+                result=trade.snapshot(db,user['user_id'],PEERS) if body is None else trade.action(db,user['user_id'],body,PEERS)
             return self.reply(200,result)
+        except trade.Conflict as error:return self.reply(409,{'error':str(error),'conflict':True})
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
     def duel(self,user,body=None):
@@ -649,6 +662,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         try:
             with DB_LOCK, connect() as db:
                 db.execute('BEGIN IMMEDIATE')
+                if body is not None and trade.locked(db,user['user_id']):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
                 row=db.execute('SELECT player FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
                 if not row:raise ValueError('Hãy tạo nhân vật trước.')
                 result=adventure.snapshot(db,user['user_id'],json.loads(row['player'])) if body is None else adventure.action(db,user['user_id'],body,bool(user['gm']))
@@ -659,6 +673,7 @@ class GameHandler(SimpleHTTPRequestHandler):
     def expedition(self,user,body=None):
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
+            if body is not None and trade.locked(db,user['user_id']):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
             result={'pending':expeditions.pending(db,user['user_id']),'drops':[dict(equipment_rules.TEMPLATES[r['item_id']],dropId=r['id']) for r in db.execute('SELECT id,item_id FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL ORDER BY created_at,id LIMIT 30',(user['user_id'],)).fetchall()]} if body is None else expeditions.claim(db,user['user_id'],body)
         return self.reply(409 if result.get('conflict') else 200,result)
 

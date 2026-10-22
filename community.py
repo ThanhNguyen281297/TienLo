@@ -75,11 +75,11 @@ def snapshot(db,uid,peers):
     result['online']=[{'id':p['id'],'name':p['name'],'map':p['map']} for p in peers.values() if p['id']!=uid and time.monotonic()-p['seen']<15][:50]
     # Danh sách bạn bè và lời mời kết bạn
     friend_rows=db.execute('''SELECT f.friend_id id,json_extract(c.player,'$.nm') name,json_extract(c.player,'$.ap.w') sect FROM friends f JOIN characters c ON c.user_id=f.friend_id WHERE f.user_id=? ORDER BY f.created_at DESC LIMIT 100''',(uid,)).fetchall()
-    result['friends']=[{'id':r['id'],'name':r['name'],'sect':r['sect'],'online':bool(peers.get(r['id']))} for r in friend_rows]
-    req_rows=db.execute('''SELECT fr.id,fr.from_user_id id,json_extract(c.player,'$.nm') name FROM friend_requests fr JOIN characters c ON c.user_id=fr.from_user_id WHERE fr.to_user_id=? AND fr.status='pending' AND fr.expires_at>? ORDER BY fr.created_at DESC''',(uid,now)).fetchall()
-    result['friendRequests']=[{'id':r['id'],'id':r['id'],'name':r['name']} for r in req_rows]
-    sent_req_rows=db.execute('''SELECT fr.id,fr.to_user_id id,json_extract(c.player,'$.nm') name FROM friend_requests fr JOIN characters c ON c.user_id=fr.to_user_id WHERE fr.from_user_id=? AND fr.status='pending' AND fr.expires_at>? ORDER BY fr.created_at DESC''',(uid,now)).fetchall()
-    result['sentFriendRequests']=[{'id':r['id'],'id':r['id'],'name':r['name']} for r in sent_req_rows]
+    result['friends']=[{'id':r['id'],'name':r['name'],'sect':r['sect'],'online':time.monotonic()-peers.get(r['id'],{}).get('seen',-1000)<15} for r in friend_rows]
+    req_rows=db.execute('''SELECT fr.id,fr.from_user_id playerId,json_extract(c.player,'$.nm') name FROM friend_requests fr JOIN characters c ON c.user_id=fr.from_user_id WHERE fr.to_user_id=? AND fr.status='pending' AND fr.expires_at>? ORDER BY fr.created_at DESC''',(uid,now)).fetchall()
+    result['friendRequests']=[{'id':r['id'],'playerId':r['playerId'],'name':r['name']} for r in req_rows]
+    sent_req_rows=db.execute('''SELECT fr.id,fr.to_user_id playerId,json_extract(c.player,'$.nm') name FROM friend_requests fr JOIN characters c ON c.user_id=fr.to_user_id WHERE fr.from_user_id=? AND fr.status='pending' AND fr.expires_at>? ORDER BY fr.created_at DESC''',(uid,now)).fetchall()
+    result['sentFriendRequests']=[{'id':r['id'],'playerId':r['playerId'],'name':r['name']} for r in sent_req_rows]
     return result
 
 
@@ -188,15 +188,18 @@ def action(db,uid,body,peers):
         pass
     elif op=='friend_add':
         if target is None or target==uid:raise ValueError('Chọn người chơi hợp lệ.')
+        if db.execute("SELECT COUNT(*) FROM friend_requests WHERE from_user_id=? AND status='pending' AND expires_at>?",(uid,now)).fetchone()[0]>=30:raise ValueError('Đang có quá nhiều lời mời.')
+        for owner in (uid,target):
+            if db.execute('SELECT COUNT(*) FROM friends WHERE user_id=?',(owner,)).fetchone()[0]>=100:raise ValueError('Danh sách bạn bè đã đủ 100 người.')
         if db.execute('SELECT 1 FROM friends WHERE user_id=? AND friend_id=?',(uid,target)).fetchone():raise ValueError('Đã là bạn bè.')
         if db.execute('SELECT 1 FROM friends WHERE user_id=? AND friend_id=?',(target,uid)).fetchone():raise ValueError('Đã là bạn bè.')
-        existing=db.execute('SELECT * FROM friend_requests WHERE from_user_id=? AND to_user_id=? AND status=? AND expires_at>',(uid,target,'pending',now)).fetchone()
+        existing=db.execute('SELECT * FROM friend_requests WHERE from_user_id=? AND to_user_id=? AND status=? AND expires_at>?',(uid,target,'pending',now)).fetchone()
         if existing:raise ValueError('Đã gửi lời mời kết bạn.')
         rid=secrets.token_hex(12)
         db.execute('INSERT INTO friend_requests VALUES(?,?,?,?,?,?)',(rid,uid,target,'pending',now,now+86400))
     elif op=='friend_accept':
         if not isinstance(body.get('id'),str):raise ValueError('Mã lời mời không hợp lệ.')
-        req=db.execute('SELECT * FROM friend_requests WHERE id=? AND to_user_id=? AND status=? AND expires_at>',(body.get('id'),uid,'pending',now)).fetchone()
+        req=db.execute('SELECT * FROM friend_requests WHERE id=? AND to_user_id=? AND status=? AND expires_at>?',(body.get('id'),uid,'pending',now)).fetchone()
         if not req:raise ValueError('Lời mời kết bạn không tồn tại hoặc đã hết hạn.')
         db.execute('UPDATE friend_requests SET status=? WHERE id=?',('accepted',body.get('id')))
         db.execute('INSERT OR IGNORE INTO friends VALUES(?,?,?)',(req['from_user_id'],uid,now))
@@ -204,6 +207,9 @@ def action(db,uid,body,peers):
     elif op=='friend_decline':
         if not isinstance(body.get('id'),str):raise ValueError('Mã lời mời không hợp lệ.')
         db.execute('UPDATE friend_requests SET status=? WHERE id=? AND to_user_id=? AND status=?',('declined',body.get('id'),uid,'pending'))
+    elif op=='friend_cancel':
+        if not isinstance(body.get('id'),str):raise ValueError('Mã lời mời không hợp lệ.')
+        db.execute('UPDATE friend_requests SET status=? WHERE id=? AND from_user_id=? AND status=?',('cancelled',body.get('id'),uid,'pending'))
     elif op=='friend_remove':
         if target is None or target==uid:raise ValueError('Chọn người chơi hợp lệ.')
         db.execute('DELETE FROM friends WHERE user_id=? AND friend_id=?',(uid,target))
