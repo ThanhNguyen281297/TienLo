@@ -61,6 +61,18 @@ Bốn loài này dùng sprite sheet riêng trong `Map/sprite-catalog.json` (6 kh
 
 Đợt tính năng "Nhiệm vụ và NPC hội thoại" sẽ cần thêm NPC (thương nhân, dược sư, truyền tống sư, thủ kho). Khi đó mình sẽ gửi prompt cho một atlas `city-v2.png` 6 × 8 hàng và sửa loader.
 
+## 5b. NPC chibi trong thành (atlas hoạt ảnh)
+
+Hiện bốn NPC thành dùng ảnh tĩnh `Character/NPC/{nhiemvu,thoren,dautruong,bxh}.png` và được tạo chuyển động bằng code (thở, vạt áo, hiệu ứng). Để có hoạt ảnh vẽ tay:
+
+- **File**: `Character/NPC/Motion/chibi-v1.png`, canvas **1536×1024**, lưới **6 cột × 4 hàng**, ô 256×256, chân ở y=250.
+- **Thứ tự hàng**: 1 `nhiemvu` (Vân Châu), 2 `thoren` (thợ rèn), 3 `dautruong` (võ tướng), 4 `bxh` (học giả bảng xếp hạng).
+- **Tham chiếu**: đưa cả bốn ảnh tĩnh vào ImageGen.
+
+> Production sprite animation atlas for a 2D chibi xianxia MMORPG, transparent PNG, strict grid 6 columns by 4 rows of 256 px cells, feet anchored at y=250 in every cell, identical scale within a row. Each row is the EXACT character from its reference (same round meme face, costume, colors and props): row 1 red-and-gold fire robe quest giver holding a scroll — bow, raise scroll, flames swirl, return to idle; row 2 blue-haired blacksmith with hammer and tongs — raise hammer, strike, sparks, recover; row 3 red-armoured spear general — weight shift, spear tilt, cape flutter, return; row 4 golden scholar with ranking tablet — tablet glows, page turns, aura pulse, return. Six consecutive keyframes per row, loop back to frame 1. Crisp outline, one upper-left light, no background, no floor, no shadow, no text, nothing crossing cell borders, 10% transparent margin in each cell.
+
+Sau khi có file, sửa một dòng trong `js/35r-npc-animation.js`: `const ATLAS=null` → `const ATLAS='Character/NPC/Motion/chibi-v1.png'`. Hiệu ứng lửa, tia lửa và hào quang vẫn giữ.
+
 ## 6. Icon trang bị
 
 - **File**: giữ đúng tên trong `Item/<VuKhi|Ao|Chan|Giay|PhapBao|PhapTran|Thuan|Nhan|MatNa|...>/`. Canvas vuông, giữ kích thước cũ.

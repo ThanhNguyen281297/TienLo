@@ -36,8 +36,8 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    assert(await page.evaluate(()=>worldMap.buildings.length>100));assert(await page.evaluate(()=>E.every(e=>typeof e.name==='string'&&!e.name.includes('undefined'))));
   }
   await page.evaluate(()=>{worldMap.switchScene('field-meadow');});await page.waitForFunction(()=>E.length===48&&E.every(e=>e.map==='field-meadow'),null,{polling:100});await page.evaluate(()=>{P.x=440;P.y=1410;hud();worldMap.updateInterface();dr();});await page.screenshot({path:path.join(__dirname,'artifacts/mmorpg-hunting-camp.png')});
-  // Same NPC sheet supplies six actual poses per role.
-  await page.waitForFunction(()=>npcAnimation.image.complete&&npcAnimation.image.naturalWidth,null,{polling:100});
+  // Chibi NPC paintings from Character/NPC, animated procedurally: six distinct poses per role.
+  await page.waitForFunction(()=>Object.values(npcAnimation.images).every(i=>i.complete&&i.naturalWidth),null,{polling:100});
   assert.equal(await page.evaluate(()=>{const hashes=new Set(),c=document.createElement('canvas');c.width=120;c.height=100;const ctx=c.getContext('2d');for(let n=0;n<6;n++){ctx.clearRect(0,0,120,100);worldMap.environmentClock=n*.5;creatureArt.drawNpc(ctx,{id:'forge',x:60,y:90});hashes.add(c.toDataURL());}return hashes.size;}),6);
   await page.evaluate(()=>{worldMap.switchScene('hub');P.x=1200;P.y=1100;hud();dr();});await page.screenshot({path:path.join(__dirname,'artifacts/mmorpg-city-npc.png')});
   await page.setViewportSize({width:844,height:390});await page.evaluate(()=>{worldMap.handleService('forge');});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:path.join(__dirname,'artifacts/mmorpg-forge-mobile.png')});
