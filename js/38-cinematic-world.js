@@ -12,13 +12,13 @@
   function paintHaze(w,h){
     hz.clearRect(0,0,w,h);
     let g=hz.createLinearGradient(0,0,0,h*.36);
-    g.addColorStop(0,'rgba(128,172,196,.24)');g.addColorStop(.55,'rgba(128,172,196,.08)');g.addColorStop(1,'rgba(128,172,196,0)');
+    g.addColorStop(0,'rgba(128,172,196,.12)');g.addColorStop(.55,'rgba(128,172,196,.04)');g.addColorStop(1,'rgba(128,172,196,0)');
     hz.fillStyle=g;hz.fillRect(0,0,w,h*.36);
     g=hz.createLinearGradient(0,h*.66,0,h);
-    g.addColorStop(0,'rgba(8,22,40,0)');g.addColorStop(1,'rgba(8,22,40,.30)');
+    g.addColorStop(0,'rgba(8,22,40,0)');g.addColorStop(1,'rgba(8,22,40,.20)');
     hz.fillStyle=g;hz.fillRect(0,h*.66,w,h*.34);
     g=hz.createRadialGradient(w*.5,h*.48,Math.min(w,h)*.34,w*.5,h*.48,Math.max(w,h)*.74);
-    g.addColorStop(0,'rgba(10,26,46,0)');g.addColorStop(1,'rgba(10,26,46,.20)');
+    g.addColorStop(0,'rgba(10,26,46,0)');g.addColorStop(1,'rgba(10,26,46,.12)');
     hz.fillStyle=g;hz.fillRect(0,0,w,h);
   }
 
@@ -29,7 +29,7 @@
     for(let i=0;i<3;i++){
       const x0=w*(.06+i*.27+.03*Math.sin(t*.15+i*2.1)*(reduced.matches?0:1)),bandWidth=w*(.09+i*.012),drift=w*(.34+.03*sway);
       const g=lt.createLinearGradient(x0,0,x0+drift,h);
-      const a=.085-i*.014;
+      const a=.045-i*.008; // sun shafts kept faint so terrain detail stays crisp
       g.addColorStop(0,'rgba(255,230,176,'+a+')');g.addColorStop(.55,'rgba(255,226,170,'+a*.4+')');g.addColorStop(1,'rgba(255,226,170,0)');
       lt.fillStyle=g;lt.beginPath();
       lt.moveTo(x0,0);lt.lineTo(x0+bandWidth,0);lt.lineTo(x0+bandWidth+drift,h);lt.lineTo(x0+drift,h);lt.closePath();lt.fill();

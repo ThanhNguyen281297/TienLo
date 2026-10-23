@@ -135,10 +135,10 @@
   if(world.state.scene!=='hub')for(const zone of world.living.zones()){
    if(!visible(zone,cx,cy,vw,vh,180))continue;
    for(let n=0;n<2;n++){const x=zone.x-zone.rx*.7+n*zone.rx*.65+wind(t*.35,n+zone.x)*15,y=zone.y+zone.ry+32+n*18,w=zone.rx*.95;
-    ctx.globalAlpha=.13+n*.03;renderArtwork(ctx,image,x,y,w,w*image.naturalHeight/image.naturalWidth);}
+    ctx.globalAlpha=.07+n*.02;renderArtwork(ctx,image,x,y,w,w*image.naturalHeight/image.naturalWidth);}
   }
   // A near layer passes the edge of the viewport, preserving the center.
-  for(let n=0;n<2;n++){const x=cx+fract(t*.008+n*.53)*(vw+280)-180,y=cy+vh-12+n*15;ctx.globalAlpha=.085;renderArtwork(ctx,image,x,y,250,250*image.naturalHeight/image.naturalWidth);}ctx.restore();
+  for(let n=0;n<2;n++){const x=cx+fract(t*.008+n*.53)*(vw+280)-180,y=cy+vh-12+n*15;ctx.globalAlpha=.045;renderArtwork(ctx,image,x,y,250,250*image.naturalHeight/image.naturalWidth);}ctx.restore();
  }
  function drawPortalPad(ctx,service,t){
   const image=world.mapThemes.load('theme-11-059');if(!ready(image))return;const near=Math.hypot(P.x-service.x,P.y-service.y)<62;
