@@ -32,11 +32,14 @@
   const source=raster(f,Math.max(32,Math.min(768,Math.round(h*scale*Z)))),s=creatureArt.reaction(e),kick=Math.sin(Math.min(1,(s.impact||0)/.2)*Math.PI);
   g.save();g.imageSmoothingQuality='high';if(e.corpse)g.globalAlpha=Math.max(0,Math.min(1,(.95-e.age)*3));
   g.translate(e.x+(s.recoilX||0)*kick,e.y+(s.recoilY||0)*kick);if((P.x>e.x+3)!==f.faceRight)g.scale(-1,1);
-  const dx=-f.anchor[0]*scale,dy=-f.anchor[1]*scale;g.drawImage(source,dx,dy,w*scale,h*scale);g.restore();
+  // Anchor at the lowest solid pixels of the frame so feet touch the ground.
+  const pad=(window.groundPad?.(f.image,sx,sy,w,Math.min(h,f.anchor[1]))||0)*Math.min(h,f.anchor[1]);
+  const dx=-f.anchor[0]*scale,dy=-(f.anchor[1]-pad)*scale;g.drawImage(source,dx,dy,w*scale,h*scale);g.restore();
   if(e.corpse)return;fieldEffects.draw(g,e,height);
-  const bw=e.boss?64:38,y=e.y-height-8,ratio=Math.max(0,e.hp/e.maxHp);
+  const bw=e.boss?64:38,y=e.y-height-8,ratio=Math.max(0,e.hp/e.maxHp),selected=window.cultivation?.basicSelection?.().target===e,named=selected||e.boss||e.elite;
+  if(!named&&ratio>=.999)return;
   g.save();g.fillStyle='#16262bdd';g.fillRect(e.x-bw/2-1,y-1,bw+2,5);g.fillStyle=e.boss?'#f1b373':'#d56866';g.fillRect(e.x-bw/2,y,bw*ratio,3);
-  drawWorldCaption(g,(e.boss?'◆ ':'')+e.name+' · Lv.'+e.level,e.x,y-4,e.boss?'#ffdf9c':'#e1e8d8',e.boss?7:6.3);g.restore();
+  if(named)drawWorldCaption(g,e.level+' '+e.name,e.x,y-4,e.boss?'#ffdf9c':'#e1e8d8',e.boss?7:6.3);g.restore();
  };
  const previousFrame=creatureArt.frame;creatureArt.frame=e=>pose(e)||previousFrame(e);
  creatureArt.ensureSpecies=name=>kinds.get(name)?.ensure();

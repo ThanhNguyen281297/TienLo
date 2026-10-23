@@ -67,14 +67,16 @@
   }
   function shadow(ctx,x,y,width){
     if(!contactShadow){contactShadow=document.createElement('canvas');contactShadow.width=96;contactShadow.height=24;
-      const c=contactShadow.getContext('2d');c.scale(1,.25);const gradient=c.createRadialGradient(48,48,0,48,48,48);gradient.addColorStop(0,'#07141a45');gradient.addColorStop(1,'#07141a00');c.fillStyle=gradient;c.fillRect(0,0,96,96);}
+      const c=contactShadow.getContext('2d');c.scale(1,.25);const gradient=c.createRadialGradient(48,48,0,48,48,48);gradient.addColorStop(0,'#07141a80');gradient.addColorStop(.55,'#07141a40');gradient.addColorStop(1,'#07141a00');c.fillStyle=gradient;c.fillRect(0,0,96,96);}
     ctx.drawImage(contactShadow,x-width/2,y-3,width,8);
   }
   mon=function(e){const f=frame(e);if(!ready(f.image))return;
     const height=f.kind.height*(e.t===2?1.45:e.elite?1.2:1),rect=f.rect,scale=height/f.sourceHeight*1.12,width=rect.w*scale;
     const bob=(e.skin||T[e.t].skin)==='Doi'&&!e.corpse?Math.sin(clock*5+state(e).phase)*2-5:0;
     const sprite=raster(f.image,f.image.naturalHeight*scale);
-    const drawX=-width/2-f.padding*scale,drawY=-(rect.h+f.padding)*scale;
+    // Plant the lowest solid pixels of this pose on the ground point (bats keep hovering).
+    const flying=(e.skin||T[e.t].skin)==='Doi',ground=rect.h+f.padding,pad=flying?0:(window.groundPad?.(f.image,0,0,f.image.naturalWidth,Math.min(f.image.naturalHeight,ground))||0)*Math.min(f.image.naturalHeight,ground);
+    const drawX=-width/2-f.padding*scale,drawY=-(rect.h+f.padding-pad)*scale;
     g.save();g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';if(e.corpse)g.globalAlpha=Math.max(0,Math.min(1,(.95-e.age)*3));
     shadow(g,e.x,e.y,Math.max(14,width*.72));
     // The visible pose ends at the same ground anchor for idle, move and hurt.

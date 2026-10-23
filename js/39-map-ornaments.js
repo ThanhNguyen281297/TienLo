@@ -71,7 +71,7 @@
     const put=(kind,x,y,options={})=>{
       const d=describe(kit,kind,options.use||pick(kit[kind]));if(!d)return false;
       const r=Math.max(10,d.w*(kind==='tree'?.28:.4));if(!free(x,y,r*(options.spacing??1),options.rim))return false;
-      items.push({...d,x,y,r,solid:!options.rim&&(options.solid??(kind==='lamp'||kind==='tree'||(kind==='rock'&&d.h>=24))),
+      items.push({...d,kind,x,y,r,solid:!options.rim&&(options.solid??(kind==='lamp'||kind==='tree'||(kind==='rock'&&d.h>=24))),
         glow:kind==='lamp'?{rgb:kit.glow,dy:.84,radius:d.h*(coarse.matches?.95:1.15),a:.36}:kind==='crystal'?{rgb:kit.cool,dy:.55,radius:d.h*1.4,a:.38}:null,
         sway:kind==='tree'||kind==='flower'?(kind==='tree'?.012:.03):0,phase:rand()*6.28});
       return true;
@@ -329,4 +329,5 @@
     }catch(e){g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
   };
   world.ornaments={current,kits:KITS,count:()=>current()?.items.length||0};
+  world.ornamentItems=()=>current()?.items||[];
 })();

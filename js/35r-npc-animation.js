@@ -47,7 +47,7 @@
   const h=HEIGHT[key],pixels=Math.max(48,Math.min(640,Math.round(h*(window.Z||2)/2)*2)),src=raster(key,pixels),w=h*src.width/src.height;
   const t=reduced.matches?0:(worldMap.environmentClock||0)+(s.x%37)*.11;
   const breathe=1+.014*Math.sin(t*2.1),sway=Math.sin(t*1.25),bob=Math.sin(t*2.1+.6)*.6;
-  const strips=30,sh=src.height/strips,scale=h/src.height,top=s.y-h*breathe;
+  const foot=(window.groundPad?.(src)||0)*h,strips=30,sh=src.height/strips,scale=h/src.height,top=s.y-h*breathe+foot;
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   for(let i=0;i<strips;i++){
    const v=i/strips,next=(i+1)/strips;
