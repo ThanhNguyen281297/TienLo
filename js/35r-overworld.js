@@ -5,16 +5,27 @@
  const spawn={x:1000,y:1770};
  const ground=new Image();ground.src=artworkURL('Map/Terrain/meadow-v1.png');const dirt=new Image();dirt.src=artworkURL('Map/Terrain/dirt-v1.png');const roadLayers=new Map();
  const paths=[[[1000,1860],[1000,1450],[970,1120],[1040,700],[1000,120]],[[1000,1400],[440,1320]],[[1000,1400],[1500,1320]],[[985,950],[430,850]],[[985,950],[1500,850]],[[1030,490],[550,370]],[[1030,490],[1430,370]]];
+ // Per-zone identity: ground/road colour, flora and small ground details.
+ const PLANTS=new Set(['pineTree','whiteBlossom','theme-14-035','theme-14-036','theme-14-038','theme-14-045','theme-14-063','theme-12-017','theme-13-012']);
+ const STYLE={
+  'field-meadow':{base:'#596c3f',ground:'none',road:'none',plants:['pineTree','whiteBlossom','pineTree','theme-14-036'],small:['theme-14-055','theme-14-056','theme-14-060']},
+  'field-bamboo':{base:'#33503a',ground:'hue-rotate(18deg) saturate(.85) brightness(.74) contrast(1.06)',road:'saturate(.5) brightness(.66) hue-rotate(28deg)',plants:['theme-14-035','theme-14-038','theme-14-045','theme-14-063','pineTree'],small:['theme-14-057','theme-14-058','theme-14-061','theme-14-062']},
+  'field-marsh':{base:'#4a6763',ground:'hue-rotate(58deg) saturate(.6) brightness(.8)',road:'saturate(.35) brightness(.82) hue-rotate(60deg)',plants:['theme-12-017','theme-12-024','theme-12-020','whiteBlossom'],small:['theme-12-021','theme-12-033','theme-14-060','theme-14-061']},
+  'field-frost':{base:'#9baea7',ground:'saturate(.15) brightness(1.5)',road:'saturate(.2) brightness(1.25)',plants:['theme-10-058','theme-10-059','pineTree','theme-10-015'],small:['theme-10-034','theme-10-035','theme-10-052','theme-10-053']},
+  'field-ember':{base:'#3a2620',ground:'sepia(1) saturate(1.6) hue-rotate(-25deg) brightness(.5) contrast(1.15)',road:'sepia(.6) saturate(1.2) hue-rotate(-20deg) brightness(.55)',plants:['theme-15-046','theme-15-047','theme-15-039','theme-13-012','theme-15-045'],small:['theme-15-032','theme-15-051','theme-15-002','theme-15-010']},
+  'field-abyss':{base:'#241f30',ground:'grayscale(.5) sepia(.3) hue-rotate(210deg) saturate(.7) brightness(.42) contrast(1.1)',road:'grayscale(.6) hue-rotate(220deg) brightness(.45)',plants:['theme-11-057','theme-11-038','theme-11-050','theme-11-047'],small:['theme-11-069','theme-11-070','theme-11-073','theme-11-049']}
+ };
+ const style=m=>STYLE[m.id]||STYLE['field-meadow'];
  const roadDistance=p=>Math.min(...paths.flatMap(route=>route.slice(1).map((b,i)=>kiemCombat.segmentDistance(p,{x:route[i][0],y:route[i][1]},{x:b[0],y:b[1]}))));
  for(const m of rules.maps){world.sectMaps[m.id]={...m,spawn};world.mapThemes.themes[m.id]={...world.mapThemes.themes[m.theme],name:m.name};world.atmosphere.profiles[m.id]={...world.atmosphere.profiles[m.theme]};}
  world.regions.splice(0,world.regions.length,...world.regions.filter(r=>r.id!=='valley'),...rules.maps.map(m=>({...m,...spawn,description:'Quái Lv.'+m.level+'–'+(m.level+2)+' · Yêu cầu Lv.'+m.entry})));
  function props(m){if(cache.has(m.id))return cache.get(m.id);let seed=rules.maps.indexOf(m)+317;const random=()=>((seed=seed*16807%2147483647)/2147483647),result=[];
-  const plants=m.ground==='frost'?['whiteBlossom','pineTree']:m.ground==='ember'?['rock','rock']:['pineTree','whiteBlossom','pineTree'];
+  const look=style(m),plants=look.plants;
   for(let n=0;n<520;n++){
    const p={x:110+random()*1780,y:110+random()*1780},nearCamp=rules.camps.some(c=>Math.hypot((p.x-c.x)/1.2,p.y-c.y)<150),nearSpawn=Math.hypot(p.x-spawn.x,p.y-spawn.y)<155;
    if(roadDistance(p)<64||nearCamp||nearSpawn||result.some(b=>Math.hypot(b.x-p.x,b.y-p.y)<43))continue;
-   const small=random()<.58,key=small?(m.ground==='ember'?'rock':m.ground==='frost'?'crystalPillar':['theme-14-055','theme-14-056','theme-14-036'][n%3]):plants[n%plants.length],w=small?20+random()*14:72+random()*55;
-   result.push({...p,key,w,plant:key!=='rock',solid:small?null:[-10,-6,10,5]});
+   const small=random()<.58,key=small?look.small[n%look.small.length]:plants[n%plants.length],w=small?20+random()*14:72+random()*55;
+   result.push({...p,key,w,plant:PLANTS.has(key),solid:small?null:[-10,-6,10,5]});
   }
   // Landmarks occupy the edges, leaving paths and combat circles clear.
   result.push({key:'lantern',x:930,y:1760,w:24},{key:'lantern',x:1070,y:1760,w:24},{key:'portal',x:1000,y:1840,w:40},
@@ -46,16 +57,16 @@
  const view=gameCamera;gameCamera=(vw=W/Z,vh=H/Z)=>current()?world.camera(vw,vh):view(vw,vh);
  const title=world.sceneTitle;world.sceneTitle=()=>current()?current().name+' · Quái Lv.'+current().level+'–'+(current().level+2):title();
  const floor=drawGround,patterns=new Map();
- function texture(m){if(!ready(ground))return null;if(patterns.has(m.id))return patterns.get(m.id);const c=document.createElement('canvas');c.width=c.height=384;const ctx=c.getContext('2d');ctx.filter=m.ground==='frost'?'saturate(.15) brightness(1.5)':m.ground==='ember'?'sepia(.8) saturate(.55) brightness(.7)':'none';ctx.drawImage(ground,0,0,384,384);const p=g.createPattern(c,'repeat');patterns.set(m.id,p);return p;}
- function roadLayer(m){if(!ready(dirt))return null;const key=m.ground;if(roadLayers.has(key))return roadLayers.get(key);
+ function texture(m){if(!ready(ground))return null;if(patterns.has(m.id))return patterns.get(m.id);const c=document.createElement('canvas');c.width=c.height=384;const ctx=c.getContext('2d');ctx.filter=style(m).ground;ctx.drawImage(ground,0,0,384,384);ctx.filter='none';const p=g.createPattern(c,'repeat');patterns.set(m.id,p);return p;}
+ function roadLayer(m){if(!ready(dirt))return null;const key=m.id;if(roadLayers.has(key))return roadLayers.get(key);
   const c=document.createElement('canvas'),mask=document.createElement('canvas');c.width=c.height=mask.width=mask.height=1000;const ctx=c.getContext('2d'),mc=mask.getContext('2d');
-  ctx.scale(.5,.5);ctx.filter=key==='frost'?'saturate(.2) brightness(1.25)':key==='ember'?'saturate(.7) brightness(.78)':'none';ctx.fillStyle=ctx.createPattern(dirt,'repeat');ctx.fillRect(0,0,2000,2000);ctx.filter='none';
+  ctx.scale(.5,.5);ctx.filter=style(m).road;ctx.fillStyle=ctx.createPattern(dirt,'repeat');ctx.fillRect(0,0,2000,2000);ctx.filter='none';
   mc.scale(.5,.5);mc.filter='blur(3px)';mc.strokeStyle='#fff';mc.lineWidth=82;mc.lineJoin=mc.lineCap='round';mc.beginPath();for(const route of paths)route.forEach(([x,y],n)=>n?mc.lineTo(x,y):mc.moveTo(x,y));mc.stroke();
   ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0,2000,2000);roadLayers.set(key,c);return c;
  }
  drawGround=function(cx,cy,vw,vh){const m=current();if(!m)return floor(cx,cy,vw,vh);
-  g.save();g.fillStyle=m.ground==='frost'?'#9baea7':m.ground==='ember'?'#514b3d':'#596c3f';g.fillRect(cx,cy,vw,vh);const pattern=texture(m);if(pattern){g.fillStyle=pattern;g.fillRect(cx,cy,vw,vh);}
-  const roads=roadLayer(m);if(roads)g.drawImage(roads,0,0,2000,2000);g.restore();
+  g.save();g.fillStyle=style(m).base;g.fillRect(cx,cy,vw,vh);const pattern=texture(m);if(pattern){g.fillStyle=pattern;g.fillRect(cx,cy,vw,vh);}
+  const roads=roadLayer(m);if(roads)g.drawImage(roads,0,0,2000,2000);window.mapIdentity?.drawField(g,m,cx,cy,vw,vh);g.restore();
  };
  const details=world.drawGroundDetails;world.drawGroundDetails=function(ctx,...args){if(!current())return details(ctx,...args);};
  const actors=world.queueActors;world.queueActors=function(items,cx,cy,vw,vh){const m=current();if(!m)return actors(items,cx,cy,vw,vh);
