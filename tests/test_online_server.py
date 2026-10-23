@@ -54,6 +54,9 @@ class OnlineServerTest(unittest.TestCase):
         self.assertEqual((loaded['level'],loaded['levelXp'],loaded['r'],loaded['stage'],loaded['xp']),(47,0,4,7,321))
         with server.connect() as db:self.assertNotIn('level',json.loads(db.execute('SELECT player FROM characters').fetchone()[0]))
         loaded.update(level=48,levelXp=123)
+        # The level-up must be explained by server-confirmed kills (economy budget).
+        with server.connect() as db:
+            for _ in range(40):server.economy.credit_kill(db,row['user_id'],dict(xpReward=500))
         self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':character['revision'],'player':loaded},cookie)[0],201)
         server.init_db();saved=self.request('/api/characters',cookie=cookie)[1]['character']['player']
         self.assertEqual((saved['level'],saved['levelXp'],saved['r'],saved['stage'],saved['xp']),(48,123,4,7,321))

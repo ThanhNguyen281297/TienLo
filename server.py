@@ -9,6 +9,7 @@ import overworld
 import forging
 import trade
 import tower
+import economy
 import hashlib
 import hmac
 import json
@@ -79,6 +80,7 @@ def init_db():
         duels.init_db(db)
         adventure.init_db(db)
         tower.init_db(db)
+        economy.init_db(db)
 
 
 def password_hash(password, salt=None):
@@ -205,6 +207,7 @@ def damage_mob(mob,damage,owner,now,key):
         for contributor in eligible:
             event_id=secrets.token_hex(12)
             expeditions.queue_drop(db,contributor,mob,event_id)
+            economy.credit_kill(db,contributor,mob)
             adventure.record_kill(db,contributor,mob,event_id)
             if mob.get('tower'):tower.record_kill(db,contributor,mob)
             expeditions.queue_farm_drop(db,contributor,mob,event_id)
@@ -597,6 +600,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         progression.normalize(player)
         uid=user['user_id']; revision=body.get('revision',0)
         if type(revision) is not int: raise ValueError()
+        corrected=[]
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
             row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
@@ -622,13 +626,16 @@ class GameHandler(SimpleHTTPRequestHandler):
             if row:
                 old=json.loads(row['player'])
                 if old['ap']!=player['ap'] or old['nm']!=player['nm']: return self.reply(400,{'error':'Không thể đổi phái, giới tính hoặc đạo hiệu của nhân vật.'})
+                if not user['gm']:
+                    progression.normalize(old)
+                    corrected=economy.enforce(db,uid,old,player,int(time.time())-row['updated_at'],equipment_rules.items(old),equipment_rules.items(player))
                 cid=row['id']; rev=revision+1
                 db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False,allow_nan=False),rev,int(time.time()),uid))
             else:
                 if revision!=0: return self.reply(409,{'error':'Bản lưu không tồn tại.','conflict':True})
                 cid=secrets.token_hex(16); rev=1
                 db.execute('INSERT INTO characters VALUES(?,?,?,?,?)',(uid,cid,json.dumps(player,ensure_ascii=False,allow_nan=False),rev,int(time.time())))
-        return self.reply(201,{'saved':True,'id':cid,'revision':rev})
+        return self.reply(201,{'saved':True,'id':cid,'revision':rev,**({'corrected':corrected} if corrected else {})})
 
     def equipment(self,user,body=None):
         try:

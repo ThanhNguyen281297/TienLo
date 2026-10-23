@@ -57,6 +57,8 @@
     try{
       const result=await api('/api/characters',{revision:state.revision,player:snapshot()},{keepalive:true});
       state.revision=result.revision;ok=true;notice.textContent='Đã lưu trên server';
+      // The server clamped income it could not verify: reload its authoritative copy.
+      if(result.corrected){try{const latest=await api('/api/characters');if(latest.character){state.revision=latest.character.revision;restore(latest.character);}}catch{}msg('Đã đồng bộ lại chỉ số với server.');}
     }catch(e){
       notice.textContent=e.message;console.error('Lưu nhân vật:',e);
       if(e.status===401){state.ready=false;panel.hidden=false;error.textContent='Phiên đã hết hạn. Đăng nhập lại để tiếp tục.';}
