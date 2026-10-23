@@ -56,7 +56,10 @@
     let variants=rasters.get(image);if(!variants){variants=new Map();rasters.set(image,variants);}
     if(variants.has(key))return variants.get(key);
     const c=document.createElement('canvas');c.height=key;c.width=Math.max(1,Math.round(key*image.naturalWidth/image.naturalHeight));
-    const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.filter='contrast(1.09) saturate(1.06)';ctx.drawImage(image,0,0,c.width,c.height);ctx.filter='none';window.actorClarity?.sharpen(c);
+    const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.filter='contrast(1.09) saturate(1.06)';ctx.drawImage(image,0,0,c.width,c.height);ctx.filter='none';
+    // Attack glows are cut at the frame edge in the source art: fade the sides and top.
+    ctx.globalCompositeOperation='destination-in';for(const [dx,len] of [[1,c.width],[0,c.height]]){const f=Math.max(2,len*.06),gr=dx?ctx.createLinearGradient(0,0,len,0):ctx.createLinearGradient(0,0,0,len);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(f/len,'#000');gr.addColorStop(1-f/len,'#000');gr.addColorStop(1,dx?'rgba(0,0,0,0)':'#000');ctx.fillStyle=gr;ctx.fillRect(0,0,c.width,c.height);}
+    ctx.globalCompositeOperation='source-over';window.actorClarity?.sharpen(c);
     const flash=document.createElement('canvas');flash.width=c.width;flash.height=c.height;
     const fg=flash.getContext('2d');fg.drawImage(c,0,0);fg.globalCompositeOperation='source-in';fg.fillStyle='#fff0d5';fg.fillRect(0,0,c.width,c.height);
     const entry={key,image:c,flash};variants.set(key,entry);
@@ -84,11 +87,15 @@
     window.fieldEffects?.draw(g,e,height);
     const selected=window.cultivation?.basicSelection().target===e;
     const boss=e.t===2||e.elite,barWidth=boss?50:34,y=e.y-height*.98+bob,ratio=Math.max(0,Math.min(1,e.hp/(e.maxHp||T[e.t].hp)));
+    // MMORPG nameplates: ordinary monsters show only a small HP bar once hurt;
+    // names appear for the current target and for bosses/elites.
+    const named=selected||boss,showBar=named||ratio<.999;if(!showBar)return;
     g.save();g.fillStyle=selected?'#ffe2a3':'#14202a';g.fillRect(e.x-barWidth/2-1,y-4,barWidth+2,5);
     g.fillStyle='#192830';g.fillRect(e.x-barWidth/2,y-3,barWidth,3);
     const hp=g.createLinearGradient(0,y-3,0,y);hp.addColorStop(0,boss?'#ffd08a':'#e88c7a');hp.addColorStop(1,boss?'#bf783c':'#a74440');g.fillStyle=hp;g.fillRect(e.x-barWidth/2,y-3,barWidth*ratio,3);
-    g.font=(boss?'600 9px':'8px')+' Arial,sans-serif';g.textAlign='center';g.strokeStyle='#112029';g.lineWidth=2;
-    const name=(boss?'◆ ':'')+(e.name||T[e.t].n)+(e.level?' · Lv.'+e.level:'');g.strokeText(name,e.x,y-7);g.fillStyle=selected?'#fff0bc':boss?'#ffe2a4':'#ebf2ec';g.fillText(name,e.x,y-7);g.restore();
+    if(named){g.font=(boss?'700 9px':'600 8px')+' Arial,sans-serif';g.textAlign='center';g.strokeStyle='#112029';g.lineWidth=2;
+     const name=(e.level?e.level+' ':'')+(e.name||T[e.t].n);g.strokeText(name,e.x,y-7);g.fillStyle=selected?'#fff0bc':boss?'#ffd27a':'#ebf2ec';g.fillText(name,e.x,y-7);}
+    g.restore();
   };
   const previousHit=hit;
   hit=function(e,power){if(e.dead||e.hp<=0)return;const s=state(e),origin={x:e.x,y:e.y};previousHit(e,power);

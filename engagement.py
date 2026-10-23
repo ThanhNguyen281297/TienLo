@@ -280,7 +280,8 @@ def snapshot(db, uid, player, at=None):
     offer = offline_offer(player, row['offline_bank'])
     return dict(
         checkin=dict(streak=streak, today=row['checkin_day'] == day, next=next_day,
-                     rewards=[dict(day=i + 1, text=describe(r), **{k: v for k, v in r.items() if k != 'items'}) for i, r in enumerate(CHECKIN)]),
+                     rewards=[dict(day=i + 1, text=describe(r), **{k: v for k, v in r.items() if k != 'items'},
+                                  items=[dict(id=iid, name=equipment.TEMPLATES[iid]['name'], art=equipment.TEMPLATES[iid].get('art'), qty=qty) for iid, qty in (r.get('items') or {}).items()]) for i, r in enumerate(CHECKIN)]),
         offline=dict(seconds=int(row['offline_bank']), cap=OFFLINE_CAP, **offer),
         events=schedule(stamp), achievements=achievements, title=row['title'],
         titles=[a['title'] for a in ACHIEVEMENTS if a['id'] in claimed],

@@ -26,7 +26,7 @@
  async function act(action,extra={}){if(state.busy)return;state.busy=true;try{const result=await account.transact('/api/engagement',{action,opId:crypto.randomUUID(),...extra});state.data=result.engagement;state.fetchedAt=performance.now();if(result.message){msg(result.message);window.skillImpact?.flash?.('#ffd27a');}refreshBadges();render();}catch(e){msg(e.message);}finally{state.busy=false;}}
 
  // ---------- panel
- function open(tab){if(!P.ap)return;if(tab)state.tab=tab;d.show('Phúc lợi','Điểm danh, bế quan, sự kiện, thành tựu và bảng tuần.');$('world-content').closest('section')?.classList.add('visual-dialog');render();if(!state.data||elapsed()>20)refresh();}
+ function open(tab){if(!P.ap)return;if(tab)state.tab=tab;d.show('Phúc lợi','');$('world-content').closest('section')?.classList.add('visual-dialog');render();if(!state.data||elapsed()>20)refresh();}
  const TABS=[['checkin','Điểm danh'],['offline','Bế quan'],['events','Sự kiện'],['achievements','Thành tựu'],['boards','Bảng tuần']];
  function render(){const content=$('world-content');if(!content||$('world-title').textContent!=='Phúc lợi')return;content.replaceChildren();
   const nav=ui.node('nav','journal-tabs welfare-tabs');nav.setAttribute('aria-label','Mục phúc lợi');
@@ -34,13 +34,17 @@
   const x=state.data;if(!x){content.append(ui.node('p','world-line','Đang tải…'));return;}
   ({checkin,offline,events,achievements,boards})[state.tab](content,x);}
 
+ // Rewards as item icons with a quantity corner, VLTK style.
+ const REWARD_ART={essence:'Item/CanhGioi/kimdan.png',fragments:'Item/PhapTran/5.png'};
+ function rewardIcons(r){const row=ui.node('div','welfare-icons');const add=(src,qty,label,cls='')=>{const cell=ui.node('span','welfare-icon '+cls);cell.title=label;if(src){const img=new Image();img.src=artworkURL(src);img.alt='';cell.append(img);}else cell.append(ui.node('b','coin','◈'));cell.append(ui.node('em','',qty>=1000?(qty/1000)+'K':String(qty)));row.append(cell);};
+  if(r.gold)add(null,r.gold,'Linh Thạch','gold');if(r.essence)add(REWARD_ART.essence,r.essence,'Linh Nguyên');if(r.fragments)add(REWARD_ART.fragments,r.fragments,'Mảnh linh khí');
+  for(const i of r.items||[])add(i.art,i.qty,i.name);return row;}
  function checkin(root,x){
   const grid=ui.node('div','welfare-days');
   x.checkin.rewards.forEach((r,i)=>{const day=i+1,done=x.checkin.today?day<=x.checkin.streak:day<=x.checkin.streak,next=!x.checkin.today&&day===x.checkin.next;
-   const card=ui.node('div','welfare-day'+(done?' done':'')+(next?' next':'')+(day===7?' grand':''));card.append(ui.node('b','','Ngày '+day),ui.node('span','',r.text),ui.node('small','',done?'✔ Đã nhận':next?'Hôm nay':''));grid.append(card);});
+   const card=ui.node('div','welfare-day'+(done?' done':'')+(next?' next':'')+(day===7?' grand':''));card.title=r.text;card.append(ui.node('b','','Ngày '+day),rewardIcons(r),ui.node('small','',done?'✔':next?'Hôm nay':''));grid.append(card);});
   root.append(grid);
-  root.append(ui.node('p','world-line',x.checkin.today?'Hôm nay đã điểm danh. Quay lại ngày mai để giữ chuỗi; bỏ lỡ một ngày sẽ bắt đầu lại từ Ngày 1.':'Điểm danh mỗi ngày. Ngày 7 nhận phần thưởng lớn nhất, sau đó chu kỳ lặp lại.'));
-  const b=d.action(x.checkin.today?'Đã điểm danh hôm nay':'Điểm danh · Ngày '+x.checkin.next,()=>act('checkin'),x.checkin.today);b.classList.add('welfare-primary');
+  const b=d.action(x.checkin.today?'✔ Đã điểm danh':'Điểm danh',()=>act('checkin'),x.checkin.today);b.classList.add('welfare-primary');
  }
  function offline(root,x){
   const o=x.offline,{body}=ui.panel('Bế quan tu luyện',null,root);
@@ -115,7 +119,10 @@
 .welfare-boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.welfare-board ol{margin:0;padding:0;list-style:none;display:grid;gap:3px}
 .welfare-board li{display:flex;justify-content:space-between;gap:8px}.welfare-board li.me{color:#ffd27a}.welfare-board li.empty{color:#9fc4bb}.welfare-board em{font-style:normal;color:#9fc4bb}
 .welfare-board-rewards{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px;font-size:12px;color:#f3e3b4}.welfare-board-rewards span{padding:3px 8px;border:1px solid #c9a96066;border-radius:999px}
-.welfare-primary{margin-top:8px}`;
+.welfare-primary{margin-top:8px}
+.welfare-icons{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}.welfare-icon{position:relative;width:40px;height:40px;border-radius:8px;border:1px solid #c9a96088;background:radial-gradient(circle at 50% 35%,#2e4a52,#0e1a20);display:grid;place-items:center;overflow:hidden}
+.welfare-icon img{width:34px;height:34px;object-fit:contain}.welfare-icon .coin{color:#ffd27a;font-size:22px;text-shadow:0 0 6px #ffb84a}.welfare-icon em{position:absolute;right:2px;bottom:0;font:700 10px Arial;font-style:normal;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000}
+.welfare-day{justify-items:center;text-align:center}`;
  document.head.append(css);
  window.engagementGame={state,open,refresh,receive,claimable};
 })();
