@@ -72,6 +72,7 @@ def action(db,uid,body):
         if inserted:
             adventure.grant_fragments(db,uid,reward(r['floor']));p['gold']=min(10**9,p['gold']+40+r['floor']*15);adventure.add(db,uid,'daily:'+adventure.day()+':towerFloors')
         db.execute('INSERT INTO tower_progress VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET best=MAX(best,excluded.best)',(uid,r['floor']))
+        __import__('engagement').record_tower(db,uid,r['floor'])
         db.execute("UPDATE tower_runs SET status='claimed' WHERE user_id=?",(uid,))
     elif op=='next':
         if not r or r['status']!='claimed' or p['world'].get('map')!='tower':raise ValueError('Nhận thưởng tầng hiện tại trước.')

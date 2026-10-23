@@ -183,7 +183,11 @@ def action(db,uid,body,peers):
     elif op=='reward_claim':
         reward=db.execute('SELECT * FROM community_rewards WHERE id=? AND user_id=? AND claimed=0',(body.get('id'),uid)).fetchone()
         if not reward:raise ValueError('Rương đã nhận hoặc không thuộc về bạn.')
-        apply_reward(player,json.loads(reward['payload']));db.execute('UPDATE community_rewards SET claimed=1 WHERE id=?',(reward['id'],))
+        payload=json.loads(reward['payload'])
+        # Mailbox chests from leaderboards and raids can also carry EXP, fragments, materials and gear.
+        if any(k in payload for k in ('xp','fragments','items','gear')):__import__('engagement').grant(db,uid,player,payload)
+        else:apply_reward(player,payload)
+        db.execute('UPDATE community_rewards SET claimed=1 WHERE id=?',(reward['id'],))
     elif op=='friend_list':
         pass
     elif op=='friend_add':
@@ -259,7 +263,10 @@ def boss_victory(db,mob,peers):
     now=time.monotonic();wall=time.time();eligible={uid for uid,damage in mob['_damage'].items() if damage>=min(math.ceil(mob['maxHp']*.01),math.ceil(peers.get(uid,{}).get('attack',8)*6)) and wall-mob['_lastDamage'].get(uid,0)<60 and uid in peers and peers[uid]['map']=='worldboss' and now-peers[uid]['seen']<15 and peers[uid].get('hp',1)>0}
     first=db.execute('INSERT OR IGNORE INTO world_boss_completions VALUES(?)',(mob['encounter'],)).rowcount
     if not first:return
-    for uid in eligible:db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma',json.dumps({'gold':250,'essence':60}),wall))
+    mult=__import__('engagement').multiplier('boss')
+    for uid in eligible:
+        db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma'+(' · Huyết Ma Nộ x2' if mult>1 else ''),json.dumps({'gold':250*mult,'essence':60*mult}),wall))
+        __import__('adventure').add(db,uid,'worldBoss')
     record_kill(db,eligible,True);mob.pop('_cast',None);mob['respawnAt']=wall+300;save_boss(db,mob)
 
 

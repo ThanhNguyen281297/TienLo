@@ -36,7 +36,7 @@
       window.duelArena?.receive(data.duel);window.expeditionsGame?.updatePending(data.pendingDrops);
       window.adventureGame?.receiveWallet?.(data.adventureWallet);
       const sustainIds=P.world.sustainIds??=[];for(const event of data.sustain||[]){if(!sustainIds.includes(event.id)){equipmentSystem.sustain(event.amount);sustainIds.push(event.id);if(sustainIds.length>100)sustainIds.shift();}}
-      state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);
+      state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);window.engagementGame?.receive?.(data);window.raidGame?.receive?.(data);
       if(data.shared){
         const ownBasicHits=new Set((batch.hits||[]).filter(h=>h.basic).map(h=>h.id));
         const ownHits=new Set();for(const hit of data.combatHits||[]){damageNumber(hit.x,hit.y-48,hit.amount,hit.critical);ownHits.add(hit.id);}

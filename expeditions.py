@@ -54,7 +54,7 @@ def queue_drop(db,uid,mob,event_id):
     fragment_event='fragment:'+event_id
     if db.execute('SELECT 1 FROM adventure_events WHERE user_id=? AND id=?',(uid,fragment_event)).fetchone():return
     db.execute('INSERT INTO adventure_events VALUES(?,?)',(uid,fragment_event))
-    amount=3+list(MAPS).index(mob['map']) if mob.get('boss') else 1
+    amount=(3+list(MAPS).index(mob['map']) if mob.get('boss') else 1)*__import__('engagement').multiplier('fragments')
     adventure.grant_fragments(db,uid,amount)
 
 def pending(db,uid):
