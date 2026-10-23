@@ -20,7 +20,7 @@
  function raster(frame,pixels){
   let variants=cache.get(frame.image);if(!variants){variants=new Map();cache.set(frame.image,variants);}
   const key=frame.sheet+'/'+frame.index+'/'+pixels;if(variants.has(key))return variants.get(key);
-  const [x,y,w,h]=frame.rect,canvas=document.createElement('canvas');canvas.height=pixels;canvas.width=Math.max(1,Math.round(pixels*w/h));const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.drawImage(frame.image,x,y,w,h,0,0,canvas.width,canvas.height);
+  const [x,y,w,h]=frame.rect,canvas=document.createElement('canvas');canvas.height=pixels;canvas.width=Math.max(1,Math.round(pixels*w/h));const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.drawImage(frame.image,x,y,w,h,0,0,canvas.width,canvas.height);window.actorClarity?.sharpen(canvas,.45);
   variants.set(key,canvas);if(variants.size>48)variants.delete(variants.keys().next().value);return canvas;
  }
  const previousMon=mon;mon=function(e){

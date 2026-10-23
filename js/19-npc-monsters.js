@@ -56,7 +56,7 @@
     let variants=rasters.get(image);if(!variants){variants=new Map();rasters.set(image,variants);}
     if(variants.has(key))return variants.get(key);
     const c=document.createElement('canvas');c.height=key;c.width=Math.max(1,Math.round(key*image.naturalWidth/image.naturalHeight));
-    const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.filter='contrast(1.09) saturate(1.06)';ctx.drawImage(image,0,0,c.width,c.height);ctx.filter='none';
+    const ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.filter='contrast(1.09) saturate(1.06)';ctx.drawImage(image,0,0,c.width,c.height);ctx.filter='none';window.actorClarity?.sharpen(c);
     const flash=document.createElement('canvas');flash.width=c.width;flash.height=c.height;
     const fg=flash.getContext('2d');fg.drawImage(c,0,0);fg.globalCompositeOperation='source-in';fg.fillStyle='#fff0d5';fg.fillRect(0,0,c.width,c.height);
     const entry={key,image:c,flash};variants.set(key,entry);
