@@ -33,7 +33,7 @@
   const SCENE_KIT={hub:'jade',sword:'jade',moon:'lotus',thunder:'ice',mystic:'grove',tower:'jade',worldboss:'lava',
     'field-meadow':'grove','field-bamboo':'grove','field-marsh':'lotus','field-frost':'ice','field-ember':'fire','field-abyss':'lava',
     'rift-wood':'grove','rift-tide':'ice','rift-fire':'fire','rift-void':'lava'};
-  const FIELD_ROADS=[[[1000,1860],[1000,1450],[970,1120],[1040,700],[1000,120]],[[1000,1400],[440,1320]],[[1000,1400],[1500,1320]],[[985,950],[430,850]],[[985,950],[1500,850]],[[1030,490],[550,370]],[[1030,490],[1430,370]]];
+  const FIELD_ROADS=window.overworldRoads||[[[1000,1860],[1000,1450],[970,1120],[1040,700],[1000,120]],[[1000,1400],[440,1320]],[[1000,1400],[1500,1320]],[[985,950],[430,850]],[[985,950],[1500,850]],[[1030,490],[550,370]],[[1030,490],[1430,370]]];
   const FIELD_CAMPS=[[440,1320],[1500,1320],[430,850],[1500,850],[550,370],[1430,370]];
 
   const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0;};
@@ -170,6 +170,8 @@
       decals.push({formation:true,x:1000,y:1770,r:112,rgb:kit.cool,small:true});glyph(1000,1770,170,.8);
       emitters.push({x:1000,y:1770,spread:100,count:12,rgb:kit.cool,height:110});
       // Lanterns in facing pairs on both verges of the main road, every ~230 px.
+      // Layout v2 (35r) places its own lanterns and camp shrines along curved roads.
+      if(!world.fieldLayoutV2){
       const route=FIELD_ROADS[0];
       for(let i=1;i<route.length;i++){const a=route[i-1],b=route[i];
         const len=Math.hypot(b[0]-a[0],b[1]-a[1]),dx=(b[0]-a[0])/len,dy=(b[1]-a[1])/len;
@@ -178,6 +180,7 @@
       // Each hunting camp gets a marker on its road side: a banner between two crystals.
       FIELD_CAMPS.forEach(([cx,cy])=>{const t=cx<1000?1:-1;put('banner',cx+t*250,cy+10);
         put('crystal',cx+t*244,cy-70);put('crystal',cx+t*244,cy+90);});
+      }
     }
     if(scene.startsWith('rift-')||scene==='tower'){
       // Floating islets beyond the walkable rim; purely scenic and never solid.
@@ -228,7 +231,8 @@
     world.buildings.splice(0,world.buildings.length,...out,...keep);
   }
   const change=world.switchScene;world.switchScene=function(...args){const result=change.apply(this,args);
-    try{if(String(world.state.scene).startsWith('field-'))arrangeField(world.state.scene);}catch(e){}
+    // 35r-overworld lays out fields per zone (fieldLayoutV2); only legacy layouts are regrouped here.
+    try{if(String(world.state.scene).startsWith('field-')&&!world.fieldLayoutV2)arrangeField(world.state.scene);}catch(e){}
     cache.delete(world.state.scene);return result;};
   world.arrangeField=arrangeField;
 

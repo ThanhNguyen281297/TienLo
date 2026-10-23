@@ -11,7 +11,8 @@
   if(layers.has(key))return layers.get(key);
   // Only the current map's layers stay resident (a field layer is ~8 MB).
   for(const old of [...layers.keys()])layers.delete(old);
-  const make=()=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
+  // Painted in layer units, stored at 2x so the deck stays crisp when zoomed.
+  const make=()=>{const c=document.createElement('canvas');c.width=w*2;c.height=h*2;const x=c.getContext('2d');x.scale(2,2);return c;};
   const base=make(),glow=make();paint(base.getContext('2d'),glow.getContext('2d'),seeded(hash(key)));
   const entry={base,glow};layers.set(key,entry);return entry;
  }
@@ -25,11 +26,11 @@
  const pulse=(speed=1.4,phase=0)=>reduced.matches?.8:.62+.38*Math.sin(tm*speed+phase);
 
  /* ---------- hunting zones ---------- */
- const PATHS=[[[1000,1860],[1000,1450],[970,1120],[1040,700],[1000,120]],[[1000,1400],[440,1320]],[[1000,1400],[1500,1320]],[[985,950],[430,850]],[[985,950],[1500,850]],[[1030,490],[550,370]],[[1030,490],[1430,370]]];
+ const PATHS=()=>window.overworldRoads||[];
  function segDist(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p.x-a[0])*dx+(p.y-a[1])*dy)/(dx*dx+dy*dy)));return Math.hypot(p.x-a[0]-dx*t,p.y-a[1]-dy*t);}
- const roadDist=p=>Math.min(...PATHS.flatMap(r=>r.slice(1).map((b,i)=>segDist(p,r[i],b))));
+ const roadDist=p=>{let best=1e9;for(const r of PATHS())for(let i=1;i<r.length;i++){const d=segDist(p,r[i-1],r[i]);if(d<best)best=d;}return best;};
  const camps=()=>window.overworldRules?.camps||[];
- function clearSpot(p,road=80,camp=210){return roadDist(p)>road&&!camps().some(c=>Math.hypot((p.x-c.x)/1.15,p.y-c.y)<camp)&&Math.hypot(p.x-1000,p.y-1770)>220&&p.x>140&&p.x<1860&&p.y>140&&p.y<1860;}
+ function clearSpot(p,road=80,camp=210){return roadDist(p)>road&&!camps().some(c=>((p.x-c.x)/(camp*1.35))**2+((p.y-c.y)/camp)**2<1)&&Math.hypot(p.x-1000,p.y-1770)>260&&p.x>140&&p.x<1860&&p.y>140&&p.y<1860;}
  function spots(random,count,road,camp){const out=[];for(let n=0;n<count*12&&out.length<count;n++){const p={x:random()*2000,y:random()*2000};if(clearSpot(p,road,camp)&&!out.some(o=>Math.hypot(o.x-p.x,o.y-p.y)<150))out.push(p);}return out;}
  const S=.5; // layer pixels per world unit
 
@@ -81,12 +82,23 @@
   }
  };
  const FIELD_GLOW={'field-marsh':[.9,0,'source-over'],'field-frost':[.6,1,'lighter'],'field-ember':[2.2,0,'lighter'],'field-abyss':[1.1,2,'lighter']};
+ // Fields are painted in 400-unit tiles at 1 px per world unit, on demand.
+ const TILE=400,tiles=new Map(),TILE_KEEP=12;
+ function fieldTile(id,tx,ty){
+  const key=id+':'+tx+':'+ty;let t=tiles.get(key);
+  if(t){tiles.delete(key);tiles.set(key,t);return t;}
+  const make=()=>{const c=document.createElement('canvas');c.width=c.height=TILE;const x=c.getContext('2d');x.translate(-tx*TILE,-ty*TILE);x.scale(1/S,1/S);return c;};
+  const base=make(),glow=make();FIELD[id](base.getContext('2d'),glow.getContext('2d'),seeded(hash('field:'+id)));
+  t={base,glow};tiles.set(key,t);
+  for(const old of tiles.keys()){if(tiles.size<=TILE_KEEP)break;if(!old.startsWith(id+':')||old!==key)tiles.delete(old);}
+  return t;
+ }
  function drawField(ctx,m,cx,cy,vw,vh){
-  const paint=FIELD[m.id];if(!paint)return;
-  const l=layer('field:'+m.id,1000,1000,paint);
-  blit(ctx,l.base,0,0,2000,2000,cx,cy,vw,vh);
-  const glow=FIELD_GLOW[m.id];
-  if(glow){ctx.save();ctx.globalCompositeOperation=glow[2];ctx.globalAlpha=glow[2]==='lighter'?pulse(glow[0],glow[1]):.8+.2*Math.sin(tm*glow[0]);blit(ctx,l.glow,0,0,2000,2000,cx,cy,vw,vh);ctx.restore();}
+  if(!FIELD[m.id])return;
+  const glow=FIELD_GLOW[m.id],x0=Math.max(0,Math.floor(cx/TILE)),y0=Math.max(0,Math.floor(cy/TILE)),x1=Math.min(4,Math.floor((cx+vw)/TILE)),y1=Math.min(4,Math.floor((cy+vh)/TILE));
+  const visible=[];for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)visible.push([tx,ty,fieldTile(m.id,tx,ty)]);
+  for(const [tx,ty,t] of visible)ctx.drawImage(t.base,tx*TILE,ty*TILE);
+  if(glow){ctx.save();ctx.globalCompositeOperation=glow[2];ctx.globalAlpha=glow[2]==='lighter'?pulse(glow[0],glow[1]):.8+.2*Math.sin(tm*glow[0]);for(const [tx,ty,t] of visible)ctx.drawImage(t.glow,tx*TILE,ty*TILE);ctx.restore();}
  }
 
  /* ---------- rifts and duel arena (one ellipse platform each) ---------- */
@@ -163,11 +175,24 @@
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=pulse(1.3);blit(ctx,l.glow,DECK.cx-rx,DECK.cy-ry,rx*2,ry*2,cx,cy,vw,vh);
   ctx.restore();rim(ctx,'#ffbe6a',rx,ry);
  }
+ // Thiên Vân Thành: an imperial avenue (ngự đạo) from the south gate to the
+ // main hall and a cross street between market and forge, inlaid in gold.
+ function street(ctx,x0,y0,x1,y1){
+  ctx.save();ctx.globalCompositeOperation='multiply';ctx.globalAlpha=.26;ctx.fillStyle='#7a6448';ctx.fillRect(x0,y0,x1-x0,y1-y0);ctx.restore();
+  ctx.save();ctx.strokeStyle='rgba(196,160,82,.5)';ctx.lineWidth=1.6;
+  const vertical=y1-y0>x1-x0;
+  for(const o of [0,1]){ctx.beginPath();if(vertical){ctx.moveTo(o?x1:x0,y0);ctx.lineTo(o?x1:x0,y1);}else{ctx.moveTo(x0,o?y1:y0);ctx.lineTo(x1,o?y1:y0);}ctx.stroke();}
+  ctx.fillStyle='rgba(206,172,96,.55)';const mid=vertical?(x0+x1)/2:(y0+y1)/2;
+  for(let t=(vertical?y0:x0)+30;t<(vertical?y1:x1)-10;t+=46){const [x,y]=vertical?[mid,t]:[t,mid];ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+11,y);ctx.lineTo(x,y+7);ctx.lineTo(x-11,y);ctx.closePath();ctx.fill();}
+  ctx.restore();
+ }
+ function drawHub(ctx){street(ctx,640,1068,1360,1112);street(ctx,958,800,1042,1430);}
  const floor=drawGround;
  drawGround=function(cx,cy,vw,vh){
   floor(cx,cy,vw,vh);
   const id=world.state.scene;
   try{
+   if(id==='hub'){g.save();drawHub(g);g.restore();}
    if(RIFT[id]){g.save();drawRift(g,id,cx,cy,vw,vh);g.restore();}
    else if(id==='duel'){g.save();drawDuel(g,cx,cy,vw,vh);g.restore();}
   }catch(e){/* decoration must never break the frame */}
@@ -177,6 +202,7 @@
  const change=world.switchScene;
  world.switchScene=function(...args){
   const result=change.apply(this,args),id=world.state.scene,keys=DECOR[id];
+  if(id==='hub'&&!world.buildings.some(b=>b.identity)){for(const x of [668,1332])world.buildings.push({key:'theme-14-010',x,y:650,w:62,identity:true});}
   if(keys&&!world.buildings.some(b=>b.identity)){
    const [rx,ry]=deckRadii();
    for(let i=0;i<12;i++){
