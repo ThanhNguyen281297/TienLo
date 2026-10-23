@@ -211,39 +211,19 @@
   world.switchScene=function(id,initial=false){if(id==='arena')return world.openArena();if(world.state.scene==='arena')return leaveArena(id);
     nativeSwitch(id,initial);configure();};
   const creator=$('ok').onclick;$('ok').onclick=()=>{creator();if(P.ap&&cr.style.display==='none')configure();};
-  const banner=document.createElement('div');banner.id='arena-status';banner.hidden=true;banner.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:3;padding:12px 20px;border:1px solid #bda576;border-radius:12px;background:#13232fee;color:#f6e3b7;text-align:center;font-size:13px;max-width:40vw;pointer-events:none';document.body.appendChild(banner);
-  const arenaCss=document.createElement('style');arenaCss.textContent='@media(max-width:700px){#arena-status{top:172px!important;left:8px!important;transform:none!important;padding:8px 12px!important;font-size:11px!important;max-width:calc(100vw - 110px)!important;box-sizing:border-box}}';document.head.appendChild(arenaCss);
-  let run=null,busy=false,returnMap='hub',entryEpoch=0;
-  async function budget(consume=false){
-    if(location.protocol==='file:')throw new Error('Đấu trường online cần đăng nhập qua server.');
-    return account.api('/api/arena',consume?{}:undefined);
-  }
+  // The old 30-wave arena was replaced by Vạn Tầng Tháp (js/35u-tower.js owns openArena).
+  // Scene 'arena' is still the solo spirit rift, so leaving it restores the previous map.
+  let returnMap='hub',entryEpoch=0;
   function resetCombat(){classCombat.onRespawn();B.length=SP.length=V.length=LT.length=X.length=PT.length=0;K={};ptr=null;P.med=0;P.sl=0;P.acd=.5;kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;}
-  function nextWave(){if(!run)return;run.wave++;run.wait=0;E=[];P.mp=Math.min(mmp(),P.mp+Math.max(4,mmp()*.12));P.hp=Math.min(mhp(),P.hp+mhp()*.08);
-    const count=Math.min(10,3+Math.floor((run.wave-1)/4)),multiplier=1+(run.wave-1)*.045,level=run.level||0,types=[0,1,4,3];
-    for(let i=0;i<count;i++){const a=i*Math.PI*2/count,x=1000+Math.cos(a)*160,y=1100+Math.sin(a)*80,t=types[(run.wave+i-1)%4],elite=run.wave%5===0&&i===0;
-      const hp=Math.round(T[t].hp*multiplier*(1+level*.11)*(elite?2:1));E.push({t,x,y,hx:x,hy:y,hp,maxHp:hp,elite,attackScale:multiplier*(1+level*.04),xpReward:Math.round(T[t].xp*(1+level*.08)),dead:0,cd:1,fr:0,fl:0,worldMap:true,arena:true,map:'arena',name:elite?T[t].n+' · Thủ lĩnh':undefined});}
-    msg('Đấu trường · lượt '+run.wave+'/30');updateBanner();}
-  function updateBanner(){banner.hidden=!run;if(run)banner.textContent=`ĐẤU TRƯỜNG · ${run.wave}/30 · ${E.filter(e=>e.hp>0&&!e.dead).length} quái${run.wait>0?' · Chuẩn bị lượt tiếp theo':''}`;}
-  function enterArena(){returnMap=world.state.scene;resetCombat();run={wave:0,wait:0,separate:true,level:cultivationLevel()};world.state.arena=run;world.state.scene='arena';P.world.map='arena';E=[];
-    world.buildings.length=0;world.services.splice(0,world.services.length,{id:'leaveArena',name:'Rời đấu trường',x:1000,y:1180,color:'#efdbaf'});P.x=1000;P.y=1100;P.hp=mhp();P.mp=mmp();world.state.near=null;dialog.close();nextWave();saveCharacter();}
-  function leaveArena(destination=returnMap){entryEpoch++;run=null;world.stopArena();resetCombat();banner.hidden=true;E=[];world.state.scene='hub';P.world.map='hub';nativeSwitch(world.sectMaps[destination]?destination:'hub');configure();}
-  world.arenaRun=()=>run;world.arenaBudget=budget;world.leaveArena=()=>leaveArena();
-  world.openArena=async function(){if(run||busy)return;const epoch=++entryEpoch;dialog.show('Đấu trường tông môn','Map thử thách riêng gồm 30 lượt. Quái mạnh dần, mỗi 5 lượt có thủ lĩnh. Mỗi ngày được vào 2 lần; vào trận là dùng một lượt, kể cả khi rời sớm hoặc trọng thương.');dialog.line('Đang kiểm tra lượt trong ngày…');
-    try{const info=await budget();if(epoch!==entryEpoch||!dialog.isOpen()||$('world-title').textContent!=='Đấu trường tông môn')return;dialog.line(`Hôm nay còn ${info.remaining}/2 lượt · đặt lại lúc 00:00.`);
-      dialog.action('Vào đấu trường · 30 lượt',async()=>{if(busy)return;busy=true;try{await budget(true);if(epoch===entryEpoch)enterArena();}catch(error){dialog.line(error.message);}finally{busy=false;}},!info.remaining);
-    }catch(error){if(epoch===entryEpoch&&dialog.isOpen())dialog.line(error.message);}};
+  function leaveArena(destination=returnMap){entryEpoch++;world.stopArena();resetCombat();E=[];world.state.scene='hub';P.world.map='hub';nativeSwitch(world.sectMaps[destination]?destination:'hub');configure();}
+  world.arenaRun=()=>null;world.leaveArena=()=>leaveArena();
   world.handleService=function(id){if(id==='boss'||id==='arena'){dialog.show('Thử thách','Nội dung thử thách cũ đã khép lại. Hãy đến Vạn Tầng Tháp trong Thiên Vân Thành.');return true;}if(id==='leaveArena'){dialog.show('Rời đấu trường','Thử thách cũ đã đóng.');dialog.action('Rời đấu trường',()=>leaveArena());return true;}
     if(id==='valley-info'){dialog.show('Linh Mạch Cốc','Ba mạch linh: Bắc / Đông / Tây. Quái cho x2 Linh Nguyên, nhiều đạo hạnh hơn 20%, nhưng khỏe hơn 15%. Trọng thương trở về tông môn.');dialog.line('Mạch Bắc: Bọ Ngựa · Mạch Đông: Nguyệt Thố · Mạch Tây: Băng Dực Dơi.');dialog.action('Về đài an toàn · hồi linh lực',()=>{P.x=1000;P.y=1100;P.mp=typeof mmp==='function'?mmp():P.mp;dialog.close();});return true;}
     if(id.startsWith('vein-')){const mine=valleyMines.find(c=>'vein-'+c.id===id);dialog.show(mine?.name||'Mạch linh','Mạch linh hội tụ, quái quanh mạch cho x2 Linh Nguyên.');dialog.line('Farm 12 quái quanh mạch, hồi sinh sau 8 giây. Dùng trận truyền tống (E) để quay về đài. Cẩn thận quái khỏe hơn bãi thường.');return true;}
     if(id==='teleport'&&isValley()){dialog.show('Truyền tống','Rời Linh Mạch Cốc về nơi tu hành.');const back=P.world?.sectHome||world.sectMapFor(P.ap?.w||0);dialog.action('Về tông môn',()=>world.switchScene(back));dialog.action('Về Thiên Vân Thành',()=>world.switchScene('hub'));return true;}
     if(id.startsWith('camp-')){dialog.show('Bãi luyện công',camps.find(c=>'camp-'+c.id===id)?.name||'Yêu thú');dialog.line('Bốn bãi ở bốn hướng, mỗi bãi có 12 quái cùng loài, hồi sinh sau 8 giây. Đến trận truyền tống gần mép sân và nhấn E để sang bãi. Trận ở bãi đưa về sân tông môn.');return true;}return nativeService(id);};
   const nativeValleyRespawn=nativeRespawn;
-  world.respawn=function(){if(run){leaveArena();msg('Thử thách kết thúc do trọng thương.');return;}if(world.state.scene==='valley'){const home=world.sectMapFor(P.ap?.w||0);msg('Trọng thương ở Linh Mạch Cốc! Được đưa về tông môn.');world.state.scene='hub';P.world.map='hub';nativeSwitch(home);configure();P.hp=typeof mhp==='function'?mhp():P.hp;return;}return nativeValleyRespawn();};
-  const previousUp=up;up=function(dt){previousUp(dt);if(!run||paused()||dialog.isOpen())return;
-    // Quái chết trong đấu trường không được spawn lại như quái farm.
-    E=E.filter(e=>!e.dead&&e.hp>0);if(!E.length){if(run.wave===30){const total=30;P.gold+=300;const p=world.progress();p.arenaClears=(p.arenaClears||0)+1;p.bestArenaWave=Math.max(p.bestArenaWave||0,total);leaveArena();saveCharacter();msg('Hoàn tất 30 lượt! +300 Linh Thạch.');return;}
-      run.wait+=dt;if(run.wait>=2)nextWave();}updateBanner();};
+  world.respawn=function(){if(world.state.scene==='valley'){const home=world.sectMapFor(P.ap?.w||0);msg('Trọng thương ở Linh Mạch Cốc! Được đưa về tông môn.');world.state.scene='hub';P.world.map='hub';nativeSwitch(home);configure();P.hp=typeof mhp==='function'?mhp():P.hp;return;}return nativeValleyRespawn();};
   const oldMini=world.renderMini;world.renderMini=function(ctx,size){if(world.state.scene==='hub')return oldMini(ctx,size);ctx.fillStyle=layout().sky;ctx.fillRect(0,0,size,size);ctx.save();ctx.scale(size/M,size/M);
     if(world.state.scene==='arena'){ctx.fillStyle='#c2b49a';ctx.beginPath();ctx.ellipse(1000,1100,190,95,0,0,Math.PI*2);ctx.fill();}
     else{const mark=(x,y,rx,ry)=>{ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.fill();};ctx.fillStyle='#d5c8aa';const main=isValley()?layouts.valley:mainShape();mark(1000,1100,main.rx,main.ry);(isValley()?valleyMines:camps).forEach(c=>{ctx.fillStyle=['#91b67e','#9fd8ed','#d58a80','#bac7e1'][[0,1,4,3].indexOf(c.t)];const size=isValley()?farmLayout.valley:farmLayout.camp;mark(c.x,c.y,size.rx,size.ry);});}

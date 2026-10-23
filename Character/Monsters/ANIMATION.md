@@ -1,6 +1,6 @@
 # Quái bí cảnh — 12 bộ hoạt ảnh
 
-Giữ nguyên ảnh tham chiếu `1.png` của người dùng trong từng thư mục. Các atlas mới được dựng bằng **ImageGen tích hợp**, PNG RGBA trong suốt, không sửa pixel bằng script. Bốn quái cũ giữ nguyên.
+Ảnh tham chiếu `1.png` đã được gỡ khỏi repo để giảm dung lượng (vẫn có trong lịch sử git). Các atlas mới được dựng bằng **ImageGen tích hợp**, PNG RGBA trong suốt, không sửa pixel bằng script. Bốn quái cũ giữ nguyên.
 
 Mỗi atlas có 4 cột × 5 hàng: đứng/thở, di chuyển, tấn công, trúng đòn, chết. Mỗi trạng thái có 4 khung, tổng cộng 240 tư thế. Mỗi ô chứa toàn bộ quái, không ghép bộ phận cơ thể.
 

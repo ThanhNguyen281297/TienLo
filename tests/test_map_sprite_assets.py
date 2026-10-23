@@ -19,10 +19,12 @@ class MapSprites(unittest.TestCase):
             self.assertEqual(data[25],6)
             self.assertEqual(struct.unpack('>II',data[16:24]),(r['width'],r['height']))
 
-    def test_nine_atlas_exports_and_new_hd_terrain(self):
+    def test_runtime_atlas_exports_and_hd_terrain(self):
+        # Only the island pieces and terrain loaded by js/20-sect-layout-arena.js ship.
         manifest=json.loads((ROOT/'Map/atlas-sprites/manifest.json').read_text())
-        self.assertEqual(manifest['atlases'],9)
-        self.assertEqual(len({r['source'] for r in manifest['sprites']}),9)
+        self.assertEqual({r['id'] for r in manifest['sprites']},{'atlas-06-022','atlas-06-024','atlas-06-026','atlas-06-038'})
+        runtime=(ROOT/'js/10c-atlas-manifest.js').read_text(encoding='utf-8')
+        self.assertEqual(json.loads(runtime[runtime.index('{'):runtime.rindex('}')+1]),manifest)
         for r in manifest['sprites']+list(manifest['terrain'].values()):
             data=(ROOT/r['src']).read_bytes()
             self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
