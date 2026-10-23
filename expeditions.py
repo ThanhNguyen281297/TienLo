@@ -75,18 +75,28 @@ def queue_farm_drop(db,uid,mob,event_id):
     if level>=30 and (mob.get('boss') or secrets.randbelow(100)<12):
         db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-refined',uid,mob['map'],'tinh-luyen-thach',time.time()))
 
+DROP_TTL=60
+
+def discard(db,drop):
+    db.execute('UPDATE expedition_drops SET claimed_at=-1 WHERE id=? AND claimed_at IS NULL',(drop['id'],))
+
 def claim(db,uid,body):
     row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
     if not row:raise ValueError('Hãy tạo nhân vật trước.')
     if body.get('revision')!=row['revision']:return {'conflict':True,'error':'Nhân vật đã cập nhật. Vui lòng thử lại.'}
     player=json.loads(row['player']);world=player.setdefault('world',{});bag=world.setdefault('bag',[])
-    claimed=[]
-    for drop in db.execute("SELECT * FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL ORDER BY (item_id IN ('cuong-hoa-thach','tinh-luyen-thach')) DESC,created_at,id LIMIT 60", (uid,)).fetchall():
+    claimed=[];now=time.time()
+    # A full bag does not pick anything up and nothing is kept for later:
+    # drops that do not fit (or waited longer than DROP_TTL) are discarded.
+    for drop in db.execute("SELECT * FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL ORDER BY (item_id IN ('cuong-hoa-thach','tinh-luyen-thach')) DESC,created_at,id LIMIT 200", (uid,)).fetchall():
+        if now-drop['created_at']>DROP_TTL:
+            discard(db,drop);continue
         item=dict(equipment.TEMPLATES[drop['item_id']],uid=drop['id'])
         stack=next((i for i in bag if i['id']==item['id'] and i.get('type')=='material' and i.get('qty',1)<9999),None)
         if stack:stack['qty']=stack.get('qty',1)+1;item['qty']=1
         else:
-            if len(bag)>=equipment.capacity(world):continue
+            if len(bag)>=equipment.capacity(world):
+                discard(db,drop);continue
             if item.get('type')=='material':item['qty']=1
             elif item.get('slot') in equipment.RULES['enhanceSlots']:
                 keys=list(equipment.DROP_OPTIONS);lines=[]

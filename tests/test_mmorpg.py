@@ -1,5 +1,6 @@
 """Regressions for fixed-level maps, atomic forge costs and automatic loot delivery."""
 import copy
+import time
 import json
 import sys
 import tempfile
@@ -63,7 +64,7 @@ class MMORPGTests(unittest.TestCase):
         self.assertEqual(r['character']['player']['world']['essence'],50000)
         self.assertEqual(r['character']['player']['world']['bag'],self.p['world']['bag'])
     def test_drop_options_persist_and_cannot_be_forged_or_removed(self):
-        self.db.execute("INSERT INTO expedition_drops VALUES('drop-one',1,'field-meadow','train-10-daobao-class-0',0,NULL)")
+        self.db.execute("INSERT INTO expedition_drops VALUES('drop-one',1,'field-meadow','train-10-daobao-class-0',?,NULL)",(time.time(),))
         r=expeditions.claim(self.db,1,dict(revision=1));p=r['character']['player'];item=p['world']['bag'][-1]
         self.assertTrue(1<=len(item['options'])<=3);equipment.validate(p,self.db,1)
         self.assertEqual(expeditions.claim(self.db,1,dict(revision=2))['claimed'],[])
@@ -71,22 +72,28 @@ class MMORPGTests(unittest.TestCase):
         with self.assertRaises(ValueError):equipment.validate(p,self.db,1)
         item['options']=[]
         with self.assertRaises(ValueError):equipment.validate(p,self.db,1)
-    def test_full_bag_preserves_gear_but_stacks_material_without_extra_slot(self):
+    def test_full_bag_discards_gear_but_stacks_material_without_extra_slot(self):
         p=copy.deepcopy(self.p);p['world']['bag'] += [dict(equipment.TEMPLATES['train-10-giay-class-0'],uid='fill-'+str(i)) for i in range(28)];self.save(p)
-        for uid,iid in [('gear','train-10-daobao-class-0'),('stone','cuong-hoa-thach')]:self.db.execute('INSERT INTO expedition_drops VALUES(?,1,?,?,0,NULL)',(uid,'field-meadow',iid))
-        r=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual([i['id'] for i in r['claimed']],['cuong-hoa-thach']);self.assertEqual(r['pending'],1)
+        now=time.time()
+        for uid,iid in [('gear','train-10-daobao-class-0'),('stone','cuong-hoa-thach')]:self.db.execute('INSERT INTO expedition_drops VALUES(?,1,?,?,?,NULL)',(uid,'field-meadow',iid,now))
+        r=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual([i['id'] for i in r['claimed']],['cuong-hoa-thach']);self.assertEqual(r['pending'],0)
+        # Selling afterwards must not pull the discarded gear into the freed slot.
         p=r['character']['player'];p['world']['bag'].pop();self.save(p,2)
-        r=expeditions.claim(self.db,1,dict(revision=2));self.assertEqual(len(r['claimed']),1);self.assertEqual(r['pending'],0)
+        r=expeditions.claim(self.db,1,dict(revision=2));self.assertEqual(r['claimed'],[]);self.assertEqual(r['pending'],0)
+    def test_stale_drops_are_discarded_not_delivered(self):
+        self.db.execute("INSERT INTO expedition_drops VALUES('old-gear',1,'field-meadow','train-10-daobao-class-0',?,NULL)",(time.time()-expeditions.DROP_TTL-5,))
+        r=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual(r['claimed'],[]);self.assertEqual(r['pending'],0)
     def test_outdoor_drops_scale_armor_level_and_include_materials(self):
         with patch('expeditions.secrets.randbelow',return_value=0):
             for n in (1,25,45,70):expeditions.queue_farm_drop(self.db,1,dict(map='field-meadow',level=n),str(n))
         ids=[r[0] for r in self.db.execute('SELECT item_id FROM expedition_drops')]
         self.assertTrue(any(i.startswith('exp-70-') for i in ids));self.assertIn('cuong-hoa-thach',ids);self.assertIn('tinh-luyen-thach',ids)
         self.assertTrue(all(equipment.TEMPLATES[i].get('slot') in ('daobao','chan','giay',None) for i in ids))
-    def test_full_bag_old_equipment_backlog_does_not_block_material_stacking(self):
+    def test_full_bag_old_equipment_backlog_is_dropped_and_material_still_stacks(self):
         p=copy.deepcopy(self.p);p['world']['bag'] += [dict(equipment.TEMPLATES['train-10-giay-class-0'],uid='fill-'+str(i)) for i in range(28)];self.save(p)
-        for n in range(65):self.db.execute('INSERT INTO expedition_drops VALUES(?,1,?,?,0,NULL)',('gear-'+str(n),'field-meadow','train-10-daobao-class-0'))
-        self.db.execute("INSERT INTO expedition_drops VALUES('new-stone',1,'field-meadow','cuong-hoa-thach',100,NULL)")
-        result=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual([i['id'] for i in result['claimed']],['cuong-hoa-thach']);self.assertEqual(result['pending'],65)
+        now=time.time()
+        for n in range(65):self.db.execute('INSERT INTO expedition_drops VALUES(?,1,?,?,?,NULL)',('gear-'+str(n),'field-meadow','train-10-daobao-class-0',now))
+        self.db.execute("INSERT INTO expedition_drops VALUES('new-stone',1,'field-meadow','cuong-hoa-thach',?,NULL)",(now,))
+        result=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual([i['id'] for i in result['claimed']],['cuong-hoa-thach']);self.assertEqual(result['pending'],0)
 
 if __name__=='__main__':unittest.main()

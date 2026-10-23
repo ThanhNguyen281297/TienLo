@@ -22,7 +22,7 @@ Mỗi vùng có mặt bằng liên tục 1.830 × 1.830 đơn vị, đường ch
 - Trang bị rơi có 1–3 option khác nhau: Công +1–3, HP +5–20, MP +3–12, Giáp +1–2, Bạo kích +0,2–0,8%, Né +0,2–0,6%. Giá trị được lấy thấp hơn trong hai lần random để hạn chế dòng cao. Option không nhân theo cường hóa.
 - Server lưu option gắn với UID; sửa hoặc xóa option trong bản lưu bị từ chối. Nhận lại cùng lượt rơi không tạo đồ trùng.
 - Quái có 35% rơi Cường Hóa Thạch; quái cấp 30+ có 12% rơi thêm Tinh Luyện Thạch. Thủ lĩnh bí cảnh luôn cho đá, đồng thời giữ phần thưởng mảnh linh khí.
-- Nguyên liệu cộng dồn tối đa 9.999/ô. Nếu túi đầy, đồ chưa giao được vẫn được giữ trong DB và tự giao khi dọn chỗ; không cần mở màn hình nhận thưởng. Đá vẫn cộng vào chồng còn chỗ dù túi đã đủ 30 ô.
+- Nguyên liệu cộng dồn tối đa 9.999/ô và vẫn vào chồng sẵn có khi túi đủ 30 ô. Túi đầy thì trang bị/nguyên liệu cần ô mới **bị bỏ, không lưu ở đâu**; đồ rơi chờ quá 60 giây cũng bị bỏ, nên bán đồ không làm đồ cũ nhảy vào túi.
 
 ## Lò cường hóa
 

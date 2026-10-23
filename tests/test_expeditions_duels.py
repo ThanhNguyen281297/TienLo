@@ -67,10 +67,10 @@ class ExpeditionDuels(unittest.TestCase):
         mob=expeditions.room('rift-fire',0)['mobs'][-1]
         expeditions.queue_drop(self.db,1,mob,'event-a');expeditions.queue_drop(self.db,1,mob,'event-a');self.db.commit()
         self.assertEqual(expeditions.pending(self.db,1),0);self.assertEqual(adventure.wallet(self.db,1)['fragments'],5);self.assertEqual(adventure.wallet(self.db,2)['fragments'],0)
-    def test_full_bag_keeps_pending_and_revision_conflicts(self):
+    def test_full_bag_discards_drop_and_revision_conflicts(self):
         p=copy.deepcopy(self.player);p['world']['bag']=[dict(equipment.TEMPLATES['moc-kiem-class-0'],uid=str(i)) for i in range(30)]
-        self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(p),));self.db.execute("INSERT INTO expedition_drops VALUES('event-b',1,'sword','exp-10-giay-class-0',0,NULL)")
-        self.assertTrue(expeditions.claim(self.db,1,dict(revision=0))['conflict']);result=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual(result['claimed'],[]);self.assertEqual(result['pending'],1)
+        self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(p),));self.db.execute("INSERT INTO expedition_drops VALUES('event-b',1,'sword','exp-10-giay-class-0',?,NULL)",(__import__('time').time(),))
+        self.assertTrue(expeditions.claim(self.db,1,dict(revision=0))['conflict']);result=expeditions.claim(self.db,1,dict(revision=1));self.assertEqual(result['claimed'],[]);self.assertEqual(result['pending'],0)
     def test_low_level_cannot_receive_high_tier_drop(self):
         p=copy.deepcopy(self.player);p['level']=1;self.db.execute('UPDATE characters SET player=? WHERE user_id=1',(json.dumps(p),));expeditions.queue_drop(self.db,1,expeditions.room('rift-void',0)['mobs'][-1],'blocked');self.assertEqual(expeditions.pending(self.db,1),0)
     def test_consent_countdown_and_duration(self):
