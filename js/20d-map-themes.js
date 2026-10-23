@@ -8,12 +8,10 @@
   moon:{name:'Nguyệt Hồ · Liên Hoa',atlas:12,sky:'#292943',accent:'#efc7ec',vista:3,left:2,right:17,rock:18,cloud:36,prop:28,wash:'#b4a6c5'},
   thunder:{name:'Lôi Vân · Băng Tinh',atlas:10,sky:'#112b4a',accent:'#82caff',vista:3,left:2,right:4,rock:22,cloud:63,prop:9,wash:'#93afce'},
   mystic:{name:'Thiên Cơ · Linh Mộc',atlas:14,sky:'#183b32',accent:'#a8e2b0',vista:1,left:2,right:8,rock:27,cloud:68,prop:12,wash:'#9dbb99'},
-  valley:{name:'Linh Mạch · Cổ Thụ',atlas:14,sky:'#16372f',accent:'#a5dcb3',vista:2,left:9,right:69,rock:31,cloud:73,prop:18,wash:'#a4bb97'},
-  rift:{name:'Vân Hải · Cổ Tích',atlas:11,sky:'#142d3d',accent:'#8ce0ed',vista:2,left:12,right:16,rock:35,cloud:81,prop:28,wash:'#a4c7cc'},
   arena:{name:'Đấu trường · Hỏa Điện',atlas:13,sky:'#3a262a',accent:'#f2be84',vista:1,left:2,right:3,rock:15,cloud:null,prop:6,wash:'#d5ad95'},
   worldboss:{name:'Thái Cổ · Ma Vực',atlas:15,sky:'#2d2029',accent:'#ed9c83',vista:1,left:17,right:9,rock:40,cloud:null,prop:12,wash:'#c7a6a0'}
  };
- function current(){return themes[world.state.scene==='arena'&&window.spiritRift?.state()?'rift':world.state.scene];}
+ function current(){return themes[world.state.scene];}
  function load(key){if(!metadata.has(key))return null;if(!images.has(key)){const image=new Image();image.src=artworkURL(metadata.get(key).src);images.set(key,image);}return images.get(key);}
  const ready=image=>image?.complete&&image.naturalWidth>0;
  function bounds(key,x,y,width){const meta=metadata.get(key);if(!meta)return null;const scale=Math.min(width,meta.width)/meta.width,p=meta.padding;return{left:x-meta.width*scale/2+p*scale,right:x+meta.width*scale/2-p*scale,top:y-(meta.height-2*p)*scale,bottom:y};}
@@ -26,7 +24,6 @@
  function configure(){const theme=current();if(!theme)return;configured=world.state.scene;const layout=world.sectLayouts[world.state.scene];if(layout){layout.sky=theme.sky;layout.light=theme.accent;}
   // Only replace the small existing altar prop; retain the occupied building/NPC zones.
   if(world.isSectMap(world.state.scene))for(const b of world.buildings)if(b.x===1080&&b.y===1000){b.key=id(theme.atlas,theme.prop);b.w=world.state.scene==='moon'?24:26;}
-  if(world.state.scene==='valley')for(const b of world.buildings)if(b.key==='crystalPillar'){b.key=id(theme.atlas,theme.prop);b.w=b.x===1000?30:24;}
   const decoration=world.mapDecorations[world.state.scene];if(decoration){const plant={sword:id(14,55),moon:id(14,36),thunder:id(10,15),mystic:id(14,56)}[world.state.scene];for(const prop of decoration)if(['pineTree','whiteBlossom','sakura'].includes(prop.key)){prop.key=plant;prop.w=world.state.scene==='thunder'?35:44;}}
  }
  const change=world.switchScene;world.switchScene=function(...args){const result=change(...args);configure();return result;};
@@ -44,7 +41,6 @@
    {key:id(t.atlas,t.left),x:560,y:830,w:260,alpha:.72},
    {key:id(t.atlas,t.right),x:1440,y:830,w:230,alpha:.72}
   ];
-  if(!hub&&!battle)for(const camp of scene==='valley'?world.valleyMines:world.farmCamps)result.push({key:id(t.atlas,t.rock),x:camp.x+185,y:camp.y+150,w:65,alpha:.8});
   return result;
  }
  function drawBackdrop(ctx,cx,cy,vw,vh){const t=current();if(!t)return false;if(configured!==world.state.scene)configure();

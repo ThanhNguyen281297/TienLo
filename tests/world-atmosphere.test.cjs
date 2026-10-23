@@ -23,7 +23,7 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
    assert(new Set(frames.map(f=>f.hash)).size>=22,'Static/stepped '+kind);assert(frames.every(f=>f.ink>30),'Invisible '+kind);assert.equal((await page.evaluate(kind=>renderAtmosphereProof(kind,.2),kind)).hash,frames[0].hash,'History dependent '+kind);
    if(kind==='river')assert(frames.every(f=>f.floor===0&&f.rock===0),'Water spills onto stone or floor');
   }
-  const kinds=new Set();for(const scene of ['hub','sword','moon','thunder','mystic','valley','arena','worldboss']){
+  const kinds=new Set();for(const scene of ['hub','sword','moon','thunder','mystic','arena','worldboss']){
    const result=await page.evaluate(scene=>{
     worldMap.dialog.close();if(worldMap.state.scene==='arena')worldMap.travel('hub');
     if(scene==='arena'||scene==='worldboss'){worldMap.travel('hub');worldMap.state.scene=scene;worldMap.buildings.length=0;worldMap.services.length=0;worldMap.mapThemes.configure();}else worldMap.travel(scene);
@@ -39,10 +39,10 @@ const {chromium}=require(path.join(os.homedir(),'.cache/codex-runtimes/codex-pri
   const frozen=await page.evaluate(()=>{worldMap.dialog.show('Pause','');const t=worldMap.environmentClock;up(.5);worldMap.dialog.close();return worldMap.environmentClock===t;});assert(frozen);
   await page.screenshot({path:path.join(__dirname,'artifacts/atmosphere-moon.png')});await page.setViewportSize({width:844,height:390});await page.evaluate(()=>{rs();dr();});assert(await page.evaluate(()=>worldMap.atmosphere.count()<worldMap.atmosphere.profile().count));assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:path.join(__dirname,'artifacts/atmosphere-mobile.png')});await page.setViewportSize({width:1200,height:800});
   // An in-game, eight-second preview: four maps, real render and simulation loops.
-  for(const scene of ['hub','moon','thunder','valley']){await page.evaluate(scene=>{worldMap.travel(scene);P.x=1000;P.y=1110;up(.01);dr();},scene);await page.waitForTimeout(150);}
+  for(const scene of ['hub','moon','thunder','mystic']){await page.evaluate(scene=>{worldMap.travel(scene);P.x=1000;P.y=1110;up(.01);dr();},scene);await page.waitForTimeout(150);}
   await page.evaluate(async()=>Promise.all([...worldMap.mapThemes.images.values()].map(i=>i.decode())));
   const film=await page.evaluate(async()=>{
-   const stream=cv.captureStream(24),recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'}),chunks=[],maps=['hub','moon','thunder','valley'];recorder.ondataavailable=e=>chunks.push(e.data);const stopped=new Promise(r=>recorder.onstop=r);let scene='',last=performance.now();const start=last,frameTimes=[];recorder.start();
+   const stream=cv.captureStream(24),recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'}),chunks=[],maps=['hub','moon','thunder','mystic'];recorder.ondataavailable=e=>chunks.push(e.data);const stopped=new Promise(r=>recorder.onstop=r);let scene='',last=performance.now();const start=last,frameTimes=[];recorder.start();
    await new Promise(resolve=>{const tick=()=>{const now=performance.now(),elapsed=(now-start)/1000,index=Math.min(3,Math.floor(elapsed/2));if(scene!==maps[index]){scene=maps[index];worldMap.travel(scene);P.x=1000;P.y=1110;E=[];}
     const t0=performance.now();tm+=Math.min(.05,(now-last)/1000);up(Math.min(.05,(now-last)/1000));last=now;dr();frameTimes.push(performance.now()-t0);g.save();g.setTransform(1,0,0,1,0,0);g.font='600 27px Arial';g.textAlign='center';g.fillStyle='#f5e5c5';g.strokeStyle='#0b1b27';g.lineWidth=5;const title=worldMap.sectMaps[scene].name;g.strokeText(title,W/2,45);g.fillText(title,W/2,45);g.restore();if(elapsed>=8)resolve();else setTimeout(tick,Math.max(0,1000/24-(performance.now()-now)));};tick();});
    recorder.stop();await stopped;stream.getTracks().forEach(t=>t.stop());let bytes='';for(const byte of new Uint8Array(await new Blob(chunks).arrayBuffer()))bytes+=String.fromCharCode(byte);return{data:btoa(bytes),frames:frameTimes.length,p95:frameTimes.sort((a,b)=>a-b)[Math.floor(frameTimes.length*.95)]};

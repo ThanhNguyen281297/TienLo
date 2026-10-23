@@ -1,25 +1,19 @@
-/* Đảo tông môn và bãi luyện công; các đảo riêng, không có cầu nối. */
+/* Đảo tông môn (sân trung tâm, không có bãi quái) và Thiên Vân Thành. Quái chỉ ở Sơn Hà, Bí Cảnh, tháp và boss. */
 (function(){
   const world=worldMap,dialog=world.dialog;
   world.customLayout=true;
-  const camps=farmLayout.camps;
-  world.farmCamps=camps;
   Object.assign(world.definitions,{moonCourt:[2,0,510/1086,375/1448,225/1086],moonDais:[2,375/1448,530/1086,270/1448,174/1086],stairs:[2,0,850/1086,200/1448,236/1086],bridgeRail:[2,8/1448,995/1086,20/1448,50/1086]});world.preloadSprites();
   const layouts={
     sword:{rx:420,ry:235,sky:'#172e31',light:'#82b9aa',hall:null,subtitle:'Thiên kiếm giữa biển mây',trees:'pineTree'},
     moon:{rx:430,ry:240,sky:'#0e253d',light:'#84c2da',hall:'palace',subtitle:'Thủy đình và vườn trăng',trees:'whiteBlossom'},
     thunder:{rx:420,ry:235,sky:'#1b203e',light:'#aaa7e3',hall:'thunderHall',subtitle:'Lôi đài trên đỉnh mây',trees:'pineTree'},
     mystic:{rx:430,ry:240,sky:'#173531',light:'#a6cfb4',hall:'mysticHall',subtitle:'Thư các và trận pháp trong vườn ngọc',trees:'sakura'},
-    tower:{rx:460,ry:300,sky:'#1a2236',light:'#c8a9e9',hall:'arena',subtitle:'Vạn Tầng Tháp · trận pháp luân hồi',trees:'crystalPillar'},
-    valley:{rx:340,ry:190,sky:'#1d3a2e',light:'#9fe8b8',hall:null,subtitle:'Mạch linh hội tụ · Linh Nguyên x2',trees:'pineTree'}
+    tower:{rx:460,ry:300,sky:'#1a2236',light:'#c8a9e9',hall:'arena',subtitle:'Vạn Tầng Tháp · trận pháp luân hồi',trees:'crystalPillar'}
   };
-  const valleyMines=farmLayout.mines;
-  world.farmSettings=farmLayout;
-  world.farmPopulation=()=>world.state.scene==='valley'?farmLayout.valley.perCamp*valleyMines.length:farmLayout.camp.perCamp*camps.length;
-  world.sectLayouts=layouts;world.valleyMines=valleyMines;
-  const clan=()=>world.isSectMap(world.state.scene),isValley=()=>world.state.scene==='valley',layout=()=>layouts[world.state.scene]||layouts.sword;
+  world.sectLayouts=layouts;
+  const clan=()=>world.isSectMap(world.state.scene),layout=()=>layouts[world.state.scene]||layouts.sword;
   const ready=image=>image&&image.complete&&image.naturalWidth>0;
-  const nativeSwitch=world.switchScene,nativeRespawn=world.respawn,nativeService=world.handleService,nativeCamera=world.camera;
+  const nativeSwitch=world.switchScene,nativeService=world.handleService,nativeCamera=world.camera;
   const originalTitle=world.sceneTitle;
   const point=(x,y)=>({x,y});
   const mainShape=()=>layout();
@@ -27,15 +21,14 @@
   function terrain(p){if(world.state.scene==='arena')return Math.hypot(p.x-1000,(p.y-1100)*2)<190;
     if(world.mapStructures&&world.state.scene!=='tower'&&!world.mapStructures.onSurface(p))return false;
     if(world.state.scene==='tower')return diamond(p,1000,1100,460,300);
-    if(isValley()){const main=layouts.valley;return diamond(p,1000,1100,main.rx,main.ry)||valleyMines.some(c=>diamond(p,c.x,c.y,farmLayout.valley.rx,farmLayout.valley.ry));}
-    const main=mainShape();return diamond(p,1000,1100,main.rx,main.ry)||camps.some(c=>diamond(p,c.x,c.y,farmLayout.camp.rx,farmLayout.camp.ry));}
+    const main=mainShape();return diamond(p,1000,1100,main.rx,main.ry);}
   const oldWalk=world.canWalk;
   // Thiên Vân Thành is a floating diamond island like the sect courts.
   const HUB_DECK={rx:740,ry:470};world.hubDeck=HUB_DECK;
   const hubWalk=p=>Math.abs(p.x-1000)/(HUB_DECK.rx*.95)+Math.abs(p.y-1100)/(HUB_DECK.ry*.95)<1&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
   world.canWalk=p=>world.state.scene==='hub'?hubWalk(p):p.x>20&&p.x<M-20&&p.y>20&&p.y<M-20&&terrain(p)&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
   world.traceMove=(from,to)=>{if(!world.canWalk(from))return {...from};const steps=Math.max(1,Math.ceil(Math.hypot(to.x-from.x,to.y-from.y)/3));let last={...from};for(let i=1;i<=steps;i++){const p={x:from.x+(to.x-from.x)*i/steps,y:from.y+(to.y-from.y)*i/steps};if(!world.canWalk(p))break;last=p;}return last;};
-  world.sceneSafety=p=>{if(isValley())return diamond(p,1000,1100,layouts.valley.rx+5,layouts.valley.ry+5);return clan()&&diamond(p,1000,1100,mainShape().rx+5,mainShape().ry+5);};
+  world.sceneSafety=p=>clan()&&diamond(p,1000,1100,mainShape().rx+5,mainShape().ry+5);
   world.bridgeRoutes=()=>[];
   world.sceneTitle=()=>world.state.scene==='arena'?'Đấu trường tông môn':world.state.scene==='tower'?'Vạn Tầng Tháp':originalTitle();
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
@@ -51,8 +44,7 @@
     sword:{base:'emptyIsland',motif:'court',satellites:[['gardenIsland',560,805,180],['wildIsland',1440,820,150],['rockSpire',690,1430,95]]},
     moon:{base:'gardenIsland',motif:'roundCourt',satellites:[['smallIsland',600,845,185],['lotusTerrace',1410,820,205],['smallIsland',1430,1400,130]]},
     thunder:{base:'emptyIsland',motif:'roundCourt',satellites:[['rockSpire',560,830,160],['emptyIsland',1430,820,190],['rockSpire',1400,1430,120]]},
-    mystic:{base:'gardenIsland',motif:'court',satellites:[['lotusTerrace',575,835,200],['wildIsland',1430,815,180],['smallIsland',650,1400,140]]},
-    valley:{base:'emptyIsland',motif:null,satellites:[['wildIsland',660,820,210],['wildIsland',1360,850,185],['smallIsland',1190,1450,150]]}
+    mystic:{base:'gardenIsland',motif:'court',satellites:[['lotusTerrace',575,835,200],['wildIsland',1430,815,180],['smallIsland',650,1400,140]]}
   };
   const districts={sword:[['school',560,805,230],['gate',1450,815,160]],moon:[['garden',555,810,220],['moonCourt',1450,810,190]],thunder:[['thunderHall',560,810,230],['thunderAltar',1440,815,100]],mystic:[['mysticArchive',560,810,210],['mysticGarden',1440,810,220]]};
   function terrainArt(ctx,key,x,y,width,plane=.43,opacity=1){const image=terrainSprites[key];if(!ready(image))return false;
@@ -110,22 +102,16 @@
   const decor={sword:[],moon:[],thunder:[],mystic:[]};
   for(const id of world.sectIds){const l=layouts[id];
     for(const [x,y]of [[820,1140],[1180,1145]])decor[id].push({key:l.trees,x,y,w:44});
-    camps.forEach(c=>{
-      decor[id].push({key:l.trees,x:c.x,y:c.y+(c.id==='south'?50:-50),w:40});
-    });
   }
   decor.moon.push({key:'lotusPond',x:750,y:1120,w:85},{key:'lotusPond',x:1250,y:1120,w:85});
   decor.thunder.push({key:'crystalPillar',x:1220,y:1100,w:22});
   decor.mystic.push({key:'lotusPond',x:750,y:1120,w:70},{key:'lotusPond',x:1250,y:1120,w:70});
   world.mapDecorations=decor;
-  const valleyDecor=[{key:'pineTree',x:740,y:1105,w:82},{key:'pineTree',x:1260,y:1105,w:82},{key:'crystalPillar',x:1000,y:620,w:34},{key:'crystalPillar',x:1500,y:1300,w:30},{key:'crystalPillar',x:500,y:1300,w:30},{key:'lotusPond',x:1150,y:1210,w:95}];
   function paintGround(ctx,cx,cy,vw,vh){floorView={x:cx-2,y:cy-2,width:vw+4,height:vh+4};ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
     if(world.state.scene==='hub'){hubFloor(ctx,cx,cy,vw,vh);ctx.restore();return;}
     sky(ctx,cx,cy,vw,vh);
     if(world.state.scene==='arena'||world.state.scene==='worldboss'){const large=world.state.scene==='worldboss';islandDeck(ctx,1000,1100,large?320:200,large?160:100,65);ctx.restore();return;}
-    const layers=[{y:1100,priority:0,draw:()=>court(ctx,layout())}];
-    (isValley()?valleyMines:world.state.scene==='tower'?[]:camps).forEach(c=>layers.push({y:c.y,priority:2,draw:()=>islandDeck(ctx,c.x,c.y,isValley()?farmLayout.valley.rx:farmLayout.camp.rx,isValley()?farmLayout.valley.ry:farmLayout.camp.ry,65)}));
-    layers.sort((a,b)=>a.y-b.y||a.priority-b.priority).forEach(layer=>layer.draw());ctx.restore();
+    court(ctx,layout());ctx.restore();
   }
   drawGround=(cx,cy,vw,vh)=>paintGround(g,cx,cy,vw,vh);
   world.drawGroundDetails=function(ctx,cx,cy,vw,vh){if(world.state.scene==='hub')return;
@@ -139,14 +125,6 @@
       const services={quest:[1000,935],shop:[760,1210],forge:[1240,1210],teleport:[1000,1330],tower:[1240,1385],rank:[1240,1015],skills:[760,1000]};
       for(const s of world.services){if(s.id==='arena')s.id='tower';if(services[s.id])[s.x,s.y]=services[s.id];}
       return;
-    }
-    if(isValley()){
-      world.buildings.splice(0,world.buildings.length,{key:'portal',x:870,y:1165,w:45},{key:'crystalPillar',x:1000,y:1020,w:34},{key:'crystalPillar',x:940,y:1040,w:26},{key:'crystalPillar',x:1060,y:1040,w:26});
-      world.services.splice(0,world.services.length,
-        {id:'teleport',name:'Truyền tống · Về tông môn',x:870,y:1175,color:'#eed8a7'},
-        {id:'valley-info',name:'Linh Mạch · x2 Linh Nguyên',x:1000,y:1050,color:'#9fe8b8'},
-        ...valleyMines.map(c=>({id:'vein-'+c.id,name:c.name,x:c.x,y:c.y+38,color:'#c9f2d4'})));
-      world.state.near=null;return;
     }
     if(world.state.scene==='tower'){
       world.buildings.splice(0,world.buildings.length,{key:'arena',x:1000,y:920,w:340,ground:true},{key:'portal',x:1000,y:1320,w:72},{key:'crystalPillar',x:720,y:1050,w:38},{key:'crystalPillar',x:1280,y:1050,w:38},{key:'lotusPond',x:770,y:1190,w:96},{key:'lotusPond',x:1230,y:1190,w:96});
@@ -165,14 +143,13 @@
       {id:'mentor',name:meta.mentor+' · Sư phụ',x:910,y:1125,npc:true,color:meta.color},
       {id:'sectSkills',name:'Truyền công',x:1120,y:1125,npc:true,color:meta.color},
       {id:'teleport',name:'Truyền tống · Thiên Vân Thành',x:870,y:1175,color:'#eed8a7'},
-      {id:'boss',name:'Thử thách tông môn',x:1130,y:1175,color:'#eed8a7'},
-      ...camps.map(c=>({id:'camp-'+c.id,name:c.name,x:c.x,y:c.y+38,color:'#d4e4d9'})));
+      {id:'board',name:'Bảng Sơn Hà · Đi săn',x:1130,y:1175,color:'#eed8a7'});
     world.state.near=null;
   }
-  world.layoutArt={modules,islandDeck,hubDecor,decor,valleyDecor,terrainSprites,highIsland,stonePaving,themes,districts};
+  world.layoutArt={modules,islandDeck,hubDecor,decor,terrainSprites,highIsland,stonePaving,themes,districts};
   const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='Character/'+folder+'/Nam/truoc.png';return img;});
   world.layoutArt.placements=function(){
-    const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:[];
+    const decorations=world.state.scene==='hub'?hubDecor:clan()?decor[world.state.scene]:[];
     const props=[...world.buildings.filter(b=>!b.ground),...decorations].map((p,i)=>{const bounds=world.spriteBounds(p.key,p.x,p.y,p.w);return{id:p.key+':'+i,type:'prop',...(bounds||{left:p.x,right:p.x,top:p.y,bottom:p.y})};});
     const roles={quest:'nhiemvu',shop:'thoren',forge:'thoren',arena:'dautruong',tower:'dautruong',rank:'bxh'};
     for(const s of world.services)if(s.npc){const index=world.sectMaps[world.state.scene]?.classIndex||0,role=world.state.scene==='hub'?roles[s.id]:null,image=role?creatureArt.npcImages[role]:actorBodies[index],h=role?(s.id==='rank'?68:60):index===2?52.5:42,w=ready(image)?h*image.naturalWidth/image.naturalHeight:24;props.push({id:s.id,type:'npc',left:s.x-w/2,right:s.x+w/2,top:s.y-h,bottom:s.y});}
@@ -184,7 +161,7 @@
     return;
   }
     for(const e of window.creatureArt?.corpses||[])items.push([e.y,()=>mon(e)]);
-    const decorations=isValley()?valleyDecor:clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
+    const decorations=clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
     for(const b of [...world.buildings,...decorations])if(b.x>cx-b.w&&b.x<cx+vw+b.w&&b.y>cy-40&&b.y<cy+vh+b.w)items.push([b.y,()=>world.sprite(g,b.key,b.x,b.y,b.w)]);
     for(const s of world.services)if(s.npc)items.push([s.y,()=>{const index=world.sectMaps[world.state.scene]?.classIndex||0,image=actorBodies[index];if(ready(image)){const h=index===2?52.5:42,w=h*image.naturalWidth/image.naturalHeight;g.drawImage(image,s.x-w/2,s.y-h,w,h);}}]);
   };
@@ -192,41 +169,29 @@
     if(world.state.scene==='hub'){const c=world.city,w=c.right-c.left+120,h=c.bottom-c.top+120,zoom=size/Math.max(w,h);ctx.translate((size-w*zoom)/2,(size-h*zoom)/2);ctx.scale(zoom,zoom);ctx.translate(-c.left+60,-c.top+60);}
     else ctx.scale(size/M,size/M);
     paintGround(ctx,0,0,M,M);world.drawGroundDetails(ctx,0,0,M,M);
-    const decorations=world.state.scene==='hub'?hubDecor:isValley()?valleyDecor:clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
+    const decorations=world.state.scene==='hub'?hubDecor:clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
     [...world.buildings.filter(b=>!b.ground),...decorations].sort((a,b)=>a.y-b.y).forEach(d=>world.sprite(ctx,d.key,d.x,d.y,d.w));
     ctx.font='bold 28px Georgia,serif';ctx.textAlign='center';ctx.fillStyle='#f9e7b6';ctx.strokeStyle='#15272b';ctx.lineWidth=5;
-    if(isValley())valleyMines.forEach(c=>{ctx.strokeText(c.name,c.x,c.y+125);ctx.fillText(c.name,c.x,c.y+125);});
-    else if(clan())camps.forEach(c=>{ctx.strokeText(c.name,c.x,c.y+125);ctx.fillText(c.name,c.x,c.y+125);});
     world.services.forEach(s=>{ctx.fillStyle=s.id==='teleport'?'#ffe29c':'#7ce0cd';ctx.beginPath();ctx.arc(s.x,s.y,12,0,Math.PI*2);ctx.fill();});
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(P.x,P.y,16,0,Math.PI*2);ctx.fill();ctx.restore();
   };
-  world.generateFarm=function(index){
-    if(!isValley()&&!clan())return;const settings=isValley()?farmLayout.valley:farmLayout.camp,list=isValley()?valleyMines:camps,camp=list[Math.floor(index/settings.perCamp)%list.length],slot=farmLayout.slots[index%settings.perCamp];
-    const x=camp.x+slot.x*settings.rx,y=camp.y+slot.y*settings.ry;
-    E[index]={t:camp.t,x,y,hx:x,hy:y,hp:T[camp.t].hp,dead:0,cd:1,fr:0,fl:0,worldMap:true,map:world.state.scene,camp:camp.id,valley:isValley()};
-  };
-  const nativeGenerateFarm=world.generateFarm;
-  spawn=index=>{if(isValley()||clan())world.generateFarm(index);};
-  // Farm giữ theo map, đấu trường không đưa vào bộ nhớ quái tông môn.
+  // Sect courts are safe hubs: no local or networked farm mobs.
+  world.farmPopulation=()=>0;spawn=()=>{};
   world.switchScene=function(id,initial=false){if(id==='arena')return world.openArena();if(world.state.scene==='arena')return leaveArena(id);
     nativeSwitch(id,initial);configure();};
   const creator=$('ok').onclick;$('ok').onclick=()=>{creator();if(P.ap&&cr.style.display==='none')configure();};
   // The old 30-wave arena was replaced by Vạn Tầng Tháp (js/35u-tower.js owns openArena).
-  // Scene 'arena' is still the solo spirit rift, so leaving it restores the previous map.
+  // Scene 'arena' is a bare battle deck (tests, legacy saves); leaving it restores the previous map.
   let returnMap='hub',entryEpoch=0;
   function resetCombat(){classCombat.onRespawn();B.length=SP.length=V.length=LT.length=X.length=PT.length=0;K={};ptr=null;P.med=0;P.sl=0;P.acd=.5;kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;}
   function leaveArena(destination=returnMap){entryEpoch++;world.stopArena();resetCombat();E=[];world.state.scene='hub';P.world.map='hub';nativeSwitch(world.sectMaps[destination]?destination:'hub');configure();}
   world.arenaRun=()=>null;world.leaveArena=()=>leaveArena();
   world.handleService=function(id){if(id==='boss'||id==='arena'){dialog.show('Thử thách','Nội dung thử thách cũ đã khép lại. Hãy đến Vạn Tầng Tháp trong Thiên Vân Thành.');return true;}if(id==='leaveArena'){dialog.show('Rời đấu trường','Thử thách cũ đã đóng.');dialog.action('Rời đấu trường',()=>leaveArena());return true;}
-    if(id==='valley-info'){dialog.show('Linh Mạch Cốc','Ba mạch linh: Bắc / Đông / Tây. Quái cho x2 Linh Nguyên, nhiều đạo hạnh hơn 20%, nhưng khỏe hơn 15%. Trọng thương trở về tông môn.');dialog.line('Mạch Bắc: Bọ Ngựa · Mạch Đông: Nguyệt Thố · Mạch Tây: Băng Dực Dơi.');dialog.action('Về đài an toàn · hồi linh lực',()=>{P.x=1000;P.y=1100;P.mp=typeof mmp==='function'?mmp():P.mp;dialog.close();});return true;}
-    if(id.startsWith('vein-')){const mine=valleyMines.find(c=>'vein-'+c.id===id);dialog.show(mine?.name||'Mạch linh','Mạch linh hội tụ, quái quanh mạch cho x2 Linh Nguyên.');dialog.line('Farm 12 quái quanh mạch, hồi sinh sau 8 giây. Dùng trận truyền tống (E) để quay về đài. Cẩn thận quái khỏe hơn bãi thường.');return true;}
-    if(id==='teleport'&&isValley()){dialog.show('Truyền tống','Rời Linh Mạch Cốc về nơi tu hành.');const back=P.world?.sectHome||world.sectMapFor(P.ap?.w||0);dialog.action('Về tông môn',()=>world.switchScene(back));dialog.action('Về Thiên Vân Thành',()=>world.switchScene('hub'));return true;}
-    if(id.startsWith('camp-')){dialog.show('Bãi luyện công',camps.find(c=>'camp-'+c.id===id)?.name||'Yêu thú');dialog.line('Bốn bãi ở bốn hướng, mỗi bãi có 12 quái cùng loài, hồi sinh sau 8 giây. Đến trận truyền tống gần mép sân và nhấn E để sang bãi. Trận ở bãi đưa về sân tông môn.');return true;}return nativeService(id);};
-  const nativeValleyRespawn=nativeRespawn;
-  world.respawn=function(){if(world.state.scene==='valley'){const home=world.sectMapFor(P.ap?.w||0);msg('Trọng thương ở Linh Mạch Cốc! Được đưa về tông môn.');world.state.scene='hub';P.world.map='hub';nativeSwitch(home);configure();P.hp=typeof mhp==='function'?mhp():P.hp;return;}return nativeValleyRespawn();};
+    if(id==='board'&&clan()){dialog.show('Bảng Sơn Hà','Tông môn là nơi an toàn để nhận chỉ dạy và truyền công. Yêu thú ở Sơn Hà và Tứ Phương Bí Cảnh.');dialog.action('Mở bản đồ vùng săn',()=>{dialog.close();window.overworldGame?.openRoutes();});return true;}
+    return nativeService(id);};
   const oldMini=world.renderMini;world.renderMini=function(ctx,size){if(world.state.scene==='hub')return oldMini(ctx,size);ctx.fillStyle=layout().sky;ctx.fillRect(0,0,size,size);ctx.save();ctx.scale(size/M,size/M);
     if(world.state.scene==='arena'){ctx.fillStyle='#c2b49a';ctx.beginPath();ctx.ellipse(1000,1100,190,95,0,0,Math.PI*2);ctx.fill();}
-    else{const mark=(x,y,rx,ry)=>{ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.fill();};ctx.fillStyle='#d5c8aa';const main=isValley()?layouts.valley:mainShape();mark(1000,1100,main.rx,main.ry);(isValley()?valleyMines:camps).forEach(c=>{ctx.fillStyle=['#91b67e','#9fd8ed','#d58a80','#bac7e1'][[0,1,4,3].indexOf(c.t)];const size=isValley()?farmLayout.valley:farmLayout.camp;mark(c.x,c.y,size.rx,size.ry);});}
+    else{const mark=(x,y,rx,ry)=>{ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();ctx.fill();};ctx.fillStyle='#d5c8aa';const main=mainShape();mark(1000,1100,main.rx,main.ry);}
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(P.x,P.y,18,0,Math.PI*2);ctx.fill();ctx.restore();};
-  world.openOverview=()=>{dialog.show(isValley()?'Linh Mạch Cốc':'Tông môn và vùng luyện',world.sceneTitle());const c=document.createElement('canvas');c.width=c.height=360;c.className='world-overview';$('world-content').appendChild(c);world.renderMapPreview(c.getContext('2d'),360);world.regions.forEach(r=>dialog.line(r.name+' · '+r.description));if(world.state.scene!=='hub')camps.forEach(c=>dialog.line(c.name));dialog.line('Dùng trận truyền tống ở bốn hướng để tới bãi luyện công. Thiên Vân Thành có nhiệm vụ, lò rèn và Vạn Tầng Tháp.');};
+  world.openOverview=()=>{dialog.show('Tông môn',world.sceneTitle());const c=document.createElement('canvas');c.width=c.height=360;c.className='world-overview';$('world-content').appendChild(c);world.renderMapPreview(c.getContext('2d'),360);world.regions.forEach(r=>dialog.line(r.name+' · '+r.description));dialog.line('Truyền tống về Thiên Vân Thành để nhận nhiệm vụ, rèn đồ và ra Sơn Hà săn yêu thú.');};
 })();

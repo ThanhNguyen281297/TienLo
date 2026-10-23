@@ -1,4 +1,4 @@
-"""Persistent story, sect merit and crafting. Economic actions are atomic and replay safe."""
+"""Persistent story quests and fragment crafting. Economic actions are atomic and replay safe."""
 import json
 import secrets
 import time
@@ -67,10 +67,11 @@ def init_db(db):
     ''')
 
 def wallet(db,uid):
-    row=db.execute('SELECT fragments,merit FROM adventure_wallet WHERE user_id=?',(uid,)).fetchone()
+    # The legacy merit column stays in the table (sect merit was retired) but is never read.
+    row=db.execute('SELECT fragments FROM adventure_wallet WHERE user_id=?',(uid,)).fetchone()
     if row:return dict(row)
     db.execute('INSERT OR IGNORE INTO adventure_wallet(user_id) VALUES(?)',(uid,))
-    return dict(db.execute('SELECT fragments,merit FROM adventure_wallet WHERE user_id=?',(uid,)).fetchone())
+    return dict(db.execute('SELECT fragments FROM adventure_wallet WHERE user_id=?',(uid,)).fetchone())
 
 def add(db,uid,key,amount=1):
     db.execute('INSERT INTO adventure_counters VALUES(?,?,?) ON CONFLICT(user_id,key) DO UPDATE SET value=value+excluded.value',(uid,key,amount))
@@ -161,7 +162,7 @@ def quests(db,uid,player):
                 if unlocked and baseline is None:
                     db.execute('INSERT INTO adventure_quest_starts VALUES(?,?,?)',(uid,ident,value));baseline={'baseline':value}
                 value=max(0,value-(baseline['baseline'] if baseline else value))
-            result.append(dict(id=ident,title=title,story=story,kind=group,key=key,target=target,value=min(target,int(value)),level=level,claimed=done,unlocked=unlocked,ready=unlocked and value>=target and not done,xp=xp,gold=gold,fragments=extra,merit=0,goal=goal(key,player)))
+            result.append(dict(id=ident,title=title,story=story,kind=group,key=key,target=target,value=min(target,int(value)),level=level,claimed=done,unlocked=unlocked,ready=unlocked and value>=target and not done,xp=xp,gold=gold,fragments=extra,goal=goal(key,player)))
             if group=='main':prior=prior and done
     return result
 
@@ -174,12 +175,8 @@ def recipes(player):
         result.append(dict(id=item['id'],cost=quality[3],level=max(quality[4],item.get('req',0)),quality=quality[0]))
     return result
 
-def shop(player):
-    cls=player['ap']['w']
-    return [dict(id=f'sect-{slot}-class-{cls}',merit=180 if slot=='vukhi' else 120) for slot in ('vukhi','daobao','chan','giay')]
-
 def snapshot(db,uid,player):
-    return dict(**wallet(db,uid),quests=quests(db,uid,player),recipes=recipes(player),shop=[],qualities=[dict(id=q[0],name=q[1],color=q[2],cost=q[3],level=q[4]) for q in QUALITIES],tutorial={key:count(db,uid,key) for key in ('walk','attack','ui:bag','ui:attrs','meditate')})
+    return dict(**wallet(db,uid),quests=quests(db,uid,player),recipes=recipes(player),qualities=[dict(id=q[0],name=q[1],color=q[2],cost=q[3],level=q[4]) for q in QUALITIES],tutorial={key:count(db,uid,key) for key in ('walk','attack','ui:bag','ui:attrs','meditate')})
 
 def grant_item(db,uid,player,iid):
     bag=player['world']['bag']
@@ -229,23 +226,22 @@ def action(db,uid,body,gm=False):
             if type(realm) is not int or realm not in range(15) or type(stage) is not int or stage not in range(1,11):raise ValueError('Cảnh giới không hợp lệ.')
             player['r']=realm;player['stage']=stage
         else:raise ValueError('Lệnh GM không hợp lệ.')
-    elif op in ('craft','sect_buy'):
-        if op=='sect_buy':raise ValueError('Nhiệm vụ và cửa hàng sư môn đã đóng.')
+    elif op=='craft':
         if player['world'].get('map')!='hub' or __import__('math').hypot(player['x']-1240,player['y']-1210)>110:raise ValueError('Hãy tới NPC Luyện Khí để ghép trang bị.')
         if not __import__('community').safe(player):raise ValueError('Về vùng an toàn để ghép hoặc đổi đồ.')
-        iid=body.get('id');offers=recipes(player) if op=='craft' else shop(player);offer=next((r for r in offers if r['id']==iid),None)
+        iid=body.get('id');offers=recipes(player);offer=next((r for r in offers if r['id']==iid),None)
         if not offer:raise ValueError('Công thức không hợp lệ với class/giới tính.')
         level=offer.get('level',25)
         if progression.level(player)<level:raise ValueError('Cần cấp '+str(level)+'.')
-        key='fragments' if op=='craft' else 'merit';cost=offer.get('cost',offer.get('merit'))
-        if wallet(db,uid)[key]<cost:raise ValueError('Chưa đủ '+('mảnh linh khí' if op=='craft' else 'cống hiến sư môn')+'.')
-        grant_item(db,uid,player,iid);db.execute('UPDATE adventure_wallet SET '+key+'='+key+'-? WHERE user_id=?',(cost,uid));add(db,uid,'craft' if op=='craft' else 'sectBuy')
+        cost=offer['cost']
+        if wallet(db,uid)['fragments']<cost:raise ValueError('Chưa đủ mảnh linh khí.')
+        grant_item(db,uid,player,iid);db.execute('UPDATE adventure_wallet SET fragments=fragments-? WHERE user_id=?',(cost,uid));add(db,uid,'craft')
     elif op=='quest_claim':
         quest=next((q for q in quests(db,uid,player) if q['id']==body.get('id')),None)
         if not quest or not quest['ready']:raise ValueError('Nhiệm vụ chưa hoàn thành hoặc đã nhận thưởng.')
         if not __import__('community').safe(player):raise ValueError('Về vùng an toàn để báo cáo nhiệm vụ.')
         db.execute('INSERT INTO adventure_claims VALUES(?,?,?)',(uid,quest['id'],day() if quest['kind']=='daily' else ''))
-        player['gold']=min(10**9,player['gold']+quest['gold']);gain(player,quest['xp']);grant_fragments(db,uid,quest['fragments']);db.execute('UPDATE adventure_wallet SET merit=merit+? WHERE user_id=?',(quest['merit'],uid))
+        player['gold']=min(10**9,player['gold']+quest['gold']);gain(player,quest['xp']);grant_fragments(db,uid,quest['fragments'])
     else:raise ValueError('Thao tác không hợp lệ.')
     equipment.validate(player,db,uid);revision=row['revision']+1
     db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,int(time.time()),uid))

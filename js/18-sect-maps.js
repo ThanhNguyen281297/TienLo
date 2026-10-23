@@ -11,13 +11,9 @@
   };
   const sectIds=['sword','moon','thunder','mystic'];
   world.sectMaps=maps;world.sectIds=sectIds;world.sectMapFor=index=>sectIds[index]||'sword';world.isSectMap=id=>sectIds.includes(id);
-  world.isValley=id=>id==='valley';world.valleyId='valley';
   const islands=[{x:1000,y:1100,rx:350,ry:215},{x:650,y:820,rx:180,ry:125},{x:1530,y:660,rx:225,ry:160},{x:1550,y:1380,rx:215,ry:145},{x:720,y:1250,rx:115,ry:85}];
   const bridges=[[{x:825,y:960},{x:650,y:820}], [{x:1215,y:950},{x:1530,y:660}], [{x:1245,y:1195},{x:1550,y:1380}], [{x:845,y:1200},{x:720,y:1250}]];
   const hubBuildings=world.buildings.slice(0,8).map(b=>({...b})),hubServices=world.services.map(s=>({...s}));
-  const enemyCache={hub:[],valley:null,...Object.fromEntries(sectIds.map(id=>[id,null]))},challenge={active:null};
-  world.enemyCache=enemyCache;
-  let elapsed=0;
   const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),scene=()=>world.state.scene;
   world.regions.splice(0,world.regions.length,...Object.values(maps).map(m=>({...m,...m.spawn})));
   Object.assign(world.definitions,{
@@ -62,9 +58,7 @@
   function clanServices(id){return [
     {id:'mentor',name:maps[id].mentor+' · Sư phụ',x:1000,y:980,npc:true,color:maps[id].color},
     {id:'sectSkills',name:maps[id].dais+' · Truyền công',x:1200,y:1110,npc:true,color:maps[id].color},
-    {id:'teleport',name:'Truyền tống · Thiên Vân Thành',x:720,y:1265,color:'#f4e1b8'},
-    {id:'training',name:'Luyện công · Yêu thú',x:1550,y:1445,color:maps[id].color},
-    {id:'boss',name:id==='sword'?'Thử thách Kiếm Linh':'Thử thách Nguyệt Linh',x:1530,y:745,color:'#efd0a0'}
+    {id:'teleport',name:'Truyền tống · Thiên Vân Thành',x:720,y:1265,color:'#f4e1b8'}
   ];}
   // Nền lát trực tiếp bằng tile PNG gốc; cầu dùng nguyên ảnh asset MAP.
   const floorPatterns=new WeakMap();
@@ -110,7 +104,7 @@ ctx.restore();
     }else{
       const bright=P.ap?.w===1&&dist(P,islands[0])<60;
       ring(ctx,moonRing,1000,1100,bright?210:190,120,bright?.8:.5);
-      for(let i=0;i<3;i++){const a=elapsed*.3+i*Math.PI*2/3;weapon(ctx,moonWeapon,1000+Math.cos(a)*265,1100+Math.sin(a)*150-14,31,elapsed*.2,.7);}
+      for(let i=0;i<3;i++){const a=(world.environmentClock||0)*.3+i*Math.PI*2/3;weapon(ctx,moonWeapon,1000+Math.cos(a)*265,1100+Math.sin(a)*150-14,31,(world.environmentClock||0)*.2,.7);}
       moon(ctx,1430,845,100,.95);
       ctx.save();ctx.translate(1430,1120);ctx.scale(1,.22);moon(ctx,0,0,100,.2);ctx.restore();
       for(const [x,y]of [[1310,1150],[1170,1380],[740,1070]])world.sprite(ctx,'pond',x,y,110,45,.9);
@@ -134,56 +128,28 @@ ctx.restore();
       weapon(g,swordImage,1000,755,390,Math.PI,.95);
     }]);
   };
-  function generate(index){const id=scene();if(id==='hub')return;
-    if(world.generateFarm)return world.generateFarm(index);
-    const island=index%3===0?islands[2]:islands[3],a=index*2.39996,r=55+(index%4)*35,pool=id==='sword'?[0,3,4,0]:[1,3,1,4],t=pool[index%pool.length];
-    E[index]={t,x:island.x+Math.cos(a)*r,y:island.y+Math.sin(a)*r*.5,hx:island.x+Math.cos(a)*r,hy:island.y+Math.sin(a)*r*.5,hp:T[t].hp,dead:0,cd:.5,fr:0,fl:0,worldMap:true,map:id};
-  }
-  spawn=generate;
   function sceneSwitch(id,initial=false){
     if(!maps[id])return msg('Khu vực này chưa mở.');
-    if(world.state.arena)world.stopArena();challenge.active=null;
-    enemyCache[scene()]=scene()==='hub'?[]:E.filter(e=>e.worldMap&&!e.arena&&!e.challenge);
+    if(world.state.arena)world.stopArena();
     world.state.scene=id;P.world.map=id;
     world.buildings.splice(0,world.buildings.length,...(id==='hub'?hubBuildings:clanBuildings(id)).map(b=>({...b})));
     world.services.splice(0,world.services.length,...(id==='hub'?hubServices:clanServices(id)).map(s=>({...s})));
-    E=enemyCache[id]||[];if(id!=='hub'&&enemyCache[id]===null){E=[];for(let i=0;i<(world.farmPopulation?.()||24);i++)generate(i);enemyCache[id]=E;}
+    E=[];
     classCombat.onRespawn();B.length=SP.length=V.length=LT.length=X.length=PT.length=0;
     P.x=maps[id].spawn.x;P.y=maps[id].spawn.y;P.med=0;P.sl=0;P.acd=.3;K={};ptr=null;
     kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;world.state.near=null;
-    dialog.close();world.updateInterface();saveCharacter();msg(maps[id].name+' · '+(id==='hub'?'Hub an toàn. Gặp Vân Châu để nhận nhiệm vụ.':'Gặp Sư phụ ở sân phía tây hoặc đi tới khu luyện công.'));
+    dialog.close();world.updateInterface();saveCharacter();msg(maps[id].name+' · '+(id==='hub'?'Hub an toàn. Gặp Vân Châu để nhận nhiệm vụ.':'Gặp Sư phụ để nhận chỉ dạy, truyền công tại tông môn.'));
   }
   world.switchScene=sceneSwitch;
-  world.respawn=()=>{challenge.active=null;E=E.filter(e=>!e.challenge);P.x=maps[scene()].spawn.x;P.y=maps[scene()].spawn.y;};
-  function mentor(){const p=world.progress();dialog.show(maps[scene()].mentor+' · Nhập môn','Nhiệm vụ và hoạt động sư môn.');
-    if(!p.sectQuest)p.sectQuest={status:'none',kills:0};
-    const q=p.sectQuest;if(q.status==='none'){dialog.line('Bài tập nhập môn: hạ 3 yêu thú tại bốn bãi luyện công. Thưởng 35 Linh Thạch, 20 EXP và 20 tu vi.');dialog.action('Nhận bài tập nhập môn',()=>{q.status='active';q.kills=0;saveCharacter();mentor();});}
-    else if(q.status==='active'){dialog.line('Yêu thú: '+q.kills+'/3.');dialog.action('Nhận thưởng nhập môn',()=>{if(q.status!=='active'||q.kills<3)return;q.status='claimed';P.gold+=35;gainExperience(20);saveCharacter();mentor();},q.kills<3);}
-    else dialog.line('Đã hoàn thành bài tập nhập môn. Hãy tới Thiên Vân Thành nhận nhiệm vụ Hộ thành.');
-  }
+  world.respawn=()=>{P.x=maps[scene()].spawn.x;P.y=maps[scene()].spawn.y;};
   function teach(){const p=world.progress(),owner=scene()==='sword'?0:1,names=P.ap.w===0?['Phi Kiếm Quyết','Kiếm Ảnh Bộ','Bát Quái Kiếm Trận','Vạn Kiếm Quy Tông']:['Tam Nguyệt Trảm','Nguyệt Ảnh Bộ','Nguyệt Luân Trận','Minh Nguyệt Giáng Thế'];
     if(!p.skillLevels)p.skillLevels=[0,0,0,0];dialog.show(scene()==='sword'?'Truyền công · Vạn Kiếm Đài':'Truyền công · Minh Nguyệt Đài','Kỹ năng mở theo cảnh giới. Mỗi cấp tu luyện tăng 8% sát thương kỹ năng đó, tối đa 3 cấp.');
     names.forEach((name,i)=>{const level=p.skillLevels[i],cost=30*(level+1);dialog.line(name+' · '+R[i]+' · Tu luyện '+level+'/3');dialog.action('Tu luyện '+name+' · '+cost+' ◈',()=>{if(P.gold<cost){dialog.line('Chưa đủ Linh Thạch.');return;}P.gold-=cost;p.skillLevels[i]++;saveCharacter();teach();},owner!==P.ap.w||P.r<i||level>=3);});
     if(owner!==P.ap.w)dialog.line('Khách tông môn được tham quan; tu luyện kỹ năng tại tông môn của mình.');
     dialog.action('Ôn luyện · hồi đầy linh lực',()=>{P.mp=mmp();saveCharacter();dialog.close();});
   }
-  function boss(){dialog.show(scene()==='sword'?'Bọ Ngựa Chúa · Thủ đài':'Nguyệt Thố Vương · Thủ hồ','Thử thách solo tại đảo đông bắc, cần Luyện Khí. Thắng nhận thêm 50 Linh Thạch. Rời đảo để dừng.');
-    dialog.action('Bắt đầu thử thách tông môn',()=>{dialog.close();P.x=1530;P.y=740;P.hp=mhp();P.mp=mmp();classCombat.onRespawn();
-      const e={t:2,skin:scene()==='sword'?'BoNgua':'Tho',name:scene()==='sword'?'Bọ Ngựa Chúa':'Nguyệt Thố Vương',x:1530,y:640,hx:1530,hy:640,hp:320,dead:0,cd:1,fr:0,fl:0,worldMap:true,challenge:true,map:scene()};E.push(e);challenge.active=e;msg('Thử thách bắt đầu. Ngắm kỹ năng và tránh tiếp xúc trực tiếp!');
-    },P.r<1||!!challenge.active);
-  }
-  world.handleService=id=>{if(scene()==='hub')return false;if(id==='mentor'){mentor();return true;}if(id==='sectSkills'){teach();return true;}if(id==='boss'){boss();return true;}
-    if(id==='training'){dialog.show('Khu luyện công','Yêu thú ở hai đảo phía đông. Di chuyển trên đài và cầu; skill có thể bay qua mặt nước / vực. Hạ yêu thú để kiếm đạo hạnh và Linh Thạch.');dialog.action('Về đài · hồi linh lực',()=>{P.x=START.x;P.y=START.y;P.mp=mmp();dialog.close();});return true;}
+  world.handleService=id=>{if(scene()==='hub')return false;if(id==='sectSkills'){teach();return true;}
     return false;
-  };
-  const oldHit=hit;hit=function(e,power){const alive=!e.dead&&e.hp>0;oldHit(e,power);
-    const q=world.progress().sectQuest;if(alive&&e.hp<=0&&e.worldMap&&!e.arena&&!e.challenge&&scene()!=='hub'&&q?.status==='active')q.kills=Math.min(3,q.kills+1);
-  };
-  const oldUp=up;
-  up=function(dt){if(!paused()&&!dialog.isOpen()){elapsed+=dt;
-      if(challenge.active){const e=challenge.active;if(e.dead||e.hp<=0){P.gold+=50;world.progress().bossWins=(world.progress().bossWins||0)+1;challenge.active=null;E=E.filter(q=>!q.challenge);saveCharacter();msg('Chiến thắng tông môn! +50 Linh Thạch.');}
-        else if(!ellipse(P,islands[2])){challenge.active=null;E=E.filter(q=>!q.challenge);msg('Đã rời đảo thử thách.');}}
-    }oldUp(dt);
   };
   world.renderMini=function(ctx,size){ctx.fillStyle=scene()==='moon'?'#142f50':'#213c3e';ctx.fillRect(0,0,size,size);ctx.save();ctx.scale(size/M,size/M);ctx.lineCap='round';ctx.strokeStyle='#c5cab2';ctx.lineWidth=24;
     if(scene()==='hub'){ctx.fillStyle='#d5cfb8';ctx.fillRect(world.city.left,world.city.top,world.city.right-world.city.left,world.city.bottom-world.city.top);world.services.forEach(s=>{ctx.fillStyle='#bd9862';ctx.beginPath();ctx.arc(s.x,s.y,16,0,Math.PI*2);ctx.fill();});}

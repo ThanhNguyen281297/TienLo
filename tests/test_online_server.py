@@ -122,7 +122,7 @@ class OnlineServerTest(unittest.TestCase):
         bid=self.request('/api/session',cookie=b[0])[1]['user']['id']
         self.social_action(a,'party_create');gid=self.request('/api/community',cookie=a[0])[1]['party']['id'];self.social_action(a,'party_invite',target=bid);self.social_action(b,'party_accept',id=gid)
         def frame(auth,**extra):
-            time.sleep(.14);status,data,_=self.request('/api/world',{'csrf':auth[1],'map':'sword','x':1105,'y':490,'hp':100,'batch':server.secrets.token_hex(8),**extra},auth[0]);self.assertEqual(status,200);return data
+            time.sleep(.14);status,data,_=self.request('/api/world',{'csrf':auth[1],'map':'field-meadow','x':525,'y':1320,'hp':100,'batch':server.secrets.token_hex(8),**extra},auth[0]);self.assertEqual(status,200);return data
         first=frame(a);frame(b);frame(outsider);mob=first['mobs'][0]
         killed=frame(a,hits=[{'id':mob['id'],'power':40}]);self.assertTrue(killed['rewards'])
         self.assertTrue(frame(b)['rewards']);self.assertEqual(frame(outsider)['rewards'],[])
@@ -191,7 +191,7 @@ class OnlineServerTest(unittest.TestCase):
         revision=0
         def frame(c=cookie,token=csrf,**extra):
             time.sleep(.14)
-            status,data,_=self.request('/api/world',{'csrf':token,'map':'sword','x':1105,'y':490,'batch':server.secrets.token_hex(8),**extra},c)
+            status,data,_=self.request('/api/world',{'csrf':token,'map':'field-meadow','x':525,'y':1320,'batch':server.secrets.token_hex(8),**extra},c)
             self.assertEqual(status,200);return data
         for species in ('BoNgua','Nhen','Doi'):
             p['world'].update(pets=[{'id':'pet-one','species':species,'name':'Companion'}],activePet='pet-one')
@@ -285,10 +285,10 @@ class OnlineServerTest(unittest.TestCase):
         for cookie,token,w in ((caster,csrf,1),(watcher,watch_csrf,0)):
             player=self.player();player['ap']['w']=w
             self.assertEqual(self.request('/api/characters',{'csrf':token,'player':player,'revision':0},cookie)[0],201)
-        point={'x':1105,'y':490}
+        point={'x':525,'y':1320}
         def frame(cookie,token,**extra):
             time.sleep(.14)
-            status,data,_=self.request('/api/world',{'csrf':token,'map':'sword',**point,**extra},cookie)
+            status,data,_=self.request('/api/world',{'csrf':token,'map':'field-meadow',**point,**extra},cookie)
             self.assertEqual(status,200);return data
         initial=frame(caster,csrf);point.update(x=initial['mobs'][0]['x'],y=initial['mobs'][0]['y'])
         descriptor=dict(id='frost-one',**point)
@@ -314,33 +314,18 @@ class OnlineServerTest(unittest.TestCase):
         rejected=frame(caster,csrf,field=dict(descriptor,id='cooldown-bypass'))
         self.assertEqual(rejected['mobs'][0]['fieldEffects'],[],'A new ID cannot bypass cooldown')
 
-    def test_expanded_farms_and_validated_two_way_portals(self):
+    def test_sect_courts_are_safe_and_block_long_jumps(self):
         import time
-        browser_source=(server.ROOT/'js/19c-farm-layout.js').read_text(encoding='utf-8')
-        self.assertEqual(json.loads(browser_source.split('window.farmLayout=',1)[1].strip().removesuffix(';')),server.FARM_LAYOUT)
-        for scene in server.FARM_LAYOUT['main']:
-            room=server.room_mobs(scene+':0');size=server.FARM_LAYOUT['valley' if scene=='valley' else 'camp']
-            self.assertEqual(len(room['mobs']),36 if scene=='valley' else 48)
-            self.assertEqual(len({m['id'] for m in room['mobs']}),len(room['mobs']))
-            for mob in room['mobs']:
-                self.assertLess(abs(mob['hx']-mob['campX'])/size['rx']+abs(mob['hy']-mob['campY'])/size['ry'],.9)
-            for a,b in server.farm_portal_routes(scene):
-                self.assertTrue(server.valid_farm_teleport(scene,{'x':a[0],'y':a[1]},b))
-                self.assertTrue(server.valid_farm_teleport(scene,{'x':b[0],'y':b[1]},a))
-                self.assertFalse(server.valid_farm_teleport(scene,{'x':100,'y':100},b))
-        cookie,csrf=self.register('portal_user')
+        for scene in ('sword','moon','thunder','mystic'):self.assertEqual(server.room_mobs(scene+':0')['mobs'],[])
+        cookie,csrf=self.register('court_user')
         self.assertEqual(self.request('/api/characters',{'csrf':csrf,'player':self.player(),'revision':0},cookie)[0],201)
-        a,b=server.farm_portal_routes('sword')[0]
         def frame(point):
             time.sleep(.15)
             status,data,_=self.request('/api/world',{'csrf':csrf,'map':'sword','x':point[0],'y':point[1]},cookie)
             self.assertEqual(status,200)
             return data
-        frame(a)
-        result=frame(b);self.assertEqual((result['x'],result['y']),b)
-        result=frame((1500,800));self.assertEqual((result['x'],result['y']),b,'Arbitrary long jumps must remain blocked')
-        time.sleep(.8)
-        result=frame(a);self.assertEqual((result['x'],result['y']),a)
+        first=frame((1300,1000));self.assertEqual(first['mobs'],[])
+        result=frame((500,1700));self.assertEqual((result['x'],result['y']),(1300,1000),'Arbitrary long jumps must remain blocked')
 
     def test_airborne_visual_metadata_is_bounded_and_cleared(self):
         import time
@@ -419,13 +404,12 @@ class OnlineServerTest(unittest.TestCase):
     def test_duel_and_retired_maps_do_not_spawn_farm_mobs(self):
         self.assertEqual(server.room_mobs('duel:match-1')['mobs'],[])
         self.assertEqual(server.room_mobs('valley:0')['mobs'],[])
-        self.assertEqual(server.farm_portal_routes('valley'),[])
     def test_world_shared_hp_rewards_idempotent_chat_and_emote(self):
         a,ca=self.register('world_a');b,cb=self.register('world_b')
         for cookie,csrf,name in [(a,ca,'Kiếm Một'),(b,cb,'Kiếm Hai')]:self.assertEqual(self.request('/api/characters',{'player':self.player(name),'revision':0,'csrf':csrf},cookie)[0],201)
         def frame(cookie,csrf,**extra):
             import time;time.sleep(.14)
-            return self.request('/api/world',{'csrf':csrf,'map':'sword','x':1105,'y':490,'batch':extra.pop('batch',server.secrets.token_hex(8)),**extra},cookie)
+            return self.request('/api/world',{'csrf':csrf,'map':'field-meadow','x':525,'y':1320,'batch':extra.pop('batch',server.secrets.token_hex(8)),**extra},cookie)
         initial=frame(a,ca)[1];mob=initial['mobs'][0]
         second=frame(b,cb,emote='wave')[1];self.assertEqual(second['players'][0]['name'],'Kiếm Một')
         first=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(first['mobs'][0]['hp'],mob['hp']-10)
@@ -435,7 +419,7 @@ class OnlineServerTest(unittest.TestCase):
         acknowledged=frame(a,ca,ack=[reward[0]['eventId']])[1];self.assertEqual(acknowledged['rewards'],[])
         self.assertEqual(self.request('/api/chat',{'csrf':ca,'text':'Xin chào <script>'},a)[0],200)
         self.assertEqual(frame(b,cb)[1]['chat'][0]['text'],'Xin chào <script>')
-        self.assertEqual(self.request('/api/world',{'csrf':ca,'map':'sword','x':float('inf'),'y':490},a)[0],400)
+        self.assertEqual(self.request('/api/world',{'csrf':ca,'map':'field-meadow','x':float('inf'),'y':1320},a)[0],400)
     def test_cross_origin_and_bad_login(self):
         cookie,csrf=self.register('safe_user')
         self.assertEqual(self.request('/api/login',{'username':'safe_user','password':'wrong-password'})[0],401)

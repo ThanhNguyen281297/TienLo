@@ -103,22 +103,17 @@ fs.mkdirSync(artifacts, { recursive: true });
         return { scene: worldMap.state.scene, appearance: P.ap, title: worldMap.sceneTitle(), spawn, safe: worldMap.isSafe(P), zoom: Z * innerWidth / W,
           camera: gameCamera(), keys: Object.keys(worldMap.sectMaps), regions: worldMap.regions.map(region => region.id), routes: routes.length, routeFailures,
           waterWalkable: worldMap.canWalk(water), stop, stopWalkable: worldMap.canWalk(stop),
-          camps: worldMap.farmCamps.map(camp => ({ id: camp.id, x: camp.x, y: camp.y, type: camp.t, count: E.filter(enemy => enemy.camp === camp.id).length })),
-          enemiesOnLand: E.every(enemy => worldMap.canWalk(enemy) && !worldMap.isSafe(enemy) && enemy.map === worldMap.state.scene),
+          enemies: E.length,
           servicesOnLand: worldMap.services.filter(service => ['mentor', 'sectSkills', 'teleport', 'boss'].includes(service.id)).every(service => worldMap.canWalk(service) && worldMap.isSafe(service)),
           mentor: worldMap.services.find(service => service.id === 'mentor').name, images };
       });
       assert.equal(facts.scene, definition.id); assert.equal(facts.appearance.w, sect); assert.equal(facts.title, definition.name);
       assert.deepEqual(facts.spawn, { x: 1000, y: 1110 }); assert(facts.safe, 'Starting platform is safe'); assert(Math.abs(facts.zoom-1.8)<.001);
       assert.equal(facts.camera.x + facts.camera.vw / 2, 1000); assert.equal(facts.camera.y + facts.camera.vh / 2, 1110);
-      assert.deepEqual(facts.keys.sort(), ['hub','valley', ...maps.map(map => map.id)].sort()); assert.deepEqual(facts.regions.sort(), facts.keys.sort());
+      assert.deepEqual(facts.keys.sort(), ['hub', ...maps.map(map => map.id)].sort()); assert.deepEqual(facts.regions.sort(), facts.keys.sort());
       assert.equal(facts.routes, 0); assert.deepEqual(facts.routeFailures, [], protocol + ' ' + definition.id + ' bridges connect every camp with walkable ground');
       assert.equal(facts.waterWalkable, false); assert(facts.stopWalkable); assert(Math.hypot(facts.stop.x - 200, facts.stop.y - 300) > 50, 'Movement stops at the land edge');
-      assert.deepEqual(facts.camps, [
-        { id: 'north', x: 1000, y: 490, type: 0, count: 12 }, { id: 'east', x: 1640, y: 1100, type: 1, count: 12 },
-        { id: 'south', x: 1000, y: 1650, type: 4, count: 12 }, { id: 'west', x: 360, y: 1100, type: 3, count: 12 }
-      ]);
-      assert(facts.enemiesOnLand, 'Farm monsters occupy walkable, unsafe land belonging to their map');
+      assert.equal(facts.enemies, 0, 'Sect courts are safe: no farm monsters');
       assert(facts.servicesOnLand, 'Mentor, teacher, teleport and arena services occupy accessible safe land');
       assert(facts.mentor.includes('Sư phụ')); assert(!facts.mentor.includes('undefined'));
       assert(facts.images.some(source => source.endsWith('/Character/' + definition.folder + '/Nam/truoc.png')), 'NPCs use the correct sect artwork');

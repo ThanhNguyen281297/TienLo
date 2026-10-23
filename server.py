@@ -28,7 +28,7 @@ from threading import RLock
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent
-FARM_LAYOUT = json.loads((ROOT / 'Map' / 'farm-layout.json').read_text(encoding='utf-8'))
+SECT_MAPS = ('sword', 'moon', 'thunder', 'mystic')
 FIELD_RULES = json.loads((ROOT / 'Map' / 'field-effects.json').read_text(encoding='utf-8'))
 PET_RULES = json.loads((ROOT / 'Item' / 'pet-skills.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
@@ -267,27 +267,10 @@ def room_for(peer):
     return 'worldboss:0' if peer['map']=='worldboss' else peer['map'] + ':0'
 
 
-def farm_portal_routes(scene):
-    if scene not in FARM_LAYOUT['main']: return []
-    main_rx,main_ry=FARM_LAYOUT['main'][scene]; size=FARM_LAYOUT['camp']
-    result=[]
-    for camp in FARM_LAYOUT['camps']:
-        dx,dy=camp['x']-1000,camp['y']-1100
-        t=.62/(abs(dx)/main_rx+abs(dy)/main_ry);u=.66/(abs(dx)/size['rx']+abs(dy)/size['ry'])
-        result.append(((1000+dx*t,1100+dy*t),(camp['x']-dx*u,camp['y']-dy*u)))
-    return result
-
-
-def valid_farm_teleport(scene,previous,destination):
-    for a,b in farm_portal_routes(scene):
-        for start,end in ((a,b),(b,a)):
-            if math.hypot(previous['x']-start[0],previous['y']-start[1])<=62 and math.dist(destination,end)<=3:return True
-    return False
-
-
 def room_mobs(key):
     scene=key.split(':')[0]
-    if scene in ('hub','duel'):return dict(mobs=[],updated=time.monotonic())
+    # Hub, duel lobby and the four sect courts are safe: no mobs.
+    if scene in ('hub','duel',*SECT_MAPS):return dict(mobs=[],updated=time.monotonic())
     if scene not in MAPS:return dict(mobs=[],updated=time.monotonic())
     if key.startswith('tower:'):
         if key not in ROOMS:
@@ -305,23 +288,7 @@ def room_mobs(key):
             with connect() as db:boss=community.load_boss(db)
             ROOMS[key]={'mobs':[boss],'updated':time.monotonic()}
         return ROOMS[key]
-    if key not in ROOMS:
-        scene, rank = key.split(':'); rank = 0
-        camps = FARM_LAYOUT['camps']
-        size = FARM_LAYOUT['camp']
-        base = {0:(26,28),1:(48,40),3:(38,34),4:(64,52)}
-        mobs = []
-        for ci,entry in enumerate(camps):
-            cx,cy,t,camp = (entry[k] for k in ('x','y','t','id'))
-            level=rank*8+[0,2,4,6][ci]
-            hp=round(base[t][0]*(1+level*.11))
-            for slot,offset in enumerate(FARM_LAYOUT['slots'][:size['perCamp']]):
-                x=cx+offset['x']*size['rx']; y=cy+offset['y']*size['ry']
-                mobs.append(dict(id=f'{key}:{ci}:{slot}',t=t,level=max(1,level+1),x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,
-                    worldMap=True,network=True,map=scene,camp=camp,campX=cx,campY=cy,campRX=size['rx'],campRY=size['ry'],attackScale=1+level*.04,
-                    xpReward=round(base[t][1]*(1+level*.08)),materialYield=1+rank//3,contributors={}))
-        ROOMS[key] = {'mobs':mobs,'updated':time.monotonic()}
-    return ROOMS[key]
+    return dict(mobs=[],updated=time.monotonic())
 
 
 class GameServer(ThreadingHTTPServer):
@@ -744,9 +711,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if previous.get('map')==scene and previous.get('stream','legacy')==stream:
                 delta=now-previous['seen']
                 if math.hypot(x-previous['x'],y-previous['y'])>max(240,delta*400) and math.hypot(x-1000,y-1100)>150:
-                    if now-previous.get('portalAt',0)>=.8 and valid_farm_teleport(scene,previous,(x,y)):
-                        previous['portalAt']=now
-                    else:x,y=previous['x'],previous['y']
+                    x,y=previous['x'],previous['y']
             with DB_LOCK, connect() as db:adventure.record_world(db,uid,scene,x,y,previous,bool(body.get('med')))
             rank=0
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
@@ -836,8 +801,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast','hp','maxHp')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
             if scene=='duel':peers=[other for other in peers if PEERS[other['id']].get('duelId')==duel['id']]
-            shapes=FARM_LAYOUT['main']
-            rx,ry=shapes.get(scene,(0,0));safe=bool(rx) and abs((x-1000)/(rx+5))+abs((y-1100)/(ry+5))<1
+            safe=scene in SECT_MAPS
             if scene in expeditions.MAPS:safe=expeditions.safe(x,y)
             if scene in overworld.MAPS:safe=overworld.safe(x,y)
             if shared and scene!='worldboss' and not safe and now-peer.get('damageAt',0)>=1:

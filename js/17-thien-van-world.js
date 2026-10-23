@@ -6,7 +6,6 @@
     {id:'gate',name:'Thiên Môn',x:1000,y:180,description:'Cổng trời phía bắc'},
     {id:'sword',name:'Vạn Kiếm Sơn',x:400,y:580,description:'Sơn môn Kiếm Tông'},
     {id:'moon',name:'Nguyệt Hồ Cung',x:1600,y:580,description:'Cung điện bên hồ của Minh Nguyệt Tông'},
-    {id:'valley',name:'Linh Mạch Cốc',x:1000,y:1590,description:'Linh thảo và yêu thú · nơi kiếm đạo hạnh'},
     {id:'dungeon',name:'Huyền Thiên Bí Cảnh',x:1000,y:1860,description:'Hổ Yêu trấn giữ · vùng nguy hiểm'}
   ];
   const roads=[[[1000,1100],[780,1100],[400,850],[400,580],[400,350],[1000,350],[1000,180]],
@@ -121,14 +120,6 @@
     }
     point.x=Math.max(20,Math.min(M-20,point.x));point.y=Math.max(20,Math.min(M-20,point.y));return point;
   }
-  const oldSpawn=spawn;
-  spawn=function(index){
-    oldSpawn(index);const e=E[index],zones=e.t===2?[regions[5]]:e.t===1?[regions[2],regions[3],regions[4]]:[regions[4],regions[2],regions[3]];
-    const region=zones[index%zones.length],angle=Math.random()*Math.PI*2,radius=e.t===2?50+Math.random()*70:150+Math.random()*95;
-    e.x=Math.max(35,Math.min(M-35,region.x+Math.cos(angle)*radius));e.y=Math.max(35,Math.min(M-35,region.y+Math.sin(angle)*radius));
-    if(safeRect(e)){e.x=region.x<1000?CITY.left-100:CITY.right+100;}
-    e.hx=e.x;e.hy=e.y;e.worldMap=true;
-  };for(let i=0;i<E.length;i++)spawn(i);
   const oldSpeed=classCombat.enemySpeed;classCombat.enemySpeed=e=>e.worldMap&&!e.arena&&isSafe(P)?0:oldSpeed(e);
   const oldHit=hit;
   hit=function(e,power){const alive=!e.dead&&e.hp>0;const p=progress();oldHit(e,power*(1+p.weapon*.08+p.upgrade*.05));
@@ -188,7 +179,7 @@
     if(size>200){ctx.font='11px Georgia,serif';ctx.textAlign='center';ctx.fillStyle='#efe5c9';regions.forEach(r=>ctx.fillText(r.name,r.x/M*size,r.y/M*size-12));}
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(P.x/M*size,P.y/M*size,2.5,0,Math.PI*2);ctx.fill();
   }
-  function openMap(){if(previousPaused()||dialogOpen)return;show('Bản đồ tiên lộ','Thiên Môn ở phía bắc, hai tông môn ở hai nhánh, Linh Mạch Cốc và Bí Cảnh phía nam.');
+  function openMap(){if(previousPaused()||dialogOpen)return;show('Bản đồ tiên lộ','Bốn tông môn quanh Thiên Vân Thành; Sơn Hà và Tứ Phương Bí Cảnh là nơi săn yêu thú.');
     if(window.worldMap?.openOverview){window.worldMap.openOverview();return;}
     const c=document.createElement('canvas');c.className='world-overview';c.width=c.height=360;$('world-content').appendChild(c);miniature(c.getContext('2d'),360);
     regions.forEach(r=>line(r.name+' · '+r.description));line('Đi theo đường đá hoặc tới Truyền Tống Trận trong thành để dịch chuyển.');

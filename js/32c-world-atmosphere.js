@@ -115,7 +115,7 @@
  }
  function count(){return Math.round(profile().count*(W/Z<500?.65:1));}
  function drawFireflies(ctx,zone,t){
-  if(!['moon','mystic','valley'].includes(world.state.scene))return;
+  if(!['moon','mystic'].includes(world.state.scene))return;
   for(let n=0;n<6;n++){const phase=n*2.399+zone.x*.01,blink=Math.max(0,Math.sin(t*1.9+phase))**2,x=zone.x+Math.sin(phase)*zone.rx*.65+Math.sin(t*.9+phase)*7,y=zone.y+Math.cos(phase)*zone.ry*.6-12+Math.sin(t*1.1+phase)*4;
    world.living.light(ctx,x,y,4.5,'#deef9f',blink*.55);ctx.save();ctx.globalAlpha=blink*.85;ctx.fillStyle='#f1ffd2';ctx.beginPath();ctx.arc(x,y,.6,0,TAU);ctx.fill();ctx.restore();}
  }

@@ -7,9 +7,8 @@
   function splitWall(a,b){const count=Math.ceil(distance(a,b)/72);return Array.from({length:count},(_,i)=>[mix(a,b,i/count),mix(a,b,(i+1)/count)]);}
   function boundary(s){const {x,y,rx,ry}=s,cut=Math.min(.3,Math.max(.14,24/ry));return [[-cut,-1+cut],[cut,-1+cut],[1-cut,-cut],[1-cut,cut],[cut,1-cut],[-cut,1-cut],[-1+cut,cut],[-1+cut,-cut]].map(([px,py])=>({x:x+px*rx,y:y+py*ry}));}
   function layout(){const scene=world.state.scene;if(cache.has(scene))return cache.get(scene);const walls=[],surfaces=[];
-    if(world.isSectMap(scene)||scene==='valley'){
-      const shape=world.sectLayouts[scene],valley=scene==='valley';surfaces.push({x:1000,y:1100,rx:shape.rx,ry:shape.ry});
-      for(const camp of valley?world.valleyMines:world.farmCamps)surfaces.push({x:camp.x,y:camp.y,rx:valley?farmLayout.valley.rx:farmLayout.camp.rx,ry:valley?farmLayout.valley.ry:farmLayout.camp.ry});
+    if(world.isSectMap(scene)){
+      const shape=world.sectLayouts[scene];surfaces.push({x:1000,y:1100,rx:shape.rx,ry:shape.ry});
       for(const surface of surfaces){const points=boundary(surface);for(let i=0;i<points.length;i++)walls.push(...splitWall(points[i],points[(i+1)%points.length]));}
     }else if(scene==='hub'){
       // The city is a diamond island (world.hubDeck); its parapet follows the rim.

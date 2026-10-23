@@ -126,9 +126,8 @@ class AdventureTests(unittest.TestCase):
         with self.assertRaises(ValueError):self.act('quest_claim',id='side-meadow')
     def test_sect_shop_stays_closed(self):
         snapshot=adventure.snapshot(self.db,1,self.player)
-        self.assertEqual(snapshot['shop'],[])
+        self.assertNotIn('shop',snapshot);self.assertNotIn('merit',snapshot)
         with self.assertRaises(ValueError):self.act('sect_buy',id='sect-vukhi-class-0')
-        self.assertEqual(adventure.wallet(self.db,1)['merit'],0)
     def test_locked_lines_stay_exact_and_cost_gold_only(self):
         item=dict(equipment.TEMPLATES['back-class-0'],uid='back',affixes=equipment.defaults(dict(slot='phapbao')));self.player['world']['equip']['phapbao']=item;self.db.execute('UPDATE characters SET player=?',(json.dumps(self.player),))
         a=equipment.action(self.db,1,dict(action='lock',uid='back',index=1,opId='lock-line-1',revision=1));p=a['character']['player'];self.assertEqual(p['gold'],2960);line=copy.deepcopy(p['world']['equip']['phapbao']['affixes'][1])

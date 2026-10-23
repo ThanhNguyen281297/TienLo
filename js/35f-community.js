@@ -5,7 +5,7 @@
  const bossHud=document.createElement('aside');bossHud.id='world-boss-hud';bossHud.hidden=true;bossHud.setAttribute('aria-live','polite');document.body.append(bossHud);
  const button=document.createElement('button');button.id='community-button';button.textContent='Đội / Tông môn';button.onclick=()=>open();$('bt').append(button);
  const channel=document.createElement('select');channel.id='chat-channel';channel.setAttribute('aria-label','Kênh trò chuyện');for(const [id,label]of [['world','Map'],['party','Đội'],['guild','Tông']]){const option=document.createElement('option');option.value=id;option.textContent=label;channel.append(option);}$('chat-form').prepend(channel);
- const names={hub:'Thiên Vân Thành',sword:'Vạn Kiếm Sơn',moon:'Nguyệt Hồ',thunder:'Lôi Vân',mystic:'Thiên Cơ',valley:'Linh Mạch',arena:'Thử thách riêng',worldboss:'Boss thế giới'};
+ const names={hub:'Thiên Vân Thành',sword:'Vạn Kiếm Sơn',moon:'Nguyệt Hồ',thunder:'Lôi Vân',mystic:'Thiên Cơ',arena:'Thử thách riêng',worldboss:'Boss thế giới'};
  function signature(data){return JSON.stringify({party:data.party&&{leader:data.party.leader,members:data.party.members.map(m=>m.id)},guild:data.guild&&{id:data.guild.id,leader:data.guild.leader,points:data.guild.points,tasks:data.guild.tasks,claimed:data.guild.claimed,members:data.guild.members.map(m=>[m.id,m.contribution]),requests:data.guild.requests},invites:data.invites,rewards:data.rewards,guilds:data.guilds});}
  function isAlly(id){return !!state.social?.party?.members.some(p=>p.id===id);}
  function line(text){d.line(text);}

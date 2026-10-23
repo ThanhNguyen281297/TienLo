@@ -14,15 +14,12 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||path.join(os.homedir(),'
     await page.waitForFunction(()=>Object.values(worldMap.mapStructures.images).every(i=>i.complete&&i.naturalWidth),null,{polling:50});
     assert.equal(await page.locator('#lightness-button').count(),0);
     assert(await page.evaluate(()=>!window.lightness));
-    for(const scene of ['sword','moon','thunder','mystic','valley']){
+    for(const scene of ['sword','moon','thunder','mystic']){
       const result=await page.evaluate(scene=>{
         worldMap.travel(scene);P.world.tutorial=true;E=[];
         const structure=worldMap.mapStructures,failures=[];
         for(const surface of structure.layout().surfaces){const {x,y,rx,ry}=surface;
           for(const p of [{x:x+rx-2,y},{x:x-rx+2,y},{x,y:y+ry-2},{x,y:y-ry+2}])if(worldMap.canWalk(p))failures.push(p);
-        }
-        for(const camp of scene==='valley'?worldMap.valleyMines:worldMap.farmCamps){
-          const gap={x:(1000+camp.x)/2,y:(1100+camp.y)/2};if(worldMap.canWalk(gap))failures.push(gap);
         }
         const walls=structure.layout().walls,blocked=walls.filter(([a,b])=>!worldMap.canWalk({x:(a.x+b.x)/2,y:(a.y+b.y)/2})).length;
         dr();const canvas=document.createElement('canvas');canvas.width=canvas.height=900;worldMap.renderMapPreview(canvas.getContext('2d'),900);

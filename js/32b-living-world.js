@@ -50,8 +50,7 @@
  function zones(){
   const scene=world.state.scene;if(scene==='hub'){const d=world.hubDeck||{rx:740,ry:470};return[{x:1000,y:1100,rx:d.rx*.62,ry:d.ry*.62}];}
   const main=world.sectLayouts[scene];if(!main)return[{x:1000,y:1100,rx:200,ry:100}];
-  const size=scene==='valley'?farmLayout.valley:farmLayout.camp;
-  return [{x:1000,y:1100,rx:main.rx,ry:main.ry},...(scene==='valley'?world.valleyMines:world.farmCamps).map(c=>({...c,rx:size.rx,ry:size.ry}))];
+  return [{x:1000,y:1100,rx:main.rx,ry:main.ry}];
  }
  function particle(n,zone,t){
   const p=(t*(.024+(n%3)*.004)+n*.6180339)%1,phase=n*2.399963;

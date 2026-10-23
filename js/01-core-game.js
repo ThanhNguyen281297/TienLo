@@ -13,23 +13,16 @@ let E=[],B=[],X=[],K={},ptr=null,W,H,tm=0,sv=0;
 function rs(){const d=Math.min(Math.max(1.5,Math.min(3,window.devicePixelRatio||1)),Math.sqrt(8000000/(innerWidth*innerHeight))),scale=matchMedia('(pointer:coarse)').matches?Math.max(1.1,Math.min(1.65,Math.min(innerWidth,innerHeight)/280)):1.8;Z=scale*d;W=cv.width=Math.round(innerWidth*d);H=cv.height=Math.round(innerHeight*d);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}addEventListener('resize',rs);rs();
 function gameCamera(vw=W/Z,vh=H/Z){return {x:P.x-vw/2,y:P.y-vh/2,vw,vh};}
 function msg(s){$('log').textContent=s}
-function spawn(i){const a=Math.random()*6.28,d=Math.random(),t=d<.5?0:d<.88?1:2;
- const rad=[250+Math.random()*250,520+Math.random()*350,900+Math.random()*80][t],x=1000+Math.cos(a)*rad,y=1000+Math.sin(a)*rad;
- E[i]={t,x,y,hx:x,hy:y,hp:T[t].hp,dead:0,cd:0,fr:0,fl:0}}
-for(let i=0;i<32;i++)spawn(i);
+// Monsters come from the server (Sơn Hà, bí cảnh, tháp, boss); there is no local respawn.
+function spawn(i){}
 const fx=(x,y,t,c)=>{X.push({x,y,t,c,l:.9,vx:((X.length%3)-1)*5,strong:typeof t==='number'&&t>atk()*1.5});if(X.length>64)X.shift();};
 function damageNumber(x,y,value,critical=false){fx(x,y,Math.max(1,Math.round(value)),critical?'#ffad44':'#fff2d3');Object.assign(X[X.length-1],{damage:true,critical,strong:critical});}
 const near=r=>{let b=null,bd=r*r;for(const e of E){if(e.dead)continue;const d=(e.x-P.x)**2+(e.y-P.y)**2;if(d<bd){bd=d;b=e}}return b};
 function hit(e,v){if(e.dead||e.hp<=0)return;const k=T[e.t];v=Math.round(v);e.hp-=v;damageNumber(e.x,e.y-k.s-12,v,!!e.criticalHit);
- if(e.hp<=0){e.dead=8;if(e.rift)return;const experience=e.xpReward??k.xp;gainExperience(experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
-function cast(){if(P.scd>0||P.mp<10)return;const e=near(320);let vx=P.f,vy=0;
- if(e){const d=Math.hypot(e.x-P.x,e.y-P.y)||1;vx=(e.x-P.x)/d;vy=(e.y-P.y)/d}
- P.mp-=10;P.scd=1;B.push({x:P.x,y:P.y-8,vx:vx*280,vy:vy*280,l:1.2})}
-function brk(){if(P.r>=5)return msg('Đã đăng đỉnh, không còn cảnh giới để phá.');
- if(P.xp<need())return msg('Đạo hạnh chưa đủ để đột phá.');
- if(P.gold<cost())return msg('Cần '+cost()+' Linh Thạch để hộ pháp đột phá.');
- P.gold-=cost();if(Math.random()<.75){P.r++;P.xp=0;P.hp=mhp();P.mp=mmp();msg('Đột phá thành công! Đạt cảnh giới '+R[P.r]+'.')}
- else{P.xp=Math.floor(P.xp/2);msg('Đột phá thất bại, đạo hạnh tổn hao một nửa.')}}
+ if(e.hp<=0){e.dead=8;const experience=e.xpReward??k.xp;gainExperience(experience);const q=Math.ceil(experience/4);P.gold+=q;fx(e.x,e.y-k.s-14,'+'+q+' ◈','#d9a441');if(e.t==2)msg('Hạ được '+k.n+'! Danh chấn một phương.')}}
+// Class modules (14/15/15b) own skill 0 and 21-cultivation-gameplay owns breakthroughs.
+function cast(){}
+function brk(){}
 addEventListener('keydown',e=>{if(!P.ap||e.target instanceof HTMLInputElement)return;const k=e.key.toLowerCase();K[k]=1;if(k==' '){cast();e.preventDefault()}if(k=='q')P.med=!P.med;if(k=='b')brk()});
 addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
 cv.addEventListener('pointerdown',e=>{ptr={x:e.clientX,y:e.clientY}});cv.addEventListener('pointermove',e=>{if(ptr)ptr={x:e.clientX,y:e.clientY}});
@@ -49,8 +42,6 @@ function up(dt){
   else{hit(t,atk()*(.9+Math.random()*.2));P.acd=.6;P.sl=.12}
  }
  if(P.sl>0)P.sl-=dt;
- for(const b of B){b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt;for(const e of E){if(e.dead||b.l<=0)continue;if(Math.hypot(e.x-b.x,e.y-b.y)<T[e.t].s+8){hit(e,atk()*2.5);b.l=0;fx(b.x,b.y,'✦','#ff8a3d')}}}
- B=B.filter(b=>b.l>0);
  for(let i=0;i<E.length;i++){const e=E[i],k=T[e.t];
   if(e.network)continue;
   if(e.dead){e.dead-=dt;if(e.dead<=0&&!e.arena)spawn(i);continue}

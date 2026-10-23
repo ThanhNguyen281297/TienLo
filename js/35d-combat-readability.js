@@ -16,7 +16,7 @@
       ctx.font='bold 8px Arial';ctx.textAlign='center';ctx.strokeStyle='#1b1720';ctx.lineWidth=3;const label=(m.label||'RỜI VÙNG ĐỎ')+' · '+Math.max(0,m.duration-m.age).toFixed(1)+'s';ctx.strokeText(label,m.x,m.y-m.r-7);ctx.fillStyle='#ffe9b8';ctx.fillText(label,m.x,m.y-m.r-7);
     }ctx.restore();
   }
-  function localBoss(e){return !e.network&&!e.rift&&!e.dead&&e.hp>0&&(e.t===2||e.elite||e.boss);}
+  function localBoss(e){return !e.network&&!e.dead&&e.hp>0&&(e.t===2||e.elite||e.boss);}
   function winding(e){return !!casts.get(e)?.mark&&!casts.get(e).mark.spent;}
   const speed=classCombat.enemySpeed;classCombat.enemySpeed=e=>winding(e)||casts.get(e)?.recovery>0?0:speed(e);
   const blocked=fieldEffects.blocksAttack;fieldEffects.blocksAttack=e=>winding(e)||casts.get(e)?.recovery>0||blocked(e);

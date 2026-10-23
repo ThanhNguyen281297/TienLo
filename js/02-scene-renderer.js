@@ -17,7 +17,6 @@ dr=function(){const now=performance.now(),dt=Math.min(.05,(now-lt)/1000);lt=now;
  for(const e of E)if(!e.dead&&e.x>cx-60&&e.x<cx+vw+60&&e.y>cy-60&&e.y<cy+vh+60)it.push([e.y+T[e.t].s/2,()=>mon(e)]);
  it.push([P.y,human]);it.sort((a,b)=>a[0]-b[0]);for(const o of it){try{o[1]()}catch(e){showErr(e)}g.globalAlpha=1;g.globalCompositeOperation='source-over';g.setLineDash([])}
  if(P.med)for(let i=0;i<6;i++){const a=tm*2+i*1.047;glow(P.x+Math.cos(a)*24,P.y-12+Math.sin(a)*8,9,'rgba(120,255,220,.9)',.8)}
- for(const b of B){glow(b.x,b.y,26,'rgba(255,140,50,.9)',.6);g.fillStyle='#ff8a3d';g.beginPath();g.arc(b.x,b.y,4.5,0,6.3);g.fill();g.fillStyle='#fff3b0';g.beginPath();g.arc(b.x,b.y,2.4,0,6.3);g.fill();PT.push({x:b.x,y:b.y,vx:rn(-15,15),vy:rn(-15,15),l:.35,m:.35,c:'#ff9a4a',s:rn(2,3.5)})}
  if(P.med&&Math.random()<dt*25)PT.push({x:P.x+rn(-16,16),y:P.y+rn(-4,6),vx:0,vy:-rn(25,50),l:1,m:1,c:'#7ff0d0',s:rn(1.5,2.5)});
  g.save();g.globalCompositeOperation='lighter';for(const p of PT){p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.m<.7)p.vy+=60*dt;g.globalAlpha=Math.max(0,p.l/p.m);g.fillStyle=p.c;g.fillRect(p.x,p.y,p.s,p.s)}g.restore();
  for(let i=PT.length-1;i>=0;i--)if(PT[i].l<=0)PT.splice(i,1);

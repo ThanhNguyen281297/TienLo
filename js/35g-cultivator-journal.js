@@ -5,14 +5,10 @@
   const button=(label,fn,parent=$('world-content'))=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;parent.append(b);return b;};
   function tabs(entries){const bar=document.createElement('nav');bar.className='journal-tabs';bar.setAttribute('aria-label','Mục sổ tay');$('world-content').append(bar);for(const [label,fn]of entries)button(label,fn,bar);}
   function card(title,text,status,action,label='Xem chi tiết',disabled=false){
-    const ui=visualUI,p=world.progress(),level=cultivationLevel();
-    const key=title.includes('Bí Cảnh')?'portal':title.includes('Đấu trường')?'arena':title.includes('Huyết Ma')?'tower':title.includes('Tông môn')?'palace':title.includes('trang bị')?'forge':title.includes('Linh Mạch')?'garden':title.includes('nhập môn')?'school':'statue';
+    const ui=visualUI;
+    const key=title.includes('Bí Cảnh')?'portal':title.includes('Đấu trường')?'arena':title.includes('Huyết Ma')?'tower':title.includes('Tông môn')?'palace':title.includes('trang bị')?'forge':'statue';
     const {card:box,body}=ui.panel(title,'Map/sprites/'+key+'.png',$('activity-grid')||$('world-content'));
     if(title==='Hành trình chính'){ui.meter(P.levelXp,characterProgression.required(characterLevel()),'EXP · Cấp '+characterLevel(),body);ui.meter(Math.floor(P.xp),need(),'Tu vi',body);}
-    else if(title==='Bài tập nhập môn'){const q=p.sectQuest||{};ui.meter(q.status==='claimed'?3:q.kills||0,3,'Yêu thú',body);ui.chips([['◈',35],['EXP',20],['Tu vi',20]],body);}
-    else if(title.includes('Linh Mạch'))ui.chips([['Linh Nguyên','×2'],['EXP / tu vi','+20%']],body);
-    else if(title.includes('Bí Cảnh'))ui.chips([['◈',120+level*4]],body);
-    else if(title.includes('Đấu trường'))ui.chips([['Lượt/ngày',2],['Đợt',30],['◈',300]],body);
     else if(title.includes('Huyết Ma'))ui.chips([['◈',250],['Linh Nguyên',60]],body);
     else if(title.includes('Tông môn'))ui.chips([['Đội','4'],['Nhiệm vụ/ngày',2]],body);
     body.append(ui.node('p','visual-note',status));
@@ -22,7 +18,7 @@
   function travel(id){if(!world.isSafe(P)||world.state.scene==='arena')return msg('Về vùng an toàn trước khi truyền tống.');world.travel(id);}
   function trainer(){if(world.state.scene!=='hub'){travel('hub');if(world.state.scene!=='hub')return;}cultivation.openTrainer();}
   function open(){if(!P.ap||paused())return;
-    const p=world.progress(),safe=world.isSafe(P)&&world.state.scene!=='arena',run=spiritRift.state()||world.arenaRun();
+    const p=world.progress(),safe=world.isSafe(P)&&world.state.scene!=='arena',run=world.arenaRun();
     d.show('Tiên Đồ · Hoạt động','Chọn hoạt động → chiến đấu → nhận thưởng.');menu();
     const grid=document.createElement('div');grid.className='visual-grid';grid.id='activity-grid';$('world-content').append(grid);
     if(run){card('Đang trong thử thách','Hoàn thành hoặc rời lượt hiện tại trước khi vào hoạt động khác.','Mở menu không kết thúc lượt.');button('Trở lại chiến đấu',d.close);return;}
@@ -31,8 +27,6 @@
       'Cấp '+characterLevel()+' · '+cultivation.realmName()+' · Tu vi '+Math.floor(P.xp)+'/'+need(),inventory.openAttrs,'Thuộc tính');
     if(next>=0)button('Tới Truyền Công Các',trainer,main).disabled=!safe;
     card('Sơn Hà · Vùng săn','Sáu vùng cấp 1–67, mỗi vùng sáu bãi quái; chạy dọc đường chính để sang vùng tiếp theo. Đồ và nguyên liệu tự vào túi.','Cấp quái cố định · 48 quái/vùng',()=>overworldGame.openRoutes(),'Chọn vùng săn');
-    const level=cultivationLevel();
-    card('Vân Hải Bí Cảnh','3 đợt + Hộ Pháp. Thắng: '+(120+level*4)+' Linh Thạch.',(p.riftClears||0)+' lần thắng',spiritRift.open,'Xem bí cảnh',!safe);
     card('Tứ Phương Bí Cảnh','Bốn cổng tại Thiên Vân Thành: cấp 10, 25, 45, 70. Quái rơi mảnh linh khí; thủ lĩnh luôn cho 3–6 mảnh.','Ghép đồ 5 phẩm chất · Chơi chung',()=>expeditionsGame.open(),'Chọn bí cảnh');
     card('Thiên Vân Lôi Đài','Thách đấu có xác nhận. Trận tối đa 10 phút, quá giờ so sát thương; đạo hữu khác được vào khán đài xem.','PK 1 vs 1 · Có khán giả',()=>duelArena.open(),'Mở lôi đài');
     const boss=communityGame.state.boss||communityGame.state.social?.worldBoss;

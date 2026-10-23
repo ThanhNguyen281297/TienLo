@@ -89,25 +89,15 @@ their own foundations, without a second raised courtyard underneath.
 and checks continuous walkable bridge routes. Intentional ground decals and terrain
 layers are excluded from actor overlap checks.
 
-North/east/south/west camp coordinates remain unchanged for online compatibility.
 The islands are separate. Corner bridges, timber decks, ropes, bridge posts,
 extra stone caps and bridge minimap lines have been removed. Khinh công remains
 removed. `js/20b-map-structures.js` now loads only the wall panel/pier PNGs.
 Wall panels share one upright pier per joint, and follow the chamfered ground
 boundary. Collision blocks the removed tips and the void between islands.
 
-`js/20c-farm-portals.js` places paired formations inside the perimeter at each
-direction. Approach and press E (or the mobile interact button) to travel; the
-destination formation returns to the central courtyard. A short cooldown prevents
-an accidental immediate return. There are still no bridges or flight paths.
-
-Farm islands use radii 240 × 125, compared with the original 156 × 80 (about 2.4×
-the area). Each of the four camps has 12 monsters, 48 total per sect/realm room.
-Valley islands use 210 × 110 and 12 monsters each, 36 total. Home slots, geometry
-and server teleport validation share `Map/farm-layout.json`; regenerate the
-file:// browser copy with `python tools/build_farm_layout.py` after editing it.
-The server accepts long teleports only between matching formation positions,
-and keeps monsters within their enlarged island bounds.
+Sect courts no longer have farm camps, portals or the Linh Mạch Cốc valley:
+each sect map is one safe walled court. Monsters live only in Sơn Hà fields,
+Tứ Phương Bí Cảnh, Vạn Tầng Tháp and the world boss.
 
 `tests/map-structures.test.cjs` verifies closed walls, blocked former exits, mobile
 rendering, no loaded bridge artwork and no flight UI. Native bridge cutouts remain
