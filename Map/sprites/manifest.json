@@ -3,61 +3,61 @@
     "file": "Map/sprites/arena.png",
     "width": 485,
     "height": 442,
-    "sha256": "8eaeb590b05b449fa668b1d4fac123cb0ef074611c3be705ee5488e52d7a21c4"
+    "sha256": "a53fcf23ba77e2ac160ba854756d7ccbe8640691b58147515d6711eae3f7fc62"
   },
   "board": {
     "file": "Map/sprites/board.png",
     "width": 222,
     "height": 307,
-    "sha256": "23b98edc35a527fbc32e3a564691d643e8a5729a6eca15bc6ee46e08cd7dfe6b"
+    "sha256": "9f6f8b1fba9ad41989e32f5401d517bcf693e56ebb54574df05f61942e556e8a"
   },
   "bridge": {
     "file": "Map/sprites/bridge.png",
     "width": 345,
     "height": 163,
-    "sha256": "ff2f83329c44bd048e667ceeb1406e443bcc4d72e31019b13926fa2a451539c2"
+    "sha256": "514d671c2b7ea6b567e1c3e63864c5bb994875cba0e767559837b5f90bcafab4"
   },
   "bridgeRail": {
     "file": "Map/sprites/bridgeRail.png",
     "width": 60,
     "height": 13,
-    "sha256": "b7525c4046aae939cdf8ee890a36b075fd916734918e654fbef3d764405b91b8"
+    "sha256": "34b9412c4d807b2d911fcb5113c0686c38e4023e45c21bcffa2c48e7bcacebbb"
   },
   "cloud": {
     "file": "Map/sprites/cloud.png",
     "width": 420,
     "height": 156,
-    "sha256": "820ad75abbcd182ae339ffb9b6aa34a5dc75f516a9fee27a66f069626634a98c"
+    "sha256": "610daa72f29fcc6a3c1a863bcfd80d293a7bc0f2c014b5926ff337980e67aeba"
   },
   "cloudRock": {
     "file": "Map/sprites/cloudRock.png",
     "width": 139,
     "height": 90,
-    "sha256": "75019aa5e8e75b8e75c4c75cefc33d6043b2ef84d82c362c2d791b73ff8dbe73"
+    "sha256": "3f2f02fa51da88dd87b6951bcb299bb989cbe77e6298fdb8b47be9e74ec29009"
   },
   "crystalPillar": {
     "file": "Map/sprites/crystalPillar.png",
     "width": 94,
     "height": 252,
-    "sha256": "c311057793a968dd54f25b98b3a0ddd62e91f35795fbb0f2656bc290c539c481"
+    "sha256": "0995747dc5f9ed24d9f93f5893689289959799da1abe1c8b81adf5633a1ba08f"
   },
   "forge": {
     "file": "Map/sprites/forge.png",
     "width": 460,
     "height": 319,
-    "sha256": "25af5ebd63b9f59198ad0f9f4cf42d5d2b6a5afc68b281f268d8003db96e46c0"
+    "sha256": "51187dbc1be49351a1f2d17cf0a4fbf5c34f21a7e117b543daa0a7c8b715ddbd"
   },
   "garden": {
     "file": "Map/sprites/garden.png",
     "width": 529,
     "height": 361,
-    "sha256": "2c9874c17c51fe736b9309090f9152600644bda14f6f22300a23350dc3907862"
+    "sha256": "c42beb10489392a498114e62582a38cc89a4185b0c5d05be6a3fea7947232efd"
   },
   "gate": {
     "file": "Map/sprites/gate.png",
     "width": 523,
     "height": 465,
-    "sha256": "d3ce051a77110af29124f3a6d8bccafc8ef2559555bf04d28bc9bbc9e00b1726"
+    "sha256": "1b78966bbe6385460ebbb7d208bf9716c43928457da32121d5cf9fdf69759f0f"
   },
   "greatIsland": {
     "file": "Map/sprites/greatIsland.png",
@@ -69,79 +69,79 @@
     "file": "Map/sprites/guardianLion.png",
     "width": 241,
     "height": 240,
-    "sha256": "21fce56c5979109223d313951e2a1fd4df253f26c123592ae80d262d41282d37"
+    "sha256": "6fd181ca3ca0ed1e4f9ed74c1f9f79562c7b8567436c5d4a8b79477900ae32b4"
   },
   "hubBazaar": {
     "file": "Map/sprites/hubBazaar.png",
     "width": 376,
     "height": 270,
-    "sha256": "4095220eb757ebd493f1680f94b76820a276e124b978c59db00ecf9601eba5f9"
+    "sha256": "69469e254d38d8e387ea1f293c2021c2689797e5a8634d76dd3d2f3e9783bfa9"
   },
   "hubWell": {
     "file": "Map/sprites/hubWell.png",
     "width": 370,
     "height": 322,
-    "sha256": "fae6f5b8dd1d615cf2079facde11b558b7393f42aaf4878ba2f4821e624a7ef3"
+    "sha256": "442fc5dfb107b7ca560a1c5e2e51729273d6d24c25858987f8e7391b196c7d3b"
   },
   "island": {
     "file": "Map/sprites/island.png",
     "width": 356,
     "height": 346,
-    "sha256": "02273b5bdf1999a89748916f1058ecc0129050d7589d55380ea1409178b43a03"
+    "sha256": "23e971de70a7dbd84f5974a85324aa06b0f326b5561d2f84b006c1b89918bd4e"
   },
   "lantern": {
     "file": "Map/sprites/lantern.png",
     "width": 101,
     "height": 241,
-    "sha256": "2a23d861ad48e3a738ffc2e7e15d21efae91a87f5d79da68ea12dc00070e0b5c"
+    "sha256": "9b750aabf636532304fa0fe5a9e6edc2cc930b0aaee2ccd13f2223da6a5b6edc"
   },
   "lotusPond": {
     "file": "Map/sprites/lotusPond.png",
     "width": 106,
     "height": 72,
-    "sha256": "3182c4d9f14e0292431baa186d7e385213095bc59294c0550dfd1ff673b0d456"
+    "sha256": "0f8b4b2a5756a9ef23a49449761edff865c800539dc81c53e188f850e6318d0f"
   },
   "market": {
     "file": "Map/sprites/market.png",
     "width": 466,
     "height": 304,
-    "sha256": "d00c51699bb5b27837517dc97b22f55d01c7038fc0f0f1802bd1803d3b616e58"
+    "sha256": "da348a95a64e0447cdd227923504dac495bba8614862a68e7d3e624fe7a7f121"
   },
   "moonCourt": {
     "file": "Map/sprites/moonCourt.png",
     "width": 375,
     "height": 225,
-    "sha256": "edb0cd1b61730d11b6d8d241f25488de2cab188c77ffd8eb957c90cc735d5058"
+    "sha256": "55178859678c04dd09ef0204455f07c74d37f86c296e70863b9378203bca21e9"
   },
   "moonDais": {
     "file": "Map/sprites/moonDais.png",
     "width": 270,
     "height": 174,
-    "sha256": "ffd76608a42ace80dbb6e75769ce83810c1a4feffaef00ece8c2196eac7040da"
+    "sha256": "f53bdbaf22ca51ce0f169aac70058fc1b39a1c6e8fbf029b6c4ca7463ff3aeed"
   },
   "moonFall": {
     "file": "Map/sprites/moonFall.png",
     "width": 224,
     "height": 262,
-    "sha256": "73f1caa9043d5e675fc71f4779465cd5de632317149475838e88d1eb8d3a6548"
+    "sha256": "36d12cb954c7bcd5eb81b2600f673d201aa2552526c2d19f7900622a3e7ac6ee"
   },
   "mysticArchive": {
     "file": "Map/sprites/mysticArchive.png",
     "width": 391,
     "height": 314,
-    "sha256": "833cf42521d0480bd2e8d7ad72a8b3aceae7d7f3e4f327549f8bb16bca994d1d"
+    "sha256": "da89fbadd4dafbbafcba58dd7b301c27c7cfb9710a9988813b912cae92eb070f"
   },
   "mysticDais": {
     "file": "Map/sprites/mysticDais.png",
     "width": 136,
     "height": 192,
-    "sha256": "24fb137477320c9bf5288f13438feedcef3f121596ee34eef6a3ffbf16f0c98c"
+    "sha256": "f952d1ace65bf1e86b9b96bd0a3da3629784021b8c650e023ceeca0014e934ba"
   },
   "mysticGarden": {
     "file": "Map/sprites/mysticGarden.png",
     "width": 458,
     "height": 359,
-    "sha256": "4ae2c4ed3b5a682ca17a23574c767c792b2a52a90f5ac0917c32e8d0aa15949a"
+    "sha256": "c8049358e3e237bbf02cd1cb1dbdb005bd8c9e3b8a0dfc47d9ee9cfb9edfaa7c"
   },
   "mysticHall": {
     "file": "Map/sprites/mysticHall.png",
@@ -159,7 +159,7 @@
     "file": "Map/sprites/peak.png",
     "width": 88,
     "height": 227,
-    "sha256": "f7302315f160afccf5b122205bd05db703dcbb2cbe7330c8b5b0ceccd79768f5"
+    "sha256": "45b467779039d3bcc881cdcc3e51670c55ddae8fefd5c76e3bf6dffd865575d3"
   },
   "pineTree": {
     "file": "Map/sprites/pineTree.png",
@@ -171,61 +171,61 @@
     "file": "Map/sprites/platform.png",
     "width": 258,
     "height": 174,
-    "sha256": "21f0c248bdc2051a0c5e0688ea7de0df3f40ac0466bba1ea5abee1906f38eb7d"
+    "sha256": "240db4a0f3aa609f27e62407b206adde3015571c15367a49f5f0e049d03c9f5e"
   },
   "pond": {
     "file": "Map/sprites/pond.png",
     "width": 403,
     "height": 167,
-    "sha256": "7327578407a634f1790ad102de08207ccefbbb112a437f2a51bf8b408ca040c2"
+    "sha256": "274166bdd0df02083353083f8c346faef4b579e91d440edf5984f87e5d30a395"
   },
   "portal": {
     "file": "Map/sprites/portal.png",
     "width": 321,
     "height": 353,
-    "sha256": "e76156dcbcdc9f71cb3aa9fa245dd414a8624a8d7c0025c23e933a346e7eb535"
+    "sha256": "b38ca5a740b064708e83ab3dd2a2ae9b11d1702bb9229f8f478cfaeff9e491b8"
   },
   "rock": {
     "file": "Map/sprites/rock.png",
     "width": 152,
     "height": 155,
-    "sha256": "81743edadbba70798fc065fc7eaeba9852748ba30e8a4e933b22a980348d56c5"
+    "sha256": "0a4fc4fb4c0838db3fecdc9ed30294c11ec323b6a8c12c06af3ada417f999b66"
   },
   "sakura": {
     "file": "Map/sprites/sakura.png",
     "width": 310,
     "height": 241,
-    "sha256": "e0bfde6a6635451be1e00b8e3541da47239fb95614863d50ac98361a050700f9"
+    "sha256": "2368437ccfb55a9eccf1640672754c73f5ec42af7c94f688de2e1536940a1a23"
   },
   "school": {
     "file": "Map/sprites/school.png",
     "width": 495,
     "height": 303,
-    "sha256": "61bae6e6a8e7864eb4f055818c31d80c9de2d4279f9ce52fba4fff47b5ec59a7"
+    "sha256": "bac6f236201380e972fe0ac2f1dfc2622075cdf31df0a8dc8f53d217cd45b0b4"
   },
   "stairs": {
     "file": "Map/sprites/stairs.png",
     "width": 200,
     "height": 236,
-    "sha256": "6be808cab9c787ec445b6d7038628d25affa902db714fd408ffb03184c5ba2c5"
+    "sha256": "e881d0446968d22c5d57341c1cc1d08cd0f7a84a257b256e73d2046eb7807424"
   },
   "stall": {
     "file": "Map/sprites/stall.png",
     "width": 162,
     "height": 164,
-    "sha256": "03743d7bff9c1d0f2ec60ce15509b4b93169c9871f6377aca5ed0a80faddfafd"
+    "sha256": "c44df174b607f8fd7ce10d1375dfafcf0693f16d8e97637328ec3c63c5d39ffd"
   },
   "statue": {
     "file": "Map/sprites/statue.png",
     "width": 180,
     "height": 215,
-    "sha256": "76dc376759ef1dcf75208d512327f75c56f87ff834c721dbddf5e3060603e42f"
+    "sha256": "1c00836917d1b9e29b57f9da989c7496c1f6fb437c09dbc171db37c36973fd12"
   },
   "thunderAltar": {
     "file": "Map/sprites/thunderAltar.png",
     "width": 181,
     "height": 232,
-    "sha256": "7d0c11c0cbddc2577198ee893c9a7ead8555484fd271c067eab3425754a15072"
+    "sha256": "020632ab5f637cd4486eb7c7d8f01cf15d68339e9b2b05c0cddc191bb3ae5c23"
   },
   "thunderHall": {
     "file": "Map/sprites/thunderHall.png",
@@ -243,30 +243,30 @@
     "file": "Map/sprites/tower.png",
     "width": 400,
     "height": 361,
-    "sha256": "4dfe556e471f4f27ba0dbcf31b30b207be14d0aea4445e6b44e05a9a9b0303c0"
+    "sha256": "71cd10419a25f60126140e858c6e74bb8696b7ac4e7b5a419b611c8bcdaf0162"
   },
   "tree": {
     "file": "Map/sprites/tree.png",
     "width": 222,
     "height": 229,
-    "sha256": "57aa946f1a8c1021ba921abb6cbe24dc78f7e29707c906791868307f471312bc"
+    "sha256": "018ee6ba6f3d428d4f7e3dd0813dedc13c7125e40150b3ee7cd372e26bcd405d"
   },
   "tree2": {
     "file": "Map/sprites/tree2.png",
     "width": 185,
     "height": 217,
-    "sha256": "ac1bde1e51c1a294604c98c5db36b99eef12931b763d8ae081c64ef8fffed9b4"
+    "sha256": "e97b7d8e81f5f175d6cf28e74171e905dd36da3af4311a6a87ebde4bd8943bdc"
   },
   "waterfall": {
     "file": "Map/sprites/waterfall.png",
     "width": 224,
     "height": 258,
-    "sha256": "d9fe1c3a6aeab631ed0e2e371d99427476e9f13ed866d5933301fe994ee32aac"
+    "sha256": "9e011c4c8649c7d9bc702cdf6c1f57b29f1eebfc35f61fc9e50949b2a2a22515"
   },
   "whiteBlossom": {
     "file": "Map/sprites/whiteBlossom.png",
     "width": 129,
     "height": 113,
-    "sha256": "a4a359f004eeddf935fa0f9676a2dd7c51f0da870719d8d7ec04aa8fae52ba4b"
+    "sha256": "c20c7f57679d06298d4c3160b31b6c86a46836a1bcdb5e01d27a3db63146312e"
   }
 }

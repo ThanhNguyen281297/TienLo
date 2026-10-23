@@ -20,7 +20,7 @@
  function wind(t,phase=0){return Math.sin(t*.7+phase)*.65+Math.sin(t*1.37+phase*.7)*.25;}
  function placement(key,image,x,y,width,height){
   const meta=world.mapThemes.metadata.get(key),map=spriteCatalog.maps.find(m=>m.id===key),w=meta?Math.min(width,meta.width):width,h=height||w*image.naturalHeight/image.naturalWidth;
-  const bottom=meta?image.naturalHeight-meta.padding:(map?.bounds?.[3]||image.naturalHeight);
+  const bottom=meta?image.naturalHeight*(1-meta.padding/meta.height):(map?.bounds?map.bounds[3]/map.height*image.naturalHeight:image.naturalHeight);
   return {x:x-w/2,y:y-bottom*h/image.naturalHeight,w,h};
  }
  // The cloth starts below its support. Pole, roof and foot never move.

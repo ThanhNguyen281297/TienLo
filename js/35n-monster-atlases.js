@@ -20,7 +20,10 @@
  function raster(frame,pixels){
   let variants=cache.get(frame.image);if(!variants){variants=new Map();cache.set(frame.image,variants);}
   const key=frame.sheet+'/'+frame.index+'/'+pixels;if(variants.has(key))return variants.get(key);
-  const [x,y,w,h]=frame.rect,canvas=document.createElement('canvas');canvas.height=pixels;canvas.width=Math.max(1,Math.round(pixels*w/h));const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.drawImage(frame.image,x,y,w,h,0,0,canvas.width,canvas.height);window.actorClarity?.sharpen(canvas,.45);
+  const [x,y,w,h]=frame.rect,canvas=document.createElement('canvas');canvas.height=pixels;canvas.width=Math.max(1,Math.round(pixels*w/h));const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.drawImage(frame.image,x,y,w,h,0,0,canvas.width,canvas.height);
+  // Attack glows on the sheets spill across cell borders; feather the sides and top (feet stay on the bottom edge).
+  c.globalCompositeOperation='destination-in';for(const [dx,dy,len] of [[1,0,canvas.width],[0,1,canvas.height]]){const f=Math.max(2,len*.07),gr=dx?c.createLinearGradient(0,0,len,0):c.createLinearGradient(0,0,0,len);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(f/len,'#000');gr.addColorStop(1-f/len,'#000');gr.addColorStop(1,dx?'rgba(0,0,0,0)':'#000');c.fillStyle=gr;c.fillRect(0,0,canvas.width,canvas.height);}
+  c.globalCompositeOperation='source-over';window.actorClarity?.sharpen(canvas,.45);
   variants.set(key,canvas);if(variants.size>48)variants.delete(variants.keys().next().value);return canvas;
  }
  const previousMon=mon;mon=function(e){

@@ -30,7 +30,9 @@
       if(!ready(asset)||opacity<=0)return;
       const {image,meta}=asset,[left,top,right,bottom]=meta.bounds;
       ctx.save();ctx.globalAlpha*=opacity;
-      renderArtwork(ctx,image,-(left+right)/2*scale,-(top+bottom)/2*scale,image.naturalWidth*scale,image.naturalHeight*scale);
+      // meta.size is the logical canvas; the PNG itself may be stored upscaled.
+      const [sw,sh]=meta.size||[image.naturalWidth,image.naturalHeight];
+      renderArtwork(ctx,image,-(left+right)/2*scale,-(top+bottom)/2*scale,sw*scale,sh*scale);
       ctx.restore();
     }
     if(ready(first)&&ready(second)){paint(first,1-mix);paint(second,mix);}

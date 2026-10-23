@@ -7,6 +7,11 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def scaled(size, width, height):
+    """PNG may be stored AI-upscaled at an exact 1x/2x/4x of its logical manifest size."""
+    return any(size == (width * k, height * k) for k in (1, 2, 4))
+
+
 class MapSprites(unittest.TestCase):
     def test_six_new_theme_exports(self):
         manifest=json.loads((ROOT/'Map/theme-sprites/manifest.json').read_text())
@@ -16,8 +21,8 @@ class MapSprites(unittest.TestCase):
         for r in manifest['sprites']:
             data=(ROOT/r['src']).read_bytes()
             self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
-            self.assertEqual(data[25],6)
-            self.assertEqual(struct.unpack('>II',data[16:24]),(r['width'],r['height']))
+            self.assertIn(data[25],(3,6),'RGBA or palette+tRNS')
+            self.assertTrue(scaled(struct.unpack('>II',data[16:24]),r['width'],r['height']),r['src'])
 
     def test_runtime_atlas_exports_and_hd_terrain(self):
         # Only the island pieces and terrain loaded by js/20-sect-layout-arena.js ship.
@@ -28,8 +33,8 @@ class MapSprites(unittest.TestCase):
         for r in manifest['sprites']+list(manifest['terrain'].values()):
             data=(ROOT/r['src']).read_bytes()
             self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
-            self.assertEqual(data[25],6)
-            self.assertEqual(struct.unpack('>II',data[16:24]),(r['width'],r['height']))
+            self.assertIn(data[25],(3,6),'RGBA or palette+tRNS')
+            self.assertTrue(scaled(struct.unpack('>II',data[16:24]),r['width'],r['height']),r['src'])
         data=(ROOT/'Map/hd/courtyard-island.png').read_bytes()
         self.assertEqual(data[25],6)
         self.assertGreaterEqual(struct.unpack('>II',data[16:24])[0],1536)
@@ -44,7 +49,7 @@ class MapSprites(unittest.TestCase):
                 self.assertTrue(path.resolve().is_relative_to(ROOT))
                 data=path.read_bytes()
                 self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
-                self.assertEqual(struct.unpack('>II',data[16:24]),(entry['width'],entry['height']))
+                self.assertTrue(scaled(struct.unpack('>II',data[16:24]),entry['width'],entry['height']),entry['src'])
 
     def test_painted_item_icons_and_hd_map_sizes(self):
         for name in ('daobao', 'gioi', 'giay', 'consume'):
@@ -65,8 +70,8 @@ class MapSprites(unittest.TestCase):
             with self.subTest(name=name):
                 data = (ROOT / asset['file']).read_bytes()
                 self.assertEqual(data[:8], b'\x89PNG\r\n\x1a\n')
-                self.assertEqual(struct.unpack('>II', data[16:24]), (asset['width'], asset['height']))
-                self.assertIn(data[25], (2, 6) if name == 'tile' else (6,), 'Terrain tile may be opaque; props must have RGBA transparency')
+                self.assertTrue(scaled(struct.unpack('>II', data[16:24]), asset['width'], asset['height']), name)
+                self.assertIn(data[25], (2, 3, 6) if name == 'tile' else (3, 6), 'Terrain tile may be opaque; props must keep transparency')
                 self.assertEqual(hashlib.sha256(data).hexdigest(), asset['sha256'])
 
 

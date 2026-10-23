@@ -32,7 +32,7 @@
   world.bridgeRoutes=()=>[];
   world.sceneTitle=()=>world.state.scene==='arena'?'Đấu trường tông môn':world.state.scene==='tower'?'Vạn Tầng Tháp':originalTitle();
   world.camera=(vw,vh)=>{if(world.state.scene!=='arena')return nativeCamera(vw,vh);const axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return {x:axis(P.x,vw,620,1380),y:axis(P.y,vh,760,1510),vw,vh};};
-  function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
+  function assetAt(ctx,key,x,y,width,groundY=.34){const image=world.asset(key);if(!ready(image))return;width=Math.min(width,spriteCatalog.maps.find(m=>m.id===key)?.width||image.naturalWidth);const height=width*image.naturalHeight/image.naturalWidth;ctx.drawImage(image,x-width/2,y-height*groundY,width,height);}
   const modules=Object.fromEntries(Object.entries(spriteCatalog.modules).map(([key,meta])=>{const image=new Image();image.src=artworkURL(meta.src);return[key,image];}));
   const terrainSprites=Object.fromEntries(Object.entries(mapAtlasSprites.terrain).map(([key,meta])=>{const image=new Image();image.src=artworkURL(meta.src);return[key,image];}));
   // Complete connected island sprites: no rectangular cuts through neighbours.

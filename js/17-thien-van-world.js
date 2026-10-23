@@ -39,7 +39,8 @@
   function placement(key,x,y,width,height){
     const img=isolate(key);if(!img)return null;
     const h=height||width*img.naturalHeight/img.naturalWidth;
-    const [l,t,r,b]=spriteMetadata.get(key)?.bounds||[0,0,img.naturalWidth,img.naturalHeight];
+    // Catalog bounds are in catalog pixels; the PNG may be stored at a higher resolution.
+    const meta=spriteMetadata.get(key),k=meta?.width?img.naturalWidth/meta.width:1,[l,t,r,b]=(meta?.bounds||[0,0,img.naturalWidth/k,img.naturalHeight/k]).map(v=>v*k);
     const sx=width/img.naturalWidth,sy=h/img.naturalHeight,left=x-width/2,top=y-b*sy;
     return {img,left,top,width,height:h,bounds:{left:left+l*sx,right:left+r*sx,top:top+t*sy,bottom:y}};
   }

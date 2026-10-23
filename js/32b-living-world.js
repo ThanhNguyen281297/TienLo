@@ -14,7 +14,7 @@
  function foliage(ctx,key,x,y,w,height,alpha){
   const image=world.asset(key);if(!ready(image))return false;
   const meta=world.mapThemes.metadata.get(key),width=meta?Math.min(w,meta.width):w,h=height||width*image.naturalHeight/image.naturalWidth;
-  const bottom=meta?image.naturalHeight-meta.padding:(mapMeta.get(key)?.bounds?.[3]||image.naturalHeight),top=y-bottom*h/image.naturalHeight,t=clock(),phase=x*.017+y*.013;
+  const mm=mapMeta.get(key),bottom=meta?image.naturalHeight*(1-meta.padding/meta.height):(mm?.bounds?mm.bounds[3]/mm.height*image.naturalHeight:image.naturalHeight),top=y-bottom*h/image.naturalHeight,t=clock(),phase=x*.017+y*.013;
   ctx.save();ctx.globalAlpha*=alpha;ctx.imageSmoothingQuality='high';
   for(let n=0;n<16;n++){
    const v=n/16,sourceY=n*image.naturalHeight/16,sourceH=Math.min(image.naturalHeight/16+.3,image.naturalHeight-sourceY);
