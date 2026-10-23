@@ -177,6 +177,7 @@
     const price = Math.max(1, Math.floor((item.price || 10) * 0.5)) * (item.qty || 1);
     P.gold += price;
     p.bag.splice(idx, 1);
+    if (selectedUid === itemUid) selectedUid = null;
     saveCharacter(); openBag(); msg('Bán ' + item.name + ' +' + price + ' ◈.');
   }
   function buyItem(id, reopen = true) {
@@ -326,6 +327,8 @@
       grid.append(button);
     });
     const details=document.createElement('div');details.className='item-details item-details-hint';details.textContent='Chạm vật phẩm để xem thuộc tính';bag.append(details);
+    // Re-rendering the bag (sell/equip/use) must not leave the previous card behind.
+    document.querySelectorAll('.equipment-item-popup').forEach(node=>node.remove());
     const popup=document.createElement('aside');popup.className='equipment-item-popup';popup.hidden=true;popup.setAttribute('aria-live','polite');document.body.append(popup);
     new MutationObserver(()=>{if($('world-dialog').hidden)popup.remove();else if(!$('world-title').textContent.startsWith('Hành trang'))popup.hidden=true;}).observe($('world-dialog'),{attributes:true,attributeFilter:['hidden']});
     new MutationObserver(()=>{if(!$('world-title').textContent.startsWith('Hành trang'))popup.hidden=true;}).observe($('world-title'),{childList:true,subtree:true});
