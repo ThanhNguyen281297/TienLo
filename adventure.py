@@ -17,14 +17,32 @@ MAIN=[
  ('forging','Linh khí thành hình','Tới NPC Luyện Khí trong thành để ghép một trang bị.','craft',1,10,3000,200,2),
  ('mountain-hunt','Vượt núi tìm đạo','Hạ 100 yêu thú từ cấp 20.','hunt:20',100,20,10000,450,5),
  ('tide-seal','Tiếng gọi Long Uyên','Hạ thủ lĩnh Huyền Thủy Long Uyên.','boss:rift-tide',1,25,15000,550,6),
- ('snow-hunt','Phong tuyết vô ngại','Hạ 150 yêu thú từ cấp 35.','hunt:35',150,35,24000,650,7),
+ ('snow-hunt','Phong tuyết vô ngại','Hạ 150 yêu thú từ cấp 30 tại Hàn Sương Lĩnh.','hunt:35',150,35,24000,650,7),
  ('fire-gate','Tro tàn Xích Diệm','Hạ 200 yêu thú từ cấp 45 rồi tìm tới Xích Diệm Hoang Vực.','hunt:45',200,45,36000,800,8),
  ('fire-seal','Phượng hỏa tái sinh','Hạ phượng hoàng trong bí cảnh Xích Diệm.','boss:rift-fire',1,45,42000,900,10),
  ('void-gate','Đường vào U Minh','Hạ 300 yêu thú từ cấp 60.','hunt:60',300,60,65000,1200,12),
  ('final-seal','Bốn ấn quy nguyên','Hạ Cốt Long tại U Minh Cốt Giới để giữ bình yên Thiên Vân.','boss:rift-void',1,70,90000,1800,15),
- ('immortal-hunt','Tiên lộ vô cùng','Hạ 500 yêu thú từ cấp 80.','hunt:80',500,80,140000,2400,20),
+ ('immortal-hunt','Tiên lộ vô cùng','Hạ 500 yêu thú từ cấp 65 tại U Minh Cổ Địa.','hunt:80',500,80,140000,2400,20),
 ]
-SIDE=[]
+# Side quests: one-time, unlocked by level only (no chain), each with a giver line.
+SIDE=[
+ ('side-forge-1','Lửa lò đầu tiên','Thợ rèn: "Đạo hữu mang trang bị tới lò, ta giúp tôi luyện một lần cho quen tay."','enhance',1,1,300,50,0),
+ ('side-meadow','Cỏ xanh nhuốm yêu khí','Vệ binh vùng săn: "Bọ ngựa và thỏ yêu tràn khắp Thanh Phong Nguyên. Hạ giúp ta 40 con."','zone:field-meadow',40,1,400,60,1),
+ ('side-visit-sword','Bái phỏng Vạn Kiếm Sơn','Vân Châu: "Muốn hiểu kiếm đạo, hãy tới Vạn Kiếm Sơn một chuyến."','visit:sword',1,5,300,50,0),
+ ('side-visit-moon','Bái phỏng Minh Nguyệt Tông','Vân Châu: "Nguyệt Hồ về đêm rất đẹp. Đạo hữu ghé qua cho biết."','visit:moon',1,5,300,50,0),
+ ('side-visit-thunder','Bái phỏng Lôi Thương Tông','Vân Châu: "Lôi Vân Phong quanh năm sấm chớp, người yếu bóng vía đừng ở lâu."','visit:thunder',1,5,300,50,0),
+ ('side-visit-mystic','Bái phỏng Thiên Cơ Môn','Vân Châu: "Thiên Cơ Môn giữ nhiều cổ trận. Tới đó học hỏi đôi điều."','visit:mystic',1,5,300,50,0),
+ ('side-bamboo','Trúc hải âm u','Vệ binh vùng săn: "Nhện độc giăng tơ khắp Trúc Hải U Cốc. Diệt 40 con cho đường thông."','zone:field-bamboo',40,6,1800,160,2),
+ ('side-wood','Dò đường Thanh Mộc','Trưởng lão: "Vết nứt phía Đông có linh khí lạ. Vào Thanh Mộc Linh Cảnh hạ 20 yêu thú."','zone:rift-wood',20,10,3000,200,3),
+ ('side-forge-10','Bách luyện thành cương','Thợ rèn: "Một món đồ tốt phải qua trăm lần tôi luyện. Cường hóa đủ 10 lần đi."','enhance',10,10,3000,300,2),
+ ('side-marsh','Sương mù Vân Mộng','Vệ binh vùng săn: "Sứa u linh làm lạc đường lữ khách. Hạ 50 yêu thú ở Vân Mộng Trạch."','zone:field-marsh',50,15,5200,320,3),
+ ('side-tide','Sóng ngầm Long Uyên','Trưởng lão: "Long Uyên dậy sóng. Vào hạ 20 yêu thú để dò xét."','zone:rift-tide',20,25,9000,400,4),
+ ('side-frost','Hàn băng thú triều','Vệ binh vùng săn: "Sói băng kéo đàn xuống núi. Hạ 60 con ở Hàn Sương Lĩnh."','zone:field-frost',60,25,12000,520,4),
+ ('side-ember','Lửa hoang không tắt','Vệ binh vùng săn: "Xích Diệm Hoang cháy mãi không tàn. Diệt 70 yêu thú giữ lửa."','zone:field-ember',70,40,30000,800,6),
+ ('side-fire','Tro tàn Xích Diệm','Trưởng lão: "Bí cảnh Xích Diệm vừa mở rộng. Hạ 20 yêu thú trong đó."','zone:rift-fire',20,45,26000,700,6),
+ ('side-abyss','Bóng tối U Minh','Vệ binh vùng săn: "U Minh Cổ Địa không thấy ánh mặt trời. Hạ 80 yêu thú ở đó."','zone:field-abyss',80,60,70000,1300,9),
+ ('side-void','Cốt giới hoang lương','Trưởng lão: "U Minh Cốt Giới là nơi nguy hiểm nhất. Hạ 20 yêu thú để mở đường."','zone:rift-void',20,70,60000,1100,8),
+]
 DAILY=[
  ('daily-rift','Khám phá bí cảnh','Tham gia một bí cảnh trong ngày.','riftVisits',1,10,1500,150,2),
  ('daily-explorer','Dấu chân tam cảnh','Tham gia ba bí cảnh khác nhau trong ngày.','riftVisits',3,45,8000,500,5),
@@ -34,6 +52,7 @@ DAILY=[
  ('daily-boss','Bí cảnh trấn yêu','Hạ một thủ lĩnh bí cảnh trong ngày.','riftBosses',1,10,3500,250,3),
 ]
 SECT_MAPS=('sword','moon','thunder','mystic')
+HUNT_FLOORS=((1,1),(3,3),(10,10),(20,20),(35,30),(45,45),(60,60),(80,65))
 
 def day():return datetime.now(timezone(timedelta(hours=7))).date().isoformat()
 
@@ -64,8 +83,11 @@ def record_kill(db,uid,mob,event):
     if db.execute('SELECT 1 FROM adventure_events WHERE user_id=? AND id=?',(uid,event)).fetchone():return
     db.execute('INSERT INTO adventure_events VALUES(?,?)',(uid,event));wallet(db,uid)
     scene=mob.get('map','');add(db,uid,'kills')
-    for minimum in (1,3,10,20,35,45,60,80):
-        if mob.get('level',1)>=minimum:add(db,uid,'hunt:'+str(minimum))
+    if scene:add(db,uid,'zone:'+scene)
+    # Counter name -> lowest monster level that counts. hunt:35 and hunt:80 accept
+    # Hàn Sương Lĩnh (30+) and U Minh Cổ Địa (65+): no reachable monster existed above them.
+    for name,minimum in HUNT_FLOORS:
+        if mob.get('level',1)>=minimum:add(db,uid,'hunt:'+str(name))
     add(db,uid,'daily:'+day()+':kills')
     if scene.startswith('rift-'):
         for key in ('riftKills','daily:'+day()+':riftKills'):add(db,uid,key)
@@ -94,9 +116,43 @@ def progress(db,uid,key,daily=False):
     if key=='seals':return sum(count(db,uid,'boss:'+scene)>0 for scene in ('rift-wood','rift-tide','rift-fire','rift-void'))
     return count(db,uid,('daily:'+day()+':' if daily else '')+key)
 
+FIELDS=(('field-meadow',1,1),('field-bamboo',8,6),('field-marsh',18,15),('field-frost',30,25),('field-ember',45,40),('field-abyss',65,60))
+RIFTS=(('rift-wood',10),('rift-tide',25),('rift-fire',45),('rift-void',70))
+CAMP=(440,1320)
+
+MAP_NAMES={'hub':'Thiên Vân Thành','sword':'Vạn Kiếm Sơn','moon':'Minh Nguyệt Tông','thunder':'Lôi Thương Tông','mystic':'Thiên Cơ Môn',
+ 'field-meadow':'Thanh Phong Nguyên','field-bamboo':'Trúc Hải U Cốc','field-marsh':'Vân Mộng Trạch','field-frost':'Hàn Sương Lĩnh','field-ember':'Xích Diệm Hoang','field-abyss':'U Minh Cổ Địa',
+ 'rift-wood':'Thanh Mộc Linh Cảnh','rift-tide':'Huyền Thủy Long Uyên','rift-fire':'Xích Diệm Hoang Vực','rift-void':'U Minh Cốt Giới'}
+
+def goal(key,player):
+    result=_goal(key,player)
+    if result:result['name']=MAP_NAMES.get(result['map'],result['map'])
+    return result
+
+def _goal(key,player):
+    """Where a quest is done: map id plus a point, an NPC service id, and whether to fight there."""
+    lv=progression.level(player)
+    if key=='walk':return dict(map='hub',npc='quest')
+    if key in ('craft','enhance'):return dict(map='hub',npc='forge')
+    if key.startswith('visit:'):
+        scene=key[6:];return dict(map=scene,npc='mentor') if scene in SECT_MAPS else dict(map=scene)
+    if key.startswith('zone:field-'):return dict(map=key[5:],x=CAMP[0],y=CAMP[1],auto=True)
+    if key.startswith('zone:rift-'):return dict(map=key[5:],x=1000,y=1100,auto=True)
+    if key.startswith('boss:'):return dict(map=key[5:],x=1000,y=930,auto=True)
+    if key.startswith('hunt:'):
+        need=dict(HUNT_FLOORS).get(int(key[5:]),int(key[5:]));field=next((f for f in FIELDS if f[1]+2>=need),FIELDS[-1])
+        return dict(map=field[0],x=CAMP[0],y=CAMP[1],auto=True)
+    if key in ('kills','sectKills'):
+        field=[f for f in FIELDS if f[2]<=lv][-1];return dict(map=field[0],x=CAMP[0],y=CAMP[1],auto=True)
+    if key in ('riftVisits','riftBosses','riftKills'):
+        rift=[r for r in RIFTS if r[1]<=lv]
+        if not rift:return None
+        return dict(map=rift[-1][0],x=1000,y=930 if key=='riftBosses' else 1100,auto=True)
+    return None
+
 def quests(db,uid,player):
     claimed={(r['quest'],r['day']) for r in db.execute('SELECT quest,day FROM adventure_claims WHERE user_id=?',(uid,))};result=[];prior=True
-    for group,rows in (('main',MAIN),('daily',DAILY)):
+    for group,rows in (('main',MAIN),('side',SIDE),('daily',DAILY)):
         for row in rows:
             ident,title,story,key,target,level,xp,gold,extra=row;today=day() if group=='daily' else '';done=(ident,today) in claimed
             value=progress(db,uid,key,group=='daily');unlocked=progression.level(player)>=level and (prior if group=='main' else True)
@@ -105,7 +161,7 @@ def quests(db,uid,player):
                 if unlocked and baseline is None:
                     db.execute('INSERT INTO adventure_quest_starts VALUES(?,?,?)',(uid,ident,value));baseline={'baseline':value}
                 value=max(0,value-(baseline['baseline'] if baseline else value))
-            result.append(dict(id=ident,title=title,story=story,kind=group,key=key,target=target,value=min(target,int(value)),level=level,claimed=done,unlocked=unlocked,ready=unlocked and value>=target and not done,xp=xp,gold=gold,fragments=extra,merit=0))
+            result.append(dict(id=ident,title=title,story=story,kind=group,key=key,target=target,value=min(target,int(value)),level=level,claimed=done,unlocked=unlocked,ready=unlocked and value>=target and not done,xp=xp,gold=gold,fragments=extra,merit=0,goal=goal(key,player)))
             if group=='main':prior=prior and done
     return result
 

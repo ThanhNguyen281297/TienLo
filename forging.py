@@ -3,6 +3,7 @@ import json
 import math
 import time
 import equipment
+import adventure
 
 def cost(next_level):
     return dict(stone=2+next_level*2,refined=max(0,next_level-9),essence=10+next_level*next_level*5)
@@ -38,6 +39,7 @@ def action(db,owner,body,gm=False):
             material=next(i for i in w['bag'] if i['uid']==chosen[iid]);material['qty']-=amount
             if material['qty']<=0:w['bag'].remove(material)
     item['enhance']=n;revision=row['revision']+1
+    adventure.add(db,owner,'enhance')
     equipment.validate(player,db,owner)
     db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,int(time.time()),owner))
     result=dict(character=dict(id=row['id'],player=player,revision=revision),enhanced=item['uid'])

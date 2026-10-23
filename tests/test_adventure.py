@@ -96,9 +96,36 @@ class AdventureTests(unittest.TestCase):
         for i in range(10):adventure.record_kill(self.db,1,dict(map='sword',level=1),'story-'+str(i))
         latest=adventure.snapshot(self.db,1,result['character']['player'])
         self.assertTrue(next(q for q in latest['quests'] if q['id']=='first-blood')['ready'])
-    def test_only_main_and_daily_quests_remain(self):
+    def test_main_side_and_daily_quests_with_goals(self):
         snapshot=adventure.snapshot(self.db,1,self.player)
-        self.assertEqual({q['kind'] for q in snapshot['quests']},{'main','daily'})
+        self.assertEqual({q['kind'] for q in snapshot['quests']},{'main','side','daily'})
+        side=[q for q in snapshot['quests'] if q['kind']=='side']
+        self.assertGreaterEqual(len(side),16);self.assertEqual(len({q['id'] for q in snapshot['quests']}),len(snapshot['quests']))
+        # Side quests are not chained: every side quest at or below the hero level is open.
+        self.assertTrue(all(q['unlocked'] for q in side if q['level']<=80))
+        # Every main and side quest can be navigated to a real map.
+        maps={'hub',*adventure.SECT_MAPS,*(f[0] for f in adventure.FIELDS),*(r[0] for r in adventure.RIFTS)}
+        for q in snapshot['quests']:
+            if q['kind']!='daily':self.assertIn(q['goal']['map'],maps,q['id']);self.assertTrue(q['goal']['name'])
+    def test_hunt_quests_point_to_monsters_that_count(self):
+        import overworld
+        levels={m:(r['level'],r['level']+2) for m,r in overworld.MAPS.items()}
+        for _,_,_,key,*_ in adventure.MAIN:
+            if not key.startswith('hunt:'):continue
+            floor=dict(adventure.HUNT_FLOORS)[int(key[5:])];top=levels[adventure.goal(key,self.player)['map']][1]
+            self.assertGreaterEqual(top,floor,key)
+    def test_zone_kills_and_enhance_progress_side_quests(self):
+        for n in range(40):adventure.record_kill(self.db,1,dict(map='field-meadow',level=2),'zone-'+str(n))
+        adventure.add(self.db,1,'enhance')
+        quests={q['id']:q for q in adventure.snapshot(self.db,1,self.player)['quests']}
+        self.assertTrue(quests['side-meadow']['ready']);self.assertTrue(quests['side-forge-1']['ready'])
+        before=json.loads(self.db.execute('SELECT player FROM characters').fetchone()[0])['gold']
+        self.act('quest_claim',id='side-meadow')
+        player=json.loads(self.db.execute('SELECT player FROM characters').fetchone()[0])
+        self.assertEqual(player['gold'],before+60)
+        with self.assertRaises(ValueError):self.act('quest_claim',id='side-meadow')
+    def test_sect_shop_stays_closed(self):
+        snapshot=adventure.snapshot(self.db,1,self.player)
         self.assertEqual(snapshot['shop'],[])
         with self.assertRaises(ValueError):self.act('sect_buy',id='sect-vukhi-class-0')
         self.assertEqual(adventure.wallet(self.db,1)['merit'],0)
