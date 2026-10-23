@@ -91,7 +91,7 @@
   const defaults=()=>({quest:'none',kills:0,questKills:0,weapon:0,armor:0,upgrade:0,potions:0,tutorial:true,bestArena:null,attrs:{luc:0,the:0,nhanh:0,linh:0},attrPoints:0,bag:[],equip:{vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null},thangViDan:0});
   function progress(){if(!P.world)P.world=defaults();// Legacy saves bypass the retired onboarding gate.
     const p=P.world;p.tutorial=true;p.attrs??={luc:0,the:0,nhanh:0,linh:0};p.attrPoints??=0;p.bag??=[];p.equip??={vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null};p.thangViDan??=0;return p;}
-  function isSafe(p){if(state.scene!=='hub'&&window.worldMap?.sceneSafety)return window.worldMap.sceneSafety(p);return safeRect(p);}
+  function isSafe(p){if(state.scene!=='hub'&&window.worldMap?.sceneSafety)return window.worldMap.sceneSafety(p);const d=window.worldMap?.hubDeck;return d?Math.abs(p.x-1000)/d.rx+Math.abs(p.y-1100)/d.ry<1:safeRect(p);}
   const floor=document.createElement('canvas');floor.width=floor.height=M;
   function rebuild(){floor.getContext('2d').clearRect(0,0,M,M);state.ready=atlases.every(ready);}
   atlases.forEach(img=>{img.onload=rebuild;img.onerror=()=>msg('Không tải được '+img.src.split('/').pop()+'.');});rebuild();

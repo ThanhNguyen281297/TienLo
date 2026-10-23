@@ -186,7 +186,27 @@
   for(let t=(vertical?y0:x0)+30;t<(vertical?y1:x1)-10;t+=46){const [x,y]=vertical?[mid,t]:[t,mid];ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+11,y);ctx.lineTo(x,y+7);ctx.lineTo(x-11,y);ctx.closePath();ctx.fill();}
   ctx.restore();
  }
- function drawHub(ctx){street(ctx,640,1068,1360,1112);street(ctx,958,800,1042,1430);}
+ function drawHub(ctx){street(ctx,958,800,1042,1500);
+  // Central formation with two white rings, as on the sect courts.
+  ctx.save();ctx.strokeStyle='rgba(235,245,240,.55)';ctx.lineWidth=2;for(const r of [215,265]){ctx.beginPath();ctx.ellipse(1000,1150,r,r*.52,0,0,Math.PI*2);ctx.stroke();}ctx.restore();
+  world.sprite(ctx,'theme-14-065',1000,1215,230);
+ }
+ // Sunset sky with layered distant peaks behind the floating city.
+ const peaks=[0,1,2].map(layer=>{const r=seeded(97+layer*31),pts=[];let x=-200;while(x<2400){pts.push([x,(r()*.6+.2)]);x+=90+r()*160;}return pts;});
+ function hubSky(ctx,cx,cy,vw,vh){
+  const sky=ctx.createLinearGradient(0,cy,0,cy+vh);sky.addColorStop(0,'#f2c79b');sky.addColorStop(.35,'#d9a99a');sky.addColorStop(.62,'#8fa6b4');sky.addColorStop(1,'#3d5866');
+  ctx.fillStyle=sky;ctx.fillRect(cx,cy,vw,vh);
+  const tones=[['rgba(176,150,168,.55)','rgba(214,186,184,.25)'],['rgba(120,124,146,.75)','rgba(170,160,170,.35)'],['rgba(70,92,106,.9)','rgba(120,136,140,.5)']];
+  peaks.forEach((pts,layer)=>{const par=.15+layer*.12,base=cy+vh*(.46+layer*.12),height=vh*(.3-layer*.06),off=cx*par;
+   const fill=ctx.createLinearGradient(0,base-height,0,base+40);fill.addColorStop(0,tones[layer][0]);fill.addColorStop(1,tones[layer][1]);
+   ctx.fillStyle=fill;ctx.beginPath();ctx.moveTo(cx-10,base+60);
+   for(const [x,h] of pts){const sx=cx+((x-off)%2400+2400)%2400-200;if(sx<cx-320||sx>cx+vw+320)continue;const top=base-height*h,w=55+h*40;
+    // Karst spire: steep sides, rounded crown, slight lean.
+    ctx.lineTo(sx-w,base);ctx.quadraticCurveTo(sx-w*.55,top+height*h*.35,sx-w*.18,top+6);ctx.quadraticCurveTo(sx+w*.05,top-8,sx+w*.22,top+10);ctx.quadraticCurveTo(sx+w*.6,top+height*h*.4,sx+w,base);}
+   ctx.lineTo(cx+vw+10,base+60);ctx.closePath();ctx.fill();
+   const mist=ctx.createLinearGradient(0,base-30,0,base+70);mist.addColorStop(0,'rgba(244,228,214,0)');mist.addColorStop(1,'rgba(244,228,214,.45)');ctx.fillStyle=mist;ctx.fillRect(cx,base-30,vw,100);});
+  return true;
+ }
  const floor=drawGround;
  drawGround=function(cx,cy,vw,vh){
   floor(cx,cy,vw,vh);
@@ -202,7 +222,7 @@
  const change=world.switchScene;
  world.switchScene=function(...args){
   const result=change.apply(this,args),id=world.state.scene,keys=DECOR[id];
-  if(id==='hub'&&!world.buildings.some(b=>b.identity)){for(const x of [668,1332])world.buildings.push({key:'theme-14-010',x,y:650,w:62,identity:true});}
+  if(id==='hub'&&!world.buildings.some(b=>b.identity)){for(const x of [470,1530])world.buildings.push({key:'theme-14-010',x,y:1080,w:66,identity:true,solid:[-12,-7,12,6]});}
   if(keys&&!world.buildings.some(b=>b.identity)){
    const [rx,ry]=deckRadii();
    for(let i=0;i<12;i++){
@@ -213,5 +233,5 @@
   }
   return result;
  };
- window.mapIdentity={drawField,layers,FIELD,RIFT,DECOR};
+ window.mapIdentity={drawField,hubSky,layers,FIELD,RIFT,DECOR};
 })();

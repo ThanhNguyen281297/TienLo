@@ -30,7 +30,10 @@
     if(isValley()){const main=layouts.valley;return diamond(p,1000,1100,main.rx,main.ry)||valleyMines.some(c=>diamond(p,c.x,c.y,farmLayout.valley.rx,farmLayout.valley.ry));}
     const main=mainShape();return diamond(p,1000,1100,main.rx,main.ry)||camps.some(c=>diamond(p,c.x,c.y,farmLayout.camp.rx,farmLayout.camp.ry));}
   const oldWalk=world.canWalk;
-  world.canWalk=p=>world.state.scene==='hub'?oldWalk(p):p.x>20&&p.x<M-20&&p.y>20&&p.y<M-20&&terrain(p)&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
+  // Thiên Vân Thành is a floating diamond island like the sect courts.
+  const HUB_DECK={rx:740,ry:470};world.hubDeck=HUB_DECK;
+  const hubWalk=p=>Math.abs(p.x-1000)/(HUB_DECK.rx*.95)+Math.abs(p.y-1100)/(HUB_DECK.ry*.95)<1&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
+  world.canWalk=p=>world.state.scene==='hub'?hubWalk(p):p.x>20&&p.x<M-20&&p.y>20&&p.y<M-20&&terrain(p)&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
   world.traceMove=(from,to)=>{if(!world.canWalk(from))return {...from};const steps=Math.max(1,Math.ceil(Math.hypot(to.x-from.x,to.y-from.y)/3));let last={...from};for(let i=1;i<=steps;i++){const p={x:from.x+(to.x-from.x)*i/steps,y:from.y+(to.y-from.y)*i/steps};if(!world.canWalk(p))break;last=p;}return last;};
   world.sceneSafety=p=>{if(isValley())return diamond(p,1000,1100,layouts.valley.rx+5,layouts.valley.ry+5);return clan()&&diamond(p,1000,1100,mainShape().rx+5,mainShape().ry+5);};
   world.bridgeRoutes=()=>[];
@@ -92,14 +95,17 @@
     if(world.state.scene==='thunder')for(const [x,y]of [[590,865],[1440,730],[1320,1560]])world.sprite(ctx,'cloudRock',x,y,155,undefined,.6);
   }
   const hubDecor=[{key:'pineTree',x:655,y:970,w:42},{key:'whiteBlossom',x:1345,y:970,w:42},
-    {key:'sakura',x:655,y:1320,w:42},{key:'rock',x:1345,y:1320,w:58},
+    {key:'sakura',x:590,y:1285,w:42},{key:'rock',x:1345,y:1320,w:58},
     {key:'lotusPond',x:1100,y:1170,w:60},{key:'lotusPond',x:900,y:1285,w:65},
     {key:'guardianLion',x:950,y:875,w:36},{key:'guardianLion',x:1050,y:875,w:36}];
-  function hubFloor(ctx,cx,cy,vw,vh){sky(ctx,cx,cy,vw,vh);const c=world.city;
-    stonePaving.draw(ctx,{left:c.left,top:c.top,right:c.right,bottom:c.bottom},floorView);
-    assetAt(ctx,'stairs',1000,c.bottom+18,80,.5);
-    // Vườn trang trí nằm ngoài các trục đi tới NPC.
-    for(const x of [650,1350])for(const y of [710,875,1045,1220,1390])world.sprite(ctx,'lantern',x,y,20);
+  function hubFloor(ctx,cx,cy,vw,vh){if(!window.mapIdentity?.hubSky?.(ctx,cx,cy,vw,vh))sky(ctx,cx,cy,vw,vh);
+    const {rx,ry}=HUB_DECK;islandDeck(ctx,1000,1100,rx,ry,110);
+    // Stairs descend from the two lower edges; lanterns line the rim.
+    for(const s of [-1,1])assetAt(ctx,'stairs',1000+s*rx*.5,1100+ry*.5+20,86,.5);
+    assetAt(ctx,'stairs',1000,1100+ry-6,90,.5);
+    for(const [ax,ay,bx,by] of [[1000,1100-ry,1000+rx,1100],[1000+rx,1100,1000,1100+ry],[1000,1100+ry,1000-rx,1100],[1000-rx,1100,1000,1100-ry]])
+      for(let t=.14;t<.9;t+=.18){if(ay>1100&&by>1100||ay===1100&&by===1100+ry||ay===1100+ry){if(Math.abs(t-.5)<.1)continue;}
+        const x=ax+(bx-ax)*t,y=ay+(by-ay)*t;world.sprite(ctx,'lantern',1000+(x-1000)*.93,1100+(y-1100)*.93,20);}
   }
   const decor={sword:[],moon:[],thunder:[],mystic:[]};
   for(const id of world.sectIds){const l=layouts[id];
@@ -128,7 +134,7 @@
   };
   function configure(){
     if(world.state.scene==='hub'){
-      const positions={palace:[1000,830,300],school:[760,940,160],board:[1240,940,85],market:[760,1140,160],hubBazaar:[760,1140,160],forge:[1240,1140,150],tower:[1240,1340,155],portal:[1000,1300,65],garden:[760,1340,130]};
+      const positions={palace:[1000,805,400],school:[700,925,200],board:[1290,925,100],market:[625,1150,185],hubBazaar:[625,1150,185],forge:[1375,1145,180],tower:[1300,1345,190],portal:[1000,1300,70],garden:[720,1395,150]};
       for(const b of world.buildings){if(b.key==='arena')b.key='tower';const p=positions[b.key];if(p){[b.x,b.y,b.w]=p;if(b.solid)b.solid=[-b.w*.26,-12,b.w*.26,-2];}if(b.key==='market')b.key='hubBazaar';}
       const services={quest:[1000,935],shop:[760,1210],forge:[1240,1210],teleport:[1000,1330],tower:[1240,1385],rank:[1240,1015],skills:[760,1000]};
       for(const s of world.services){if(s.id==='arena')s.id='tower';if(services[s.id])[s.x,s.y]=services[s.id];}

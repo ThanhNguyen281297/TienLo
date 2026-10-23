@@ -46,7 +46,7 @@
     for(let i=1;i<=steps;i++){const point={x:from.x+(to.x-from.x)*i/steps,y:from.y+(to.y-from.y)*i/steps};if(!canWalk(point))break;last=point;}return last;
   }
   world.canWalk=canWalk;world.traceMove=traceMove;
-  world.camera=(vw,vh)=>{const c=world.city,axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return scene()==='hub'?{x:axis(P.x,vw,c.left,c.right),y:axis(P.y,vh,c.top,c.bottom),vw,vh}:{x:axis(P.x,vw,0,M),y:axis(P.y,vh,0,M),vw,vh};};
+  world.camera=(vw,vh)=>{const c=world.city,axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return scene()==='hub'?{x:axis(P.x,vw,180,1820),y:axis(P.y,vh,520,1660),vw,vh}:{x:axis(P.x,vw,0,M),y:axis(P.y,vh,0,M),vw,vh};};
   world.sceneSafety=p=>ellipse(p,islands[0])||ellipse(p,islands[1])||ellipse(p,islands[4]);
   world.sceneTitle=()=>maps[scene()].name;
   window.skillPower=(index,power)=>power*(1+(world.progress().skillLevels?.[index]||0)*.08);

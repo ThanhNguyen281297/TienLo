@@ -48,7 +48,7 @@
   }world.atmosphere?.decorateProp(ctx,key,x,y,w,height,alpha);ctx.restore();return result;
  };
  function zones(){
-  const scene=world.state.scene;if(scene==='hub'){const c=world.city;return[{x:1000,y:1080,rx:(c.right-c.left)/2,ry:(c.bottom-c.top)/2}];}
+  const scene=world.state.scene;if(scene==='hub'){const d=world.hubDeck||{rx:740,ry:470};return[{x:1000,y:1100,rx:d.rx*.62,ry:d.ry*.62}];}
   const main=world.sectLayouts[scene];if(!main)return[{x:1000,y:1100,rx:200,ry:100}];
   const size=scene==='valley'?farmLayout.valley:farmLayout.camp;
   return [{x:1000,y:1100,rx:main.rx,ry:main.ry},...(scene==='valley'?world.valleyMines:world.farmCamps).map(c=>({...c,rx:size.rx,ry:size.ry}))];

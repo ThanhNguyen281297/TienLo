@@ -12,8 +12,9 @@
       for(const camp of valley?world.valleyMines:world.farmCamps)surfaces.push({x:camp.x,y:camp.y,rx:valley?farmLayout.valley.rx:farmLayout.camp.rx,ry:valley?farmLayout.valley.ry:farmLayout.camp.ry});
       for(const surface of surfaces){const points=boundary(surface);for(let i=0;i<points.length;i++)walls.push(...splitWall(points[i],points[(i+1)%points.length]));}
     }else if(scene==='hub'){
-      const c=world.city,points=[{x:c.left+12,y:c.top+25},{x:c.right-12,y:c.top+25},{x:c.right-12,y:c.bottom-12},{x:c.left+12,y:c.bottom-12}];
-      for(let i=0;i<4;i++){const a=points[i],b=points[(i+1)%4],gap=50/distance(a,b);walls.push(...splitWall(a,mix(a,b,.5-gap)),...splitWall(mix(a,b,.5+gap),b));}
+      // The city is a diamond island (world.hubDeck); its parapet follows the rim.
+      const d=world.hubDeck||{rx:740,ry:470},surface={x:1000,y:1100,rx:d.rx,ry:d.ry};surfaces.push(surface);
+      const points=boundary(surface);for(let i=0;i<points.length;i++)walls.push(...splitWall(points[i],points[(i+1)%points.length]));
     }
     const piers=[...new Map(walls.flatMap(pair=>pair.map(p=>[p.x.toFixed(3)+','+p.y.toFixed(3),p]))).values()];
     const result={bridges:[],walls,surfaces,piers};cache.set(scene,result);return result;

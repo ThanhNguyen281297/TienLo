@@ -58,7 +58,7 @@
     for(const b of world.buildings){if(b.wood||(b.w<40&&!b.solid))continue;const r=b.ground?Math.max(40,b.w*.3):Math.max(26,(b.w||40)*.42);avoid.push({x:b.x,y:b.y-(b.w||40)*.15,r});}
     const sect=world.sectLayouts?.[scene],diamond=sect?{rx:sect.rx,ry:sect.ry}:null;
     const inRegion=p=>{
-      if(scene==='hub')return p.x>655&&p.x<1345&&p.y>650&&p.y<1395;
+      if(scene==='hub')return Math.abs(p.x-1000)/700+Math.abs(p.y-1100)/440<.9;
       if(scene.startsWith('field-'))return p.x>140&&p.x<1860&&p.y>140&&p.y<1860&&roadDistance(p)>84&&FIELD_CAMPS.every(c=>((p.x-c[0])/230)**2+((p.y-c[1])/140)**2>1);
       if(scene.startsWith('rift-'))return((p.x-1000)/585)**2+((p.y-1100)/305)**2<1;
       if(scene==='tower')return Math.abs(p.x-1000)/460+Math.abs(p.y-1100)/300<.86;

@@ -32,9 +32,9 @@
  const change=world.switchScene;world.switchScene=function(...args){const result=change(...args);configure();return result;};
  function scenery(){const t=current();if(!t)return[];const scene=world.state.scene,hub=scene==='hub',battle=scene==='arena'||scene==='worldboss';
   const result=hub?[
-   {key:id(t.atlas,t.vista),x:1000,y:555,w:340,alpha:.78},
-   {key:id(t.atlas,t.left),x:430,y:1050,w:260,alpha:.7},
-   {key:id(t.atlas,t.right),x:1560,y:1050,w:250,alpha:.7}
+   {key:id(t.atlas,t.vista),x:1000,y:470,w:320,alpha:.7},
+   {key:id(t.atlas,t.left),x:150,y:820,w:240,alpha:.6},
+   {key:id(t.atlas,t.right),x:1850,y:820,w:230,alpha:.6}
   ]:battle?[
    {key:id(t.atlas,t.vista),x:1000,y:885,w:scene==='worldboss'?560:420,alpha:.9},
    {key:id(t.atlas,t.left),x:540,y:1170,w:230,alpha:.75},
