@@ -27,11 +27,16 @@
  if(window.creatureArt?.drawNpc){const baseNpc=creatureArt.drawNpc;creatureArt.drawNpc=function(ctx,s){cast(ctx,s.x,s.y,64);return baseNpc.call(this,ctx,s);};}
 
  // ---------------------------------------------------------------- light sources
- const LANTERN=/lantern|theme-14-01[2678]|theme-14-02[23]|theme-14-033|theme-12-023|theme-10-009|theme-15-013|theme-11-026|theme-14-010/;
+ const LANTERN=/lantern|theme-14-01[2678]|theme-14-02[23]|theme-14-033|theme-12-02[3389]|theme-12-030|theme-10-009|theme-10-016|theme-15-01[35]|theme-11-02[67]|theme-14-010/;
+ // Glowing crystals and lava rocks light their surroundings too.
+ const CRYSTAL=/theme-10-0(06|11|13|14|15|26|34|35|37|52|53|54|58|59|64|66)|theme-11-0(16|17|18|19|51|69|70|71|77|78|79)/,EMBER=/theme-15-0(02|12|18|24|34|35)|theme-13-0(07|11|17)/;
  let sources=[],sourceKey='';
  function collect(){const orn=typeof world.ornamentItems==='function'?world.ornamentItems():world.ornamentItems,items=[...(world.buildings||[]),...(Array.isArray(orn)?orn:[])],key=world.state.scene+':'+items.length+':'+world.services.length;if(key===sourceKey)return sources;sourceKey=key;sources=[];
   for(const b of items){const k=b.key||'';if(LANTERN.test(k))sources.push({x:b.x,y:b.y-(k==='theme-14-010'?70:(b.w||24)*1.2),r:k==='theme-14-010'?130:105,rgb:[255,190,110],flicker:true});
-   else if(k==='portal'||/theme-14-0(06|49|64|72)/.test(k))sources.push({x:b.x,y:b.y-20,r:120,rgb:[120,200,255]});}
+   else if(k==='portal'||/theme-14-0(06|49|64|72)/.test(k))sources.push({x:b.x,y:b.y-20,r:120,rgb:[120,200,255]});
+   else if(CRYSTAL.test(k))sources.push({x:b.x,y:b.y-(b.w||30)*.6,r:70+(b.w||30)*.6,rgb:/theme-11/.test(k)?[110,240,230]:[130,190,255]});
+   else if(EMBER.test(k))sources.push({x:b.x,y:b.y-(b.w||30)*.5,r:70+(b.w||30)*.6,rgb:[255,130,50],flicker:true});}
+  sources.push(...(window.isoTerrain?.lights?.()||[]));
   for(const s of world.services)if(!s.npc)sources.push({x:s.x,y:s.y-24,r:120,rgb:[120,200,255]});
   return sources;}
 
