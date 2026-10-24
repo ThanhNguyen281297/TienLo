@@ -358,9 +358,9 @@ class OnlineServerTest(unittest.TestCase):
             self.assertEqual(response.read(),b'')
             connection.close()
 
-    def test_new_character_gets_level_one_set_with_weapon_and_helmet(self):
+    def test_new_character_gets_level_one_set_with_weapon(self):
         a=self.register('starter_set');p=self.player('starter_set');T=server.equipment_rules.TEMPLATES
-        p['world']['equip']={slot:dict(T[iid],uid='s-'+slot) for slot,iid in (('daobao','vai-bao-class-0'),('chan','chan-0-class-0'),('giay','vai-giay-class-0'),('vukhi','moc-kiem-class-0'),('mu','mu-0-class-0'))}
+        p['world']['equip']={slot:dict(T[iid],uid='s-'+slot) for slot,iid in (('daobao','vai-bao-class-0'),('chan','chan-0-class-0'),('giay','vai-giay-class-0'),('vukhi','moc-kiem-class-0'))}
         self.assertEqual(self.request('/api/characters',{'csrf':a[1],'revision':0,'player':p},a[0])[0],201)
         b=self.register('starter_cheat');q=self.player('starter_cheat');q['world']['equip']={'vukhi':dict(T['tien-kiem-class-0'],uid='x')}
         self.assertIn(self.request('/api/characters',{'csrf':b[1],'revision':0,'player':q},b[0])[0],(400,403))

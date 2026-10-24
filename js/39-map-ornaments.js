@@ -76,15 +76,6 @@
         sway:kind==='tree'||kind==='flower'?(kind==='tree'?.012:.03):0,phase:rand()*6.28});
       return true;
     };
-    const scatter=(kind,count,tries=240,options)=>{let placed=0;for(let i=0;i<tries&&placed<count;i++){
-      const p={x:140+rand()*1720,y:300+rand()*1500};
-      // Concentrate on the scene's own region by sampling inside its bounding box.
-      if(scene==='hub'){p.x=660+rand()*680;p.y=655+rand()*735;}
-      else if(scene.startsWith('rift-')){p.x=420+rand()*1160;p.y=800+rand()*600;}
-      else if(scene==='tower'){p.x=560+rand()*880;p.y=820+rand()*560;}
-      else if(scene==='worldboss'){p.x=740+rand()*520;p.y=960+rand()*280;}
-      else if(diamond){p.x=1000+(rand()*2-1)*diamond.rx;p.y=1100+(rand()*2-1)*diamond.ry;}
-      if(put(kind,p.x,p.y,options))placed++;}return placed;};
     const ring=(kind,cx,cy,rx,ry,count,start=0,options)=>{for(let i=0;i<count;i++){const a=start+i*Math.PI*2/count;put(kind,cx+Math.cos(a)*rx,cy+Math.sin(a)*ry,options);}};
     const edge=(inset,spacing,kind='lamp',rx,ry,cy=1100)=>{
       const v=[[0,-1],[1,0],[0,1],[-1,0]].map(([a,b])=>({x:1000+a*rx*inset,y:cy+b*ry*inset}));
@@ -166,7 +157,7 @@
       groves([[380,1100+110],[340,1100+130]],{rocks:2,flowers:6});
       groves([[160,1100-215],[200,1100-205]],{main:'crystal',rocks:2,flowers:4,patch:46});
       groves([[470,1100],[440,1100]],{main:'crystal',rocks:1,flowers:3,patch:44});
-    }else if(scene.startsWith('field-')){const harsh=kitName==='fire'||kitName==='lava'||kitName==='ice';
+    }else if(scene.startsWith('field-')){
       decals.push({formation:true,x:1000,y:1770,r:112,rgb:kit.cool,small:true});glyph(1000,1770,170,.8);
       emitters.push({x:1000,y:1770,spread:100,count:12,rgb:kit.cool,height:110});
       // Lanterns in facing pairs on both verges of the main road, every ~230 px.
@@ -266,7 +257,7 @@
     const ticks=d.small?16:28,spin=t*.12;ctx.strokeStyle='rgba('+rgb+','+.5*pulse+')';ctx.lineWidth=1;
     for(let i=0;i<ticks;i++){const a=spin+i*6.283/ticks,r1=d.r*.86,r2=d.r*(i%2?.93:.97);ctx.beginPath();ctx.moveTo(Math.cos(a)*r1,Math.sin(a)*r1);ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);ctx.stroke();}
     if(!d.small){ // eight trigram bars on the inner ring, counter-rotating
-      for(let i=0;i<8;i++){const a=-spin*.7+i*Math.PI/4,r1=d.r*.56,r2=d.r*.78;ctx.save();ctx.rotate(a);for(let k=0;k<(i%3)+1;k++){ctx.beginPath();ctx.moveTo(r1+k*6,-3);ctx.lineTo(r1+k*6,3);ctx.stroke();}ctx.restore();}
+      for(let i=0;i<8;i++){const a=-spin*.7+i*Math.PI/4,r1=d.r*.56;ctx.save();ctx.rotate(a);for(let k=0;k<(i%3)+1;k++){ctx.beginPath();ctx.moveTo(r1+k*6,-3);ctx.lineTo(r1+k*6,3);ctx.stroke();}ctx.restore();}
     }
     ctx.restore();
   }

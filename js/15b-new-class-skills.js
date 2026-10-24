@@ -53,9 +53,6 @@
     for(const e of state.effects)e.age+=dt;state.effects=state.effects.filter(e=>e.age<.5);
   }
   function refreshUI(){if(!active())return;[...sb.children].forEach((b,i)=>{const name=combatNames[P.ap.w][i];if(b.getAttribute('aria-label')!==name){b.innerHTML='<img class="ic" width="48" height="48"><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';b.querySelector('img').src='Skill/Class/'+(thunder()?'Thuong':'Quat')+'/'+skillSprites.names[P.ap.w][i]+'/03.png';b.setAttribute('aria-label',name);}b.title=name;b.querySelector('.remaining').textContent=state.cooldown[i]>0?state.cooldown[i].toFixed(1):'';b.lastChild.style.height=state.cooldown[i]/cds()[i]*100+'%';b.disabled=(window.cultivation?!cultivation.canUse(i):P.r<i)||P.mp<combatMana[P.ap.w][i]||state.cooldown[i]>0||!!state.ultimate;});$('bs').textContent=combatNames[P.ap.w][0]+' (Space)';}
-  function atlas(ctx,index,frame,x,y,width,height,alpha=1){
-    skillSprites.draw(ctx,P.ap.w,index,Math.max(0,Math.min(5,frame)),x,y-height/2,width,height,0,alpha);
-  }
 
   function ground(ctx){
     const f=state.field;if(!f)return;

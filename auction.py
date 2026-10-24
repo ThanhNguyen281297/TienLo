@@ -24,7 +24,7 @@ SNIPE = 120                               # a late bid extends the lot to 2 minu
 PAGE = 30
 GROUPS = {
     'weapon': ('vukhi',),
-    'armor': ('daobao', 'chan', 'giay', 'mu'),
+    'armor': ('daobao', 'chan', 'giay'),
     'treasure': ('phapbao', 'ngoc', 'phaptran'),
     'accessory': ('gioi', 'dichuyen', 'matna'),
     'material': ('material',),

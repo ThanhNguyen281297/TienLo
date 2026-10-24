@@ -18,7 +18,7 @@
       const img=new Image(),src='Character/'+info.folder+'/'+gender+'/'+direction+'.png';
       Object.defineProperty(result[gender],direction,{enumerable:true,get(){if(!img.src)img.src=src;return img;}});
     }
-    for(const [key,folder] of [['vukhi','VuKhi']]){
+    for(const [key] of [['vukhi','VuKhi']]){
       const img=new Image();img.src=characterEquipmentArt(index,key);result[key]=img;
     }
     return result;
@@ -180,7 +180,7 @@
     return Math.ceil(Math.max(classOf(ap)===2&&ap?.gender!=='Nu'?62:52,mount?24+mount.height*mount.mount+11:0,shield?84:0));
   };
   drawChar = function (ctx, x, y, dir, facing, moving, phase, attacking, ap) {
-    const index = classOf(ap), info = classes[index], images = assets[index];
+    const index = classOf(ap), images = assets[index];
     const direction = dir === 1 ? 'sau' : dir === 2 ? (facing < 0 ? 'trai' : 'phai') : 'truoc';
     const bob = moving ? Math.abs(Math.sin(phase)) * 1.2 : Math.sin(tm * 2) * .4;
     const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
@@ -192,7 +192,7 @@
     const raw=window.characterFit?.(ap,direction,x,y-bob+footOffset,bodyHeight);
     const shift=raw?Math.max(-9,Math.min(9,raw.cx-x)):0,feetX=x-shift;
     const H=raw?raw.H:40,W=raw?Math.max(18,Math.min(34,raw.W)):24,top=raw?raw.top:y-bob-40,cx=x;
-    const fit={cx,top,H,W,bob,feetY:y,feetX,dir,facing,moving,head:raw?{l:raw.headLeft-shift,r:raw.headRight-shift,top:raw.skull.top,x:raw.skull.x-shift,radius:raw.skull.r}:{l:cx-12,r:cx+12},
+    const fit={cx,top,H,W,bob,feetY:y,feetX,dir,facing,moving,
       // Weapon hand on the screen-right side (forward hand in side views), shield arm opposite.
       // The chibi head fills the top half: hands sit at the hips (~3/4 down the body).
       hand:dir===2?{x:cx+facing*(W*.55+3+(index===1||index===3?W*.15:0)),y:top+H*.78}:{x:cx+W*.5+1+(index===1||index===3?W*.12:0),y:top+H*.74},
@@ -242,7 +242,6 @@
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
     const outlined=renderedBody||{image:bodyImage,x:feetX-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
     window.equipmentProgression?.outline(ctx,outlined.image,outlined.x,outlined.y,outlined.width,outlined.height,bodyLevel||0);
-    window.characterHelmet?.draw(ctx,ap,dir,facing,fit,index);
     if(!weaponBehind)drawWeapon();
     if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
     if(shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);

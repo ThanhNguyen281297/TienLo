@@ -73,6 +73,9 @@ def normalize(player, collection=None):
         for item in items(player):
             meta=TEMPLATES.get(item.get('id'))
             if item.get('slot')=='chan' and meta:item['art']=meta['art']
+        # v8: the Mũ (helmet) slot was retired; drop worn and carried helmets.
+        equip.pop('mu',None)
+        w['bag']=[i for i in w['bag'] if i.get('slot')!='mu']
         for slot in RULES['slots']:equip.setdefault(slot,None)
         w['equipmentVersion']=RULES['version']
         return True
@@ -213,7 +216,6 @@ def action(db, owner, body):
     if not isinstance(opid,str) or not 8<=len(opid)<=100:raise ValueError('Thiếu mã giao dịch.')
     prior=db.execute('SELECT result FROM equipment_ops WHERE user_id=? AND op_id=?',(owner,opid)).fetchone()
     if prior:return json.loads(prior['result'])
-    w=player.get('world',{})
     if not community.safe(player):raise ValueError('Về thành để tẩy luyện hoặc chuyển thuộc tính.')
     if op=='transfer':
         validate(player,db,owner)

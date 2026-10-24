@@ -22,7 +22,6 @@
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const distance = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
   const live = e => !e.dead && e.hp > 0;
-  function ready(img) { return img.complete && img.naturalWidth > 0; }
   function crop(ctx, image, rect, x, y, width, height, rotation = 0, alpha = 1) {
     const index=ART.indexOf(image);
     if(index<0)return;
@@ -103,7 +102,6 @@
   function startUltimate() {
     const point=target();
     const sources=Array.from({length:5},(_,slot)=>{
-      const flying=state.flying.find(s=>s.slot===slot);
       return backPosition(slot);
     });
     const base=atk()*(inField(P)?1.25:1),power=window.skillPower?.(3,base)??base;

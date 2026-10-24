@@ -4,7 +4,6 @@ import math
 import secrets
 import time
 import progression
-import equipment
 
 DURATION=600
 COUNTDOWN=3

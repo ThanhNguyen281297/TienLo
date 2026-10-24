@@ -79,8 +79,8 @@
    const id=style==='class'?base+'-class-'+P.ap.w:'outfit-'+style+'-'+slot+'-class-'+P.ap.w;
    p.equip[slot]={...equipmentData.byId.get(id),uid:crypto.randomUUID()};
   }
-  // Level-1 weapon and helmet complete the starter set.
-  for(const [slot,id] of [['vukhi','moc-kiem-class-'+P.ap.w],['mu','mu-0-class-'+P.ap.w]])if(equipmentData.byId.has(id))p.equip[slot]={...equipmentData.byId.get(id),uid:crypto.randomUUID()};
+  // The level-1 weapon completes the starter set.
+  for(const [slot,id] of [['vukhi','moc-kiem-class-'+P.ap.w]])if(equipmentData.byId.has(id))p.equip[slot]={...equipmentData.byId.get(id),uid:crypto.randomUUID()};
   p.starterOutfit=style;P.hp=mhp();P.mp=mmp();saveCharacter();hud();
  };
  const style=document.createElement('style');style.textContent=`

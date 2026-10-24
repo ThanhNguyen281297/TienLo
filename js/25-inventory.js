@@ -106,23 +106,7 @@
     } catch (err) {}
     baseHit(e, final);
     if(e)e.criticalHit=false;
-    try {
-      if (alive && e.hp <= 0 && e.worldMap && !e.arena) rollDrop(e);
-      else if (alive && e.hp <= 0 && e.arena) rollDrop(e, true);
-    } catch (err) {}
   };
-  function grantThangViDan(n, e) {
-    const p = progress();
-    p.thangViDan = (p.thangViDan || 0) + n;
-    saveCharacter();
-    try { fx(e.x, e.y - 52, '+' + n + ' Thăng Vị Đan', '#ffd23a'); } catch (err) {}
-    msg('Nhặt được ' + n + ' Thăng Vị Đan! (đang có ' + p.thangViDan + ')');
-  }
-  function rollDrop(e, arena = false) {
-    // Shared training drops and dungeon fragments are issued by the server.
-    // Solo challenges retain their own currency rewards, never random equipment.
-    return;
-  }
   function equipItem(itemUid) {
     if(window.tradeGame?.locked())return msg('Mở khóa giao dịch trước.');
     const p = progress();
@@ -243,7 +227,6 @@
     if(item?.art)return artworkURL(item.art);
     if(item?.slot==='ngoc'||slot==='ngoc')return artworkURL('Item/Thuan/'+(item?.variant||1)+'.png');
     if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
-    if(!item&&slot==='mu'&&window.characterHelmet)return characterHelmet.icon({id:'mu-0-class-'+P.ap.w});
     if((item?.slot||slot)==='vukhi')return 'Item/VuKhi/'+characterClasses[P.ap.w].folder+'.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
     const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png',matna:'Item/MatNa/slot.svg',thucuoi:'Character/Monsters/Soi/thumb.webp'};

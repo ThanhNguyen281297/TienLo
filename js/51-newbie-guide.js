@@ -30,7 +30,7 @@
  const go=document.createElement('button');go.type='button';go.className='vl-guide-go';go.textContent='➤';go.setAttribute('aria-label','Làm ngay');
  const close=document.createElement('button');close.type='button';close.className='vl-guide-close';close.textContent='✕';close.setAttribute('aria-label','Ẩn hướng dẫn');
  body.append(title,text,bar);card.append(icon,body,go,close);document.body.append(card);
- let current=null,lit=null,celebrate=0;
+ let current=null,lit=null;
  close.onclick=()=>{const s=read();s.dismissed=true;write(s);card.hidden=true;light(null);};
  go.onclick=()=>{if(current&&!paused())current.go();};
  function light(id){const el=id==='rift'?document.querySelector('.vl-activity[data-id="rift"]'):id?$(id):null;if(lit&&lit!==el)lit.classList.remove('vl-pulse');if(el)el.classList.add('vl-pulse');lit=el;}
@@ -39,7 +39,7 @@
   const s=read();if(world.state.scene.startsWith('rift-')&&!s.rift){s.rift=true;write(s);}
   if(s.dismissed||s.finished||characterLevel()>=25){card.hidden=true;light(null);return;}
   const step=STEPS.find(st=>!st.done(s));
-  if(!step){s.finished=true;write(s);celebrate=performance.now();current=null;card.hidden=false;card.classList.add('done');icon.textContent='✦';title.textContent='TÂN THỦ';text.textContent='Hoàn thành! Ghé Phúc lợi nhận quà mỗi ngày.';bar.style.width='100%';go.hidden=true;light(null);
+  if(!step){s.finished=true;write(s);current=null;card.hidden=false;card.classList.add('done');icon.textContent='✦';title.textContent='TÂN THỦ';text.textContent='Hoàn thành! Ghé Phúc lợi nhận quà mỗi ngày.';bar.style.width='100%';go.hidden=true;light(null);
    setTimeout(()=>{card.hidden=true;},8000);window.gameAudio?.play('chest');return;}
   if(step!==current&&current)window.gameAudio?.play('pickup');
   current=step;card.hidden=world.dialog.isOpen();card.classList.remove('done');go.hidden=false;

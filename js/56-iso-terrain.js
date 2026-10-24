@@ -17,7 +17,6 @@
  // ---------------------------------------------------------------- designs
  // Geometry is per field; camps, spawn plaza and the main road are shared with the server
  // (Map/overworld.json), so every lake, river and mesa is placed in the gaps between them.
- const K=1150; // coastline: inside the 85..1915 square and |dx|/2+|dy|<K (2:1 diagonals)
  const COAST=[[530,85],[1470,85],[1915,308],[1915,1692],[1470,1915],[530,1915],[85,1692],[85,308]];
  const EAST_RIVER=[[1800,1150],[1790,1250],[1768,1370],[1792,1500],[1764,1620],[1748,1730],[1746,1830]];
  const WEST_RIVER=[[200,610],[176,760],[168,940],[180,1100],[160,1260],[170,1420],[190,1580],[205,1700],[215,1800]];
@@ -141,7 +140,7 @@
   if(spec){const t=spec.tint||[1,1,1],ds=spec.desat||0,l=spec.lum||[128,128,128],gain=spec.gain||1;
    for(let i=0;i<data.length;i+=4){const L=(data[i]*.3+data[i+1]*.59+data[i+2]*.11)/128;for(let k=0;k<3;k++)data[i+k]=(data[i+k]*t[k]*(1-ds)+L*l[k]*ds)*gain;}}
   const tx={w,h,data};texCache.set(id,tx);return tx;}
- let cliffPattern=null;function cliff(ctx){if(!ready(TEX.cliff))return null;const p=ctx.createPattern(TEX.cliff,'repeat');p.setTransform(new DOMMatrix().scale(230*S/TEX.cliff.naturalWidth));return p;}
+ function cliff(ctx){if(!ready(TEX.cliff))return null;const p=ctx.createPattern(TEX.cliff,'repeat');p.setTransform(new DOMMatrix().scale(230*S/TEX.cliff.naturalWidth));return p;}
 
  // ---------------------------------------------------------------- chunk baking
  function mask(r,x0,y0,draw,blur){const size=Math.ceil((CH+PAD*2)*MS),c=document.createElement('canvas');c.width=c.height=size;const ctx=c.getContext('2d');
@@ -308,7 +307,7 @@
  const flows=new Map();
  const FLOW_FILTER={lava:'sepia(1) saturate(5) hue-rotate(-28deg) brightness(1.1)',void:'hue-rotate(225deg) saturate(1.6) brightness(.75)',ice:'saturate(.35) brightness(1.25)',water:'none'};
  function flowImage(kind){if(flows.has(kind))return flows.get(kind);const c=document.createElement('canvas');c.width=TEX.flow.naturalWidth;c.height=TEX.flow.naturalHeight;const x=c.getContext('2d');x.filter=FLOW_FILTER[kind]||'none';x.drawImage(TEX.flow,0,0);flows.set(kind,c);return c;}
- function waterfall(r){if(!ready(TEX.flow))return;const liq=r.d.liquid,image=flowImage(liq.kind);const end=r.river.pts[r.river.pts.length-1];let edge=null;for(let i=r.river.pts.length-1;i>0;i--){const p={x:r.river.pts[i][0],y:r.river.pts[i][1]};if(r.land(p)){edge=p;break;}}if(!edge)return;
+ function waterfall(r){if(!ready(TEX.flow))return;const liq=r.d.liquid,image=flowImage(liq.kind);let edge=null;for(let i=r.river.pts.length-1;i>0;i--){const p={x:r.river.pts[i][0],y:r.river.pts[i][1]};if(r.land(p)){edge=p;break;}}if(!edge)return;
   const w=r.river.width*1.1,h=230,x=edge.x-w/2,y=edge.y+4;g.save();g.beginPath();g.rect(x-4,y,w+8,h);g.clip();
   for(let k=0;k<2;k++){const off=liq.kind==='ice'?(k?h:0):((tm*(liq.kind==='lava'?28:70))%h)+(k-1)*h;g.globalAlpha=.9;g.drawImage(image,x,y+off,w,h);}
   const mc=r.d.mist||'214,220,228',fade=g.createLinearGradient(0,y,0,y+h);fade.addColorStop(0,'rgba('+mc+',0)');fade.addColorStop(.75,'rgba('+mc+',.25)');fade.addColorStop(1,'rgba('+mc+',.95)');g.globalAlpha=1;g.fillStyle=fade;g.fillRect(x-4,y,w+8,h);g.restore();

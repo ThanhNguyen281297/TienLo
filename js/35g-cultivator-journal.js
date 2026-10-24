@@ -7,7 +7,7 @@
   function card(title,text,status,action,label='Xem chi tiết',disabled=false){
     const ui=visualUI;
     const key=title.includes('Bí Cảnh')?'portal':title.includes('Đấu trường')?'arena':title.includes('Huyết Ma')?'tower':title.includes('Tông môn')?'palace':title.includes('trang bị')?'forge':'statue';
-    const {card:box,body}=ui.panel(title,'Map/sprites/'+key+'.png',$('activity-grid')||$('world-content'));
+    const {body}=ui.panel(title,'Map/sprites/'+key+'.png',$('activity-grid')||$('world-content'));
     if(title==='Hành trình chính'){ui.meter(P.levelXp,characterProgression.required(characterLevel()),'EXP · Cấp '+characterLevel(),body);ui.meter(Math.floor(P.xp),need(),'Tu vi',body);}
     else if(title.includes('Huyết Ma'))ui.chips([['◈',250],['Linh Nguyên',60]],body);
     else if(title.includes('Tông môn'))ui.chips([['Đội','4'],['Nhiệm vụ/ngày',2]],body);

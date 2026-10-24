@@ -10,7 +10,7 @@
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 #journey-objective{position:fixed;top:68px;right:12px;z-index:5;width:230px;box-sizing:border-box;padding:14px 16px;border:1px solid #987c4b55;border-radius:12px;background:linear-gradient(130deg,#172b3be8,#0e1c2be8);box-shadow:0 6px 20px #0004;pointer-events:none}#journey-objective small{display:block;font:9px sans-serif;letter-spacing:2px;color:#c3aa7b;margin-bottom:8px}#journey-objective b{display:block;font-size:14px;color:#edd7ac}#journey-objective span{display:block;font:11px/1.7 sans-serif;color:#9fb5c3;margin-top:6px}@media(max-width:700px){#journey-objective{top:55px;right:8px;width:145px;padding:9px}#journey-objective b{font-size:11px}#journey-objective span{font-size:9px}#journey-objective small{font-size:8px;margin-bottom:5px}}
 #world-minimap{top:62px!important}#world-region{top:195px!important}#journey-objective{top:235px}@media(max-width:700px){#world-minimap{top:55px!important}#world-region{top:145px!important}#journey-objective{top:175px}}
-@media(max-width:700px){body #arena-status{top:245px!important;max-width:215px!important}}
+
 
 /* Keep item silhouette crisp; rarity light belongs to the cell edge. */
 .item-cell img{image-rendering:auto;filter:drop-shadow(0 1px 2px #0007)}

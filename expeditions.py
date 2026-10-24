@@ -65,9 +65,9 @@ GEAR_PERMIL,STONE_PERMIL,REFINED_PERMIL=30,80,30
 
 def queue_farm_drop(db,uid,mob,event_id):
     if mob.get('tower'):return
-    row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
+    row=db.execute('SELECT 1 FROM characters WHERE user_id=?',(uid,)).fetchone()
     if not row:return
-    player=json.loads(row['player']);cls=player['ap']['w'];level=mob.get('level',1)
+    level=mob.get('level',1)
     # Rare by design: gear 3%, Cường Hóa Thạch 8%, Tinh Luyện Thạch 3% (bosses always drop stones).
     if not mob.get('expedition') and secrets.randbelow(1000)<GEAR_PERMIL:
         tier=max((t for t in (10,25,45,70) if t<=max(10,level)),default=10)

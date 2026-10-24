@@ -8,7 +8,6 @@
  window.addActivity=function(a){if(!hud)return null;const b=document.createElement('button');b.type='button';b.className='vl-activity';b.dataset.id=a.id;b.setAttribute('aria-label',a.label);
   const c=document.createElement('canvas');c.width=c.height=96;const badge=document.createElement('i');badge.hidden=true;b.append(c,badge,ui.node('span','',a.label));
   b.onclick=()=>{if(!paused())a.run();};Object.assign(a,{img:a.src?hud.art(a.src):null,button:b,canvas:c,badgeEl:badge});hud.ACTIVITIES.push(a);$('vl-activities')?.append(b);return a;};
- const fmt=n=>Number(n||0).toLocaleString('vi-VN');
  const when=t=>{const s=Date.now()/1000-t;return s<3600?Math.max(1,Math.round(s/60))+' phút trước':s<86400?Math.round(s/3600)+' giờ trước':Math.round(s/86400)+' ngày trước';};
  async function refresh(){if(state.polling||!P.ap||!account.state.ready)return;state.polling=true;try{state.data=await account.api('/api/mail');render();}catch{}finally{state.polling=false;}}
  async function act(action,id){if(state.busy)return;state.busy=true;try{const r=await account.transact('/api/mail',{action,id},{live:true,gold:true,world:['essence','equip','mounts']});state.data=r.mail;msg(r.message||'Đã nhận thư.');window.gameAudio?.play?.('reward');}

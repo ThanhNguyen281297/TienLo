@@ -37,13 +37,6 @@
  const roadDistance=p=>Math.min(...paths.flatMap(route=>route.slice(1).map((b,i)=>kiemCombat.segmentDistance(p,{x:route[i][0],y:route[i][1]},{x:b[0],y:b[1]}))));
  for(const m of rules.maps){world.sectMaps[m.id]={...m,spawn};world.mapThemes.themes[m.id]={...world.mapThemes.themes[m.theme],name:m.name};world.atmosphere.profiles[m.id]={...world.atmosphere.profiles[m.theme]};}
  world.regions.splice(0,world.regions.length,...world.regions.filter(r=>r.id!=='valley'),...rules.maps.map(m=>({...m,...spawn,description:'Quái Lv.'+m.level+'–'+(m.level+2)+' · Yêu cầu Lv.'+m.entry})));
- // Logical layout (replaces random scatter): border forest, roadside lanterns and
- // flowers, dressed hunting camps, groves with undergrowth and zone landmarks.
- const LANDMARK={'field-meadow':['theme-14-010','theme-14-069'],'field-bamboo':['theme-14-069','theme-14-010'],'field-marsh':['theme-12-015','theme-12-025'],
-  'field-frost':['theme-10-015','theme-10-058'],'field-ember':['theme-15-018','theme-15-029'],'field-abyss':['theme-11-010','theme-11-012']};
- const LANTERN={'field-meadow':'lantern','field-bamboo':'theme-14-016','field-marsh':'theme-12-023','field-frost':'theme-10-009','field-ember':'theme-15-013','field-abyss':'theme-11-026'};
- const MARKER={'field-meadow':['theme-14-013','rock'],'field-bamboo':['theme-14-013','theme-14-063'],'field-marsh':['theme-12-034','theme-12-021'],
-  'field-frost':['theme-10-035','theme-10-034'],'field-ember':['theme-15-022','theme-15-032'],'field-abyss':['theme-11-069','theme-11-057']};
  world.fieldLayoutV2=true;
  // Layout v2 - reads like a xianxia hunting ground: a fortified outpost at the
  // southern spawn, lantern-lined main road, six fenced clearings each with a
@@ -109,7 +102,7 @@
  const camera=world.camera;world.camera=(vw,vh)=>current()?{x:Math.max(45,Math.min(1955-vw,P.x-vw/2)),y:Math.max(45,Math.min(1955-vh,P.y-vh/2)),vw,vh}:camera(vw,vh);
  const view=gameCamera;gameCamera=(vw=W/Z,vh=H/Z)=>current()?world.camera(vw,vh):view(vw,vh);
  const title=world.sceneTitle;world.sceneTitle=()=>current()?current().name+' · Quái Lv.'+current().level+'–'+(current().level+2):title();
- const floor=drawGround,patterns=new Map();
+ const floor=drawGround;
  // Full-resolution tiles: the 1254 px textures are scaled into 384-unit world
  // tiles, so at 1.8x zoom on a 2x screen one texel is ~1 screen pixel (was ~3.6).
  const tiles=new Map();

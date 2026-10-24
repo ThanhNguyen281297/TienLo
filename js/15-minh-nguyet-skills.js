@@ -217,7 +217,7 @@
     if(state.blink&&!window.voidStep?.outlineOnly){const b=state.blink,p=b.age/b.duration;crop(ctx,ART[1],APPEAR,b.end.x,b.end.y-23,48,65,0,1-p);
       for(let i=0;i<8;i++)glowFor(ctx,b.start.x+(b.end.x-b.start.x)*i/8,b.start.y-18+(b.end.y-b.start.y)*i/8,2,COLOR,(1-p)*.35);}
     drawFlying(ctx);if(state.ultimate)drawUltimate(ctx,state.ultimate);
-    for(const f of state.flashes){const p=f.age/f.duration;
+    for(const f of state.flashes){
       spellActors.impact(ctx,1,f.x,f.y,f.age,f.kind==='pulse'?45:28,f.duration);
     }
   }

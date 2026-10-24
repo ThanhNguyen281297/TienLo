@@ -86,7 +86,7 @@ class EquipmentTest(unittest.TestCase):
         for meta in equipment.TEMPLATES.values():
             if meta.get('art'):self.assertIn(meta['art'],exact)
         self.assertEqual(len(equipment.RULES['combatSlots']),4)
-        self.assertEqual(len(equipment.RULES['slots']),12)
+        self.assertEqual(len(equipment.RULES['slots']),11)
         self.assertEqual(len(equipment.RULES['trails']),6)
         self.assertEqual([r['realm'] for r in equipment.RULES['realmEffects']],list(range(3,15)))
         for aura in equipment.RULES['realmEffects']:self.assertIn(aura['art'],exact)
@@ -126,6 +126,15 @@ class EquipmentTest(unittest.TestCase):
         server.valid_player(self.player)
         self.player['world']['bag'][0]['gender']='Nam'
         with self.assertRaises(ValueError):server.valid_player(self.player)
+    def test_v8_drops_retired_helmets(self):
+        equipment.normalize(self.player)
+        helmet=dict(id='mu-0-class-0',slot='mu',name='Mũ',rarity='pham',uid='old-helmet')
+        self.player['world']['equip']['mu']=helmet;self.player['world']['bag']=[dict(helmet,uid='bag-helmet'),self.make('back-class-1')]
+        self.player['world']['equipmentVersion']=7
+        self.assertTrue(equipment.normalize(self.player))
+        self.assertNotIn('mu',self.player['world']['equip'])
+        self.assertEqual([i['id'] for i in self.player['world']['bag']],['back-class-1'])
+        server.valid_player(self.player)
     def test_v5_adds_empty_mask_without_changing_gear_or_currency(self):
         equipment.normalize(self.player)
         self.player['world']['equip']['dichuyen']=self.make('footstep-6')
@@ -133,7 +142,7 @@ class EquipmentTest(unittest.TestCase):
         self.player['world']['equip'].pop('matna')
         self.player['world'].update(equipmentVersion=5,riftShards=7)
         expected=copy.deepcopy(self.player)
-        expected['world']['equip'].update(matna=None,mu=None,thucuoi=None)
+        expected['world']['equip'].update(matna=None,thucuoi=None)
         expected['world']['equipmentVersion']=equipment.RULES['version']
         self.assertTrue(equipment.normalize(self.player))
         self.assertEqual(self.player,expected)

@@ -1,22 +1,23 @@
-/* Five slots per side (Mũ on top of the left column, Thú cưỡi at the bottom of the
-   right one); mask at top center, foot effect at bottom center. Centre slots are
-   centred with auto margins, not a transform, so the hover lift never moves them. */
+/* Five slots per side (Thú cưỡi at the bottom of the right column) and the mask at
+   top centre. Slots are placed without transforms so the hover lift never moves them. */
 .paper-doll{height:420px}
 .paper-doll .gear-slot{transform:none}
-.paper-doll .gear-slot[data-equip-slot=mu],.paper-doll .gear-slot[data-equip-slot=vukhi],.paper-doll .gear-slot[data-equip-slot=daobao],.paper-doll .gear-slot[data-equip-slot=chan],.paper-doll .gear-slot[data-equip-slot=giay]{left:0;right:auto}
-.paper-doll .gear-slot[data-equip-slot=phapbao],.paper-doll .gear-slot[data-equip-slot=ngoc],.paper-doll .gear-slot[data-equip-slot=gioi],.paper-doll .gear-slot[data-equip-slot=phaptran],.paper-doll .gear-slot[data-equip-slot=thucuoi]{left:auto;right:0}
-.paper-doll .gear-slot[data-equip-slot=matna],.paper-doll .gear-slot[data-equip-slot=dichuyen]{left:0;right:0;margin:0 auto}
-.paper-doll .gear-slot[data-equip-slot=mu],.paper-doll .gear-slot[data-equip-slot=phapbao],.paper-doll .gear-slot[data-equip-slot=matna]{top:0}
-.paper-doll .gear-slot[data-equip-slot=vukhi],.paper-doll .gear-slot[data-equip-slot=ngoc]{top:84px}
-.paper-doll .gear-slot[data-equip-slot=daobao],.paper-doll .gear-slot[data-equip-slot=gioi]{top:168px}
-.paper-doll .gear-slot[data-equip-slot=chan],.paper-doll .gear-slot[data-equip-slot=phaptran]{top:252px}
-.paper-doll .gear-slot[data-equip-slot=giay],.paper-doll .gear-slot[data-equip-slot=thucuoi],.paper-doll .gear-slot[data-equip-slot=dichuyen]{top:336px}
+.paper-doll .gear-slot[data-equip-slot=vukhi],.paper-doll .gear-slot[data-equip-slot=daobao],.paper-doll .gear-slot[data-equip-slot=chan],.paper-doll .gear-slot[data-equip-slot=giay],.paper-doll .gear-slot[data-equip-slot=gioi]{left:0;right:auto}
+.paper-doll .gear-slot[data-equip-slot=phapbao],.paper-doll .gear-slot[data-equip-slot=ngoc],.paper-doll .gear-slot[data-equip-slot=phaptran],.paper-doll .gear-slot[data-equip-slot=dichuyen],.paper-doll .gear-slot[data-equip-slot=thucuoi]{left:auto;right:0}
+.paper-doll .gear-slot[data-equip-slot=matna]{left:0;right:0;margin:0 auto;top:0}
+.paper-doll .gear-slot[data-equip-slot=vukhi],.paper-doll .gear-slot[data-equip-slot=phapbao]{top:0px}
+.paper-doll .gear-slot[data-equip-slot=daobao],.paper-doll .gear-slot[data-equip-slot=ngoc]{top:84px}
+.paper-doll .gear-slot[data-equip-slot=chan],.paper-doll .gear-slot[data-equip-slot=phaptran]{top:168px}
+.paper-doll .gear-slot[data-equip-slot=giay],.paper-doll .gear-slot[data-equip-slot=dichuyen]{top:252px}
+.paper-doll .gear-slot[data-equip-slot=gioi],.paper-doll .gear-slot[data-equip-slot=thucuoi]{top:336px}
 .paper-doll .gear-slot.occupied:hover{transform:translateY(-2px)}
 @media(max-width:700px){.paper-doll{height:352px}
- .paper-doll .gear-slot[data-equip-slot=vukhi],.paper-doll .gear-slot[data-equip-slot=ngoc]{top:70px}
- .paper-doll .gear-slot[data-equip-slot=daobao],.paper-doll .gear-slot[data-equip-slot=gioi]{top:140px}
- .paper-doll .gear-slot[data-equip-slot=chan],.paper-doll .gear-slot[data-equip-slot=phaptran]{top:210px}
- .paper-doll .gear-slot[data-equip-slot=giay],.paper-doll .gear-slot[data-equip-slot=thucuoi],.paper-doll .gear-slot[data-equip-slot=dichuyen]{top:280px}}
+ .paper-doll .gear-slot[data-equip-slot=vukhi],.paper-doll .gear-slot[data-equip-slot=phapbao]{top:0px}
+ .paper-doll .gear-slot[data-equip-slot=daobao],.paper-doll .gear-slot[data-equip-slot=ngoc]{top:70px}
+ .paper-doll .gear-slot[data-equip-slot=chan],.paper-doll .gear-slot[data-equip-slot=phaptran]{top:140px}
+ .paper-doll .gear-slot[data-equip-slot=giay],.paper-doll .gear-slot[data-equip-slot=dichuyen]{top:210px}
+ .paper-doll .gear-slot[data-equip-slot=gioi],.paper-doll .gear-slot[data-equip-slot=thucuoi]{top:280px}
+}
 .affix-list{display:grid;gap:9px;margin:14px 0;color:#a8e2d7}
 .affix-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px}
 .affix-row small{color:#8c9fab;font-size:10px}

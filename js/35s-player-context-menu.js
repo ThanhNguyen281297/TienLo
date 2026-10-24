@@ -13,7 +13,7 @@
   const preview=node('canvas','profile-preview'),density=Math.max(1.5,Math.min(3,devicePixelRatio||1));
   preview.width=Math.round(320*density);preview.height=Math.round(380*density);preview.setAttribute('role','img');preview.setAttribute('aria-label','Nhân vật '+p.name);portrait.append(preview);
   const ap={...p.ap,realm:p.realm,meditating:false};
-  for(const [key,slot]of [['weaponId','vukhi'],['robeId','daobao'],['backId','phapbao'],['shieldId','ngoc'],['formationId','phaptran'],['ringId','gioi'],['trailId','dichuyen'],['maskId','matna'],['helmetId','mu']])ap[key]=p.equip[slot]?.id||null;
+  for(const [key,slot]of [['weaponId','vukhi'],['robeId','daobao'],['backId','phapbao'],['shieldId','ngoc'],['formationId','phaptran'],['ringId','gioi'],['trailId','dichuyen'],['maskId','matna']])ap[key]=p.equip[slot]?.id||null;
   for(const [key,slot]of [['weaponEnhance','vukhi'],['backEnhance','phapbao'],['bodyEnhance','daobao']])ap[key]=p.equip[slot]?.enhance||0;
   ap.weaponRarity=p.equip.vukhi?.rarity||'pham';
   const ctx=preview.getContext('2d');

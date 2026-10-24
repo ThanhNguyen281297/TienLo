@@ -22,7 +22,6 @@
     if(world.mapStructures&&world.state.scene!=='tower'&&!world.mapStructures.onSurface(p))return false;
     if(world.state.scene==='tower')return diamond(p,1000,1100,460,300);
     const main=mainShape();return diamond(p,1000,1100,main.rx,main.ry);}
-  const oldWalk=world.canWalk;
   // Thiên Vân Thành is a floating diamond island like the sect courts.
   const HUB_DECK={rx:740,ry:470};world.hubDeck=HUB_DECK;
   const hubWalk=p=>Math.abs(p.x-1000)/(HUB_DECK.rx*.95)+Math.abs(p.y-1100)/(HUB_DECK.ry*.95)<1&&!world.buildings.some(b=>b.solid&&p.x>b.x+b.solid[0]&&p.x<b.x+b.solid[2]&&p.y>b.y+b.solid[1]&&p.y<b.y+b.solid[3]);
@@ -49,7 +48,6 @@
   const districts={sword:[['school',560,805,230],['gate',1450,815,160]],moon:[['garden',555,810,220],['moonCourt',1450,810,190]],thunder:[['thunderHall',560,810,230],['thunderAltar',1440,815,100]],mystic:[['mysticArchive',560,810,210],['mysticGarden',1440,810,220]]};
   function terrainArt(ctx,key,x,y,width,plane=.43,opacity=1){const image=terrainSprites[key];if(!ready(image))return false;
     const height=width*image.naturalHeight/image.naturalWidth;ctx.save();ctx.globalAlpha*=opacity;renderArtwork(ctx,image,x-width/2,y-height*plane,width,height);ctx.restore();return true;}
-  function diamondPath(ctx,x,y,rx,ry){ctx.beginPath();ctx.moveTo(x,y-ry);ctx.lineTo(x+rx,y);ctx.lineTo(x,y+ry);ctx.lineTo(x-rx,y);ctx.closePath();}
   function pavedOutline(ctx,x,y,rx,ry){
     const cut=Math.min(.3,Math.max(.14,24/ry));
     const points=[[-cut,-1+cut],[cut,-1+cut],[1-cut,-cut],[1-cut,cut],[cut,1-cut],[-cut,1-cut],[-1+cut,cut],[-1+cut,-cut]];
@@ -184,9 +182,9 @@
   const creator=$('ok').onclick;$('ok').onclick=()=>{creator();if(P.ap&&cr.style.display==='none')configure();};
   // The old 30-wave arena was replaced by Vạn Tầng Tháp (js/35u-tower.js owns openArena).
   // Scene 'arena' is a bare battle deck (tests, legacy saves); leaving it restores the previous map.
-  let returnMap='hub',entryEpoch=0;
+  let returnMap='hub';
   function resetCombat(){classCombat.onRespawn();B.length=SP.length=V.length=LT.length=X.length=PT.length=0;K={};ptr=null;P.med=0;P.sl=0;P.acd=.5;kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;}
-  function leaveArena(destination=returnMap){entryEpoch++;world.stopArena();resetCombat();E=[];world.state.scene='hub';P.world.map='hub';nativeSwitch(world.sectMaps[destination]?destination:'hub');configure();}
+  function leaveArena(destination=returnMap){world.stopArena();resetCombat();E=[];world.state.scene='hub';P.world.map='hub';nativeSwitch(world.sectMaps[destination]?destination:'hub');configure();}
   world.arenaRun=()=>null;world.leaveArena=()=>leaveArena();
   world.handleService=function(id){if(id==='boss'||id==='arena'){dialog.show('Thử thách','Nội dung thử thách cũ đã khép lại. Hãy đến Vạn Tầng Tháp trong Thiên Vân Thành.');return true;}if(id==='leaveArena'){dialog.show('Rời đấu trường','Thử thách cũ đã đóng.');dialog.action('Rời đấu trường',()=>leaveArena());return true;}
     if(id==='board'&&clan()){dialog.show('Bảng Sơn Hà','Tông môn là nơi an toàn để nhận chỉ dạy và truyền công. Yêu thú ở Sơn Hà và Tứ Phương Bí Cảnh.');dialog.action('Mở bản đồ vùng săn',()=>{dialog.close();window.overworldGame?.openRoutes();});return true;}

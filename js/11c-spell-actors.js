@@ -81,7 +81,7 @@
     const count=64,points=[],edges=[];
     for(let n=0;n<=count;n++)points.push(point(n/count));
     for(let n=0;n<=count;n++){
-      const p=points[n],a=points[Math.max(0,n-1)],b=points[Math.min(count,n+1)],d=Math.hypot(b.x-a.x,b.y-a.y)||1;
+      const a=points[Math.max(0,n-1)],b=points[Math.min(count,n+1)],d=Math.hypot(b.x-a.x,b.y-a.y)||1;
       const w=width*Math.sin(Math.PI*n/count)**.7;
       edges.push({x:-(b.y-a.y)/d*w,y:(b.x-a.x)/d*w});
     }

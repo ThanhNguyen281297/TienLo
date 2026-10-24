@@ -655,11 +655,11 @@ class GameHandler(SimpleHTTPRequestHandler):
                     if any(old_items.get(i['uid'])!=i['id'] for i in gear):return self.reply(403,{'error':'Trang bị phải nhận từ quái, ghép mảnh hoặc đổi cống hiến trên server.'})
                 else:
                     starter=player.get('world',{}).get('equip',{})
-                    # Starter set: three outfit pieces, the wooden weapon and the plain helmet (all level 1).
-                    valid_starter=lambda i:(i['slot'] in ('daobao','chan','giay') and (i['id'].startswith('outfit-') or i['id'] in {f'{base}-class-{player["ap"]["w"]}' for base in ('vai-bao','chan-0','vai-giay')})) or i['id'] in {f'moc-kiem-class-{player["ap"]["w"]}',f'mu-0-class-{player["ap"]["w"]}'}
+                    # Starter set: three outfit pieces and the wooden weapon (all level 1).
+                    valid_starter=lambda i:(i['slot'] in ('daobao','chan','giay') and (i['id'].startswith('outfit-') or i['id'] in {f'{base}-class-{player["ap"]["w"]}' for base in ('vai-bao','chan-0','vai-giay')})) or i['id']==f'moc-kiem-class-{player["ap"]["w"]}'
                     if any(i.get('type')=='material' for i in equipment_rules.items(player)):
                         return self.reply(403,{'error':'Nhân vật mới chưa có nguyên liệu cường hóa.'})
-                    if len(gear)>5 or any(not valid_starter(i) or (starter.get(i['slot']) or {}).get('uid')!=i['uid'] for i in gear):return self.reply(403,{'error':'Nhân vật mới chỉ có bộ trang bị khởi đầu.'})
+                    if len(gear)>4 or any(not valid_starter(i) or (starter.get(i['slot']) or {}).get('uid')!=i['uid'] for i in gear):return self.reply(403,{'error':'Nhân vật mới chỉ có bộ trang bị khởi đầu.'})
             if row:
                 old=json.loads(row['player'])
                 if old['ap']!=player['ap'] or old['nm']!=player['nm']: return self.reply(400,{'error':'Không thể đổi phái, giới tính hoặc đạo hiệu của nhân vật.'})
@@ -885,7 +885,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
-            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi'),('trailId','dichuyen'),('maskId','matna'),('helmetId','mu')]})
+            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi'),('trailId','dichuyen'),('maskId','matna')]})
             peer['ap']['robeId']=(equipment.get('daobao') or {}).get('id')
             peer['ap']['realm']=int(p['r'])
             peer['level']=progression.level(p)

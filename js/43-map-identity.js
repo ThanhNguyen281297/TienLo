@@ -175,17 +175,6 @@
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=pulse(1.3);blit(ctx,l.glow,DECK.cx-rx,DECK.cy-ry,rx*2,ry*2,cx,cy,vw,vh);
   ctx.restore();rim(ctx,'#ffbe6a',rx,ry);
  }
- // Thiên Vân Thành: an imperial avenue (ngự đạo) from the south gate to the
- // main hall and a cross street between market and forge, inlaid in gold.
- function street(ctx,x0,y0,x1,y1){
-  ctx.save();ctx.globalCompositeOperation='multiply';ctx.globalAlpha=.26;ctx.fillStyle='#7a6448';ctx.fillRect(x0,y0,x1-x0,y1-y0);ctx.restore();
-  ctx.save();ctx.strokeStyle='rgba(196,160,82,.5)';ctx.lineWidth=1.6;
-  const vertical=y1-y0>x1-x0;
-  for(const o of [0,1]){ctx.beginPath();if(vertical){ctx.moveTo(o?x1:x0,y0);ctx.lineTo(o?x1:x0,y1);}else{ctx.moveTo(x0,o?y1:y0);ctx.lineTo(x1,o?y1:y0);}ctx.stroke();}
-  ctx.fillStyle='rgba(206,172,96,.55)';const mid=vertical?(x0+x1)/2:(y0+y1)/2;
-  for(let t=(vertical?y0:x0)+30;t<(vertical?y1:x1)-10;t+=46){const [x,y]=vertical?[mid,t]:[t,mid];ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+11,y);ctx.lineTo(x,y+7);ctx.lineTo(x-11,y);ctx.closePath();ctx.fill();}
-  ctx.restore();
- }
  // Isometric paving for the hub: a processional road of inlaid rhombus flagstones on
  // the north-south tile diagonal and a bordered plaza ring around the formation, so
  // the road reads as stone set into the floor rather than an axis-aligned strip.
