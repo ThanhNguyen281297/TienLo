@@ -246,6 +246,7 @@ def action(db,uid,body,gm=False):
         if not __import__('community').safe(player):raise ValueError('Về vùng an toàn để báo cáo nhiệm vụ.')
         db.execute('INSERT INTO adventure_claims VALUES(?,?,?)',(uid,quest['id'],day() if quest['kind']=='daily' else ''))
         player['gold']=min(10**9,player['gold']+quest['gold']);gain(player,quest['xp']);grant_fragments(db,uid,quest['fragments'])
+        if quest['kind']=='daily':__import__('shards').grant_random(db,uid,1)  # one random equipment shard per daily quest
     else:raise ValueError('Thao tác không hợp lệ.')
     equipment.validate(player,db,uid);revision=row['revision']+1
     db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,int(time.time()),uid))

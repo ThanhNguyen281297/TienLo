@@ -23,7 +23,7 @@
   return null;
  }
  function npcPoint(id){
-  const s=worldMap.services.find(s=>s.id===id)||worldMap.services.find(s=>id==='mentor'&&/Sư phụ/.test(s.name||''));
+  const s=worldMap.services.find(s=>s.id===id)||worldMap.services.find(s=>id==='mentor'&&/Sư phụ|Trưởng môn/.test(s.name||''));
   return s?{x:s.x,y:s.y+14,npc:s.id}:null;
  }
  function show(t){text.textContent=t;banner.hidden=false;}

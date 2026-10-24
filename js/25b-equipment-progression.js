@@ -6,11 +6,11 @@
  const stat=(item,key)=>Math.round(((Number(item?.[key])||0)*(1+level(item)*.05)+(equipmentData.optionStats?.(item)?.[key]||0))*100000)/100000;
  const cost=next=>({stone:2+next*2,refined:Math.max(0,next-9),essence:30+next*next*15});
  const near=()=>worldMap.state.scene==='hub'&&Math.hypot(P.x-1240,P.y-1210)<=110;
- const selection={uid:null,materials:{},busy:false};
+ const selection={uid:null,materials:{},busy:false,charm:false};
  async function enhance(uid=selection.uid){
   if(!near()){msg('Tới NPC Luyện Khí trong Thiên Vân Thành để cường hóa.');return false;}
   if(selection.busy)return false;selection.busy=true;
-  try{const result=await account.transact('/api/equipment',{action:'enhance',uid,materials:selection.materials,free:!!window.gmTest?.enabled,opId:crypto.randomUUID()});const item=[...P.world.bag,...Object.values(P.world.equip)].find(i=>i?.uid===result.enhanced);if(item)dispatchEvent(new CustomEvent('tienlo-item-success',{detail:{name:item.name,caption:'CƯỜNG HÓA THÀNH CÔNG · +'+level(item),src:inventory.itemIcon(item)}}));return true;}catch(e){msg(e.message);return false;}finally{selection.busy=false;}
+  try{const result=await account.transact('/api/equipment',{action:'enhance',uid,materials:selection.materials,charm:selection.charm&&!window.gmTest?.enabled,free:!!window.gmTest?.enabled,opId:crypto.randomUUID()});const item=[...P.world.bag,...Object.values(P.world.equip)].find(i=>i?.uid===result.enhanced);if(item)dispatchEvent(new CustomEvent('tienlo-item-success',{detail:{name:item.name,caption:'CƯỜNG HÓA THÀNH CÔNG · +'+level(item),src:inventory.itemIcon(item)}}));return true;}catch(e){msg(e.message);return false;}finally{selection.busy=false;}
  }
  function decorate(button,item){const n=level(item);if(!n)return;button.classList.add('enhanced-item');button.style.setProperty('--enhance-color',color(n));button.style.setProperty('border-color',color(n),'important');const badge=document.createElement('span');badge.className='enhance-badge';badge.textContent='+'+n;button.append(badge);}
  function open(uid){
@@ -24,15 +24,19 @@
   const find=id=>[...p.bag,...Object.values(p.equip).filter(Boolean)].find(i=>i.uid===id);
   slot('Trang bị',item,()=>{selection.uid=null;open();},id=>{const i=find(id);if(i&&items.includes(i)){selection.uid=id;open();}});
   for(const [iid,label,amount]of [['cuong-hoa-thach','Cường Hóa Thạch',price.stone],['tinh-luyen-thach','Tinh Luyện Thạch',price.refined]]){const material=p.bag.find(i=>i.uid===selection.materials[iid]&&i.id===iid);slot(label+' · Cần '+(free?0:amount),material,()=>{delete selection.materials[iid];open();},id=>{const i=find(id);if(i?.id===iid){selection.materials[iid]=id;open();}});}
-  ui.chips([['Cấp nâng',item?'+'+level(item)+' → +'+Math.min(15,n):'Chưa chọn'],['Linh Nguyên',(p.essence||0)+' / '+(free?0:price.essence)]],root);
+  // Phù Cường Hóa (Kỳ Trân Các) replaces the Linh Nguyên of one enhancement.
+  const charms=p.bag.find(i=>i.id==='phu-cuong-hoa')?.qty||0;if(!charms)selection.charm=false;
+  if(charms&&!free){const t=ui.action(root,(selection.charm?'☑':'☐')+' Dùng Phù Cường Hóa · miễn Linh Nguyên (còn '+charms+')',()=>{selection.charm=!selection.charm;open();});t.classList.add('forge-charm');}
+  const needEssence=free||selection.charm?0:price.essence;
+  ui.chips([['Cấp nâng',item?'+'+level(item)+' → +'+Math.min(15,n):'Chưa chọn'],['Linh Nguyên',(p.essence||0)+' / '+needEssence]],root);
   if(item)ui.details('Hiện tại: '+inventory.statText(item)+' · Mỗi cấp +5% chỉ số gốc. Option rơi đồ giữ nguyên.',root,'Xem chỉ số');
-  ui.action(root,selection.busy?'Đang cường hóa…':free?'Cường hóa · GM miễn phí':'Cường hóa '+(item?'+'+n:''),async()=>{if(await enhance())open();},!item||n>15||selection.busy||(!free&&((p.essence||0)<price.essence||[['cuong-hoa-thach',price.stone],['tinh-luyen-thach',price.refined]].some(([id,qty])=>qty>0&&!p.bag.some(i=>i.id===id&&i.uid===selection.materials[id]&&(i.qty||1)>=qty)))));
+  ui.action(root,selection.busy?'Đang cường hóa…':free?'Cường hóa · GM miễn phí':'Cường hóa '+(item?'+'+n:''),async()=>{if(await enhance())open();},!item||n>15||selection.busy||(!free&&((p.essence||0)<needEssence||[['cuong-hoa-thach',price.stone],['tinh-luyen-thach',price.refined]].some(([id,qty])=>qty>0&&!p.bag.some(i=>i.id===id&&i.uid===selection.materials[id]&&(i.qty||1)>=qty)))));
   root.append(ui.node('h4','','Chọn hoặc kéo trang bị vào ô'));
   const grid=ui.node('div','forge-choices');root.append(grid);
   for(const i of items){const b=ui.action(grid,i.name+' +'+level(i),()=>{selection.uid=i.uid;open();});b.prepend(ui.art(inventory.itemIcon(i)));b.draggable=true;b.ondragstart=e=>e.dataTransfer.setData('text/plain',i.uid);}
   root.append(ui.node('h4','','Nguyên liệu trong túi'));
   const materials=ui.node('div','forge-choices');root.append(materials);
-  for(const i of p.bag.filter(i=>i.type==='material')){const b=ui.action(materials,i.name+' ×'+(i.qty||1),()=>{selection.materials[i.id]=i.uid;open();});b.prepend(ui.art(inventory.itemIcon(i)));b.draggable=true;b.ondragstart=e=>e.dataTransfer.setData('text/plain',i.uid);}
+  for(const i of p.bag.filter(i=>i.type==='material'&&!i.premium)){const b=ui.action(materials,i.name+' ×'+(i.qty||1),()=>{selection.materials[i.id]=i.uid;open();});b.prepend(ui.art(inventory.itemIcon(i)));b.draggable=true;b.ondragstart=e=>e.dataTransfer.setData('text/plain',i.uid);}
   if(!materials.children.length)root.append(ui.node('p','','Săn quái để nhặt Cường Hóa Thạch; quái cấp 30+ có thể rơi Tinh Luyện Thạch.'));
  }
  const masks=new WeakMap(),scratches=new WeakMap();

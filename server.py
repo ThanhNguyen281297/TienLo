@@ -1,5 +1,8 @@
 """Tiên Lộ: SQLite accounts, sessions, characters and shared online maps. Python 3.11+."""
 import community
+import premium
+import shards
+import mailbox
 import equipment as equipment_rules
 import progression
 import expeditions
@@ -43,6 +46,8 @@ DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3'
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
 SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
 DB_LOCK = RLock()
+# Where a defeated player stands up again (field station, rift/raid entry, sect spawns).
+RESPAWN_POINTS = ((1000,1100),(1000,1770),(1000,1380),(1000,1210),(1000,1180))
 WORLD_LOCK = RLock()
 AUTH_LIMIT = defaultdict(deque)
 AUTH_WORK = __import__('threading').BoundedSemaphore(2)
@@ -94,6 +99,8 @@ def init_db():
         outposts.init_db(db)
         mounts.init_db(db)
         auction.init_db(db)
+        shards.init_db(db)
+        premium.init_db(db)
 
 
 def password_hash(password, salt=None):
@@ -228,12 +235,13 @@ def damage_mob(mob,damage,owner,now,key):
             event_id=secrets.token_hex(12)
             engagement.record_kill(db,contributor)
             expeditions.queue_drop(db,contributor,mob,event_id)
-            mult=bonus*outposts.bonus(db,contributor,mob.get('map',''))
+            mult=bonus*outposts.bonus(db,contributor,mob.get('map',''))*premium.exp_mult(db,contributor)
             economy.credit_kill(db,contributor,dict(mob,xpReward=(mob.get('xpReward') or 20+mob.get('level',1)*8)*mult))
             adventure.record_kill(db,contributor,mob,event_id)
+            dropped=shards.on_kill(db,contributor,mob)
             if mob.get('tower'):tower.record_kill(db,contributor,mob)
             expeditions.queue_farm_drop(db,contributor,mob,event_id)
-            EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id} | ({'xpReward':round((mob.get('xpReward') or 20+mob.get('level',1)*8)*mult),'eventBonus':mult} if mult!=1 else {}))
+            EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id} | ({'xpReward':round((mob.get('xpReward') or 20+mob.get('level',1)*8)*mult),'eventBonus':mult} if mult!=1 else {}) | ({'shards':dropped} if dropped else {}))
             EVENTS[contributor]=EVENTS[contributor][-100:]
 
 
@@ -481,6 +489,9 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/battle': return self.battle(user)
             if path=='/api/mounts': return self.mounts(user)
             if path=='/api/auction': return self.auction(user)
+            if path=='/api/premium': return self.generic(user,None,lambda db,uid:premium.state(db,uid,bool(user['gm'])))
+            if path=='/api/shards': return self.generic(user,None,lambda db,uid:shards.view(db,uid,json.loads(db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()['player'])))
+            if path=='/api/mail': return self.generic(user,None,lambda db,uid:mailbox.view(db,uid))
             if path=='/api/pk':
                 with WORLD_LOCK:return self.reply(200,fieldpk.public(user['user_id']))
             if path=='/api/outposts':
@@ -551,6 +562,9 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/battle': return self.battle(user,body)
         if path=='/api/mounts': return self.mounts(user,body)
         if path=='/api/auction': return self.auction(user,body)
+        if path=='/api/premium': return self.generic(user,body,lambda db,uid:premium.action(db,uid,body,bool(user['gm'])))
+        if path=='/api/shards': return self.generic(user,body,lambda db,uid:shards.action(db,uid,body))
+        if path=='/api/mail': return self.generic(user,body,lambda db,uid:mailbox.action(db,uid,body))
         if path=='/api/pk':
             try:
                 with WORLD_LOCK:return self.reply(200,fieldpk.toggle(user['user_id'],bool(body.get('on')),PEERS.get(user['user_id'],{}).get('map','')))
@@ -771,6 +785,19 @@ class GameHandler(SimpleHTTPRequestHandler):
             return self.reply(409 if result.get('conflict') else 200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
+    def generic(self,user,body,handler):
+        """Character-bound endpoint in one immediate transaction (trade-locked players cannot change items)."""
+        try:
+            with DB_LOCK, connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                uid=user['user_id']
+                if not db.execute('SELECT 1 FROM characters WHERE user_id=?',(uid,)).fetchone():raise ValueError('Hãy tạo nhân vật trước.')
+                if body is not None and trade.locked(db,uid):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
+                result=handler(db,uid)
+            return self.reply(409 if result.get('conflict') else 200,result)
+        except PermissionError as error:return self.reply(403,{'error':str(error)})
+        except ValueError as error:return self.reply(409,{'error':str(error)})
+
     def auction(self,user,body=None):
         try:
             with DB_LOCK, connect() as db:
@@ -845,7 +872,8 @@ class GameHandler(SimpleHTTPRequestHandler):
             if not isinstance(stream,str) or len(stream)>80:raise ValueError()
             if previous.get('map')==scene and previous.get('stream','legacy')==stream:
                 delta=now-previous['seen']
-                if math.hypot(x-previous['x'],y-previous['y'])>max(240,delta*400) and math.hypot(x-1000,y-1100)>150:
+                respawned=body.get('respawn') is True and any(math.hypot(x-a,y-b)<120 for a,b in RESPAWN_POINTS)
+                if math.hypot(x-previous['x'],y-previous['y'])>max(240,delta*400) and math.hypot(x-1000,y-1100)>150 and not respawned:
                     x,y=previous['x'],previous['y']
             with DB_LOCK, connect() as db:
                 adventure.record_world(db,uid,scene,x,y,previous,bool(body.get('med')))

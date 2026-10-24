@@ -6,7 +6,7 @@
     Hub and spawn formation rings are toned down in 43/39 directly. */
 (function(){
  const world=worldMap,hud=window.vlHud,strip=$('vl-activities');if(!hud||!strip)return;
- const PRIMARY=['welfare','event','quest','rift'],MAX_ROW=6;
+ const PRIMARY=['welfare','kytran','quest','rift','mail','event'],MAX_ROW=7;
  const more=document.createElement('button');more.type='button';more.className='vl-activity vl-more';more.dataset.id='more';more.setAttribute('aria-label','Thêm hoạt động');more.setAttribute('aria-expanded','false');
  const canvas=document.createElement('canvas');canvas.width=canvas.height=96;const badge=document.createElement('i');badge.hidden=true;const label=document.createElement('span');label.textContent='Thêm';more.append(canvas,badge,label);
  // A painted "grid of four" glyph on the same round plate as the other icons.
@@ -21,7 +21,7 @@
  const order=b=>{const i=PRIMARY.indexOf(b.dataset.id);return i<0?99:i;};
  let lastKey='';const narrowScreen=matchMedia('(max-width:520px)');
  function layout(){const all=buttons(),hot=b=>b.classList.contains('live')||(b.querySelector('i')&&!b.querySelector('i').hidden);
-  const narrow=narrowScreen.matches,row=all.filter(b=>PRIMARY.slice(0,narrow?3:4).includes(b.dataset.id)).sort((a,b)=>order(a)-order(b));
+  const narrow=narrowScreen.matches,row=all.filter(b=>PRIMARY.slice(0,narrow?3:5).includes(b.dataset.id)).sort((a,b)=>order(a)-order(b));
   if(!narrow)for(const b of all)if(!row.includes(b)&&hot(b)&&row.length<MAX_ROW)row.push(b);
   const rest=all.filter(b=>!row.includes(b));
   const key=row.map(b=>b.dataset.id).join()+'|'+rest.map(b=>b.dataset.id).join()+'|'+open;

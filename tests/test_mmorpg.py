@@ -17,7 +17,7 @@ class MMORPGTests(unittest.TestCase):
         self.p=dict(nm='Hero',ap=dict(w=0,gender='Nam'),r=0,stage=1,hp=100,mp=20,xp=0,gold=3000,level=80,levelXp=0,x=1240,y=1210,world=dict(map='hub',bag=[],equip={},essence=50000))
         equipment.normalize(self.p);server.progression.normalize(self.p)
         self.p['world']['equip']['vukhi']=dict(equipment.TEMPLATES['moc-kiem-class-0'],uid='sword')
-        for iid in equipment.MATERIALS:self.p['world']['bag'].append(dict(equipment.MATERIALS[iid],uid=iid,qty=1000))
+        for iid in ('cuong-hoa-thach','tinh-luyen-thach'):self.p['world']['bag'].append(dict(equipment.MATERIALS[iid],uid=iid,qty=1000))
         self.save(self.p);self.db.commit()
     def tearDown(self):self.db.close();server.DATABASE=self.old;self.temp.cleanup()
     def save(self,p,revision=1):self.db.execute('INSERT OR REPLACE INTO characters VALUES(?,?,?,?,?)',(1,'hero-character',json.dumps(p),revision,0))

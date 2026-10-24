@@ -25,7 +25,7 @@
     if(busy||!account.state.ready||account.state.restoring||!P.ap||window.expeditionsGame?.assetsPending()||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
     if(lastMap!==scene){state.hits=[];state.players=[];state.fields=[];state.shared=false;retry=null;lastMap=scene;}
-    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,ride:!!window.mountGame?.riding(),cast:state.cast,hp:P.hp,duelAttacks:(state.duelAttacks||[]).splice(0,8),ackBoss:window.communityGame?.bossAcks||[],field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.cast=null;state.petCast=null;retry=batch;
+    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,ride:!!window.mountGame?.riding(),respawn:!!state.respawned,cast:state.cast,hp:P.hp,duelAttacks:(state.duelAttacks||[]).splice(0,8),ackBoss:window.communityGame?.bossAcks||[],field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.respawned=false;state.cast=null;state.petCast=null;retry=batch;
     try{
       const data=await account.api('/api/world',{...batch,ackSustain:P.world.sustainIds||[]});retry=null;state.connected=true;chat.hidden=false;
       if(scene!==worldMap.state.scene||account.state.restoring)return;
@@ -45,6 +45,7 @@
           const claimed=P.world.networkRewardIds??=[];
           if(state.seenRewards.has(reward.eventId)||claimed.includes(reward.eventId)){if(!state.acks.includes(reward.eventId))state.acks.push(reward.eventId);continue;}
           state.seenRewards.add(reward.eventId);claimed.push(reward.eventId);if(claimed.length>100)claimed.shift();
+          if(reward.shards)try{window.shardsGame?.onDrop(reward.shards,reward);}catch{}
           // Replay each server-issued death once through existing quest/loot hooks.
           const e={...reward,hp:1,dead:0,network:false,rewardReplay:true},existingPopups=new Set(X);localHit(e,1);
           // Reward replay is bookkeeping, not a real one-point attack popup.

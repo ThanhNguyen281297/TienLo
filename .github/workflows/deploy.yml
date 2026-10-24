@@ -43,6 +43,7 @@ jobs:
           python tests/test_outposts.py
           python tests/test_fieldpk.py
           python tests/test_mounts_auction.py
+          python tests/test_premium_shards_mail.py
           python tests/test_balance.py
       - name: JavaScript and deployment syntax
         run: |

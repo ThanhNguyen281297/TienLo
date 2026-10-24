@@ -344,6 +344,7 @@
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));
         if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
+        if(item.premium&&window.premiumGame?.usable(item))action('Sử dụng',()=>premiumGame.use(item.uid));
         if(!item.bound)action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
       }
       popup.hidden=false;const rect=anchor?.getBoundingClientRect()||grid.getBoundingClientRect(),mobile=matchMedia('(max-width:700px)').matches,w=Math.min(370,innerWidth-24);popup.style.width=w+'px';popup.style.maxHeight=Math.min(innerHeight*.72,560)+'px';

@@ -260,6 +260,9 @@ def action(db, owner, body):
         if type(index) is not int or index not in range(len(item.get('affixes') or defaults(item))):raise ValueError('Dòng không hợp lệ.')
         cost=0 if index in locked else price['lockGold']
         if player['gold']<cost:raise ValueError('Cần '+str(cost)+' Linh Thạch để khóa dòng.')
+        # The first locked line costs Linh Thạch only; every further one also needs a Khóa Tẩy Luyện.
+        if index not in locked and len(locked)>=1 and not __import__('premium').take_material(player,'khoa-tay-luyen'):
+            raise ValueError('Khóa dòng thứ hai trở đi cần 1 Khóa Tẩy Luyện (Kỳ Trân Các).')
         player['gold']-=cost
         locked.remove(index) if index in locked else locked.append(index);locked.sort();item['locks']=locked
         db.execute('INSERT INTO equipment_locks VALUES(?,?,?) ON CONFLICT(user_id,item_uid) DO UPDATE SET indices=excluded.indices',(owner,item['uid'],json.dumps(locked)))

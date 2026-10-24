@@ -156,7 +156,7 @@ def touch(db, uid, at=None):
         return
     bank = row['offline_bank']
     if last and stamp - last >= OFFLINE_MIN_GAP:
-        bank = min(OFFLINE_CAP, bank + (stamp - last))
+        bank = max(bank, min(OFFLINE_CAP, bank + (stamp - last)))   # Bế Quan Lệnh may bank past the cap
     db.execute('UPDATE engagement_state SET last_seen=?,offline_bank=? WHERE user_id=?', (stamp, bank, uid))
 
 
@@ -257,6 +257,15 @@ def grant(db, uid, player, reward):
         __import__('mounts').grant(player, reward['mount'])
     if reward.get('lot'):
         __import__('auction').deliver(db, uid, player, reward['lot'], reward.get('from'))
+    # Typed shards: {'kind': qty} or a number of random kinds.
+    shards = reward.get('shards')
+    if isinstance(shards, dict):
+        for kind, qty in shards.items():
+            __import__('shards').add(db, uid, kind, int(qty))
+    elif shards:
+        __import__('shards').grant_random(db, uid, int(shards))
+    if reward.get('lq'):
+        __import__('premium').credit(db, uid, int(reward['lq']), 'mail')
 
 
 def describe(reward):
@@ -268,6 +277,10 @@ def describe(reward):
     for iid, qty in (reward.get('items') or {}).items(): parts.append(f"{qty} {equipment.TEMPLATES[iid]['name']}")
     for iid in reward.get('gear') or []: parts.append(equipment.TEMPLATES[iid]['name'])
     if reward.get('mount'): parts.append('Thú cưỡi ' + __import__('mounts').BY_ID[reward['mount']]['name'])
+    shards = reward.get('shards')
+    if isinstance(shards, dict): parts.append(__import__('shards').describe(shards))
+    elif shards: parts.append(f"{shards} mảnh trang bị ngẫu nhiên")
+    if reward.get('lq'): parts.append(f"{reward['lq']} Linh Quang")
     return ' · '.join(parts)
 
 

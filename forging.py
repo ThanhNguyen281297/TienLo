@@ -32,8 +32,12 @@ def action(db,owner,body,gm=False):
             if not amount:continue
             material=next((i for i in w['bag'] if i['uid']==chosen.get(iid) and i['id']==iid),None)
             if not material or material.get('qty',1)<amount:raise ValueError('Chưa đặt đủ '+equipment.MATERIALS[iid]['name']+'.')
-        if w.get('essence',0)<price['essence']:raise ValueError('Chưa đủ Linh Nguyên.')
-        w['essence']-=price['essence']
+        # Phù Cường Hóa (Kỳ Trân Các) pays the Linh Nguyên of this enhancement.
+        if body.get('charm') is True:
+            if not __import__('premium').take_material(player,'phu-cuong-hoa'):raise ValueError('Không có Phù Cường Hóa trong túi.')
+        else:
+            if w.get('essence',0)<price['essence']:raise ValueError('Chưa đủ Linh Nguyên.')
+            w['essence']-=price['essence']
         for iid,amount in [('cuong-hoa-thach',price['stone']),('tinh-luyen-thach',price['refined'])]:
             if not amount:continue
             material=next(i for i in w['bag'] if i['uid']==chosen[iid]);material['qty']-=amount

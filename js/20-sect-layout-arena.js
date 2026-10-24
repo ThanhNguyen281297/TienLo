@@ -142,7 +142,7 @@
     buildings.push({key:'board',x:1130,y:1190,w:30});
     world.buildings.splice(0,world.buildings.length,...buildings);
     world.services.splice(0,world.services.length,
-      {id:'mentor',name:meta.mentor+' · Sư phụ',x:910,y:1125,npc:true,color:meta.color},
+      {id:'mentor',name:meta.mentor+' · Trưởng môn',x:910,y:1125,npc:true,color:meta.color},
       {id:'sectSkills',name:'Truyền công',x:1120,y:1125,npc:true,color:meta.color},
       {id:'teleport',name:'Truyền tống · Thiên Vân Thành',x:870,y:1175,color:'#eed8a7'},
       {id:'board',name:'Bảng Sơn Hà · Đi săn',x:1130,y:1175,color:'#eed8a7'});

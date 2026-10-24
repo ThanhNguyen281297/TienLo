@@ -139,6 +139,7 @@ class AdventureTests(unittest.TestCase):
         p['world']['equip']['phapbao']['locks']=[]
         with self.assertRaises(ValueError):equipment.validate(p,self.db,1)
     def test_all_locked_rejects_reforge_and_unlock_is_free(self):
+        __import__('premium');self.player['world']['bag'].append(dict(equipment.TEMPLATES['khoa-tay-luyen'],uid='keys',qty=4))  # lines 2-5 need a Khóa Tẩy Luyện each
         item=dict(equipment.TEMPLATES['shield-1'],uid='shield',affixes=equipment.defaults(dict(slot='ngoc')));self.player['world']['equip']['ngoc']=item;self.db.execute('UPDATE characters SET player=?',(json.dumps(self.player),))
         for i in range(5):equipment.action(self.db,1,dict(action='lock',uid='shield',index=i,opId='lock-all-'+str(i),revision=i+1))
         with self.assertRaises(ValueError):equipment.action(self.db,1,dict(action='reforge',uid='shield',opId='all-blocked',revision=6))
