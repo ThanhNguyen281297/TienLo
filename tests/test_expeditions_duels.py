@@ -18,6 +18,10 @@ import adventure
 
 class ExpeditionDuels(unittest.TestCase):
     def setUp(self):
+        # Weekend/hour events (engagement.multiplier) must not change these exact-reward checks.
+        patcher=__import__('unittest.mock',fromlist=['patch']).patch('engagement.multiplier',return_value=1);patcher.start();self.addCleanup(patcher.stop)
+        self._setUp()
+    def _setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.old=server.DATABASE;server.DATABASE=Path(self.temp.name)/'test.sqlite3';server.init_db()
         self.peers={};self.player=dict(nm='Dao Huu',ap=dict(w=0,gender='Nam'),r=0,stage=1,hp=100,mp=60,xp=0,gold=0,level=80,levelXp=0,world=dict(bag=[],attrs=dict(luc=0,the=0,nhanh=0,linh=0)))
         equipment.normalize(self.player)

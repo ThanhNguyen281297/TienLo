@@ -33,8 +33,8 @@
     }
     const img=cleaned.get(key);return ready(img)?img:null;
   }
-  function preloadSprites(){Object.keys(definitions).forEach(isolate);}
-  preloadSprites();
+  // Map sprites load when first drawn (isolate is called from sprite()); no bulk preload.
+  function preloadSprites(){}
   const spriteMetadata=new Map(spriteCatalog.maps.map(asset=>[asset.id,asset]));
   function placement(key,x,y,width,height){
     const img=isolate(key);if(!img)return null;

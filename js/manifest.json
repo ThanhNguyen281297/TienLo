@@ -1,0 +1,17 @@
+{
+  "name": "Tiên Lộ Online",
+  "short_name": "Tiên Lộ",
+  "description": "MMORPG tu tiên 2D chơi ngay trên trình duyệt.",
+  "lang": "vi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0f1d24",
+  "theme_color": "#0f1d24",
+  "icons": [
+    {"src": "/Character/App/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/Character/App/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/Character/App/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

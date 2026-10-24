@@ -13,8 +13,9 @@
     Doi:{height:84,sheets:[6,6,5,6],idle:1,move:1,attack:2,hurt:3,death:4}
   };
   for(const [key,kind]of Object.entries(species)){
-    kind.poses=spriteCatalog.monsterFrames[key].map(sheet=>sheet.map(meta=>({...meta,image:image(artworkURL(meta.src))})));
-    kind.images=kind.poses.flat().map(pose=>pose.image);
+    // Frames load lazily: a species downloads only once one of its monsters is drawn.
+    kind.poses=spriteCatalog.monsterFrames[key].map(sheet=>sheet.map(meta=>{let img=null;return Object.defineProperty({...meta},'image',{get(){return img||=image(artworkURL(meta.src));},enumerable:true});}));
+    Object.defineProperty(kind,'images',{get(){return kind.poses.flat().map(pose=>pose.image);}});
   }
   Object.assign(T[0],{n:'Bọ Ngựa',skin:'BoNgua',sp:40});
   Object.assign(T[1],{n:'Nguyệt Thố',skin:'Tho',sp:65,c:'#aadfff'});

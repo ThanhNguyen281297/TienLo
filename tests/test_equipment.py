@@ -140,10 +140,10 @@ class EquipmentTest(unittest.TestCase):
         self.assertFalse(equipment.normalize(self.player))
     def test_public_nginx_allows_current_asset_roots(self):
         config=(server.ROOT/'deploy/nginx.conf').read_text(encoding='utf-8')
-        match=re.search(r'location ~ (\^/\([^\n]+\)/)',config)
-        self.assertIsNotNone(match)
+        patterns=re.findall(r'location ~ (\^/\([^\n]+?\)/)',config)
+        self.assertTrue(patterns)
         for root in ('js','css','Character','Map','Item','Skill'):
-            self.assertRegex('/'+root+'/example.png',match[1])
+            self.assertTrue(any(re.search(p,'/'+root+'/example.png') for p in patterns),root)
     def test_v2_asset_move_preserves_reforged_lines_and_enhancement(self):
         equipment.normalize(self.player,server.collection_item)
         self.player['world']['equip']['phapbao']=self.make('back-class-0')

@@ -15,6 +15,10 @@ import server,adventure,equipment,expeditions
 
 class AdventureTests(unittest.TestCase):
     def setUp(self):
+        # Weekend/hour events (engagement.multiplier) must not change these exact-reward checks.
+        patcher=__import__('unittest.mock',fromlist=['patch']).patch('engagement.multiplier',return_value=1);patcher.start();self.addCleanup(patcher.stop)
+        self._setUp()
+    def _setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.old=server.DATABASE;server.DATABASE=Path(self.temp.name)/'game.sqlite3';server.init_db();self.db=server.connect()
         self.db.execute("INSERT INTO users(id,username,password,created_at) VALUES(1,'hero','unused',0)")
         self.player=dict(nm='Hero',ap=dict(w=0,gender='Nam'),r=0,stage=1,hp=100,mp=20,xp=0,gold=3000,level=80,levelXp=0,x=1000,y=1100,world=dict(map='hub',bag=[],equip={},essence=500))

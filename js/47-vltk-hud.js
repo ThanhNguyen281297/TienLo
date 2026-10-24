@@ -110,7 +110,7 @@ body.vl-hud #party-hud{left:8px!important;top:236px!important}
 #hud-more-menu #welfare-button,#hud-more-menu #adventure-button,#hud-more-menu #rift-button,#hud-more-menu #raid-button,#hud-more-menu #duel-button,#hud-more-menu #pet-button{display:none!important}
 #vl-chat-ticker{position:fixed;left:8px;bottom:186px;z-index:3;width:min(300px,40vw);padding:4px 8px;border:0;border-radius:6px;background:linear-gradient(90deg,#0a1418cc,#0a141800);text-align:left;display:grid;gap:1px;min-height:0!important;cursor:pointer}
 #vl-chat-ticker[hidden]{display:none}.vl-chat-line{margin:0;font:11px/1.35 Arial;color:#e6efe8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000}.vl-chat-line b{color:#ffd27a}
-body.vl-hud #event-banner{top:auto;bottom:16px}body.vl-hud #raid-status{top:8px}
+body.vl-hud #event-banner{top:92px;bottom:auto;font-size:11px;padding:4px 12px}body.vl-hud #raid-status{top:8px}
 @media(max-width:700px),(max-height:500px){
  body.vl-hud #hud.vl-frame{width:236px!important;transform:scale(.9);transform-origin:0 0}
  #vl-activities{grid-template-columns:repeat(4,44px);right:120px;gap:2px 4px}.vl-activity canvas{width:36px!important;height:36px!important}.vl-activity span{font-size:9px}
