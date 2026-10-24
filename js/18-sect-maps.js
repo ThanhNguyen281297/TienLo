@@ -25,7 +25,7 @@
   const moonWeapon=new Image();moonWeapon.src='Item/VuKhi/Liem.png';
   const swordRing=new Image();swordRing.src='Item/PhapTran/5.png';
   const moonRing=new Image();moonRing.src='Item/PhapTran/6.png';
-  const moonArt=new Image();moonArt.src='Skill/Legacy/Liem/minhnguyetgiangthe.png';
+  const moonArt=new Image();const moonArtLoad=()=>{if(!moonArt.src)moonArt.src='Skill/Legacy/Liem/minhnguyetgiangthe.png';return moonArt;}; // loaded on first moon draw, not at boot
   const npcBodies=[new Image(),new Image()];npcBodies[0].src='Character/Kiem/Nam/truoc.png';npcBodies[1].src='Character/Liem/Nam/truoc.png';
   const ready=i=>i.complete&&i.naturalWidth>0;
   function ellipse(point,island,margin=0){return ((point.x-island.x)/(island.rx-margin))**2+((point.y-island.y)/(island.ry-margin))**2<=1;}
@@ -85,7 +85,7 @@
   function ring(ctx,image,x,y,w,h,alpha=1){if(!ready(image))return;ctx.save();ctx.globalAlpha*=alpha;ctx.drawImage(image,x-w/2,y-h/2,w,h);ctx.restore();}
   function weapon(ctx,image,x,y,height,rotation=0,alpha=1){if(!ready(image))return;ctx.save();ctx.translate(x,y);ctx.rotate(rotation);ctx.globalAlpha*=alpha;ctx.shadowColor=scene()==='moon'?'#c9efff':'#99f1d3';ctx.shadowBlur=9;const width=height*image.naturalWidth/image.naturalHeight;ctx.drawImage(image,-width/2,-height/2,width,height);ctx.restore();}
   function moon(ctx,x,y,r,alpha=1){ctx.save();ctx.globalAlpha*=alpha;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
-    if(ready(moonArt))ctx.drawImage(moonArt,.48*moonArt.naturalWidth,.14*moonArt.naturalHeight,.087*moonArt.naturalWidth,.25*moonArt.naturalHeight,x-r,y-r,r*2,r*2);
+    if(ready(moonArtLoad()))ctx.drawImage(moonArt,.48*moonArt.naturalWidth,.14*moonArt.naturalHeight,.087*moonArt.naturalWidth,.25*moonArt.naturalHeight,x-r,y-r,r*2,r*2);
 ctx.restore();
   }
   const oldDetails=world.drawGroundDetails;

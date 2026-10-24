@@ -318,7 +318,7 @@
         }
       }
       if(!reduced.matches){
-        const cell=coarse.matches?260:200,x0=Math.floor(cam.x/cell)-1,x1=Math.ceil((cam.x+vw)/cell),y0=Math.floor(cam.y/cell)-1,y1=Math.ceil((cam.y+vh)/cell)+1;
+        const cell=(coarse.matches?260:200)/Math.sqrt(Math.max(.25,window.graphicsQuality?.particles??1)),x0=Math.floor(cam.x/cell)-1,x1=Math.ceil((cam.x+vw)/cell),y0=Math.floor(cam.y/cell)-1,y1=Math.ceil((cam.y+vh)/cell)+1;
         const embers=c.kitName==='fire'||c.kitName==='lava',rgb=embers?c.kit.glow:c.kit.cool;
         for(let ix=x0;ix<=x1;ix++)for(let iy=y0;iy<=y1;iy++){
           const s=hash(ix+','+iy+c.scene),ph=(s%997)/997,sp=embers?.07:.035+((s>>8)%50)/2500,life=(t*sp+ph)%1,rise=embers?60:34;

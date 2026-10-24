@@ -147,7 +147,7 @@
     world.state.near=null;
   }
   world.layoutArt={modules,islandDeck,hubDecor,decor,terrainSprites,highIsland,stonePaving,themes,districts};
-  const actorBodies=['Kiem','Liem','Thuong','Quat'].map(folder=>{const img=new Image();img.src='Character/'+folder+'/Nam/truoc.png';return img;});
+  const actorBodies=[];['Kiem','Liem','Thuong','Quat'].forEach((folder,i)=>{const img=new Image();Object.defineProperty(actorBodies,i,{enumerable:true,get(){if(!img.src)img.src='Character/'+folder+'/Nam/truoc.png';return img;}});}); // loaded when a sect NPC of that class is drawn
   world.layoutArt.placements=function(){
     const decorations=world.state.scene==='hub'?hubDecor:clan()?decor[world.state.scene]:[];
     const props=[...world.buildings.filter(b=>!b.ground),...decorations].map((p,i)=>{const bounds=world.spriteBounds(p.key,p.x,p.y,p.w);return{id:p.key+':'+i,type:'prop',...(bounds||{left:p.x,right:p.x,top:p.y,bottom:p.y})};});

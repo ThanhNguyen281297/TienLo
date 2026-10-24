@@ -1,3 +1,34 @@
+# Graphics pass 3 — 2026-10-24
+
+- **Asset weight:** `tools/build_display_variants.py` writes display-size `.d.webp`
+  copies of item/NPC art (512–1024 px, same aspect ratio) and 192 px monster
+  thumbnails; `js/00-asset-webp.js` prefers them via `js/00-display-manifest.js`.
+  Class bodies, sect NPC bodies and the legacy moon art load on first draw; an
+  unused eager preload of two classes' skill frames was removed. First load of
+  the hub went from 156 images / 31.1 MB to ~125 images / ~19 MB.
+- **Desktop HUD (`js/59-desktop-hud.js`):** mouse + keyboard get a horizontal
+  action bar (1–4, F, R pet, G shield) and no thumb joystick; touch keeps the
+  wheel. Event pill docks bottom-left, Welfare auto-opens at most once a day,
+  interaction hints print "E" only with a keyboard, camera keeps the player
+  above the bottom HUD. Desktop zoom follows screen height (1.8–2.8×).
+- **Quality setting (`js/60-graphics-settings.js`, ⚙ menu):** Tự động / Cao /
+  Vừa / Thấp controls canvas density, cinematic haze, colour-grade overlay,
+  night bloom and ambient particles; Tự động steps down when frames stay slow.
+- **Light:** contact shadow under every actor at all hours; night lights and
+  bloom use cached glow sprites instead of ~100 new gradients per frame;
+  lighter vignette and colour-grade overlay.
+- **World:** hub vertical street replaced by an inlaid isometric road and plaza
+  ring; field spawn plazas are raised daises with a carved south face and
+  shadow; hub minimap draws the floating city (`js/61-world-polish.js`).
+- **UI skin (`css/xianxia-ui.css`):** gold cloud-scroll corners on framed panels,
+  one title/text font pair, key art behind login and character creation,
+  calmer empty inventory cells.
+
+Validation: all CI Python suites pass; `mobile-hud`, `mobile-screen` and
+`equipment-animation` browser tests pass. `render-quality`, `skill-sprites`,
+`four-sect-maps`, `character-ground-rendering` and the three Playwright
+timeouts fail identically on the previous commit (pre-existing).
+
 # Graphics review — 2026-10-15
 
 Current layout revision: map floors now use modular paving, cliff, waterfall and

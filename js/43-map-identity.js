@@ -186,7 +186,27 @@
   for(let t=(vertical?y0:x0)+30;t<(vertical?y1:x1)-10;t+=46){const [x,y]=vertical?[mid,t]:[t,mid];ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+11,y);ctx.lineTo(x,y+7);ctx.lineTo(x-11,y);ctx.closePath();ctx.fill();}
   ctx.restore();
  }
- function drawHub(ctx){street(ctx,958,800,1042,1500);
+ // Isometric paving for the hub: a processional road of inlaid rhombus flagstones on
+ // the north-south tile diagonal and a bordered plaza ring around the formation, so
+ // the road reads as stone set into the floor rather than an axis-aligned strip.
+ function rhombus(ctx,x,y,hw,hh){ctx.beginPath();ctx.moveTo(x,y-hh);ctx.lineTo(x+hw,y);ctx.lineTo(x,y+hh);ctx.lineTo(x-hw,y);ctx.closePath();}
+ function hubRoad(ctx,y0,y1,skip){
+  for(let y=y0;y<=y1;y+=44){if(y>skip[0]&&y<skip[1])continue;
+   ctx.save();rhombus(ctx,1000,y,46,22);ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgba(140,112,78,.34)';ctx.fill();ctx.restore();
+   ctx.save();rhombus(ctx,1000,y,46,22);ctx.strokeStyle='rgba(112,84,46,.55)';ctx.lineWidth=1.2;ctx.stroke();
+   rhombus(ctx,1000,y,9,4.5);ctx.fillStyle='rgba(206,172,96,.6)';ctx.fill();ctx.restore();}
+ }
+ function hubPlaza(ctx,cx,cy,hw,hh){
+  ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgba(150,124,88,.34)';
+  rhombus(ctx,cx,cy,hw,hh);rhombus(ctx,cx,cy,hw-26,hh-13);ctx.fill('evenodd');ctx.restore();
+  ctx.save();ctx.lineWidth=1.8;ctx.strokeStyle='rgba(150,110,52,.8)';rhombus(ctx,cx,cy,hw,hh);ctx.stroke();
+  ctx.lineWidth=1.1;ctx.strokeStyle='rgba(222,186,104,.75)';rhombus(ctx,cx,cy,hw-26,hh-13);ctx.stroke();
+  // jade-and-gold corner medallions
+  for(const [dx,dy] of [[0,-1],[1,0],[0,1],[-1,0]]){const x=cx+dx*(hw-13),y=cy+dy*(hh-6.5);
+   rhombus(ctx,x,y,13,6.5);ctx.fillStyle='rgba(64,134,118,.55)';ctx.fill();ctx.strokeStyle='rgba(226,196,120,.8)';ctx.lineWidth=.8;ctx.stroke();}
+  ctx.restore();
+ }
+ function drawHub(ctx){hubRoad(ctx,830,1480,[1010,1330]);hubPlaza(ctx,1000,1170,330,165);
   // Central formation with two white rings, as on the sect courts.
   ctx.save();ctx.strokeStyle='rgba(214,186,120,.22)';ctx.lineWidth=1.4;for(const r of [215,265]){ctx.beginPath();ctx.ellipse(1000,1150,r,r*.52,0,0,Math.PI*2);ctx.stroke();}ctx.restore();
   world.sprite(ctx,'theme-14-065',1000,1215,230);

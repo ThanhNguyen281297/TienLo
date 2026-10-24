@@ -188,7 +188,7 @@
   const tag=document.createElement('div');tag.id='world-region';document.body.appendChild(tag);
   function updateInterface(){
     const hidden=previousPaused();mapButton.hidden=tag.hidden=hidden;interactButton.hidden=hidden||dialogOpen||!state.near;
-    if(state.near)interactButton.textContent=state.near.name+' · E';
+    if(state.near)interactButton.textContent=state.near.name+(matchMedia('(hover:hover) and (pointer:fine)').matches?' · E':'');
     const region=regions.find(r=>r.id===state.scene)||regions[0];state.region=state.scene;tag.textContent=(window.worldMap?.sceneTitle?.()||region.name)+(isSafe(P)?' · An toàn':'');if(window.worldMap?.renderMini)window.worldMap.renderMini(minimap,200);else miniature(minimap);
   }
   const originalSkill=skill;skill=function(index){if(dialogOpen)return;originalSkill(index);resolve(P);if(moonCombat.state.blink)moonCombat.state.blink.end={x:P.x,y:P.y};};

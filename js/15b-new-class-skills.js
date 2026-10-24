@@ -4,7 +4,7 @@
   window.combatMana=[[8,10,20,35],[9,12,22,38],[9,14,24,40],[8,12,24,40]];
   const cds=()=>combatBalance.cooldowns(P.ap.w),state={cooldown:[0,0,0,0],aim:null,marks:new Map(),control:new Map(),projectiles:[],effects:[],field:null,ultimate:null,dash:null};
   const active=()=>P.ap?.w>=2,thunder=()=>P.ap?.w===2,live=e=>E.includes(e)&&!e.dead&&e.hp>0;
-  const art=[['loithuongdotkich','hoanhtaothienquan','cuuthienloitran','loilonggiangthe'],['philinhchu','phonglinhphien','thiencotran','vanphuphongan']].map((names,c)=>names.map(n=>{const img=new Image();img.src='Skill/Class/'+(c?'Quat':'Thuong')+'/'+n+'/01.png';return img;}));
+  // (unused eager preload of Lôi Thương/Thiên Cơ key frames removed; skillSprites loads per class)
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),inside=(e,f)=>distance(e,f)<=f.radius+(T[e.t]?.s||10);
   function target(range){const a=state.aim||{x:P.x+(P.dir===2?P.f:0)*range,y:P.y+(P.dir===1?-1:P.dir===2?0:1)*range},d=distance(a,P)||1;return{x:P.x+(a.x-P.x)*Math.min(1,range/d),y:P.y+(a.y-P.y)*Math.min(1,range/d)};}
   const stacks=e=>state.marks.get(e)?.count||0;

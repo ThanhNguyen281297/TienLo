@@ -1,0 +1,61 @@
+/* Xianxia UI skin (graphics pass 3). Loaded last; presentation only.
+   One title face (Noto Serif / Georgia) and one text face (system sans), gold
+   cloud-scroll corners on every framed panel, key art behind login/creation. */
+:root{
+ --xx-gold:#e2c27e;--xx-gold-dim:#b8975a;--xx-ink:#081620;--xx-jade:#3f8f80;
+ --xx-title:'Noto Serif',Georgia,'Times New Roman',serif;
+ --xx-text:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+ --xx-corner:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23e2c27e' stroke-linecap='round'%3E%3Cpath d='M3 30V9a6 6 0 0 1 6-6h21' stroke-width='1.6'/%3E%3Cpath d='M8 22v-9a5 5 0 0 1 5-5h9' stroke-width='.9' opacity='.75'/%3E%3Cpath d='M13 16c0-3 4-4 5-1.5S15 19 13 16z' stroke-width='1' opacity='.9'/%3E%3C/g%3E%3Cpath d='M3 3l4 0l-4 4z' fill='%23e2c27e'/%3E%3Ccircle cx='30' cy='3' r='1.6' fill='%23e2c27e'/%3E%3Ccircle cx='3' cy='30' r='1.6' fill='%23e2c27e'/%3E%3C/svg%3E");
+}
+
+/* ---------- framed panels: inner hairline + four gold corner flourishes
+   (js/59-desktop-hud.js adds the four .xx-corner spans to each framed panel) */
+#world-dialog>section,#cr .pn,.account-card{position:relative}
+#world-dialog>section::before,#cr .pn::before,.account-card::before{content:'';position:absolute;inset:4px;pointer-events:none;border:1px solid #e2c27e24;border-radius:inherit;z-index:0}
+.xx-corner{position:absolute;width:30px;height:30px;pointer-events:none;background:var(--xx-corner) center/contain no-repeat;opacity:.9;z-index:0}
+.xx-corner.tl{left:6px;top:6px}.xx-corner.tr{right:6px;top:6px;transform:scaleX(-1)}
+.xx-corner.bl{left:6px;bottom:6px;transform:scaleY(-1)}.xx-corner.br{right:6px;bottom:6px;transform:scale(-1,-1)}
+@media(max-width:700px),(max-height:500px){.xx-corner{width:26px;height:26px}}
+
+/* ---------- one type system */
+#world-dialog h2,#cr h2,.account-card h1,.vl-guide-title{font-family:var(--xx-title)!important;letter-spacing:.02em}
+#world-dialog,#cr,.account-card,#hud,#bt,#vl-drawer{font-family:var(--xx-text)}
+#world-dialog h2{background:linear-gradient(180deg,#fff2c8,#e2c27e 70%,#b88f4a);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important}
+
+/* ---------- buttons inside panels: lacquer + gold hairline */
+#world-dialog button:not(.item-cell):not(.gear-slot):not([class*=tab]):not(#world-close),#cr .go,.account-submit{
+ border:1px solid #c9a96088;background:linear-gradient(180deg,#1f3a45,#11232c);color:#f3e3b4;box-shadow:inset 0 1px #fff2,0 2px 6px #0006;transition:filter .15s,box-shadow .15s}
+#world-dialog button:not(.item-cell):not(.gear-slot):not(#world-close):hover,#cr .go:hover{filter:brightness(1.12);box-shadow:inset 0 1px #fff3,0 0 0 1px #e2c27e88,0 2px 10px #0008}
+.account-submit,#cr .go{background:linear-gradient(180deg,#f0d394,#c99a54)!important;color:#2a1a08!important;border-color:#f5dfa9!important;font-weight:700}
+
+/* ---------- inventory: empty cells are calm jade wells, no running numbers */
+.cell-index{display:none}
+.bag-grid .item-cell:not(.occupied){background:radial-gradient(circle at 50% 40%,#1b3640,#0c1a22 75%)!important}
+.bag-grid .item-cell:not(.occupied)::after{content:'';position:absolute;inset:34%;border:1px solid #e2c27e18;transform:rotate(45deg)}
+
+/* ---------- login: key art of the floating city behind the card */
+#account-screen{background:
+ linear-gradient(180deg,#06101acc,#06101a66 40%,#06101aee),
+ radial-gradient(ellipse at 50% 120%,#e8b46a33,transparent 60%),
+ url('../Map/hd/courtyard-island.webp') center 40%/cover no-repeat,
+ #08121e!important}
+.account-card{background:linear-gradient(160deg,#142632e8,#0a1520f0)!important;border:1px solid #e2c27e66!important;border-radius:18px!important;
+ box-shadow:0 30px 90px #000c,inset 0 1px #fff2,inset 0 0 0 1px #02080d!important;backdrop-filter:blur(6px)}
+.account-kicker{color:var(--xx-gold)!important;letter-spacing:.42em!important}
+.account-card h1{font-size:34px!important;background:linear-gradient(180deg,#fff4d0,#e2c27e 65%,#a87d3c);-webkit-background-clip:text;background-clip:text;color:transparent!important;margin:14px 0 10px!important}
+
+/* ---------- character creation: same key art, preview stands on a formation glow */
+#cr{background:linear-gradient(90deg,#06101af2 0%,#06101ab0 45%,#06101af0 100%),url('../Map/hd/courtyard-island.webp') 30% 50%/cover no-repeat,#08121e!important}
+#cr .pn{background:linear-gradient(160deg,#142632ee,#0a1520f4)!important;border:1px solid #e2c27e55!important}
+#cr .creator-preview{position:relative;padding:18px 0 8px}
+#cr .creator-preview::before{content:'';position:absolute;left:50%;top:58%;width:min(300px,90%);aspect-ratio:2/1;transform:translate(-50%,-10%);border-radius:50%;
+ background:radial-gradient(ellipse,#63d7c044,#2e8f8018 55%,transparent 70%);box-shadow:0 0 0 1px #e2c27e33,0 0 0 9px #e2c27e10,inset 0 0 0 14px #63d7c010;z-index:0}
+#cr #pv{position:relative!important;z-index:1;width:min(320px,100%)!important}
+#cr .creator-badge{font-family:var(--xx-title);font-size:18px!important;color:var(--xx-gold)!important}
+
+/* ---------- panels fit short laptop screens (900 px) without cutting the last row */
+@media(max-height:960px) and (min-width:701px){
+ #world-dialog .inventory-dialog{max-height:calc(100dvh - 24px)!important;padding:18px 22px!important}
+ #cr{padding:12px!important}#cr .pn{padding:22px 30px 34px!important;max-height:calc(100dvh - 24px)!important}
+ #cr .creator-intro{margin-bottom:12px!important}
+}

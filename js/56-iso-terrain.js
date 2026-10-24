@@ -187,7 +187,17 @@
   const c=document.createElement('canvas');c.width=c.height=px;const ctx=c.getContext('2d');ctx.setTransform(S,0,0,S,-x0*S,-y0*S);
   cliffFaces(ctx,r,x0,y0);
   ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(top,0,0);
+  ctx.setTransform(S,0,0,S,-x0*S,-y0*S);plazaEdge(ctx,r);
   return c;}
+ // The spawn plaza is a raised flagstone dais: soft ground shadow, a carved south face
+ // under its two lower edges, and a warm highlight along the upper rim.
+ function plazaEdge(ctx,r){const [l,t,rt,b]=r.plaza.pts,h=8;ctx.save();
+  const sh=ctx.createLinearGradient(0,b[1]-30,0,b[1]+h+26);sh.addColorStop(0,'rgba(12,18,14,0)');sh.addColorStop(.6,'rgba(12,18,14,.22)');sh.addColorStop(1,'rgba(12,18,14,0)');
+  path(ctx,[[l[0]-6,l[1]+4],[b[0],b[1]+h+18],[rt[0]+6,rt[1]+4],[rt[0],rt[1]+h],[b[0],b[1]+h],[l[0],l[1]+h]]);ctx.fillStyle=sh;ctx.fill();
+  for(const [a,z,shade] of [[l,b,'rgba(92,80,66,.92)'],[b,rt,'rgba(64,56,48,.95)']]){path(ctx,[[a[0],a[1]],[z[0],z[1]],[z[0],z[1]+h],[a[0],a[1]+h]]);ctx.fillStyle=shade;ctx.fill();
+   ctx.strokeStyle='rgba(30,26,22,.5)';ctx.lineWidth=.6;for(let k=1;k<9;k++){const u=k/9,x=a[0]+(z[0]-a[0])*u,y=a[1]+(z[1]-a[1])*u;ctx.beginPath();ctx.moveTo(x,y+.5);ctx.lineTo(x,y+h);ctx.stroke();}}
+  ctx.strokeStyle='rgba(255,240,200,.55)';ctx.lineWidth=1.1;path(ctx,[l,t,rt],false);ctx.stroke();
+  ctx.strokeStyle='rgba(40,32,24,.55)';ctx.lineWidth=.9;path(ctx,[l,b,rt],false);ctx.stroke();ctx.restore();}
  // Cliffs hang under every south-facing coastline segment and fade into the mist.
  let lipTint=null;
  function cliffFaces(ctx,r,x0,y0){const H=190,pattern=cliff(ctx);if(!pattern)return;const coast=r.coast;lipTint=r.d.cliffTint||null;

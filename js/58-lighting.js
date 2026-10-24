@@ -20,7 +20,12 @@
  // ---------------------------------------------------------------- cast shadows
  const blob=document.createElement('canvas');blob.width=64;blob.height=32;{const c=blob.getContext('2d'),gr=c.createRadialGradient(32,16,0,32,16,16);gr.addColorStop(0,'rgba(8,14,20,.6)');gr.addColorStop(.6,'rgba(8,14,20,.25)');gr.addColorStop(1,'rgba(8,14,20,0)');c.setTransform(2,0,0,1,0,0);c.fillStyle=gr;c.fillRect(0,0,32,32);}
  let frame=null;
- function cast(ctx,x,y,height){if(ctx!==g||!frame||frame.sun<.05)return;const len=height*frame.len,w=Math.max(6,height*.22);
+ // Contact shadow: a tight dark pool right under the feet at every hour, so actors sit
+ // on the ground instead of floating at noon when the cast shadow is short.
+ const contact=document.createElement('canvas');contact.width=64;contact.height=32;{const c=contact.getContext('2d'),gr=c.createRadialGradient(32,16,0,32,16,16);gr.addColorStop(0,'rgba(6,10,14,.55)');gr.addColorStop(.55,'rgba(6,10,14,.28)');gr.addColorStop(1,'rgba(6,10,14,0)');c.setTransform(2,0,0,1,0,0);c.fillStyle=gr;c.fillRect(0,0,32,32);}
+ function cast(ctx,x,y,height){if(ctx!==g||!frame)return;const cw=Math.max(14,height*.5);
+  ctx.save();ctx.globalAlpha*=.8;ctx.drawImage(contact,x-cw/2,y-cw*.17,cw,cw*.34);ctx.restore();
+  if(frame.sun<.05)return;const len=height*frame.len,w=Math.max(6,height*.22);
   ctx.save();ctx.globalAlpha*=.42*frame.sun;ctx.translate(x+frame.dx*len*.5,y+frame.dy*len*.5);ctx.rotate(frame.angle);ctx.drawImage(blob,-len*.55,-w/2,len*1.1,w);ctx.restore();}
  const baseChar=drawChar;drawChar=function(ctx,x,y,dir,f,moving,t,attack,ap,...rest){if(ap)cast(ctx,x,y,62);return baseChar.call(this,ctx,x,y,dir,f,moving,t,attack,ap,...rest);};
  if(typeof mon==='function'){const baseMon=mon;mon=function(e){if(!e.corpse&&!e.duelTarget&&!e.pvpTarget){const kind=window.expeditionMonsters?.kinds.get(e.skin);cast(g,e.x,e.y,kind?kind.height*(e.boss?1.25:1):40);}return baseMon(e);};}
@@ -42,6 +47,11 @@
 
  // ---------------------------------------------------------------- night overlay (half resolution)
  const lm=document.createElement('canvas'),lc=lm.getContext('2d');
+ // One pre-rendered radial sprite per light colour (+ falloff), drawn with globalAlpha,
+ // instead of building ~100 canvas gradients every frame.
+ const glowSprites=new Map();
+ function glowSprite(rgb,mid){const key=rgb.join()+':'+mid;let c=glowSprites.get(key);if(c)return c;c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64),col=rgb.join(',');
+  gr.addColorStop(0,'rgba('+col+',1)');gr.addColorStop(.45,'rgba('+col+','+mid+')');gr.addColorStop(1,'rgba('+col+',0)');x.fillStyle=gr;x.fillRect(0,0,128,128);glowSprites.set(key,c);return c;}
  const baseDraw=dr;
  dr=function(){
   const p=phase(),h=p.h;
@@ -57,13 +67,13 @@
    lc.globalCompositeOperation='source-over';lc.fillStyle='rgb('+p.rgb.join(',')+')';lc.fillRect(0,0,w,hh);
    const night=Math.min(1,p.alpha/.45);
    if(night>.1){lc.globalCompositeOperation='lighter';
-    for(const s of lights){const flick=s.flicker?.92+Math.sin(tm*9+s.x)*.05+Math.sin(tm*13.7+s.y)*.03:1,x=(s.x-cx)*Z*k,y=(s.y-cy)*Z*k,r=s.r*Z*k*flick,gr=lc.createRadialGradient(x,y,0,x,y,r),c=s.rgb.join(','),a=(s.player?.55:.9)*night;
-     gr.addColorStop(0,'rgba('+c+','+a+')');gr.addColorStop(.45,'rgba('+c+','+a*.45+')');gr.addColorStop(1,'rgba('+c+',0)');lc.fillStyle=gr;lc.fillRect(x-r,y-r,r*2,r*2);}}
+    for(const s of lights){const flick=s.flicker?.92+Math.sin(tm*9+s.x)*.05+Math.sin(tm*13.7+s.y)*.03:1,x=(s.x-cx)*Z*k,y=(s.y-cy)*Z*k,r=s.r*Z*k*flick;
+     lc.globalAlpha=(s.player?.55:.9)*night;lc.drawImage(glowSprite(s.rgb,.45),x-r,y-r,r*2,r*2);}lc.globalAlpha=1;}
    g.save();g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=true;g.globalCompositeOperation='multiply';g.drawImage(lm,0,0,W,H);
    // A little bloom around flames and portals.
-   if(night>.3){g.globalCompositeOperation='lighter';
-    for(const s of lights){if(s.player)continue;const flick=s.flicker?.85+Math.sin(tm*9+s.x)*.1+Math.sin(tm*13.7+s.y)*.05:1,x=(s.x-cx)*Z,y=(s.y-cy)*Z,r=s.r*.32*Z,gr=g.createRadialGradient(x,y,0,x,y,r);
-     gr.addColorStop(0,'rgba('+s.rgb.join(',')+','+(.16*night*flick)+')');gr.addColorStop(1,'rgba('+s.rgb.join(',')+',0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2);}}
+   if(night>.3&&window.graphicsQuality?.bloom!==false){g.globalCompositeOperation='lighter';
+    for(const s of lights){if(s.player)continue;const flick=s.flicker?.85+Math.sin(tm*9+s.x)*.1+Math.sin(tm*13.7+s.y)*.05:1,x=(s.x-cx)*Z,y=(s.y-cy)*Z,r=s.r*.32*Z;
+     g.globalAlpha=.16*night*flick;g.drawImage(glowSprite(s.rgb,.5),x-r,y-r,r*2,r*2);}g.globalAlpha=1;}
    g.restore();
   }catch(e){state.error=e;g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
  };

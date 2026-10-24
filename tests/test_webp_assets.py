@@ -36,6 +36,31 @@ class WebpAssets(unittest.TestCase):
                 self.assertTrue(png.is_file() and webp.is_file())
                 self.assertEqual(webp_size(webp.read_bytes()[:40]), png_size(png.read_bytes()[:24]))
 
+    def test_display_variants_keep_aspect_and_stay_small(self):
+        """Item display variants (.d.webp) are uniform downscales: renderers size art from its ratio."""
+        text = (ROOT / 'js/00-display-manifest.js').read_text(encoding='utf-8')
+        variants = json.loads(text.split('=', 1)[1].strip().rstrip(';'))
+        self.assertGreater(len(variants), 80)
+        for path, (w, h) in variants.items():
+            with self.subTest(path=path):
+                png = ROOT / path
+                variant = png.with_name(png.stem + '.d.webp')
+                self.assertTrue(png.is_file() and variant.is_file())
+                self.assertEqual(webp_size(variant.read_bytes()[:40]), (w, h))
+                pw, ph = png_size(png.read_bytes()[:24])
+                self.assertLessEqual(max(w, h), 1024)
+                self.assertLess(abs(w / h - pw / ph), 0.01)
+                self.assertFalse(path.startswith('Item/TrangPhuc/'), 'outfit sheet is addressed by rectangles')
+
+    def test_monster_thumbnails_exist(self):
+        text = (ROOT / 'js/35n-monster-frames.js').read_text(encoding='utf-8')
+        frames = json.loads(text.split('=', 1)[1].strip().rstrip(';'))
+        for name in frames:
+            with self.subTest(name=name):
+                thumb = ROOT / 'Character/Monsters' / name / 'thumb.webp'
+                self.assertTrue(thumb.is_file())
+                self.assertLessEqual(max(webp_size(thumb.read_bytes()[:40])), 192)
+
     def test_bundler_keeps_every_script_in_order(self):
         import re
         import shutil

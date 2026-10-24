@@ -8,8 +8,8 @@
   const coarse=matchMedia('(pointer:coarse)');
   // contrast = overlay alpha of the frame onto itself; vignette = edge darkness.
   // Pale paved maps (city + four sect grounds) get a warm tone pull-down.
-  const STONE={tone:'rgb(222,212,198)',contrast:.42,vignette:.18};
-  const PROFILES={hub:STONE,sword:STONE,moon:STONE,thunder:STONE,mystic:STONE,default:{contrast:.24,vignette:.14}};
+  const STONE={tone:'rgb(226,217,203)',contrast:.34,vignette:.11};
+  const PROFILES={hub:STONE,sword:STONE,moon:STONE,thunder:STONE,mystic:STONE,default:{contrast:.22,vignette:.1}};
   const profile=scene=>PROFILES[scene]||PROFILES.default;
   const vig=document.createElement('canvas'),vc=vig.getContext('2d');let vigKey='';
   function paintVignette(w,h,strength){
@@ -33,7 +33,7 @@
       g.save();g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;
       // Tone: a light warm multiply pulls blown-out pale stone back from white.
       if(p.tone){g.globalCompositeOperation='multiply';g.fillStyle=p.tone;g.fillRect(0,0,W,H);}
-      if(frameCost<22&&!(coarse.matches&&W*H>5000000)){
+      if(window.graphicsQuality?.post!==false&&frameCost<22&&!(coarse.matches&&W*H>5000000)){
         g.globalCompositeOperation='overlay';g.globalAlpha=p.contrast;g.drawImage(cv,0,0);
       }
       paintVignette(W,H,p.vignette);

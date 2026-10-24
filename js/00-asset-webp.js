@@ -2,15 +2,17 @@
    Every <img>/Image() whose src points at Character/, Item/, Map/ or Skill/ *.png
    is rewritten to .webp when tools/build_webp.py produced one. */
 (function(){
- const list=window.webpAssets||[];if(!list.length)return;
+ const list=window.webpAssets||[],display=window.displayAssets||{};if(!list.length)return;
  const probe=document.createElement('canvas');probe.width=probe.height=1;
  if(!probe.toDataURL('image/webp').startsWith('data:image/webp'))return;
  const set=new Set(list),base=location.origin+location.pathname.replace(/[^/]*$/,'');
+ // Display-size variant (tools/build_display_variants.py): same aspect ratio, drawn small.
+ const pick=(key,file)=>Object.prototype.hasOwnProperty.call(display,key)?file.slice(0,-4)+'.d.webp':set.has(key)?file.slice(0,-4)+'.webp':null;
  function swap(value){if(typeof value!=='string'||!value.includes('.png'))return value;
   let path=value,prefix='';if(path.startsWith(base)){prefix=base;path=path.slice(base.length);}else if(/^[a-z]+:/i.test(path))return value;
   if(path.startsWith('/')){prefix+='/';path=path.slice(1);}const q=path.indexOf('?'),file=q<0?path:path.slice(0,q),rest=q<0?'':path.slice(q);
   let key=file;try{key=decodeURIComponent(file);}catch{}
-  return set.has(key)?prefix+file.slice(0,-4)+'.webp'+rest:value;}
+  const chosen=pick(key,file);return chosen?prefix+chosen+rest:value;}
  const desc=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');
  Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:desc.enumerable,get(){return desc.get.call(this);},set(v){desc.set.call(this,swap(v));}});
  const setAttribute=Element.prototype.setAttribute;

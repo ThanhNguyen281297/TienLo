@@ -43,6 +43,8 @@
  };
  const previousFrame=creatureArt.frame;creatureArt.frame=e=>pose(e)||previousFrame(e);
  creatureArt.ensureSpecies=name=>kinds.get(name)?.ensure();
- creatureArt.thumbnail=name=>{const kind=kinds.get(name);if(!kind)return creatureArt.species[name]?.poses?.[0]?.[0]?.image?.src||null;const image=kind.ensure();if(!ready(image))return null;const f=pose({skin:name,hx:0});return raster(f,128).toDataURL();};
+ // Portraits come from a pre-cut 192 px thumb (tools/build_display_variants.py), so a HUD
+ // button or dialog never downloads the whole 1 MB atlas for one 40-92 px picture.
+ creatureArt.thumbnail=name=>{const kind=kinds.get(name);if(!kind)return creatureArt.species[name]?.poses?.[0]?.[0]?.image?.src||null;return artworkURL('Character/Monsters/'+name+'/thumb.webp');};
  window.expeditionMonsters={kinds,pose};
 })();

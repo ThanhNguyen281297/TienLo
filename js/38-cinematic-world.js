@@ -44,7 +44,7 @@
   dr=function(){
     baseDraw();
     try{
-      if(!P.ap||!W||!H)return;
+      if(!P.ap||!W||!H||window.graphicsQuality?.cinematic===false)return;
       const w=Math.max(16,Math.ceil(W/SCALE)),h=Math.max(16,Math.ceil(H/SCALE)),key=w+'x'+h;
       if(key!==size){size=key;haze.width=lights.width=w;haze.height=lights.height=h;paintHaze(w,h);}
       const cam=gameCamera(),t=performance.now()/1000;

@@ -13,8 +13,10 @@
   window.characterEquipmentArt=(index,key)=>key==='vukhi'?'Item/VuKhi/'+classes[index].folder+'.png':equipmentArt[classes[index].folder][key];
   const assets=classes.map((info,index)=>{
     const result={Nam:{},Nu:{}};
+    // Bodies load on first use: a player only downloads the classes actually on screen.
     for(const gender of ['Nam','Nu'])for(const direction of ['truoc','sau','trai','phai']){
-      const img=new Image();img.src='Character/'+info.folder+'/'+gender+'/'+direction+'.png';result[gender][direction]=img;
+      const img=new Image(),src='Character/'+info.folder+'/'+gender+'/'+direction+'.png';
+      Object.defineProperty(result[gender],direction,{enumerable:true,get(){if(!img.src)img.src=src;return img;}});
     }
     for(const [key,folder] of [['vukhi','VuKhi']]){
       const img=new Image();img.src=characterEquipmentArt(index,key);result[key]=img;
