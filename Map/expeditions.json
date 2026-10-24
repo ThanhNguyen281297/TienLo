@@ -18,7 +18,7 @@
         "Ech"
       ],
       "boss": "Ech",
-      "dropRate": 25
+      "dropRate": 8
     },
     {
       "id": "rift-tide",
@@ -38,7 +38,7 @@
         "RongNuoc"
       ],
       "boss": "RongNuoc",
-      "dropRate": 30
+      "dropRate": 10
     },
     {
       "id": "rift-fire",
@@ -59,7 +59,7 @@
         "PhuongHoang"
       ],
       "boss": "PhuongHoang",
-      "dropRate": 35
+      "dropRate": 12
     },
     {
       "id": "rift-void",
@@ -79,7 +79,7 @@
         "RongXuong"
       ],
       "boss": "RongXuong",
-      "dropRate": 40
+      "dropRate": 14
     }
   ],
   "species": {

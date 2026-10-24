@@ -58,7 +58,7 @@ class EconomyUnitTests(unittest.TestCase):
 
     def test_normal_play_within_time_allowance(self):
         old = self.player()
-        new = self.player(gold=250, levelXp=300); new['world']['essence'] = 40
+        new = self.player(gold=250, levelXp=300); new['world']['essence'] = 12  # Linh Nguyên is scarce: ~0.15/s allowance
         self.assertEqual(self.enforce(old, new), [])
 
     def test_selling_items_explains_gold(self):

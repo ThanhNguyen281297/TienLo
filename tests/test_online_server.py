@@ -124,7 +124,7 @@ class OnlineServerTest(unittest.TestCase):
         def frame(auth,**extra):
             time.sleep(.14);status,data,_=self.request('/api/world',{'csrf':auth[1],'map':'field-meadow','x':525,'y':1320,'hp':100,'batch':server.secrets.token_hex(8),**extra},auth[0]);self.assertEqual(status,200);return data
         first=frame(a);frame(b);frame(outsider);mob=first['mobs'][0]
-        killed=frame(a,hits=[{'id':mob['id'],'power':40}]);self.assertTrue(killed['rewards'])
+        killed=frame(a,hits=[{'id':mob['id'],'power':40}]*4);self.assertTrue(killed['rewards'])
         self.assertTrue(frame(b)['rewards']);self.assertEqual(frame(outsider)['rewards'],[])
         self.assertEqual(self.request('/api/chat',{'csrf':a[1],'text':'Đội riêng','channel':'party'},a[0])[0],200)
         self.assertTrue(any(m['text']=='Đội riêng' for m in frame(b)['chat']))
@@ -414,7 +414,7 @@ class OnlineServerTest(unittest.TestCase):
         second=frame(b,cb,emote='wave')[1];self.assertEqual(second['players'][0]['name'],'Kiếm Một')
         first=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(first['mobs'][0]['hp'],mob['hp']-10)
         replay=frame(a,ca,hits=[{'id':mob['id'],'power':10}],batch='hit-one')[1];self.assertEqual(replay['mobs'][0]['hp'],mob['hp']-10)
-        killed=frame(b,cb,hits=[{'id':mob['id'],'power':50}])[1];self.assertEqual(killed['mobs'][0]['hp'],0);self.assertEqual(len(killed['rewards']),1)
+        killed=frame(b,cb,hits=[{'id':mob['id'],'power':50}]*3)[1];self.assertEqual(killed['mobs'][0]['hp'],0);self.assertEqual(len(killed['rewards']),1)
         reward=frame(a,ca)[1]['rewards'];self.assertEqual(len(reward),1)
         acknowledged=frame(a,ca,ack=[reward[0]['eventId']])[1];self.assertEqual(acknowledged['rewards'],[])
         self.assertEqual(self.request('/api/chat',{'csrf':ca,'text':'Xin chào <script>'},a)[0],200)

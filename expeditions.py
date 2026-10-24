@@ -1,5 +1,6 @@
 """Shared level-gated farming maps and durable, server-issued equipment drops."""
 import json
+import overworld
 import math
 import secrets
 import time
@@ -30,13 +31,13 @@ def room(scene,now):
         cx,cy=centers[i//6] if not boss else (1000,850)
         ox,oy=offsets[i%6] if not boss else (0,0)
         x,y=cx+ox,cy+oy
-        level=rule['level']+(5 if boss else i%5);hp=round((65+level*5)*(7 if boss else 1))
+        level=rule['level']+(5 if boss else i%5);hp=round(overworld.mob_hp(level)*(.8*7 if boss else .8))  # rifts: more mobs, a little softer each
         mobs.append(dict(id=f'{scene}:0:{i}',t=4 if boss else [0,1,3,4][i%4],skin=skin,
           name=RULES['species'][skin]['name']+(' · Thủ lĩnh' if boss else ''),level=level,
           x=x,y=y,hx=x,hy=y,hp=hp,maxHp=hp,dead=0,cd=1,fr=0,fl=0,worldMap=True,network=True,
           map=scene,expedition=True,boss=boss,elite=boss,camp='expedition',campX=1000,campY=1100,
-          campRX=620,campRY=340,attackScale=(1+level*.025)*(1.4 if boss else .85),
-          xpReward=round(level*(24 if boss else 5)),materialYield=0,contributors={}))
+          campRX=620,campRY=340,attackScale=overworld.mob_attack(level)*(1.5 if boss else .9),
+          xpReward=round(level*(24 if boss else 5)*1.4),materialYield=0,contributors={}))
     return dict(mobs=mobs,updated=now)
 
 def equipment_pool(scene,cls):
@@ -60,19 +61,22 @@ def queue_drop(db,uid,mob,event_id):
 def pending(db,uid):
     return db.execute('SELECT COUNT(*) FROM expedition_drops WHERE user_id=? AND claimed_at IS NULL',(uid,)).fetchone()[0]
 
+GEAR_PERMIL,STONE_PERMIL,REFINED_PERMIL=30,80,30
+
 def queue_farm_drop(db,uid,mob,event_id):
     if mob.get('tower'):return
     row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
     if not row:return
     player=json.loads(row['player']);cls=player['ap']['w'];level=mob.get('level',1)
-    if not mob.get('expedition') and secrets.randbelow(100)<16:
+    # Rare by design: gear 3%, Cường Hóa Thạch 8%, Tinh Luyện Thạch 3% (bosses always drop stones).
+    if not mob.get('expedition') and secrets.randbelow(1000)<GEAR_PERMIL:
         tier=max((t for t in (10,25,45,70) if t<=max(10,level)),default=10)
         rand_cls=secrets.randbelow(4)
         iid=f'exp-{tier}-{secrets.choice(("daobao","chan","giay"))}-class-{rand_cls}' if tier>10 else f'train-10-{secrets.choice(("daobao","chan","giay"))}-class-{rand_cls}'
         db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-gear',uid,mob['map'],iid,time.time()))
-    if secrets.randbelow(100)<35 or mob.get('boss'):
+    if secrets.randbelow(1000)<STONE_PERMIL or mob.get('boss'):
         db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-stone',uid,mob['map'],'cuong-hoa-thach',time.time()))
-    if level>=30 and (mob.get('boss') or secrets.randbelow(100)<12):
+    if level>=30 and (mob.get('boss') or secrets.randbelow(1000)<REFINED_PERMIL):
         db.execute('INSERT OR IGNORE INTO expedition_drops VALUES(?,?,?,?,?,NULL)',(event_id+'-refined',uid,mob['map'],'tinh-luyen-thach',time.time()))
 
 DROP_TTL=60

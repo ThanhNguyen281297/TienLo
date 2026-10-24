@@ -6,7 +6,7 @@ import equipment
 import adventure
 
 def cost(next_level):
-    return dict(stone=2+next_level*2,refined=max(0,next_level-9),essence=10+next_level*next_level*5)
+    return dict(stone=2+next_level*2,refined=max(0,next_level-9),essence=30+next_level*next_level*15)
 
 def action(db,owner,body,gm=False):
     row=db.execute('SELECT * FROM characters WHERE user_id=?',(owner,)).fetchone()

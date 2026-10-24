@@ -236,10 +236,10 @@ MOUNT_DROP = 3   # % chance of Cốt Long Minh Vương per chest
 
 
 def chest(level, cls):
-    reward = dict(gold=400 + level * 20, essence=40, fragments=8 + level // 5, items={'cuong-hoa-thach': 3})
+    reward = dict(gold=400 + level * 20, essence=25, fragments=6 + level // 6, items={'cuong-hoa-thach': 2})
     if level >= 30:
         reward['items']['tinh-luyen-thach'] = 1
-    if secrets.randbelow(100) < 35:
+    if secrets.randbelow(100) < 20:
         tier = max(t for t in GEAR_TIERS if t <= max(10, level))
         slot = ('daobao', 'chan', 'giay')[secrets.randbelow(3)]
         reward['gear'] = [f'exp-{tier}-{slot}-class-{cls}' if tier > 10 else f'train-10-{slot}-class-{cls}']

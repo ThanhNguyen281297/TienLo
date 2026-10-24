@@ -4,7 +4,7 @@
  const level=item=>slots.includes(item?.slot)?Math.max(0,Math.min(15,Number.isInteger(item?.enhance)?item.enhance:0)):0;
  const color=n=>n>=15?'#ffdc65':n>=14?'#ff5757':n>=11?'#ff9b45':n>=9?'#58b5ff':n>=1?'#64ed92':null;
  const stat=(item,key)=>Math.round(((Number(item?.[key])||0)*(1+level(item)*.05)+(equipmentData.optionStats?.(item)?.[key]||0))*100000)/100000;
- const cost=next=>({stone:2+next*2,refined:Math.max(0,next-9),essence:10+next*next*5});
+ const cost=next=>({stone:2+next*2,refined:Math.max(0,next-9),essence:30+next*next*15});
  const near=()=>worldMap.state.scene==='hub'&&Math.hypot(P.x-1240,P.y-1210)<=110;
  const selection={uid:null,materials:{},busy:false};
  async function enhance(uid=selection.uid){

@@ -17,8 +17,8 @@ import math
 
 import progression
 
-GOLD_PER_SEC, XP_PER_SEC, ESSENCE_PER_SEC = 30, 150, 3
-GOLD_SLACK, XP_SLACK, ESSENCE_SLACK = 400, 1000, 50
+GOLD_PER_SEC, XP_PER_SEC, ESSENCE_PER_SEC = 30, 150, .15
+GOLD_SLACK, XP_SLACK, ESSENCE_SLACK = 400, 1000, 15
 MAX_ELAPSED = 300
 
 
@@ -39,7 +39,7 @@ def credit_kill(db, uid, mob):
     essence = mob.get('materialYield', 0)
     db.execute('''INSERT INTO economy_budget(user_id,gold,xp,essence) VALUES(?,?,?,?)
         ON CONFLICT(user_id) DO UPDATE SET gold=gold+excluded.gold,xp=xp+excluded.xp,essence=essence+excluded.essence''',
-               (uid, gold * 2 + 5, xp * 2 + 10, (essence + 1) * 3))
+               (uid, gold * 2 + 5, xp * 2 + 10, max(1, essence) * 1.2 + .3))
 
 
 def total_xp(player):
