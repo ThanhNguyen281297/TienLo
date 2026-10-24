@@ -253,6 +253,10 @@ def grant(db, uid, player, reward):
         adventure.gain(player, reward['xp'])
     if reward.get('fragments'):
         adventure.grant_fragments(db, uid, reward['fragments'])
+    if reward.get('mount'):
+        __import__('mounts').grant(player, reward['mount'])
+    if reward.get('lot'):
+        __import__('auction').deliver(db, uid, player, reward['lot'], reward.get('from'))
 
 
 def describe(reward):
@@ -263,6 +267,7 @@ def describe(reward):
     if reward.get('fragments'): parts.append(f"{reward['fragments']} mảnh linh khí")
     for iid, qty in (reward.get('items') or {}).items(): parts.append(f"{qty} {equipment.TEMPLATES[iid]['name']}")
     for iid in reward.get('gear') or []: parts.append(equipment.TEMPLATES[iid]['name'])
+    if reward.get('mount'): parts.append('Thú cưỡi ' + __import__('mounts').BY_ID[reward['mount']]['name'])
     return ' · '.join(parts)
 
 

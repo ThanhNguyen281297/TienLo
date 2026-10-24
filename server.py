@@ -15,6 +15,9 @@ import raid
 import battle
 import outposts
 import fieldpk
+import mounts
+import auction
+AUCTION_SETTLED=0
 import hashlib
 import hmac
 import json
@@ -89,6 +92,8 @@ def init_db():
         engagement.init_db(db)
         raid.init_db(db)
         outposts.init_db(db)
+        mounts.init_db(db)
+        auction.init_db(db)
 
 
 def password_hash(password, salt=None):
@@ -178,12 +183,12 @@ def player_attack(player):
     level=player['r']*10+player['stage']-1
     gear,multiplier,_=equipment_stats(player)
     strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
-    return (8+level*1.3+(progression.level(player)-1)*.8+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0))*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
+    return (8+level*1.3+(progression.level(player)-1)*.8+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0)+mounts.bonus(player)['atk'])*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
 
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
-    hp=equipment_rules.bonuses(player).get('hp',0)+sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
+    hp=equipment_rules.bonuses(player).get('hp',0)+mounts.bonus(player)['hp']+sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
     return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
 
@@ -467,6 +472,8 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/engagement': return self.engagement(user)
             if path=='/api/raid': return self.raid(user)
             if path=='/api/battle': return self.battle(user)
+            if path=='/api/mounts': return self.mounts(user)
+            if path=='/api/auction': return self.auction(user)
             if path=='/api/pk':
                 with WORLD_LOCK:return self.reply(200,fieldpk.public(user['user_id']))
             if path=='/api/outposts':
@@ -535,6 +542,8 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/engagement': return self.engagement(user,body)
         if path=='/api/raid': return self.raid(user,body)
         if path=='/api/battle': return self.battle(user,body)
+        if path=='/api/mounts': return self.mounts(user,body)
+        if path=='/api/auction': return self.auction(user,body)
         if path=='/api/pk':
             try:
                 with WORLD_LOCK:return self.reply(200,fieldpk.toggle(user['user_id'],bool(body.get('on')),PEERS.get(user['user_id'],{}).get('map','')))
@@ -609,6 +618,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
             row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
+            mounts.preserve(json.loads(row['player']) if row else None,player)  # server-owned
             if trade.locked(db,uid):return self.reply(409,{'error':'Mở khóa giao dịch trước khi đổi hành trang.'})
             if row and row['revision']!=revision: return self.reply(409,{'error':'Nhân vật đã được cập nhật ở phiên khác. Tải lại để tiếp tục.','conflict':True})
             equipment_rules.validate(player,db,uid)
@@ -740,6 +750,29 @@ class GameHandler(SimpleHTTPRequestHandler):
             return self.reply(200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
+    def mounts(self,user,body=None):
+        try:
+            with DB_LOCK, connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                uid=user['user_id']
+                if body is not None and trade.locked(db,uid):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
+                row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
+                if not row:raise ValueError('Hãy tạo nhân vật trước.')
+                if body is None:result=dict(stable=mounts.view(json.loads(row['player']),adventure.wallet(db,uid)['fragments']))
+                else:result=mounts.action(db,uid,body)
+            return self.reply(409 if result.get('conflict') else 200,result)
+        except ValueError as error:return self.reply(409,{'error':str(error)})
+
+    def auction(self,user,body=None):
+        try:
+            with DB_LOCK, connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                uid=user['user_id']
+                if not db.execute('SELECT 1 FROM characters WHERE user_id=?',(uid,)).fetchone():raise ValueError('Hãy tạo nhân vật trước.')
+                result=auction.snapshot(db,uid) if body is None else auction.action(db,uid,body,PEERS)
+            return self.reply(409 if result.get('conflict') else 200,result)
+        except ValueError as error:return self.reply(409,{'error':str(error)})
+
     def battle(self,user,body=None):
         try:
             uid=user['user_id']
@@ -809,6 +842,8 @@ class GameHandler(SimpleHTTPRequestHandler):
             with DB_LOCK, connect() as db:
                 adventure.record_world(db,uid,scene,x,y,previous,bool(body.get('med')))
                 engagement.touch(db,uid)
+                global AUCTION_SETTLED
+                if time.time()-AUCTION_SETTLED>30:AUCTION_SETTLED=time.time();auction.settle(db)
                 if 'title' not in previous:previous['title']=engagement.title_of(db,uid)
             rank=0
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
@@ -824,6 +859,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if not isinstance(ack_sustain,list) or len(ack_sustain)>100:raise ValueError()
             peer['sustain']=[event for event in peer.get('sustain',[]) if event['id'] not in ack_sustain]
             peer['pet']=next((pet for pet in p.get('world',{}).get('pets',[]) if pet['id']==p.get('world',{}).get('activePet')),None)
+            peer['mount']=mounts.riding(p,scene,bool(body.get('ride'))) if not duel else None
             if tower_run:peer['towerToken']=tower_run['token']
             if raid_run:peer['raidToken']=raid_run['token']
             else:peer.pop('raidToken',None)
@@ -910,7 +946,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 with DB_LOCK, connect() as db:pk_damage,pk_events=fieldpk.step(db,key,scene,uid,peer,body,p,player_max_hp,player_attack,PEERS)
                 state=fieldpk.public(uid);peer['pk']=state['on'];peer['red']=state['red']
             else:peer['pk']=False
-            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast','hp','maxHp','title','team','pk','red')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
+            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast','hp','maxHp','title','team','pk','red','mount')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
             if scene=='duel':peers=[other for other in peers if PEERS[other['id']].get('duelId')==duel['id']]
             safe=scene in SECT_MAPS

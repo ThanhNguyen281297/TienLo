@@ -101,6 +101,10 @@ def record_kill(db,uid,mob,event):
 def grant_fragments(db,uid,amount):
     wallet(db,uid);db.execute('UPDATE adventure_wallet SET fragments=fragments+? WHERE user_id=?',(amount,uid))
 
+def spend_fragments(db,uid,amount):
+    wallet(db,uid)
+    return db.execute('UPDATE adventure_wallet SET fragments=fragments-? WHERE user_id=? AND fragments>=?',(amount,uid,amount)).rowcount==1
+
 def record_world(db,uid,scene,x,y,previous,med):
     if scene in ('duel','tower'):return
     if scene.startswith('rift-') and previous.get('map')!=scene:

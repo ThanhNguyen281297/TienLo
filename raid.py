@@ -232,6 +232,9 @@ def view(state, now):
                 slams=[dict(id=s['id'], x=s['x'], y=s['y'], r=s['r'], remain=round(max(0, s['at'] - now), 2), total=SLAM_DELAY) for s in raid['slams']])
 
 
+MOUNT_DROP = 3   # % chance of Cốt Long Minh Vương per chest
+
+
 def chest(level, cls):
     reward = dict(gold=400 + level * 20, essence=40, fragments=8 + level // 5, items={'cuong-hoa-thach': 3})
     if level >= 30:
@@ -240,6 +243,8 @@ def chest(level, cls):
         tier = max(t for t in GEAR_TIERS if t <= max(10, level))
         slot = ('daobao', 'chan', 'giay')[secrets.randbelow(3)]
         reward['gear'] = [f'exp-{tier}-{slot}-class-{cls}' if tier > 10 else f'train-10-{slot}-class-{cls}']
+    if secrets.randbelow(100) < MOUNT_DROP:
+        reward['mount'] = 'cot-long'
     return reward
 
 

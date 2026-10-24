@@ -79,7 +79,7 @@
     if(path!=='/api/trade'&&window.tradeGame?.locked())throw new Error('Mở khóa giao dịch trước khi dùng dịch vụ.');
     if(state.restoring||!await flush())throw new Error('Chưa lưu được nhân vật. Hãy thử lại.');
     clearTimeout(timer);state.restoring=true;
-    try{const result=await api(path,{...data,revision:state.revision});if(result.character){state.revision=result.character.revision;if(options.live){P.world.bag=structuredClone(result.character.player.world.bag);}else restore(result.character);}return result;}
+    try{const result=await api(path,{...data,revision:state.revision});if(result.character){state.revision=result.character.revision;if(options.live){const fresh=result.character.player;P.world.bag=structuredClone(fresh.world.bag);for(const key of options.world||[]){if(fresh.world[key]===undefined)delete P.world[key];else P.world[key]=structuredClone(fresh.world[key]);}if(options.gold)P.gold=fresh.gold;}else restore(result.character);}return result;}
     catch(e){if(e.conflict||!e.status){try{const latest=await api('/api/characters');if(latest.character){state.revision=latest.character.revision;restore(latest.character);}}catch{}}throw e;}
     finally{state.restoring=false;}
   }
