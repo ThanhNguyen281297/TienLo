@@ -26,15 +26,17 @@
  function backImage(ap){const item=gear(ap,'phapbao','backId');return item?image(data.appearance(item)):null;}
  function formationImage(ap){const item=gear(ap,'phaptran','formationId');return item?image(data.appearance(item)):null;}
  const reducedFormationMotion=matchMedia('(prefers-reduced-motion: reduce)');
- function drawFormation(ctx,x,y,ap){
+ function drawFormation(ctx,x,y,ap,fit,scale=1){
   const img=formationImage(ap);if(!img?.complete||!img.naturalWidth)return;
-  const width=86,height=width*img.naturalHeight/img.naturalWidth;
+  const width=86*scale,height=width*img.naturalHeight/img.naturalWidth;
   ctx.save();ctx.translate(x,y+1);ctx.scale(1,.43);
   ctx.rotate(reducedFormationMotion.matches?0:tm*.07);
   ctx.globalAlpha*=.9;renderArtwork(ctx,img,-width/2,-height/2,width,height);ctx.restore();
  }
- function drawShield(ctx,x,y,dir,facing,ap,front){const item=gear(ap,'ngoc','shieldId');if(!item||(dir===1)===front)return;const img=image('Item/Thuan/'+data.shieldVariant(item)+'.png');if(!img.complete||!img.naturalWidth)return;const w=23,h=23,side=-1;ctx.save();ctx.translate(x+side*(dir===2?15:18),y-19);ctx.scale(dir===2?.72:1,1);ctx.drawImage(img,-w/2,-h/2,w,h);ctx.restore();}
- function drawRing(ctx,x,y,dir,facing,ap){const item=gear(ap,'gioi','ringId');if(!item)return;const img=image(data.appearance(item));if(!img.complete||!img.naturalWidth)return;const tier=Math.max(0,rules.rings.findIndex(r=>r.id===item.id)),size=5+tier*.5,tone=['#d9b67b','#8de3bc','#85c9ff','#ffdc81'][tier];ctx.save();ctx.translate(x+(dir===2?facing*10:11),y-17);ctx.shadowColor=tone;ctx.shadowBlur=2+tier;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();}
+ // Shield on the off-hand forearm: a little over half the body height, foreshortened in profile.
+ function drawShield(ctx,x,y,dir,facing,ap,front,fit){const item=gear(ap,'ngoc','shieldId');if(!item)return;if(front!==null&&front!==undefined&&(dir===1)===front)return;const img=image('Item/Thuan/'+data.shieldVariant(item)+'.png');if(!img.complete||!img.naturalWidth)return;
+  const H=fit?.H||40,size=H*(dir===2?.4:.44),at=fit?.arm||{x:x-14,y:y-20};ctx.save();ctx.translate(at.x,at.y);ctx.scale(dir===2?.62:1,1);if(dir===2&&facing>0)ctx.scale(-1,1);ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();}
+ function drawRing(ctx,x,y,dir,facing,ap,fit){const item=gear(ap,'gioi','ringId');if(!item)return;const img=image(data.appearance(item));if(!img.complete||!img.naturalWidth)return;const tier=Math.max(0,rules.rings.findIndex(r=>r.id===item.id)),size=5+tier*.5,tone=['#d9b67b','#8de3bc','#85c9ff','#ffdc81'][tier];const at=fit?.hand||{x:x+(dir===2?facing*10:11),y:y-17};ctx.save();ctx.translate(at.x,at.y+1);ctx.shadowColor=tone;ctx.shadowBlur=2+tier;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();}
  function drawBuff(ctx,x,y,ap,front){const buff=ap===P.ap?state:ap?.shieldState;if(!buff||buff.activeUntil<=now()||(ap===P.ap&&!active()))return;const img=image('Item/BuffThuan/'+(buff.buff||1)+'.png');window.equipmentMotion?.drawBuff(ctx,img,x,y,buff.buff||1,front,tm,buff.activeUntil-now(),rules.shield.duration);}
  window.equipmentSystem={reforge,describe,damageTaken,sustain,receive,active,backImage,formationImage,drawFormation,drawShield,drawRing,drawBuff,get shield(){return state;}};
 })();

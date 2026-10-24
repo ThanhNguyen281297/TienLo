@@ -17,8 +17,10 @@
     const entry={source,shine,frame:-1};cache.set(image,entry);return entry;
   }
   function profile(image){const variant=Math.max(1,Math.min(12,Number(/\/(\d+)\.png/.exec(image?.src||'')?.[1])||9));return{variant,height:heights[variant-1],mount:mounts[variant-1],tone:tones[variant-1]};}
-  function mount(image,x,y,dir,facing,bob=0){
-    const p=profile(image);return{...p,x:x+(dir===2?-facing*8:0),y:y-24-bob,width:p.height*(image.naturalWidth||1)/(image.naturalHeight||1),squeeze:dir===2?.62:1};
+  // Mounted on the upper back (below the big chibi head), sized to the measured body.
+  function mount(image,x,y,dir,facing,bob=0,fit){
+    const p=profile(image),height=fit?Math.min(p.height,fit.H*1.42):p.height,at=fit?fit.spine:{x:x+(dir===2?-facing*8:0),y:y-24-bob};
+    return{...p,height,x:at.x,y:at.y,width:height*(image.naturalWidth||1)/(image.naturalHeight||1),squeeze:dir===2?.62:1};
   }
   // Adjacent strips share boundaries. The spine stays at x=0, y=0 in every pose.
   function cloth(ctx,source,w,h,pivot,t,strength){
@@ -38,13 +40,13 @@
     g.addColorStop(0,tone+'00');g.addColorStop(.44,tone+'00');g.addColorStop(.51,'#f6fff8');g.addColorStop(.57,tone+'88');g.addColorStop(1,tone+'00');
     c.fillStyle=g;c.fillRect(0,0,w,h);c.globalCompositeOperation='source-over';return entry.shine;
   }
-  function drawBack(ctx,image,x,y,dir,facing,bob,time){
+  function drawBack(ctx,image,x,y,dir,facing,bob,time,fit){
     const entry=prepared(image);if(!entry)return;
-    const m=mount(image,x,y,dir,facing,bob),t=reduced.matches?0:time;
+    const m=mount(image,x,y,dir,facing,bob,fit),t=reduced.matches?0:time;
     ctx.save();ctx.translate(m.x,m.y);ctx.scale(m.squeeze,1);
     if(dir===1){
       // A back mount can cover the robe and hair below the neck, never the head.
-      ctx.beginPath();ctx.rect(-120,-160,240,280);ctx.moveTo(7,-13);ctx.ellipse(0,-13,7,10,0,0,TAU);ctx.clip('evenodd');
+      const hy=fit?-(m.y-fit.top-fit.H*.24):-13,rx=fit?fit.H*.3:7,ry=fit?fit.H*.25:10;ctx.beginPath();ctx.rect(-120,-160,240,280);ctx.moveTo(rx,hy);ctx.ellipse(0,hy,rx,ry,0,0,TAU);ctx.clip('evenodd');
     }
     const strength=reduced.matches?0:([5,6,7,8,12].includes(m.variant)?.12:.055);
     cloth(ctx,entry.source,m.width,m.height,m.mount,t,strength);

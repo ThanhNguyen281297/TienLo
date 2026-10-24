@@ -87,7 +87,7 @@
   // Skill origin follows the fixed weapon beside the character.
   window.characterWeapon = {
     position: (index = classOf(P.ap), x = P.x, y = P.y, bob = 0) => {
-      return {x:x+28,y:y-24-bob};
+      return {x:x+12,y:y-26-bob};
     },
     trail: (ctx, points, end, offset, color) => {
       if (!points.length) return;
@@ -181,18 +181,35 @@
     const index = classOf(ap), info = classes[index], images = assets[index];
     const direction = dir === 1 ? 'sau' : dir === 2 ? (facing < 0 ? 'trai' : 'phai') : 'truoc';
     const bob = moving ? Math.abs(Math.sin(phase)) * 1.2 : Math.sin(tm * 2) * .4;
+    const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
+    const fitSpear = index === 2 && gender === 'Nam' ? spearMaleFit : null;
+    const bodyHeight = fitSpear ? fitSpear.height : 42;
+    const footOffset = fitSpear ? bodyHeight * (1 - fitSpear.feet[direction] / fitSpear.sourceHeight) : 0;
+    // Measure the painted body and centre its torso on x, so the formation, back
+    // treasure, shield and weapon all attach to the character that is really drawn.
+    const raw=window.characterFit?.(ap,direction,x,y-bob+footOffset,bodyHeight);
+    const shift=raw?Math.max(-9,Math.min(9,raw.cx-x)):0,feetX=x-shift;
+    const H=raw?raw.H:40,W=raw?Math.max(18,Math.min(34,raw.W)):24,top=raw?raw.top:y-bob-40,cx=x;
+    const fit={cx,top,H,W,bob,feetY:y,
+      // Weapon hand on the screen-right side (forward hand in side views), shield arm opposite.
+      // The chibi head fills the top half: hands sit at the hips (~3/4 down the body).
+      hand:dir===2?{x:cx+facing*(W*.55+3+(index===1||index===3?W*.15:0)),y:top+H*.78}:{x:cx+W*.5+1+(index===1||index===3?W*.12:0),y:top+H*.74},
+      arm:dir===2?{x:cx+facing*W*.16,y:top+H*.76}:{x:cx-W*.5-1,y:top+H*.7},
+      spine:{x:dir===2?cx-facing*W*.16:cx,y:top+H*.5}};
     ctx.save();
     ctx.imageSmoothingEnabled = true;
     // Only an equipped formation is projected onto the ground beneath the body.
-    window.equipmentSystem?.drawFormation(ctx,x,y,ap);
+    if(!window.equipmentSystem?.suppressFormation)window.equipmentSystem?.drawFormation(ctx,x,y,ap,fit);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
-    window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,false);
+    // Facing left the weapon hand is the far one; facing right the shield arm is.
+    const weaponBehind=dir===2&&facing<0,shieldFront=dir===2?facing<0:dir===0;
+    if(!shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);
     const back=window.equipmentSystem?.backImage(ap);
-    if(back&&dir!==1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm);
-    // The weapon keeps its class angle; the back mount follows the spine.
-    const angle = [-.18,-.3,.12,-.2][index];
-    const weapon = window.characterWeapon.position(index, x, y, bob);
-    const wx = weapon.x, wy = weapon.y;
+    if(back&&dir!==1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
+    // The weapon keeps its class angle; its grip sits in the hand.
+    // Held at the side, tilted outward (forward in profile) so it never covers the face.
+    const lean=[.2,.28,.12,.3][index],angle=dir===2?facing*(lean+.12):lean,scale=Math.min(1.14,H*.86/36);
+    const grip=13*scale,wx=fit.hand.x+Math.sin(angle)*grip,wy=fit.hand.y-Math.cos(angle)*grip;
     const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3,than:4}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
     const weaponColor=weaponTones[index];
     const drawWeapon = () => {
@@ -201,7 +218,7 @@
       ctx.save();
       ctx.translate(wx, wy);
       ctx.rotate(angle);
-    ctx.scale(1.14,1.14);
+      if(dir===2&&facing<0)ctx.scale(-scale,scale);else ctx.scale(scale,scale);
       weaponEnergy(ctx,index,quality,attacking,false);
       ctx.shadowColor = weaponColor;
       ctx.shadowBlur = attacking ? 7 : 3+quality*.5;
@@ -212,24 +229,21 @@
       weaponEnergy(ctx,index,quality,attacking,true);
       ctx.restore();
     };
-    const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
-    const fit = index === 2 && gender === 'Nam' ? spearMaleFit : null;
-    const bodyHeight = fit ? fit.height : 42;
-    const footOffset = fit ? bodyHeight * (1 - fit.feet[direction] / fit.sourceHeight) : 0;
+    if(weaponBehind)drawWeapon();
     const bodyImage=images[gender][direction],bodyWidth=bodyHeight*bodyImage.naturalWidth/(bodyImage.naturalHeight||1);
     let renderedBody=null;
     if(ready(bodyImage)){
-      const left=x-bodyWidth/2,top=y-bob+footOffset-bodyHeight;
-      if(window.characterMasks)renderedBody=characterMasks.drawBody(ctx,bodyImage,ap,direction,left,top,bodyWidth,bodyHeight,{x,y:y-bob},{moving,phase,meditating:ap===P.ap?!!P.med:!!ap?.meditating});
-      else renderArtwork(ctx,bodyImage,left,top,bodyWidth,bodyHeight);
+      const left=feetX-bodyWidth/2,bodyTop=y-bob+footOffset-bodyHeight;
+      if(window.characterMasks)renderedBody=characterMasks.drawBody(ctx,bodyImage,ap,direction,left,bodyTop,bodyWidth,bodyHeight,{x:feetX,y:y-bob+footOffset},{moving,phase,meditating:ap===P.ap?!!P.med:!!ap?.meditating});
+      else renderArtwork(ctx,bodyImage,left,bodyTop,bodyWidth,bodyHeight);
     }
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
-    const outlined=renderedBody||{image:bodyImage,x:x-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
+    const outlined=renderedBody||{image:bodyImage,x:feetX-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
     window.equipmentProgression?.outline(ctx,outlined.image,outlined.x,outlined.y,outlined.width,outlined.height,bodyLevel||0);
-    drawWeapon();
-    if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm);
-    window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,true);
-    window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap);
+    if(!weaponBehind)drawWeapon();
+    if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
+    if(shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);
+    window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap,fit);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,true);
     ctx.restore();
   };

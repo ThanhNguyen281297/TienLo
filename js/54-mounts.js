@@ -60,8 +60,10 @@
   const hit=raster(fr,look.h),face=f<0?-1:1,hover=look.fly?look.fly+Math.sin(tm*3+m.phase*9)*2.5:0,top=y-hover;
   const flip=(face>0)!==fr.faceRight?-1:1,riderX=x+((hit.center-fr.f.anchor[0])*hit.scale*flip)+look.dx*face,lift=look.h*look.lift;
   shadow(ctx,x,y,look.h*.42,look.fly?.22:.3);
+  // The rider's formation spreads on the ground under the mount, not at saddle height.
+  const eq=window.equipmentSystem;eq?.drawFormation?.(ctx,x,y,ap,null,Math.max(1.15,look.h*2.1/86));
   place(ctx,hit,fr,x,top,face,hit.canvas);
-  const r=baseDraw.call(this,ctx,riderX,top-lift,2,face,false,t,attack,ap,...rest);
+  if(eq)eq.suppressFormation=true;let r;try{r=baseDraw.call(this,ctx,riderX,top-lift,2,face,false,t,attack,ap,...rest);}finally{if(eq)eq.suppressFormation=false;}
   place(ctx,hit,fr,x,top,face,front(hit,look.h*look.cover));
   if(look.fly&&m.moving&&Math.random()<.3)PT.push({x:x+rn(-12,12),y:top-rn(0,8),vx:-face*rn(10,30),vy:rn(-8,4),l:.6,m:.6,c:species==='RongNuoc'?'#9fdcff':species==='RongXuong'?'#7fb6ff':'#ffb36a',s:rn(1,2)});
   return r;};
