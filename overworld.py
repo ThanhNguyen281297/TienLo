@@ -16,7 +16,7 @@ def safe(x,y):return math.hypot(x-1000,y-1770)<115
 # level's tier, light enhancement) and ~3.4x attack per second from skills + basics:
 # a same-level mob takes ~4 s to kill; three mobs at once down that player in ~20-35 s.
 def mob_hp(level):return round(60+70*level+.15*level*level)
-def mob_attack(level):return .69+.124*level   # x {4,9,6,10} per type, per second in melee
+def mob_attack(level):return (.69+.124*level)*min(1,.6+.04*level)  # newbie camps (lv<10) hit softer   # x {4,9,6,10} per type, per second in melee
 
 def room(scene):
     rule=MAPS[scene];mobs=[]

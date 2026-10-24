@@ -58,7 +58,9 @@
       const result=await api('/api/characters',{revision:state.revision,player:snapshot()},{keepalive:true});
       state.revision=result.revision;ok=true;notice.textContent='Đã lưu trên server';
       // The server clamped income it could not verify: reload its authoritative copy.
-      if(result.corrected){try{const latest=await api('/api/characters');if(latest.character){state.revision=latest.character.revision;restore(latest.character);}}catch{}msg('Đã đồng bộ lại chỉ số với server.');}
+      if(result.corrected){try{const latest=await api('/api/characters');if(latest.character){state.revision=latest.character.revision;
+        // Only the clamped values are adopted: a full restore would reload the map and stop Auto mid-hunt.
+        const fresh=latest.character.player;if(result.corrected.includes('gold'))P.gold=fresh.gold;if(result.corrected.includes('essence')&&P.world&&fresh.world)P.world.essence=fresh.world.essence;if(result.corrected.includes('level')){P.level=fresh.level;P.levelXp=fresh.levelXp;characterProgression.normalize(P);}if(typeof hud==='function')hud();}}catch{}}
     }catch(e){
       notice.textContent=e.message;console.error('Lưu nhân vật:',e);
       if(e.status===401){state.ready=false;panel.hidden=false;error.textContent='Phiên đã hết hạn. Đăng nhập lại để tiếp tục.';}

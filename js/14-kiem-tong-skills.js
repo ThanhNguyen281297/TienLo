@@ -97,7 +97,9 @@
     if(Math.abs(dir.x)>Math.abs(dir.y)){P.dir=2;P.f=dir.x<0?-1:1;}else P.dir=dir.y<0?1:0;
     state.slash.push({kind:'dash',start:{x:P.x,y:P.y},end,angle:Math.atan2(dir.y,dir.x),age:0,duration:.35});
   }
-  function startField() {state.field={x:P.x,y:P.y,radius:98,age:0,duration:4.8,pulse:0,power:window.skillPower?.(2,atk()*.7)??atk()*.7,source:backPosition(0)};}
+  // Skill 3 is placed like the ultimate: at the aim point, up to 260 away.
+  function fieldPoint(){const t=target(),d=distance(t,P)||1,k=Math.min(1,260/d);return{x:P.x+(t.x-P.x)*k,y:P.y+(t.y-P.y)*k};}
+  function startField() {const at=fieldPoint();state.field={x:at.x,y:at.y,radius:98,age:0,duration:4.8,pulse:0,power:window.skillPower?.(2,atk()*.7)??atk()*.7,source:backPosition(0)};}
   function startUltimate() {
     const point=target();
     const sources=Array.from({length:5},(_,slot)=>{

@@ -4,7 +4,8 @@
   const fallbackCombat=()=>P.ap?.w===1?window.moonCombat:window.kiemCombat;
   const combat=()=>{try{if(typeof getClassCombat==='function')return getClassCombat()||fallbackCombat();}catch(e){}return (typeof window!=='undefined'&&window.getClassCombat&&window.getClassCombat())||fallbackCombat()||window.classCombat;};
   window.getClassCombatSafe=combat;
-  const range=index=>index===1?(P.ap?.w===1?185:180):index===3?(P.ap?.w===1?320:340):(P.ap?.w===1?240:280);
+  const range=index=>index===1?(P.ap?.w===1?185:180):index===2?260:index===3?(P.ap?.w===1?320:340):(P.ap?.w===1?240:280);
+  const FIELD=[98,102,110,110];
   const camera=()=>gameCamera();
   function aim(point){try{if(window.kiemCombat)kiemCombat.state.aim={...point};}catch(e){}try{if(window.moonCombat)moonCombat.state.aim={...point};}catch(e){}try{if(window.newClassCombat)newClassCombat.state.aim={...point};}catch(e){}}
   cv.addEventListener('pointermove',event=>{
@@ -27,7 +28,9 @@
       if(event.button!==0||paused()||window.worldMap?.dialog.isOpen()||button.disabled||state.drag)return;
       event.preventDefault();event.stopPropagation();state.index=index;
       state.drag={id:event.pointerId,index,x:event.clientX,y:event.clientY,button,previous:combat().state.aim?{...combat().state.aim}:null};
-      if(!combat().state.aim)aim({x:P.x+(P.dir===2?P.f:0)*range(index),y:P.y+(P.dir===1?-1:P.dir===2?0:1)*range(index)});
+      // A tap on skill 3 (no drag) lands on the nearest enemy in range, or under the feet.
+      if(index===2){let best=null,bd=range(2);for(const e of E)if(e&&!e.dead&&e.hp>0){const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<bd){bd=d;best=e;}}aim(best?{x:best.x,y:best.y}:{x:P.x,y:P.y});}
+      else if(!combat().state.aim)aim({x:P.x+(P.dir===2?P.f:0)*range(index),y:P.y+(P.dir===1?-1:P.dir===2?0:1)*range(index)});
       button.setPointerCapture(event.pointerId);cancel.classList.add('active');state.visible=true;
     });
     button.addEventListener('pointermove',event=>{
@@ -62,10 +65,9 @@
     const invalid=index===1&&P.ap.w===1&&window.worldMap?.canWalk&&!worldMap.canWalk(end);
     g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);g.strokeStyle=invalid?'#ff9d94':P.ap.w===1?'#d9fcff':'#83edff';g.fillStyle=g.strokeStyle;g.lineWidth=1.2;g.globalAlpha=state.drag?.85:.45;g.setLineDash([5,4]);
     if(P.ap.w>=2&&index===1){const angle=Math.atan2(dy,dx),width=P.ap.w===2?Math.PI*1.35:Math.PI*.6,radius=P.ap.w===2?145:165;g.beginPath();g.moveTo(P.x,P.y);g.arc(P.x,P.y,radius,angle-width/2,angle+width/2);g.closePath();g.stroke();}
-    else if(index===2){g.beginPath();g.ellipse(P.x,P.y,P.ap.w===1?102:98,(P.ap.w===1?102:98)*.58,0,0,Math.PI*2);g.stroke();}
     else{
       g.beginPath();g.moveTo(P.x,P.y);g.lineTo(end.x,end.y);g.stroke();g.setLineDash([]);
-      if(index===3){g.beginPath();g.ellipse(end.x,end.y,P.ap.w===1?132:105,(P.ap.w===1?132:105)*.58,0,0,Math.PI*2);g.stroke();}
+      if(index===3||index===2){const r=index===2?FIELD[P.ap.w]:P.ap.w===1?132:105;g.beginPath();g.ellipse(end.x,end.y,r,r*.58,0,0,Math.PI*2);g.stroke();}
       else{
         const angle=Math.atan2(dy,dx),near=Math.min(length,Math.min(W/Z,H/Z)*.3),arrow={x:P.x+dx/d*near,y:P.y+dy/d*near};
         g.beginPath();g.moveTo(arrow.x,arrow.y);g.lineTo(arrow.x-Math.cos(angle-.5)*8,arrow.y-Math.sin(angle-.5)*8);g.moveTo(arrow.x,arrow.y);g.lineTo(arrow.x-Math.cos(angle+.5)*8,arrow.y-Math.sin(angle+.5)*8);g.stroke();

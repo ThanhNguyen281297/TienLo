@@ -81,7 +81,7 @@
     const dx=end.x-P.x,dy=end.y-P.y;if(Math.abs(dx)>Math.abs(dy)){P.dir=2;P.f=dx<0?-1:1;}else if(dx||dy)P.dir=dy<0?1:0;
     P.x=end.x;P.y=end.y;K={};ptr=null;
   }
-  function startField(){state.field={x:P.x,y:P.y,radius:102,age:0,duration:5.2,pulses:0,power:window.skillPower?.(2,atk())??atk(),source:home(0),contacts:[new Map(),new Map(),new Map()]};}
+  function startField(){const at=target(260);state.field={x:at.x,y:at.y,radius:102,age:0,duration:5.2,pulses:0,power:window.skillPower?.(2,atk())??atk(),source:home(0),contacts:[new Map(),new Map(),new Map()]};}
   function startUltimate(){
     const point=target(320),sources=Array.from({length:3},(_,slot)=>home(slot));
     state.flying.length=0;state.field=null;

@@ -122,7 +122,9 @@
     if(world.state.scene==='hub'){
       const positions={palace:[1000,805,400],school:[700,925,200],board:[1290,925,100],market:[625,1150,185],hubBazaar:[625,1150,185],forge:[1375,1145,180],tower:[1300,1345,190],portal:[1000,1300,70],garden:[720,1395,150]};
       for(const b of world.buildings){if(b.key==='arena')b.key='tower';const p=positions[b.key];if(p){[b.x,b.y,b.w]=p;if(b.solid)b.solid=[-b.w*.26,-12,b.w*.26,-2];}if(b.key==='market')b.key='hubBazaar';}
-      const services={quest:[1000,935],shop:[760,1210],forge:[1240,1210],teleport:[1000,1330],tower:[1240,1385],rank:[1240,1015],skills:[760,1000]};
+      // North: story and learning · West: commerce · East: craft and arena · South: the travel plaza
+      // (teleport circle with the four rift gates around it, Ma Quật at the city gate).
+      const services={quest:[1000,935],shop:[775,1215],forge:[1230,1215],teleport:[1000,1330],tower:[1250,1395],rank:[1235,1005],skills:[770,1000]};
       for(const s of world.services){if(s.id==='arena')s.id='tower';if(services[s.id])[s.x,s.y]=services[s.id];}
       return;
     }

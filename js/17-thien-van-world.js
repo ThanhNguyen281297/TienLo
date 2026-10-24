@@ -150,7 +150,7 @@
   function openSkills(){if(window.cultivation)return cultivation.openTrainer();const sword=P.ap.w===0;show('Truyền Công Các',sword?'Kiếm Tông · Kiếm khí và tốc độ':'Minh Nguyệt Tông · Nguyệt nhận và khống chế');
     const names=sword?['Phi Kiếm Quyết','Kiếm Ảnh Bộ','Bát Quái Kiếm Trận','Vạn Kiếm Quy Tông']:['Tam Nguyệt Trảm','Nguyệt Ảnh Bộ','Nguyệt Luân Trận','Minh Nguyệt Giáng Thế'];
     names.forEach((name,i)=>line((i+1)+'. '+name+' · '+(P.r>=i?'Đã lĩnh hội': 'Mở tại '+R[i])));
-    line('Chuột để ngắm; giữ/kéo/thả nút skill trên điện thoại. Trận pháp đặt dưới chân. Tông môn được giữ cố định.');
+    line('Chuột để ngắm; giữ/kéo/thả nút skill trên điện thoại. Skill 3 và tuyệt kỹ đặt tại điểm ngắm. Tông môn được giữ cố định.');
     action('Ôn luyện · hồi đầy linh lực miễn phí',()=>{P.mp=mmp();saveCharacter();close();msg('Linh lực đã đầy. Hãy luyện kỹ năng ngoài thành hoặc trong đấu trường.');});
   }
   function travel(id){if(window.worldMap?.switchScene)return window.worldMap.switchScene(id);const region=regions.find(r=>r.id===id);if(!region)return;classCombat.onRespawn();P.x=region.x;P.y=region.y;P.med=0;resolve(P);K={};ptr=null;kiemCombat.state.aim=moonCombat.state.aim=null;skillAim.state.visible=false;close();saveCharacter();msg('Đã truyền tống tới '+region.name+'.');}

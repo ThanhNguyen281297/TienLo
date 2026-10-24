@@ -14,7 +14,7 @@
   RongNuoc:{h:82,lift:.42,dx:0,fly:9},PhuongHoang:{h:84,lift:.4,dx:-2,fly:12},RongXuong:{h:80,lift:.46,dx:-4,fly:10}};
  const STATS={'doc-thiem':[30,2],'bang-lang':[80,5],'loi-te':[160,9],'diem-hat':[140,12],'thuy-long':[260,16],'phan-phuong':[320,22],'cot-long':[360,26]};
  const NO_RIDE=new Set(['arena','battle','raid','tower','worldboss','duel']);
- const STABLE={x:830,y:1345};
+ const STABLE={x:445,y:1160};
  const state={stable:null,busy:false,combatUntil:0,pref:true};
  try{state.pref=localStorage.getItem('tienlo.ride')!=='0';}catch{}
  const record=()=>P.world?.mounts||null;
@@ -110,7 +110,7 @@
  const npc=creatureArt.drawNpc;creatureArt.drawNpc=function(ctx,s){return npc.call(this,ctx,s.id==='stable'?{...s,id:'arena'}:s);};
  // Two tethered mounts idle beside the stable master.
  world.queueActors=(previous=>function(items,cx,cy,vw,vh){previous.call(this,items,cx,cy,vw,vh);if(world.state.scene!=='hub')return;
-  for(const [species,x,y,f] of [['Soi',STABLE.x-48,STABLE.y+44,1],['TeGiac',STABLE.x+62,STABLE.y+40,-1]])if(x>cx-80&&x<cx+vw+80&&y>cy-80&&y<cy+vh+80)items.push([y,()=>{const fr=frame(species,false,x*.01);if(!fr)return;const hit=raster(fr,LOOK[species].h);shadow(g,x,y,LOOK[species].h*.42,.3);place(g,hit,fr,x,y,f,hit.canvas);}]);})(world.queueActors);
+  for(const [species,x,y,f] of [['Soi',STABLE.x-52,STABLE.y-32,1],['TeGiac',STABLE.x+62,STABLE.y+28,-1]])if(x>cx-80&&x<cx+vw+80&&y>cy-80&&y<cy+vh+80)items.push([y,()=>{const fr=frame(species,false,x*.01);if(!fr)return;const hit=raster(fr,LOOK[species].h);shadow(g,x,y,LOOK[species].h*.42,.3);place(g,hit,fr,x,y,f,hit.canvas);}]);})(world.queueActors);
 
  async function load(){try{state.stable=(await account.api('/api/mounts')).stable;}catch(e){msg(e.message);}}
  async function act(action,id){if(state.busy)return;state.busy=true;try{const result=await account.transact('/api/mounts',{action,id,opId:crypto.randomUUID()},{live:true,gold:true,world:["mounts","equip"]});state.stable=result.stable;if(result.message)msg(result.message);

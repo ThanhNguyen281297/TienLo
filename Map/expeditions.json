@@ -8,8 +8,8 @@
       "level": 10,
       "tier": 1,
       "portal": {
-        "x": 1320,
-        "y": 1245
+        "x": 865,
+        "y": 1365
       },
       "theme": "mystic",
       "color": "#9be1ad",
@@ -27,8 +27,8 @@
       "level": 25,
       "tier": 2,
       "portal": {
-        "x": 680,
-        "y": 1245
+        "x": 915,
+        "y": 1440
       },
       "theme": "thunder",
       "color": "#8cd9ff",
@@ -47,8 +47,8 @@
       "level": 45,
       "tier": 3,
       "portal": {
-        "x": 1000,
-        "y": 1380
+        "x": 1085,
+        "y": 1440
       },
       "theme": "arena",
       "color": "#ffc28b",
@@ -68,8 +68,8 @@
       "level": 70,
       "tier": 4,
       "portal": {
-        "x": 1000,
-        "y": 985
+        "x": 1135,
+        "y": 1365
       },
       "theme": "worldboss",
       "color": "#c6a4ff",

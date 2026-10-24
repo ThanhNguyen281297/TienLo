@@ -77,10 +77,29 @@
     try { if (window.moonCombat) moonCombat.state.aim = { x: point.x, y: point.y }; } catch (e) {}
     try { if (window.newClassCombat) newClassCombat.state.aim = { x: point.x, y: point.y }; } catch (e) {}
   }
+  // Auto-farm stays inside one hunting camp: the camp of the first target (or the
+  // spot where auto started, in rifts and other maps without camps). Walking by
+  // hand re-anchors it; the bot never wanders into the next camp on its own.
+  const LEASH = 300;
+  function anchor() {
+    if (state.anchor && state.anchor.scene === worldMap.state?.scene) return state.anchor;
+    let best = null;
+    for (const e of E) if (alive(e) && e.camp && Number.isFinite(e.campX)) {
+      const d = Math.hypot(e.campX - P.x, e.campY - P.y);
+      if (d < 420 && (!best || d < best.d)) best = { d, camp: e.camp, x: e.campX, y: e.campY, rx: e.campRX || 190, ry: e.campRY || 150 };
+    }
+    state.anchor = best ? { scene: worldMap.state?.scene, camp: best.camp, x: best.x, y: best.y, rx: best.rx, ry: best.ry }
+      : { scene: worldMap.state?.scene, camp: null, x: P.x, y: P.y };
+    return state.anchor;
+  }
+  function inLeash(e, a) {
+    if (a.camp) return e.camp === a.camp || (!e.camp && Math.hypot(e.x - a.x, e.y - a.y) < LEASH);
+    return Math.hypot(e.x - a.x, e.y - a.y) < LEASH;
+  }
   function findTarget() {
-    const candidates=[];
+    const candidates=[],a=anchor();
     for (const e of E) {
-      if (!alive(e)) continue;
+      if (!alive(e) || !inLeash(e, a)) continue;
       const d = (e.x - P.x) * (e.x - P.x) + (e.y - P.y) * (e.y - P.y);
       if(d<SEARCH_RADIUS*SEARCH_RADIUS)candidates.push({e,d});
     }
@@ -108,7 +127,7 @@
     // Ranged classes must approach to place a field or use their short skill,
     // rather than stopping forever at normal-attack range.
     const policy=plan(target);
-    const range = Math.min(basicRange(),policy.skills[2]&&canUseSkill(2)?90:policy.skills[1]&&canUseSkill(1)?140:basicRange());
+    const range = Math.min(basicRange(),policy.skills[2]&&canUseSkill(2)?230:policy.skills[1]&&canUseSkill(1)?140:basicRange());
     const dx = target.x - P.x, dy = target.y - P.y, d = Math.hypot(dx, dy);
     if (d <= range * 0.9) return;
     const speed = 150 + (P.r || 0) * 10;
@@ -121,6 +140,12 @@
       P.med = 0;
       face(target);
     } catch (e) {}
+  }
+  function returnToAnchor(dt) {
+    const a = state.anchor;if (!a || manualMoving()) return;
+    const dx = a.x - P.x, dy = a.y - P.y, d = Math.hypot(dx, dy);if (d < 60) return;
+    const step = Math.min(d - 40, (150 + (P.r || 0) * 10) * dt), to = { x: P.x + dx / d * step, y: P.y + dy / d * step };
+    const end = worldMap.traceMove ? worldMap.traceMove(P, to) : to;P.x = end.x;P.y = end.y;face(a);
   }
   function tryAutoSkills(target) {
     if (!target) return;
@@ -136,7 +161,7 @@
       if (!canUseSkill(i)) continue;
       if (i === 0 && d > 300) continue;
       if (i === 1 && d > 190) continue;
-      if (i === 2 && d > 90) continue;
+      if (i === 2 && d > 250) continue;
       if(i===1&&P.ap.w===0&&combat().state.field)continue;
       if (i === 3) {
         if (d > 330) continue;
@@ -202,6 +227,7 @@
   }
   function toggle(force) {
     state.enabled = typeof force === 'boolean' ? force : !state.enabled;
+    state.anchor = null;
     try {
       const btn = $('auto-button');
       if (btn) {
@@ -264,7 +290,9 @@
           try {
             if (window.cultivation && cultivation.basicSelection && cultivation.basicSelection().target) cultivation.select(null);
           } catch (e) {}
+          returnToAnchor(dt);
         }
+        if (manualMoving()) state.anchor = null;
       } catch (e) {}
     }
     prevUp(dt);

@@ -27,7 +27,7 @@
         if(stacks(e)){strike(e,power*(thunder()?1:.55),i);consume(e,thunder());flash(e,0);}
         if(!thunder()){const d=distance(e,P)||1,to={x:e.x+(e.x-P.x)/d*25,y:e.y+(e.y-P.y)/d*25},p=worldMap?.traceMove?worldMap.traceMove(e,to):to;e.x=p.x;e.y=p.y;control(e,1.5,.55);}
       }
-    }else if(i===2)state.field={x:P.x,y:P.y,radius:110,age:0,pulses:0,power};
+    }else if(i===2){const at=target(260);state.field={x:at.x,y:at.y,radius:110,age:0,pulses:0,power};}
     else state.ultimate={...end,radius:140,age:0,finished:false,power};
   }
   const baseHit=hit;hit=function(e,power){return baseHit(e,power*(!window.petCombat?.dealing&&active()&&!thunder()&&state.field&&inside(e,state.field)?1.15:1));};

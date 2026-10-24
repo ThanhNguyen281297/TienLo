@@ -9,7 +9,7 @@ import progression
 QUALITIES=(('pham','Thường','#d4cbb6',10,1),('huyen','Hiếm','#70df9c',15,10),('linh','Cực hiếm','#6fc8ff',20,25),('tien','Siêu phẩm','#cf9cff',25,45),('than','Thần phẩm','#ffcc70',30,70))
 MAIN=[
  ('awakening','Duyên khởi Thiên Vân','Dạo bước quanh quảng trường, gặp Vân Châu để bắt đầu hành trình.','walk',120,1,120,30,0),
- ('first-blood','Dấu vết yêu khí','Đến Thanh Phong Trúc Lâm và hạ 10 yêu thú từ cấp 1.','hunt:1',10,1,500,80,1),
+ ('first-blood','Dấu vết yêu khí','Đến Thanh Phong Nguyên và hạ 10 yêu thú từ cấp 1.','hunt:1',10,1,500,80,1),
  ('watch','Con đường tu tiên','Hạ 25 yêu thú từ cấp 3 trong các vùng săn.','hunt:3',25,3,1200,120,2),
  ('city','Mật thư Thiên Vân','Đạt cấp 5 rồi trở lại Thiên Vân Thành.','visit:hub',1,5,1500,150,2),
  ('wood-gate','Thanh Mộc trừ yêu','Hạ 50 yêu thú từ cấp 10 để lần theo vết nứt phương Đông.','hunt:10',50,10,4500,250,3),

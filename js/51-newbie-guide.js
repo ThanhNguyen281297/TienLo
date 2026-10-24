@@ -11,7 +11,11 @@
  const tut=k=>window.adventureGame?.state?.data?.tutorial?.[k]||0;
  const kills=()=>world.progress?.().kills||0;
  const rift=()=>expeditionsGame?.maps?.get('rift-wood');
+ const quest=id=>window.adventureGame?.state?.data?.quests?.find(q=>q.id===id);
  const STEPS=[
+  // The story starts with Vân Châu: the guide follows the first main quest instead of competing with it.
+  {id:'awaken',icon:'✦',text:()=>quest('awakening')?.ready?'Gặp Vân Châu báo cáo nhiệm vụ':'Dạo quanh quảng trường rồi gặp Vân Châu',progress:()=>{const q=quest('awakening');return q?[q.value,q.target]:null;},
+   done:()=>{if(!window.adventureGame?.state?.data)return false;const q=quest('awakening');return !q||q.claimed;},go:()=>questNav.go({map:'hub',npc:'quest',name:'Thiên Vân Thành'},'Gặp Vân Châu'),target:null},
   {id:'hunt',icon:'⚔',text:()=>'Ra Sơn Hà săn yêu thú',progress:()=>[Math.min(5,kills()),5],done:()=>kills()>=5,
    go:()=>questNav.go({map:'field-meadow',x:440,y:1320,auto:true},'Săn yêu thú'),target:null},
   {id:'bag',icon:'🎒',text:()=>'Mở Túi đồ, mặc trang bị vừa nhặt',done:()=>tut('ui:bag')>0,go:()=>$('bag-button')?.click(),target:'bag-button'},

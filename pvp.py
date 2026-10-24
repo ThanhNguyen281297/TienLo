@@ -12,7 +12,7 @@ import progression
 from duels import BASIC, COOLDOWNS
 
 CAST_DELAY = (.12, .28, .18, .42, .6)
-RANGE = (0, 350, 180, 170, 520)
+RANGE = (0, 350, 180, 260, 520)   # skill 3 is aimed like the ultimate
 RADIUS = (42, 58, 65, 105, 130)
 POWER = (0, 3.2, 1.0, 2.2, 6.0)
 MANA = (0, 8, 10, 16, 24)
