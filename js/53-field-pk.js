@@ -8,7 +8,14 @@
  const field=()=>world.state.scene.startsWith('field-');
  const btn=document.createElement('button');btn.id='pk-toggle';btn.type='button';btn.hidden=true;btn.setAttribute('aria-label','Chế độ PK');document.body.append(btn);
  function paint(){btn.hidden=!field()||!P.ap||!account.state.ready;btn.classList.toggle('on',!!state.pk.on);btn.classList.toggle('red',!!state.pk.red);
-  btn.textContent=state.pk.on?'⚔ PK':'☮';btn.title=state.pk.on?'PK đang bật · sát khí '+state.pk.sat:'Hòa bình · bấm để bật PK';}
+  btn.title=state.pk.on?'PK đang bật · sát khí '+state.pk.sat:'Hòa bình · bấm để bật PK';
+  const key=state.pk.on+'/'+state.pk.red;if(btn.dataset.key===key)return;btn.dataset.key=key;
+  const hud=window.vlHud;if(!hud){btn.textContent=state.pk.on?'⚔ PK':'☮';return;}
+  if(!btn.querySelector('canvas')){btn.replaceChildren(document.createElement('canvas'),document.createElement('span'));btn.firstChild.width=btn.firstChild.height=96;}
+  icons[state.pk.on?1:0]??=hud.art(state.pk.on?'Item/VuKhi/Kiem.png':'Map/theme-sprites/14/theme-14-060.png');const image=icons[state.pk.on?1:0];
+  const draw=()=>hud.paint(btn.firstChild,image,state.pk.on?[.15,0,.7,.75]:null);draw();if(!image.complete)image.addEventListener('load',draw,{once:true});
+  btn.lastChild.textContent=state.pk.on?(state.pk.red?'Sát khí '+state.pk.sat:'PK'):'Hòa bình';}
+ const icons=[];
  btn.onclick=async()=>{if(state.busy||paused())return;state.busy=true;try{state.pk=await account.api('/api/pk',{on:!state.pk.on});msg(state.pk.on?'⚔ Đã bật PK: người chơi bật PK khác có thể tấn công bạn.':'☮ Đã về chế độ hòa bình.');}catch(e){msg(e.message);}finally{state.busy=false;paint();}};
  const allies=()=>new Set((window.communityGame?.state?.social?.party?.members||[]).map(m=>m.id));
  function targets(){if(!field()||!state.pk.on)return[];const party=allies();
@@ -25,8 +32,10 @@
  const update=up;up=function(dt){const r=update(dt);if(field()){E=E.filter(e=>!e.pkTarget).concat(targets());}else if(E.some(e=>e.pkTarget))E=E.filter(e=>!e.pkTarget);paint();return r;};
  const caption=window.drawWorldCaption;window.drawWorldCaption=function(ctx,text,x,y,color,size){if(field()){const name=String(text).replace(/^◆ /,''),p=onlineWorld.state.players.find(q=>q.name===name);
    if(p?.red)color='#ff4a3a';else if(p?.pk)color='#ffb067';else if(name===P.nm&&state.pk.red)color='#ff4a3a';else if(name===P.nm&&state.pk.on)color='#ffb067';}return caption(ctx,text,x,y,color,size);};
- const css=document.createElement('style');css.textContent=`#pk-toggle{position:fixed;top:198px;right:8px;z-index:4;min-width:46px;height:26px;padding:0 8px;border-radius:13px;border:1px solid #9fc4bb88;background:#14262ee6;color:#cfe6dd;font:700 11px Arial;min-height:0!important}
-#pk-toggle.on{border-color:#ff8a5a;background:linear-gradient(90deg,#5a1a10,#7a2a14);color:#ffe0d0;box-shadow:0 0 10px #ff6a3a66}#pk-toggle.red{border-color:#ff3a2a;box-shadow:0 0 14px #ff3a2aaa}#pk-toggle[hidden]{display:none}
-@media(max-width:700px),(max-height:500px){#pk-toggle{top:170px}}`;document.head.append(css);
+ const css=document.createElement('style');css.textContent=`#pk-toggle{position:fixed;top:198px;right:76px;z-index:4;width:52px;padding:0;border:0!important;background:none!important;box-shadow:none!important;display:grid;justify-items:center;gap:1px;min-height:0!important;color:#fff3cf;font:700 10px Arial;cursor:pointer}
+#pk-toggle canvas{position:static!important;inset:auto!important;display:block!important;width:40px;height:40px;filter:drop-shadow(0 2px 3px #000a) grayscale(.15)}#pk-toggle span{text-shadow:0 1px 2px #000,0 0 3px #000;white-space:nowrap}
+#pk-toggle.on canvas{filter:drop-shadow(0 0 6px #ff6a3a) drop-shadow(0 2px 3px #000a)}#pk-toggle.on span{color:#ffb08a}#pk-toggle.red canvas{filter:drop-shadow(0 0 10px #ff2a1a)}#pk-toggle.red span{color:#ff6a5a}#pk-toggle[hidden]{display:none}
+@media(max-width:700px),(max-height:500px){#pk-toggle{top:166px;right:60px;width:44px}#pk-toggle canvas{width:34px;height:34px}#pk-toggle span{font-size:9px}}
+@media(max-height:500px){#pk-toggle{top:62px;right:168px}}`;document.head.append(css);
  window.fieldPk={state,receive,targets};
 })();

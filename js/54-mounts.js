@@ -81,7 +81,10 @@
  function toggle(){if(!active()){openStable();return;}state.pref=!state.pref;try{localStorage.setItem('tienlo.ride',state.pref?'1':'0');}catch{}
   window.gameAudio?.play?.('tap');msg(state.pref?'🐎 Lên '+(state.stable?.mounts.find(m=>m.id===active())?.name||'thú cưỡi')+(allowed()?'':' (vùng này không thể cưỡi)'):'Xuống thú cưỡi.');paint();}
  let painted='';function paint(){const show=!!(P.ap&&account.state.ready&&active()&&allowed()&&!paused());const key=show+'/'+riding()+'/'+state.pref;if(key===painted)return;painted=key;
-  btn.hidden=!show;btn.classList.toggle('on',riding());btn.classList.toggle('wait',state.pref&&!riding());btn.title=riding()?'Đang cưỡi · bấm để xuống (phím H)':state.pref?'Đang giao chiến · tự lên lại sau 3 giây':'Bấm để cưỡi (phím H)';}
+  btn.hidden=!show;btn.classList.toggle('on',riding());btn.classList.toggle('wait',state.pref&&!riding());
+  const hud=window.vlHud,species=SPECIES[active()];if(hud&&species){if(!btn.querySelector('canvas')){btn.replaceChildren(document.createElement('canvas'),document.createElement('span'));btn.firstChild.width=btn.firstChild.height=96;}
+   const url=creatureArt.thumbnail?.(species);if(url&&btn.dataset.art!==url){btn.dataset.art=url;const image=new Image();image.onload=()=>hud.paint(btn.firstChild,image);image.src=url;}else if(!url){creatureArt.ensureSpecies?.(species);painted='';}
+   btn.lastChild.textContent=riding()?'Đang cưỡi':state.pref?'Giao chiến':'Cưỡi';}btn.title=riding()?'Đang cưỡi · bấm để xuống (phím H)':state.pref?'Đang giao chiến · tự lên lại sau 3 giây':'Bấm để cưỡi (phím H)';}
  addEventListener('keydown',e=>{if(e.key?.toLowerCase()!=='h'||e.repeat||/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)||paused()||!P.ap||!active())return;toggle();});
 
  // ---------- Mã Phu stable (hub service + HUD icon)
@@ -118,10 +121,11 @@
  }
 
  const css=document.createElement('style');css.textContent=`
-#mount-toggle{position:fixed;top:228px;right:8px;z-index:4;min-width:46px;height:28px;padding:0 8px;border-radius:14px;border:1px solid #c9a76a99;background:#14262ee6;color:#f3e2bd;font:700 15px Arial;min-height:0!important;filter:grayscale(.6);opacity:.85}
-#mount-toggle.on{filter:none;opacity:1;border-color:#ffd27a;background:linear-gradient(90deg,#3a2a10,#5a4012);box-shadow:0 0 10px #ffc85a55}
-#mount-toggle.wait{filter:grayscale(.2);opacity:.75}#mount-toggle[hidden]{display:none}
-@media(max-width:700px),(max-height:500px){#mount-toggle{top:170px;right:60px}}
+#mount-toggle{position:fixed;top:198px;right:16px;z-index:4;width:52px;padding:0;border:0!important;background:none!important;box-shadow:none!important;display:grid;justify-items:center;gap:1px;min-height:0!important;color:#fff3cf;font:700 10px Arial;cursor:pointer}
+#mount-toggle canvas{position:static!important;inset:auto!important;display:block!important;width:40px;height:40px;filter:drop-shadow(0 2px 3px #000a) grayscale(.75) brightness(.8)}#mount-toggle span{text-shadow:0 1px 2px #000,0 0 3px #000;white-space:nowrap}
+#mount-toggle.on canvas{filter:drop-shadow(0 0 6px #ffc85a) drop-shadow(0 2px 3px #000a)}#mount-toggle.on span{color:#ffd27a}#mount-toggle.wait canvas{filter:drop-shadow(0 2px 3px #000a) grayscale(.3)}#mount-toggle[hidden]{display:none}
+@media(max-width:700px),(max-height:500px){#mount-toggle{top:166px;right:8px;width:44px}#mount-toggle canvas{width:34px;height:34px}#mount-toggle span{font-size:9px}}
+@media(max-height:500px){#mount-toggle{top:62px;right:116px}}
 .mount-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:8px}
 .mount-card{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #6a5a3a88;background:linear-gradient(160deg,#1b2b30f0,#121c20f0);min-width:0}
 .mount-card.owned{border-color:#b8925088}.mount-card.active{border-color:#ffd27a;box-shadow:0 0 0 1px #ffd27a55,0 0 16px #ffc85a33}.mount-card.locked{opacity:.7}

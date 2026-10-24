@@ -206,7 +206,7 @@
   };
   const originalDraw=dr;
   dr=function(){originalDraw();if(previousPaused())return;const {x:cx,y:cy}=gameCamera();g.save();g.setTransform(Z,0,0,Z,-cx*Z,-cy*Z);
-    for(const s of services){const y=s.y+(s.farmPortal?18:12);if(Math.abs(s.x-P.x)>W/Z||y<cy||y>cy+H/Z)continue;drawWorldCaption(g,serviceCaption(s),s.x,y,s.color);
+    for(const s of services){const y=s.y+(s.farmPortal?18:12);if(Math.abs(s.x-P.x)>W/Z||y<cy||y>cy+H/Z)continue;(window.drawServicePlate||drawWorldCaption)(g,serviceCaption(s),s.x,y,s.color,s);
       if(state.near===s){g.strokeStyle='#f3db9b';g.lineWidth=1;g.beginPath();g.ellipse(s.x,s.y+3,18,7,0,0,Math.PI*2);g.stroke();}}
     g.restore();
   };

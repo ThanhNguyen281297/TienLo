@@ -188,7 +188,7 @@
  }
  function drawHub(ctx){street(ctx,958,800,1042,1500);
   // Central formation with two white rings, as on the sect courts.
-  ctx.save();ctx.strokeStyle='rgba(235,245,240,.55)';ctx.lineWidth=2;for(const r of [215,265]){ctx.beginPath();ctx.ellipse(1000,1150,r,r*.52,0,0,Math.PI*2);ctx.stroke();}ctx.restore();
+  ctx.save();ctx.strokeStyle='rgba(214,186,120,.22)';ctx.lineWidth=1.4;for(const r of [215,265]){ctx.beginPath();ctx.ellipse(1000,1150,r,r*.52,0,0,Math.PI*2);ctx.stroke();}ctx.restore();
   world.sprite(ctx,'theme-14-065',1000,1215,230);
  }
  // Sunset sky with layered distant peaks behind the floating city.

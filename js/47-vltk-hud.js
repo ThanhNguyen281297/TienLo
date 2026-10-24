@@ -120,5 +120,5 @@ body.vl-hud #event-banner{top:92px;bottom:auto;font-size:11px;padding:4px 12px}b
  #vl-chat-ticker{bottom:156px;width:min(240px,45vw)}}
 @media(max-width:520px){#vl-activities{grid-template-columns:repeat(4,40px);right:112px}.vl-activity span{display:none}}`;
  document.head.append(css);
- window.vlHud={update,ACTIVITIES,combatPower};
+ window.vlHud={update,ACTIVITIES,combatPower,paint,art};
 })();

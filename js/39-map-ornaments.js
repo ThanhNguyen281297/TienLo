@@ -259,7 +259,7 @@
   function glow(ctx,x,y,r,rgb,a){const gr=ctx.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba('+rgb+','+a+')');gr.addColorStop(.4,'rgba('+rgb+','+a*.32+')');gr.addColorStop(1,'rgba('+rgb+',0)');ctx.fillStyle=gr;ctx.fillRect(x-r,y-r,r*2,r*2);}
   function formation(ctx,d,t){
     ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(d.x,d.y);ctx.scale(1,.5);
-    const pulse=.75+.25*Math.sin(t*1.4+d.x),rgb=d.rgb;
+    const pulse=(.75+.25*Math.sin(t*1.4+d.x))*.55,rgb=d.rgb; // kept faint: an inlay, not a HUD ring
     glow(ctx,0,0,d.r*1.15,rgb,.16*pulse);
     ctx.lineCap='round';
     for(const [k,w,a] of [[1,1.6,.55],[.84,1,.4],[.52,1.2,.35]]){ctx.strokeStyle='rgba('+rgb+','+a*pulse+')';ctx.lineWidth=w*(d.small?.8:1);ctx.beginPath();ctx.arc(0,0,d.r*k,0,6.283);ctx.stroke();}
