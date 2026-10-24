@@ -24,7 +24,7 @@ SNIPE = 120                               # a late bid extends the lot to 2 minu
 PAGE = 30
 GROUPS = {
     'weapon': ('vukhi',),
-    'armor': ('daobao', 'chan', 'giay'),
+    'armor': ('daobao', 'chan', 'giay', 'mu'),
     'treasure': ('phapbao', 'ngoc', 'phaptran'),
     'accessory': ('gioi', 'dichuyen', 'matna'),
     'material': ('material',),
@@ -210,6 +210,8 @@ def action(db, uid, body, peers=None, now=None):
             raise ValueError('Chọn một trang bị hoặc nguyên liệu trong túi.')
         if item['id'].startswith('outfit-'):
             raise ValueError('Trang phục khởi đầu không thể bán đấu giá.')
+        if item.get('bound') or equipment.TEMPLATES[item['id']].get('bound'):
+            raise ValueError('Thú cưỡi đã khế ước, không thể bán đấu giá.')
         if db.execute("SELECT COUNT(*) FROM auction_lots WHERE seller=? AND status='open'", (uid,)).fetchone()[0] >= MAX_LOTS:
             raise ValueError(f'Mỗi người chỉ treo tối đa {MAX_LOTS} món cùng lúc.')
         start = price(body.get('start'))

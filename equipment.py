@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 RULES = json.loads((ROOT/'Item'/'equipment.json').read_text(encoding='utf-8'))
-TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails','masks') for t in RULES[group]}
+TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails','masks','mountItems') for t in RULES[group]}
 STAT_KEYS = ('atk','hp','mp','armor','crit','dodge','skill')
 MATERIALS={
  'cuong-hoa-thach':dict(id='cuong-hoa-thach',type='material',name='Cường Hóa Thạch',rarity='huyen',price=8,art='Item/NguyenLieu/cuong-hoa-v1.png',desc='Nguyên liệu đặt vào lò rèn để cường hóa trang bị.'),

@@ -86,7 +86,7 @@ class EquipmentTest(unittest.TestCase):
         for meta in equipment.TEMPLATES.values():
             if meta.get('art'):self.assertIn(meta['art'],exact)
         self.assertEqual(len(equipment.RULES['combatSlots']),4)
-        self.assertEqual(len(equipment.RULES['slots']),10)
+        self.assertEqual(len(equipment.RULES['slots']),12)
         self.assertEqual(len(equipment.RULES['trails']),6)
         self.assertEqual([r['realm'] for r in equipment.RULES['realmEffects']],list(range(3,15)))
         for aura in equipment.RULES['realmEffects']:self.assertIn(aura['art'],exact)
@@ -133,8 +133,8 @@ class EquipmentTest(unittest.TestCase):
         self.player['world']['equip'].pop('matna')
         self.player['world'].update(equipmentVersion=5,riftShards=7)
         expected=copy.deepcopy(self.player)
-        expected['world']['equip']['matna']=None
-        expected['world']['equipmentVersion']=6
+        expected['world']['equip'].update(matna=None,mu=None,thucuoi=None)
+        expected['world']['equipmentVersion']=equipment.RULES['version']
         self.assertTrue(equipment.normalize(self.player))
         self.assertEqual(self.player,expected)
         self.assertFalse(equipment.normalize(self.player))

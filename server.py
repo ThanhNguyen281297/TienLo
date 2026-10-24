@@ -459,8 +459,15 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/session': return self.reply(200,{'user':{'id':user['user_id'],'username':user['username'],'gm':bool(user['gm'])} if user else None,'csrf':user['csrf'] if user else None})
             if not user: return self.reply(401,{'error':'Vui lòng đăng nhập.'})
             if path=='/api/characters':
-                with connect() as db: row=db.execute('SELECT * FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
-                return self.reply(200,{'character':{'id':row['id'],'player':progression.normalize(json.loads(row['player'])),'revision':row['revision']} if row else None})
+                with DB_LOCK, connect() as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    row=db.execute('SELECT * FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
+                    player,revision=(json.loads(row['player']),row['revision']) if row else (None,0)
+                    # Mounts owned before the Thú cưỡi gear slot get their items once.
+                    if player and mounts.sync(player):
+                        revision+=1
+                        db.execute('UPDATE characters SET player=?,revision=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,user['user_id']))
+                return self.reply(200,{'character':{'id':row['id'],'player':progression.normalize(player),'revision':revision} if row else None})
             if path=='/api/equipment': return self.equipment(user)
             if path=='/api/community': return self.community(user)
             if path=='/api/trade': return self.trade(user)
@@ -634,10 +641,11 @@ class GameHandler(SimpleHTTPRequestHandler):
                     if any(old_items.get(i['uid'])!=i['id'] for i in gear):return self.reply(403,{'error':'Trang bị phải nhận từ quái, ghép mảnh hoặc đổi cống hiến trên server.'})
                 else:
                     starter=player.get('world',{}).get('equip',{})
-                    valid_starter=lambda i:i['slot'] in ('daobao','chan','giay') and (i['id'].startswith('outfit-') or i['id'] in {f'{base}-class-{player["ap"]["w"]}' for base in ('vai-bao','chan-0','vai-giay')})
+                    # Starter set: three outfit pieces, the wooden weapon and the plain helmet (all level 1).
+                    valid_starter=lambda i:(i['slot'] in ('daobao','chan','giay') and (i['id'].startswith('outfit-') or i['id'] in {f'{base}-class-{player["ap"]["w"]}' for base in ('vai-bao','chan-0','vai-giay')})) or i['id'] in {f'moc-kiem-class-{player["ap"]["w"]}',f'mu-0-class-{player["ap"]["w"]}'}
                     if any(i.get('type')=='material' for i in equipment_rules.items(player)):
                         return self.reply(403,{'error':'Nhân vật mới chưa có nguyên liệu cường hóa.'})
-                    if len(gear)>3 or any(not valid_starter(i) or (starter.get(i['slot']) or {}).get('uid')!=i['uid'] for i in gear):return self.reply(403,{'error':'Nhân vật mới chỉ có ba món trang phục khởi đầu.'})
+                    if len(gear)>5 or any(not valid_starter(i) or (starter.get(i['slot']) or {}).get('uid')!=i['uid'] for i in gear):return self.reply(403,{'error':'Nhân vật mới chỉ có bộ trang bị khởi đầu.'})
             if row:
                 old=json.loads(row['player'])
                 if old['ap']!=player['ap'] or old['nm']!=player['nm']: return self.reply(400,{'error':'Không thể đổi phái, giới tính hoặc đạo hiệu của nhân vật.'})
@@ -849,7 +857,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
-            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi'),('trailId','dichuyen'),('maskId','matna')]})
+            peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi'),('trailId','dichuyen'),('maskId','matna'),('helmetId','mu')]})
             peer['ap']['robeId']=(equipment.get('daobao') or {}).get('id')
             peer['ap']['realm']=int(p['r'])
             peer['level']=progression.level(p)

@@ -173,7 +173,7 @@ def quests(db,uid,player):
 def recipes(player):
     result=[];cls=player['ap']['w'];gender=player['ap'].get('gender','Nam')
     for item in equipment.TEMPLATES.values():
-        if item.get('source')=='sect' or item.get('type')=='material':continue
+        if item.get('source')=='sect' or item.get('type')=='material' or item.get('bound'):continue
         if item.get('classIndex',cls)!=cls or item.get('gender',gender)!=gender:continue
         quality=next((q for q in QUALITIES if q[0]==item['rarity']),QUALITIES[0])
         result.append(dict(id=item['id'],cost=quality[3],level=max(quality[4],item.get('req',0)),quality=quality[0]))

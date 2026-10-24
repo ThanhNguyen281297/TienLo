@@ -1,7 +1,9 @@
-"""Thú cưỡi: owned mounts live in player['world']['mounts'] and are written only
-by the server (saves copy the stored value back). An active mount gives flat
-HP/attack whether ridden or not; riding (sent with the world heartbeat) gives
-the speed bonus and the mounted look other players see."""
+"""Thú cưỡi: owned mounts and their tiers live in player['world']['mounts'] and are
+written only by the server (saves copy the stored value back). Each owned mount
+also exists as a bound item ('mount-<id>', slot 'thucuoi'); the one worn in the
+Thú cưỡi gear slot is the active mount. It gives flat HP/attack whether ridden or
+not; riding (sent with the world heartbeat) gives the speed bonus and the mounted
+look other players see."""
 import json
 import time
 
@@ -39,19 +41,72 @@ def data(player):
         for mid, tier in raw['owned'].items():
             if mid in BY_ID and type(tier) is int:
                 owned[mid] = max(1, min(MAX_TIER, tier))
-    active = raw.get('active') if isinstance(raw, dict) else None
+    worn = (player.get('world', {}).get('equip') or {}).get('thucuoi')
+    active = worn.get('mountId') if isinstance(worn, dict) else None
     return dict(owned=owned, active=active if active in owned else None)
 
 
+def item_id(mid):
+    return 'mount-' + mid
+
+
+def located(player, mid):
+    """'equip', 'bag' or None: where the bound item of an owned mount is."""
+    w = player.get('world', {})
+    worn = (w.get('equip') or {}).get('thucuoi')
+    if isinstance(worn, dict) and worn.get('id') == item_id(mid):
+        return 'equip'
+    if any(isinstance(i, dict) and i.get('id') == item_id(mid) for i in w.get('bag', [])):
+        return 'bag'
+    return None
+
+
+def give_item(player, mid, wear=False):
+    """Put the bound item of an owned mount into the bag (or straight into the slot)."""
+    import secrets
+    w = player.setdefault('world', {})
+    equip, bag = w.setdefault('equip', {}), w.setdefault('bag', [])
+    item = dict(equipment.TEMPLATES[item_id(mid)], uid=secrets.token_hex(16))
+    if wear and not equip.get('thucuoi'):
+        equip['thucuoi'] = item
+        return item
+    if len(bag) >= equipment.capacity(w):
+        raise ValueError('Túi đầy. Dọn một ô để nhận thú cưỡi.')
+    bag.append(item)
+    return item
+
+
+def sync(player):
+    """Migrate mounts owned before the gear slot existed: every owned mount gets its
+    item, the previously active one is worn. Returns True when the player changed."""
+    raw = player.get('world', {}).get('mounts')
+    if not isinstance(raw, dict) or raw.get('items'):
+        return False
+    record = data(player)
+    previous = raw.get('active')
+    changed = False
+    for mid in record['owned']:
+        if located(player, mid):
+            continue
+        try:
+            give_item(player, mid, wear=mid == previous)
+            changed = True
+        except ValueError:
+            return changed
+    store(player, dict(owned=record['owned'], items=True))
+    return True
+
+
 def store(player, record):
-    player.setdefault('world', {})['mounts'] = record
+    player.setdefault('world', {})['mounts'] = dict(owned=record['owned'], items=True)
 
 
 def preserve(old, new):
     """Called on every client save: mounts are server-owned."""
     world = new.setdefault('world', {})
-    if old is not None and old.get('world', {}).get('mounts'):
-        world['mounts'] = data(old)
+    stored = old.get('world', {}).get('mounts') if old is not None else None
+    if stored:
+        world['mounts'] = dict(stored)
     else:
         world.pop('mounts', None)
 
@@ -86,8 +141,11 @@ def grant(player, mid):
         player['gold'] = min(10 ** 9, player.get('gold', 0) + DUPLICATE_GOLD)
         return f'Đã có {BY_ID[mid]["name"]}: đổi thành {DUPLICATE_GOLD} ◈'
     record['owned'][mid] = 1
-    record['active'] = record['active'] or mid
     store(player, record)
+    try:
+        give_item(player, mid, wear=True)
+    except ValueError:
+        return f'Thu phục {BY_ID[mid]["name"]}! Túi đầy: nhận thú tại Mã Phu.'
     return f'Thu phục {BY_ID[mid]["name"]}!'
 
 
@@ -101,7 +159,7 @@ def view(player, wallet_fragments=0):
         mult = tier_mult(tier or 1)
         rows.append(dict(id=m['id'], name=m['name'], species=m['species'], level=m['level'], desc=m['desc'],
                          gold=m.get('gold'), fragments=m.get('fragments'), source=m.get('source'), fly=bool(m.get('fly')),
-                         owned=tier is not None, tier=tier or 0, active=record['active'] == m['id'],
+                         owned=tier is not None, tier=tier or 0, active=record['active'] == m['id'], where=located(player, m['id']) if tier else None,
                          speed=speed(m['id'], tier or 1), hp=round(m['hp'] * mult), atk=round(m['atk'] * mult),
                          nextHp=round(m['hp'] * tier_mult(tier + 1)) if tier and tier < MAX_TIER else None,
                          nextAtk=round(m['atk'] * tier_mult(tier + 1)) if tier and tier < MAX_TIER else None,
@@ -149,16 +207,50 @@ def action(db, uid, body, at=None):
         else:
             raise ValueError('Thú cưỡi này chỉ có thể thu phục trong Ma Quật.')
         record['owned'][m['id']] = 1
-        record['active'] = m['id']
-        message = f'Đã thu phục {m["name"]}! Bấm 🐎 để cưỡi.'
+        store(player, record)
+        worn = bool((player['world'].get('equip') or {}).get('thucuoi'))
+        give_item(player, m['id'], wear=not worn)
+        message = f'Đã thu phục {m["name"]}!' + (' Đã mặc vào ô Thú cưỡi · phím H để cưỡi.' if not worn else ' Vật phẩm đã vào túi đồ.')
     elif op == 'equip':
+        # Wear the mount's item (from the bag, or a fresh copy if it was lost).
         if m['id'] not in record['owned']:
             raise ValueError('Chưa sở hữu thú cưỡi này.')
-        record['active'] = m['id']
+        w = player['world']
+        equip, bag = w.setdefault('equip', {}), w.setdefault('bag', [])
+        where = located(player, m['id'])
+        if where != 'equip':
+            item = next((i for i in bag if i.get('id') == item_id(m['id'])), None)
+            if item:
+                bag.remove(item)
+            else:
+                item = dict(equipment.TEMPLATES[item_id(m['id'])], uid=__import__('secrets').token_hex(16))
+            current = equip.get('thucuoi')
+            if current:
+                if len(bag) >= equipment.capacity(w):
+                    raise ValueError('Túi đầy. Dọn một ô để đổi thú cưỡi.')
+                current.pop('cell', None)
+                bag.append(current)
+            item.pop('cell', None)
+            equip['thucuoi'] = item
         message = f'{m["name"]} theo bạn xuất hành.'
     elif op == 'unequip':
-        record['active'] = None
-        message = 'Đã cho thú cưỡi về chuồng.'
+        w = player['world']
+        current = (w.get('equip') or {}).get('thucuoi')
+        if current:
+            if len(w.setdefault('bag', [])) >= equipment.capacity(w):
+                raise ValueError('Túi đầy. Dọn một ô để tháo thú cưỡi.')
+            w['equip']['thucuoi'] = None
+            current.pop('cell', None)
+            w['bag'].append(current)
+        message = 'Đã cho thú cưỡi về chuồng (vật phẩm ở túi đồ).'
+    elif op == 'take':
+        # A lost or never-issued item (e.g. bag was full when the raid dropped it).
+        if m['id'] not in record['owned']:
+            raise ValueError('Chưa sở hữu thú cưỡi này.')
+        if located(player, m['id']):
+            raise ValueError('Vật phẩm thú cưỡi đã có trong hành trang.')
+        give_item(player, m['id'])
+        message = f'Đã nhận {m["name"]} vào túi đồ.'
     elif op == 'upgrade':
         tier = record['owned'].get(m['id'])
         if not tier:
@@ -170,10 +262,10 @@ def action(db, uid, body, at=None):
             raise ValueError(f'Cần {cost} Linh Thạch để thuần hóa.')
         player['gold'] -= cost
         record['owned'][m['id']] = tier + 1
+        store(player, record)
         message = f'{m["name"]} lên bậc {tier + 1}!'
     else:
         raise ValueError('Thao tác không hợp lệ.')
-    store(player, record)
     equipment.validate(player, db, uid)
     revision = row['revision'] + 1
     db.execute('UPDATE characters SET player=?,revision=?,updated_at=? WHERE user_id=?',

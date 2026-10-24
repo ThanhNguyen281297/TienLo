@@ -192,12 +192,12 @@
     const raw=window.characterFit?.(ap,direction,x,y-bob+footOffset,bodyHeight);
     const shift=raw?Math.max(-9,Math.min(9,raw.cx-x)):0,feetX=x-shift;
     const H=raw?raw.H:40,W=raw?Math.max(18,Math.min(34,raw.W)):24,top=raw?raw.top:y-bob-40,cx=x;
-    const fit={cx,top,H,W,bob,feetY:y,
+    const fit={cx,top,H,W,bob,feetY:y,feetX,dir,facing,moving,head:raw?{l:raw.headLeft-shift,r:raw.headRight-shift,top:raw.skull.top,x:raw.skull.x-shift,radius:raw.skull.r}:{l:cx-12,r:cx+12},
       // Weapon hand on the screen-right side (forward hand in side views), shield arm opposite.
       // The chibi head fills the top half: hands sit at the hips (~3/4 down the body).
       hand:dir===2?{x:cx+facing*(W*.55+3+(index===1||index===3?W*.15:0)),y:top+H*.78}:{x:cx+W*.5+1+(index===1||index===3?W*.12:0),y:top+H*.74},
       arm:dir===2?{x:cx+facing*W*.16,y:top+H*.76}:{x:cx-W*.5-1,y:top+H*.7},
-      spine:{x:dir===2?cx-facing*W*.16:cx,y:top+H*.5}};
+      spine:{x:dir===2?cx-facing*W*.22:cx,y:top+H*.58}};
     ctx.save();
     ctx.imageSmoothingEnabled = true;
     // Only an equipped formation is projected onto the ground beneath the body.
@@ -242,6 +242,7 @@
     const bodyLevel=ap===P.ap?window.equipmentProgression?.level(P.world?.equip?.daobao):(ap?.bodyEnhance||0);
     const outlined=renderedBody||{image:bodyImage,x:feetX-bodyWidth/2,y:y-bob+footOffset-bodyHeight,width:bodyWidth,height:bodyHeight};
     window.equipmentProgression?.outline(ctx,outlined.image,outlined.x,outlined.y,outlined.width,outlined.height,bodyLevel||0);
+    window.characterHelmet?.draw(ctx,ap,dir,facing,fit,index);
     if(!weaponBehind)drawWeapon();
     if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
     if(shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);

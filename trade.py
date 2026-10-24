@@ -173,6 +173,8 @@ def action(db, uid, body, peers):
             items = [next((i for i in p['world']['bag'] if i['uid'] == item), None) for item in selected]
             if any(i is None or i.get('id') not in equipment.TEMPLATES for i in items):
                 raise ValueError('Chỉ giao dịch vật phẩm trong túi, không phải đồ đang mặc.')
+            if any(equipment.TEMPLATES[i['id']].get('bound') for i in items):
+                raise ValueError('Thú cưỡi đã khế ước, không thể giao dịch.')
             equipment.validate(p, db, uid)
             mine.update(items=items, gold=gold)
             for offer in offers.values():

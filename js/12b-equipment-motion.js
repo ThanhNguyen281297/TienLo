@@ -23,15 +23,19 @@
     return{...p,height,x:at.x,y:at.y,width:height*(image.naturalWidth||1)/(image.naturalHeight||1),squeeze:dir===2?.62:1};
   }
   // Adjacent strips share boundaries. The spine stays at x=0, y=0 in every pose.
-  function cloth(ctx,source,w,h,pivot,t,strength){
-    const step=source.height/20;
+  // part -1/1 draws only the left/right half (each wing hinges on the spine).
+  function cloth(ctx,source,w,h,pivot,t,strength,part=0){
+    const step=source.height/20,sw=part?source.width/2:source.width,sx=part>0?source.width/2:0;
     for(let n=0;n<20;n++){
       const sy=n*step,v=(sy+step*.5)/source.height,d=v-pivot;
       const spread=1+Math.sin(t*1.65-v*3)*Math.abs(d)*strength;
-      const bend=Math.sin(t*1.65-v*3)*d*d*strength*12;
-      ctx.drawImage(source,0,sy,source.width,Math.min(step+.35,source.height-sy),-w*spread/2+bend,(v-pivot)*h-h/40,w*spread,h/20+.08);
+      const bend=Math.sin(t*1.65-v*3)*d*d*strength*12,dw=part?w*spread/2:w*spread,dx=part<0?-dw+bend:part>0?bend:-dw/2+bend;
+      ctx.drawImage(source,sx,sy,sw,Math.min(step+.35,source.height-sy),dx,(v-pivot)*h-h/40,dw,h/20+.08);
     }
   }
+  // How each back treasure moves: wings beat from the spine, rings and moons sway and
+  // glow, sword arrays hover, fans and talismans breathe.
+  const KIND={1:'swords',2:'halo',3:'fan',4:'wings',5:'wings',6:'wings',7:'wings',8:'wings',9:'swords',10:'halo',11:'fan',12:'wings'};
   function shimmer(entry,t,tone){
     const frame=Math.floor(t*30);if(entry.frame===frame)return entry.shine;entry.frame=frame;
     const c=entry.shine.getContext('2d'),w=entry.source.width,h=entry.source.height;
@@ -42,18 +46,36 @@
   }
   function drawBack(ctx,image,x,y,dir,facing,bob,time,fit){
     const entry=prepared(image);if(!entry)return;
-    const m=mount(image,x,y,dir,facing,bob,fit),t=reduced.matches?0:time;
+    const m=mount(image,x,y,dir,facing,bob,fit),still=reduced.matches,t=still?0:time,kind=KIND[m.variant]||'fan',fast=fit?.moving?1.6:1;
     ctx.save();ctx.translate(m.x,m.y);ctx.scale(m.squeeze,1);
     if(dir===1){
       // A back mount can cover the robe and hair below the neck, never the head.
       const hy=fit?-(m.y-fit.top-fit.H*.24):-13,rx=fit?fit.H*.3:7,ry=fit?fit.H*.25:10;ctx.beginPath();ctx.rect(-120,-160,240,280);ctx.moveTo(rx,hy);ctx.ellipse(0,hy,rx,ry,0,0,TAU);ctx.clip('evenodd');
     }
-    const strength=reduced.matches?0:([5,6,7,8,12].includes(m.variant)?.12:.055);
-    cloth(ctx,entry.source,m.width,m.height,m.mount,t,strength);
-    ctx.globalCompositeOperation='screen';ctx.globalAlpha=.32;
-    cloth(ctx,shimmer(entry,t,m.tone),m.width,m.height,m.mount,t,strength);
-    ctx.globalAlpha=.6;
-    if(!reduced.matches)for(let n=0;n<6;n++){
+    const strength=still?0:kind==='wings'?.07:.05,shine=shimmer(entry,t,m.tone);
+    const layer=(src,part)=>cloth(ctx,src,m.width,m.height,m.mount,t,strength,part);
+    const both=part=>{layer(entry.source,part);ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha*=.32;layer(shine,part);ctx.restore();};
+    if(kind==='wings'){
+      // Each wing turns about the shoulder: tips rise and fall, and the wing
+      // foreshortens as it sweeps back, so the pair reads as a real wingbeat.
+      const beat=still?0:Math.sin(t*4.4*fast),lift=.15*beat,fold=1-.16*(1-Math.cos(t*4.4*fast))/2;
+      for(const side of [-1,1]){ctx.save();ctx.rotate(-side*lift);ctx.scale(fold,1);both(side);ctx.restore();}
+      if(!still&&ctx===g&&beat<-.85&&Math.random()<.25)for(const side of [-1,1])PT?.push?.({x:m.x+side*m.width*.4*m.squeeze,y:m.y-m.height*.1,vx:side*rn(4,12),vy:rn(4,14),l:.7,m:.7,c:m.tone,s:rn(.8,1.6)});
+    }else if(kind==='halo'){
+      // The ring sways slowly behind the shoulders and pulses with light.
+      ctx.translate(0,-m.height*.08);ctx.rotate(still?0:Math.sin(t*.9)*.07);ctx.translate(0,m.height*.08);
+      both(0);if(!still){ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=.12+.1*Math.sin(t*2.3);cloth(ctx,entry.source,m.width*1.04,m.height*1.04,m.mount,t,0);}
+    }else if(kind==='swords'){
+      // Flying swords hover and breathe apart a little.
+      const hover=still?0:Math.sin(t*2.1)*1.6,spread=still?1:1+Math.sin(t*1.3)*.035;
+      ctx.translate(0,hover);ctx.scale(spread,1);both(0);
+      if(!still){ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=.14+.12*Math.max(0,Math.sin(t*3.1));cloth(ctx,shine,m.width,m.height,m.mount,t,0);}
+    }else{
+      // Fans and talismans: a slow breath and a gentle sway.
+      const breath=still?1:1+Math.sin(t*1.6)*.03;ctx.rotate(still?0:Math.sin(t*.8)*.045);ctx.scale(breath,breath);both(0);
+    }
+    ctx.globalCompositeOperation='screen';
+    if(!still)for(let n=0;n<6;n++){
       const life=(t*.18+n*.618)%1,side=n%2?1:-1;
       const px=side*m.width*(.22+.2*life)+Math.sin(t+n)*1.3,py=6-life*m.height*.7;
       ctx.fillStyle=m.tone;ctx.globalAlpha=Math.sin(life*Math.PI)*.45;ctx.beginPath();ctx.arc(px,py,.4+.3*(1-life),0,TAU);ctx.fill();

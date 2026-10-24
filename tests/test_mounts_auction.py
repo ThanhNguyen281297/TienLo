@@ -49,7 +49,8 @@ class MountTests(Base):
         result = self.act('buy', id='loi-te')
         p = self.player()
         self.assertEqual(p['gold'], 100000 - 30000)
-        self.assertEqual(p['world']['mounts'], dict(owned={'loi-te': 1}, active='loi-te'))
+        self.assertEqual(p['world']['mounts']['owned'], {'loi-te': 1})
+        self.assertEqual(p['world']['equip']['thucuoi']['id'], 'mount-loi-te')   # first mount is worn
         self.assertEqual(server.player_max_hp(p), base_hp + 160)
         self.assertAlmostEqual(server.player_attack(p), base_atk + 9)
         self.assertEqual(result['stable']['active'], 'loi-te')
@@ -62,8 +63,33 @@ class MountTests(Base):
         adventure.grant_fragments(self.db, 1, 130)
         self.act('buy', id='diem-hat')
         self.assertEqual(adventure.wallet(self.db, 1)['fragments'], 10)
-        self.act('equip', id='loi-te'); self.assertEqual(self.player()['world']['mounts']['active'], 'loi-te')
-        self.act('unequip'); self.assertEqual(mounts.bonus(self.player()), dict(hp=0, atk=0))
+        p = self.player()
+        self.assertEqual([i['id'] for i in p['world']['bag']], ['mount-diem-hat'])           # second goes to the bag
+        self.act('equip', id='diem-hat'); p = self.player()
+        self.assertEqual(mounts.data(p)['active'], 'diem-hat')
+        self.assertEqual([i['id'] for i in p['world']['bag']], ['mount-loi-te'])
+        self.act('unequip'); p = self.player()
+        self.assertEqual(mounts.bonus(p), dict(hp=0, atk=0))
+        self.assertEqual(sorted(i['id'] for i in p['world']['bag']), ['mount-diem-hat', 'mount-loi-te'])
+        # A lost item can be taken again from the stable, never duplicated.
+        p['world']['bag'] = [i for i in p['world']['bag'] if i['id'] != 'mount-loi-te']; self.write(1, p)
+        self.act('take', id='loi-te')
+        with self.assertRaises(ValueError): self.act('take', id='loi-te')
+        self.assertEqual(sorted(i['id'] for i in self.player()['world']['bag']), ['mount-diem-hat', 'mount-loi-te'])
+
+    def test_mount_items_are_bound_and_old_mounts_migrate(self):
+        self.act('buy', id='doc-thiem'); self.act('buy', id='bang-lang')
+        p = self.player(); item = p['world']['bag'][0]
+        self.assertTrue(item['bound'])
+        self.assertFalse(any(r['id'].startswith('mount-') for r in adventure.recipes(p)))
+        with self.assertRaises(ValueError):
+            auction.action(self.db, 1, dict(action='sell', uid=item['uid'], start=100, hours=12, opId=self.op(), revision=self.rev(1)))
+        old = dict(nm='Old', ap=dict(w=0), world=dict(bag=[], equip={}, mounts=dict(owned={'loi-te': 2, 'doc-thiem': 1}, active='loi-te')))
+        self.assertTrue(mounts.sync(old))
+        self.assertEqual(old['world']['equip']['thucuoi']['id'], 'mount-loi-te')
+        self.assertEqual([i['id'] for i in old['world']['bag']], ['mount-doc-thiem'])
+        self.assertEqual(mounts.data(old), dict(owned={'loi-te': 2, 'doc-thiem': 1}, active='loi-te'))
+        self.assertFalse(mounts.sync(old))
 
     def test_speed_cap_and_riding_rules(self):
         self.assertEqual(mounts.speed('cot-long', 5), 1.58)
@@ -79,7 +105,7 @@ class MountTests(Base):
         old = self.player(); forged = json.loads(json.dumps(old))
         forged['world']['mounts'] = dict(owned={'cot-long': 5, 'doc-thiem': 1}, active='cot-long')
         mounts.preserve(old, forged)
-        self.assertEqual(forged['world']['mounts'], dict(owned={'doc-thiem': 1}, active='doc-thiem'))
+        self.assertEqual(forged['world']['mounts'], dict(owned={'doc-thiem': 1}, items=True))
         fresh = dict(world=dict(mounts=dict(owned={'cot-long': 5}, active='cot-long')))
         mounts.preserve(None, fresh); self.assertNotIn('mounts', fresh['world'])
 
@@ -88,6 +114,7 @@ class MountTests(Base):
         p = self.player()
         engagement.grant(self.db, 1, p, dict(mount='cot-long'))
         self.assertEqual(p['world']['mounts']['owned'], {'cot-long': 1})
+        self.assertEqual(p['world']['equip']['thucuoi']['id'], 'mount-cot-long')
         gold = p['gold']; engagement.grant(self.db, 1, p, dict(mount='cot-long'))
         self.assertEqual(p['gold'], gold + mounts.DUPLICATE_GOLD)
 

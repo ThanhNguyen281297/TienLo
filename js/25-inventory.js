@@ -174,6 +174,7 @@
     const idx = p.bag.findIndex(i => i.uid === itemUid);
     if (idx < 0) return;
     const item = p.bag[idx];
+    if (item.bound) return msg('Thú cưỡi đã khế ước, không thể bán.');
     const price = Math.max(1, Math.floor((item.price || 10) * 0.5)) * (item.qty || 1);
     P.gold += price;
     p.bag.splice(idx, 1);
@@ -242,9 +243,10 @@
     if(item?.art)return artworkURL(item.art);
     if(item?.slot==='ngoc'||slot==='ngoc')return artworkURL('Item/Thuan/'+(item?.variant||1)+'.png');
     if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
+    if(!item&&slot==='mu'&&window.characterHelmet)return characterHelmet.icon({id:'mu-0-class-'+P.ap.w});
     if((item?.slot||slot)==='vukhi')return 'Item/VuKhi/'+characterClasses[P.ap.w].folder+'.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
-    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png',matna:'Item/MatNa/slot.svg'};
+    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png',matna:'Item/MatNa/slot.svg',thucuoi:'Character/Monsters/Soi/thumb.webp'};
     return artworkURL(icons[type]||'Item/Thuan/1.png');
   }
   function cells(p) {
@@ -342,7 +344,7 @@
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));
         if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
-        action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
+        if(!item.bound)action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
       }
       popup.hidden=false;const rect=anchor?.getBoundingClientRect()||grid.getBoundingClientRect(),mobile=matchMedia('(max-width:700px)').matches,w=Math.min(370,innerWidth-24);popup.style.width=w+'px';popup.style.maxHeight=Math.min(innerHeight*.72,560)+'px';
       if(mobile){popup.style.left='12px';popup.style.top=Math.max(12,Math.min(innerHeight-popup.offsetHeight-12,rect.top-popup.offsetHeight-10))+'px';}

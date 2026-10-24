@@ -26,12 +26,25 @@
  function backImage(ap){const item=gear(ap,'phapbao','backId');return item?image(data.appearance(item)):null;}
  function formationImage(ap){const item=gear(ap,'phaptran','formationId');return item?image(data.appearance(item)):null;}
  const reducedFormationMotion=matchMedia('(prefers-reduced-motion: reduce)');
+ // Formation art is trimmed to its painted disc and stretched to a square once, so
+ // every seal (some are drawn as ellipses or on non-square sheets) spins as a true
+ // circle; the ground projection (2:1, like the iso tiles) is applied after rotation.
+ const discs=new WeakMap();
+ function disc(img){let c=discs.get(img);if(c)return c;const w=img.naturalWidth,h=img.naturalHeight,k=Math.min(1,320/Math.max(w,h)),sw=Math.max(1,Math.round(w*k)),sh=Math.max(1,Math.round(h*k));
+  const probe=document.createElement('canvas');probe.width=sw;probe.height=sh;const p=probe.getContext('2d');p.drawImage(img,0,0,sw,sh);
+  let l=0,t=0,r=sw,b=sh;try{const d=p.getImageData(0,0,sw,sh).data;l=sw;t=sh;r=0;b=0;for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)if(d[(y*sw+x)*4+3]>24){if(x<l)l=x;if(x>r)r=x;if(y<t)t=y;if(y>b)b=y;}if(r<=l||b<=t){l=0;t=0;r=sw;b=sh;}}catch{}
+  c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,l/k,t/k,(r-l+1)/k,(b-t+1)/k,0,0,256,256);
+  // Soft circular edge: nothing square pokes out of the disc while it turns.
+  x.globalCompositeOperation='destination-in';const gr=x.createRadialGradient(128,128,118,128,128,128);gr.addColorStop(0,'#000');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,256,256);
+  discs.set(img,c);return c;}
  function drawFormation(ctx,x,y,ap,fit,scale=1){
   const img=formationImage(ap);if(!img?.complete||!img.naturalWidth)return;
-  const width=86*scale,height=width*img.naturalHeight/img.naturalWidth;
-  ctx.save();ctx.translate(x,y+1);ctx.scale(1,.43);
-  ctx.rotate(reducedFormationMotion.matches?0:tm*.07);
-  ctx.globalAlpha*=.9;renderArtwork(ctx,img,-width/2,-height/2,width,height);ctx.restore();
+  const size=80*scale,spin=reducedFormationMotion.matches?0:tm*.45,pulse=reducedFormationMotion.matches?1:1+Math.sin(tm*2.2)*.015;
+  ctx.save();ctx.translate(fit?.feetX??x,y+1);ctx.scale(pulse,.5*pulse);ctx.rotate(spin);
+  ctx.globalAlpha*=.92;ctx.drawImage(disc(img),-size/2,-size/2,size,size);
+  // A faint counter-turning echo gives the seal depth without new art.
+  if(!reducedFormationMotion.matches){ctx.rotate(-spin*2);ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=.18+.08*Math.sin(tm*1.7);ctx.drawImage(disc(img),-size*.36,-size*.36,size*.72,size*.72);}
+  ctx.restore();
  }
  // Shield on the off-hand forearm: a little over half the body height, foreshortened in profile.
  function drawShield(ctx,x,y,dir,facing,ap,front,fit){const item=gear(ap,'ngoc','shieldId');if(!item)return;if(front!==null&&front!==undefined&&(dir===1)===front)return;const img=image('Item/Thuan/'+data.shieldVariant(item)+'.png');if(!img.complete||!img.naturalWidth)return;

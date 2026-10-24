@@ -7,15 +7,19 @@
  const SPECIES={'doc-thiem':'Ech','bang-lang':'Soi','loi-te':'TeGiac','diem-hat':'BoCap','thuy-long':'RongNuoc','phan-phuong':'PhuongHoang','cot-long':'RongXuong'};
  const BASE={'doc-thiem':1.2,'bang-lang':1.3,'loi-te':1.35,'diem-hat':1.35,'thuy-long':1.45,'phan-phuong':1.5,'cot-long':1.5};
  // Display height, saddle lift and how much of the body covers the rider's legs (fractions of height).
- const LOOK={Ech:{h:40,lift:.5,cover:.62,dx:-3},Soi:{h:50,lift:.5,cover:.6,dx:-6},TeGiac:{h:50,lift:.52,cover:.6,dx:-4},BoCap:{h:44,lift:.48,cover:.55,dx:-2},
-  RongNuoc:{h:60,lift:.42,cover:.5,dx:0,fly:9},PhuongHoang:{h:62,lift:.4,cover:.5,dx:-2,fly:12},RongXuong:{h:60,lift:.46,cover:.52,dx:-4,fly:10}};
+ // Display height, fallback saddle lift and horizontal saddle nudge (fractions / px).
+ // Mounts are drawn about as tall as the rider so the pair reads as rider + steed,
+ // not a figure standing on a small animal.
+ const LOOK={Ech:{h:58,lift:.5,dx:-3},Soi:{h:72,lift:.5,dx:-7},TeGiac:{h:72,lift:.52,dx:-5},BoCap:{h:62,lift:.48,dx:-2},
+  RongNuoc:{h:82,lift:.42,dx:0,fly:9},PhuongHoang:{h:84,lift:.4,dx:-2,fly:12},RongXuong:{h:80,lift:.46,dx:-4,fly:10}};
  const STATS={'doc-thiem':[30,2],'bang-lang':[80,5],'loi-te':[160,9],'diem-hat':[140,12],'thuy-long':[260,16],'phan-phuong':[320,22],'cot-long':[360,26]};
  const NO_RIDE=new Set(['arena','battle','raid','tower','worldboss','duel']);
  const STABLE={x:830,y:1345};
  const state={stable:null,busy:false,combatUntil:0,pref:true};
  try{state.pref=localStorage.getItem('tienlo.ride')!=='0';}catch{}
  const record=()=>P.world?.mounts||null;
- const active=()=>{const r=record();return r?.active&&r.owned?.[r.active]?r.active:null;};
+ // The mount worn in the Thú cưỡi gear slot is the active one (the server agrees).
+ const active=()=>{const r=record(),id=P.world?.equip?.thucuoi?.mountId;return id&&r?.owned?.[id]?id:null;};
  const tier=()=>record()?.owned?.[active()]||1;
  const multiplier=()=>{const id=active();return id?Math.min(1.6,BASE[id]+.02*(tier()-1)):1;};
  const allowed=()=>!NO_RIDE.has(world.state.scene)&&!window.duelGame?.active?.();
@@ -34,8 +38,13 @@
   const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.drawImage(fr.image,sx,sy,w,h,0,0,canvas.width,canvas.height);
   const pad=(window.groundPad?.(fr.image,sx,sy,w,Math.min(h,fr.f.anchor[1]))||0)*Math.min(h,fr.f.anchor[1]);
   // Horizontal centre of the solid body (where the saddle goes), measured once per frame.
-  let sum=0,count=0;try{const data=c.getImageData(0,0,canvas.width,canvas.height).data;for(let y=Math.floor(canvas.height*.3);y<canvas.height*.8;y+=2)for(let x=0;x<canvas.width;x+=2)if(data[(y*canvas.width+x)*4+3]>140){sum+=x;count++;}}catch{}
-  hit={canvas,scale,pad,w,h,ay:fr.f.anchor[1],center:count?sum/count*(w/canvas.width):fr.f.anchor[0],front:new Map()};
+  let sum=0,count=0,back=-1;try{const data=c.getImageData(0,0,canvas.width,canvas.height).data;for(let y=Math.floor(canvas.height*.3);y<canvas.height*.8;y+=2)for(let x=0;x<canvas.width;x+=2)if(data[(y*canvas.width+x)*4+3]>140){sum+=x;count++;}
+   // Saddle: the first solid row over the middle of the body, measured per frame so the
+   // rider rises and dips with the steed's gait.
+   const mid=count?sum/count:canvas.width/2,l=Math.max(0,Math.round(mid-canvas.width*.1)),r=Math.min(canvas.width-1,Math.round(mid+canvas.width*.1));
+   for(let y=0;y<canvas.height&&back<0;y++){let n=0;for(let x=l;x<=r;x++)if(data[(y*canvas.width+x)*4+3]>150)n++;if(n>(r-l+1)*.35)back=y;}}catch{}
+  const k=canvas.height/h,ground=(fr.f.anchor[1]-pad)*k;
+  hit={canvas,scale,pad,w,h,ay:fr.f.anchor[1],center:count?sum/count*(w/canvas.width):fr.f.anchor[0],saddle:back>=0?(ground-back)/k*scale:null,front:new Map()};
   cache.set(key,hit);if(cache.size>160)cache.delete(cache.keys().next().value);return hit;}
  // The lower body, faded in under the saddle line, is drawn again over the rider's legs.
  function front(hit,coverPx){const key=Math.round(coverPx);let canvas=hit.front.get(key);if(canvas)return canvas;
@@ -48,7 +57,7 @@
  function shadow(ctx,x,y,w,a){ctx.save();ctx.fillStyle='rgba(20,18,12,'+a+')';ctx.beginPath();ctx.ellipse(x,y+1,w,w*.28,0,0,Math.PI*2);ctx.fill();ctx.restore();}
 
  // ---------- riders
- let riders=new WeakMap();
+ let riders=new WeakMap();const seats=new WeakMap();
  function mark(){riders=new WeakMap();if(riding())riders.set(P.ap,{id:active(),moving:P.mv,phase:0});
   for(const p of window.onlineWorld?.state.players||[])if(p.mount&&SPECIES[p.mount.id]&&!p.med)riders.set(p.ap,{id:p.mount.id,moving:Math.hypot(p.x-(p.drawX??p.x),p.y-(p.drawY??p.y))>.5,phase:(p.id%7)*.13});}
  const queue=world.queueActors;world.queueActors=function(items,...args){mark();return queue.call(this,items,...args);};
@@ -58,13 +67,18 @@
   const species=SPECIES[m.id],look=LOOK[species],fr=frame(species,m.moving,m.phase);
   if(!fr)return baseDraw.call(this,ctx,x,y,dir,f,moving,t,attack,ap,...rest);
   const hit=raster(fr,look.h),face=f<0?-1:1,hover=look.fly?look.fly+Math.sin(tm*3+m.phase*9)*2.5:0,top=y-hover;
-  const flip=(face>0)!==fr.faceRight?-1:1,riderX=x+((hit.center-fr.f.anchor[0])*hit.scale*flip)+look.dx*face,lift=look.h*look.lift;
-  shadow(ctx,x,y,look.h*.42,look.fly?.22:.3);
+  const flip=(face>0)!==fr.faceRight?-1:1,riderX=x+((hit.center-fr.f.anchor[0])*hit.scale*flip)+look.dx*face;
+  // Seat height follows the measured back of this frame, eased so it never jitters.
+  const target=Math.max(look.h*.3,Math.min(look.h*.72,(hit.saddle??look.h*look.lift)*.9)),prev=seats.get(ap),seat=prev==null?target:prev+(target-prev)*Math.min(1,.35);seats.set(ap,seat);
+  // The rider's hips (about a fifth of the body above the feet) sit on the saddle.
+  const H=42,feet=top-seat+H*.2;
+  shadow(ctx,x,y,look.h*.46,look.fly?.2:.32);
   // The rider's formation spreads on the ground under the mount, not at saddle height.
-  const eq=window.equipmentSystem;eq?.drawFormation?.(ctx,x,y,ap,null,Math.max(1.15,look.h*2.1/86));
+  const eq=window.equipmentSystem;eq?.drawFormation?.(ctx,x,y,ap,null,Math.max(1.2,look.h*1.7/80));
   place(ctx,hit,fr,x,top,face,hit.canvas);
-  if(eq)eq.suppressFormation=true;let r;try{r=baseDraw.call(this,ctx,riderX,top-lift,2,face,false,t,attack,ap,...rest);}finally{if(eq)eq.suppressFormation=false;}
-  place(ctx,hit,fr,x,top,face,front(hit,look.h*look.cover));
+  if(eq)eq.suppressFormation=true;let r;try{r=baseDraw.call(this,ctx,riderX,feet,2,face,false,t,attack,ap,...rest);}finally{if(eq)eq.suppressFormation=false;}
+  // The flank below the saddle is drawn again over the rider's legs.
+  place(ctx,hit,fr,x,top,face,front(hit,Math.max(4,seat-look.h*.05)));
   if(look.fly&&m.moving&&Math.random()<.3)PT.push({x:x+rn(-12,12),y:top-rn(0,8),vx:-face*rn(10,30),vy:rn(-8,4),l:.6,m:.6,c:species==='RongNuoc'?'#9fdcff':species==='RongXuong'?'#7fb6ff':'#ffb36a',s:rn(1,2)});
   return r;};
 
@@ -89,9 +103,7 @@
    btn.lastChild.textContent=riding()?'Đang cưỡi':state.pref?'Giao chiến':'Cưỡi';}btn.title=riding()?'Đang cưỡi · bấm để xuống (phím H)':state.pref?'Đang giao chiến · tự lên lại sau 3 giây':'Bấm để cưỡi (phím H)';}
  addEventListener('keydown',e=>{if(e.key?.toLowerCase()!=='h'||e.repeat||/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)||paused()||!P.ap||!active())return;toggle();});
 
- // ---------- Mã Phu stable (hub service + HUD icon)
- const hudButton=document.createElement('button');hudButton.id='mount-button';hudButton.type='button';hudButton.textContent='Thú cưỡi';hudButton.onclick=()=>{if(!paused())openStable();};
- ($('hud-more-menu')||$('bt')).append(hudButton);
+ // ---------- Mã Phu stable (hub service; mounts are worn from the inventory slot)
  function addService(){if(world.state.scene==='hub'&&!world.services.some(s=>s.id==='stable'))world.services.push({id:'stable',name:'Mã Phu · Thú cưỡi',x:STABLE.x,y:STABLE.y,color:'#e8c48a',npc:true});}
  addService();const change=world.switchScene;world.switchScene=function(...a){const r=change.apply(this,a);addService();painted='';return r;};
  const service=world.handleService;world.handleService=function(id){if(id==='stable'){openStable();return true;}return service(id);};
@@ -101,14 +113,14 @@
   for(const [species,x,y,f] of [['Soi',STABLE.x-48,STABLE.y+44,1],['TeGiac',STABLE.x+62,STABLE.y+40,-1]])if(x>cx-80&&x<cx+vw+80&&y>cy-80&&y<cy+vh+80)items.push([y,()=>{const fr=frame(species,false,x*.01);if(!fr)return;const hit=raster(fr,LOOK[species].h);shadow(g,x,y,LOOK[species].h*.42,.3);place(g,hit,fr,x,y,f,hit.canvas);}]);})(world.queueActors);
 
  async function load(){try{state.stable=(await account.api('/api/mounts')).stable;}catch(e){msg(e.message);}}
- async function act(action,id){if(state.busy)return;state.busy=true;try{const result=await account.transact('/api/mounts',{action,id,opId:crypto.randomUUID()},{live:true,gold:true,world:["mounts"]});state.stable=result.stable;if(result.message)msg(result.message);
-   if(action==='buy'||action==='equip'){state.pref=true;try{localStorage.setItem('tienlo.ride','1');}catch{}}if(action==='buy'||action==='upgrade')window.skillImpact?.flash?.('#ffd27a');window.gameAudio?.play?.('reward');}
+ async function act(action,id){if(state.busy)return;state.busy=true;try{const result=await account.transact('/api/mounts',{action,id,opId:crypto.randomUUID()},{live:true,gold:true,world:["mounts","equip"]});state.stable=result.stable;if(result.message)msg(result.message);
+   window.characterMasks?.refreshAvatar?.();if(action==='buy'||action==='equip'){state.pref=true;try{localStorage.setItem('tienlo.ride','1');}catch{}}if(action==='buy'||action==='upgrade')window.skillImpact?.flash?.('#ffd27a');window.gameAudio?.play?.('reward');}
   catch(e){msg(e.message);}finally{state.busy=false;painted='';render();}}
  const fmt=n=>Number(n||0).toLocaleString('vi-VN');
  async function openStable(){if(!P.ap)return;d.show('Mã Phu · Thú cưỡi','Thú cưỡi tăng tốc độ di chuyển và cộng sinh lực, tấn công.');$('world-content').closest('section')?.classList.add('visual-dialog');render();await load();render();}
  function render(){const content=$('world-content');if(!content||$('world-title').textContent!=='Mã Phu · Thú cưỡi')return;content.replaceChildren();
   const x=state.stable;if(!x){content.append(ui.node('p','world-line','Đang dắt thú ra chuồng…'));return;}
-  content.append(ui.node('p','world-line mount-wallet','◈ '+fmt(x.gold)+' Linh Thạch · ✧ '+fmt(x.fragments)+' mảnh linh khí · Thú xuất hành cộng chỉ số kể cả khi không cưỡi. Phím H hoặc nút 🐎 để lên/xuống.'));
+  content.append(ui.node('p','world-line mount-wallet','◈ '+fmt(x.gold)+' Linh Thạch · ✧ '+fmt(x.fragments)+' mảnh linh khí · Thu phục tại đây sẽ nhận vật phẩm thú cưỡi; mặc vào ô Thú cưỡi (hành trang, cột phải) để cộng chỉ số và cưỡi. Phím H hoặc nút 🐎 để lên/xuống.'));
   const grid=ui.node('div','mount-grid');content.append(grid);
   for(const m of x.mounts){const card=ui.node('article','mount-card'+(m.active?' active':'')+(m.owned?' owned':'')+(m.locked?' locked':''));grid.append(card);
    const art=ui.node('div','mount-art');const thumb=creatureArt.thumbnail?.(m.species);if(thumb)art.append(ui.art(thumb,'mount-thumb'));else{creatureArt.ensureSpecies?.(m.species);setTimeout(render,700);}
@@ -118,7 +130,8 @@
    const row=ui.node('div','mount-actions');body.append(row);
    if(!m.owned){if(m.source)row.append(ui.node('small','mount-source','✦ '+m.source));
      else ui.action(row,m.locked?'Cần cấp '+m.level:'Thu phục · '+(m.gold?fmt(m.gold)+' ◈':fmt(m.fragments)+' mảnh'),()=>act('buy',m.id),m.locked||state.busy||(m.gold?x.gold<m.gold:x.fragments<m.fragments));}
-   else{if(!m.active)ui.action(row,'Xuất hành',()=>act('equip',m.id),state.busy);else ui.action(row,'Cho về chuồng',()=>act('unequip'),state.busy);
+   else{if(m.where==='equip')ui.action(row,'Tháo khỏi ô Thú cưỡi',()=>act('unequip'),state.busy);else ui.action(row,m.where==='bag'?'Mặc vào ô Thú cưỡi':'Nhận & mặc',()=>act('equip',m.id),state.busy);
+     if(!m.where)ui.action(row,'Nhận vào túi',()=>act('take',m.id),state.busy);
      if(m.upgrade)ui.action(row,'Thuần hóa · '+fmt(m.upgrade)+' ◈ (→ +'+m.nextHp+' SL, +'+m.nextAtk+' công)',()=>act('upgrade',m.id),state.busy||x.gold<m.upgrade);else row.append(ui.node('small','mount-source','Đã đạt bậc tối đa'));}}
  }
 
@@ -136,11 +149,7 @@
 .mount-tag,.mount-tier{position:absolute;font:700 10px Arial;padding:2px 6px;border-radius:8px}.mount-tag{top:4px;left:4px;background:#2a4a6acc;color:#bfe6ff}.mount-tier{bottom:4px;right:4px;background:#5a4012e6;color:#ffe3a0}
 .mount-body{min-width:0;flex:1}.mount-body h3{margin:0 0 2px;font-size:15px;color:#ffe3a8}.mount-desc{margin:0 0 6px;font-size:12px;color:#c9d6cf;line-height:1.35}
 .mount-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.mount-actions .visual-action{font-size:12px}.mount-source{color:#e8c48a;font-size:12px}.mount-wallet{font-size:12px}
-#hud-more-menu #mount-button{display:none!important}`;document.head.append(css);
+`;document.head.append(css);
 
- // VLTK activity icon.
- const hud=window.vlHud;if(hud){const a={id:'mount',label:'Thú cưỡi',img:null,thumb:'Soi',run:openStable};const b=document.createElement('button');b.type='button';b.className='vl-activity';b.dataset.id=a.id;b.setAttribute('aria-label',a.label);
-  const c=document.createElement('canvas');c.width=c.height=96;const badge=document.createElement('i');badge.hidden=true;b.append(c,badge,ui.node('span','',a.label));b.onclick=()=>{if(!paused())a.run();};Object.assign(a,{button:b,canvas:c,badgeEl:badge});
-  hud.ACTIVITIES.push(a);$('vl-activities')?.append(b);}
  window.mountGame={state,riding,active,multiplier,openStable,toggle,SPECIES};
 })();
