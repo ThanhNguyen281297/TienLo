@@ -32,7 +32,7 @@
   status.textContent=v?.cleared?'✦ Đã phá Ma Quật · rương gửi vào hộp thư':v?.phase===2?(v.enraged?'Giai đoạn 2 · Ma Long cuồng nộ!':'Giai đoạn 2 · Huyết Trì Ma Long'):'Giai đoạn 1 · Hạ toàn bộ ma vệ';
   status.classList.toggle('enraged',!!v?.enraged);}
 
- async function call(action){if(state.busy)return;state.busy=true;try{state.data=await account.api('/api/raid',{action});if(action==='start')msg('Đã mở '+RULE.name+'. Cả đội hãy vào cổng!');}catch(e){msg(e.message);}finally{state.busy=false;renderHud();open(true);}}
+ async function call(action){if(state.busy)return;state.busy=true;try{state.data=await account.api('/api/raid',{action});if(action==='start')msg('Đã mở '+RULE.name+'. Cả đội hãy vào cổng!');if(action==='queue')msg('🔎 Đang tìm đội cho Ma Quật…');}catch(e){msg(e.message);}finally{state.busy=false;renderHud();open(true);}}
  function enter(){const run=myRun();if(!run||run.status!=='active')return msg('Ma Quật chưa mở.');if(world.state.scene!=='hub')return msg('Về Thiên Vân Thành rồi vào cổng Ma Quật.');world.switchScene('raid');}
 
  function open(silent=false){if(!P.ap)return;if(!silent||!d.isOpen())d.show(RULE.name,'Phó bản tổ đội 2–4 người · cấp '+RULE.level+'+');else if($('world-title').textContent!==RULE.name)return;
@@ -45,7 +45,8 @@
   if(run){content.append(ui.node('p','world-line',(run.status==='cleared'?'Đã chinh phục. ':'Đang mở · còn '+Math.ceil(run.expiresIn/60)+' phút. ')+'Thành viên: '+run.members.map(m=>m.name).join(', ')));
    if(run.status==='active'&&!inRaid())d.action('Vào Ma Quật',enter,world.state.scene!=='hub');
    if(x.leader&&run.status==='active')d.action('Đóng Ma Quật',()=>call('abandon'));}
-  else if(!x.party)content.append(ui.node('p','world-line','Bạn chưa có tổ đội. Mở "Đội / Tông môn" để lập đội 2–4 người, rồi đội trưởng mở Ma Quật tại cổng đỏ phía nam Thiên Vân Thành.'));
+  else if(!x.party){content.append(ui.node('p','world-line',x.queued?'Đang tìm đội… '+x.queueSize+' người đang chờ. Đủ 4 người hoặc 2–3 người chờ 20 giây sẽ tự lập đội và mở Ma Quật.':'Chưa có tổ đội? Bấm Tìm đội để hệ thống ghép 2–4 người cấp 20+ đang ở Thiên Vân Thành.'));
+   if(x.queued)d.action('Hủy tìm đội',()=>call('unqueue'));else d.action('🔎 Tìm đội tự động',()=>call('queue'),world.state.scene!=='hub');}
   else if(!x.leader)content.append(ui.node('p','world-line','Chờ đội trưởng mở Ma Quật. Cả đội cần online trong Thiên Vân Thành, cấp '+RULE.level+'+.'));
   else d.action('Mở Ma Quật cho cả đội',()=>call('start'),world.state.scene!=='hub');
   if(inRaid())d.action('Rời Ma Quật',()=>{d.close();world.switchScene('hub');});

@@ -36,7 +36,7 @@
       window.duelArena?.receive(data.duel);window.expeditionsGame?.updatePending(data.pendingDrops);
       window.adventureGame?.receiveWallet?.(data.adventureWallet);
       const sustainIds=P.world.sustainIds??=[];for(const event of data.sustain||[]){if(!sustainIds.includes(event.id)){equipmentSystem.sustain(event.amount);sustainIds.push(event.id);if(sustainIds.length>100)sustainIds.shift();}}
-      state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);window.engagementGame?.receive?.(data);window.raidGame?.receive?.(data);
+      state.shared=data.shared;state.fields=data.fields||[];window.communityGame?.receive(data);window.engagementGame?.receive?.(data);window.raidGame?.receive?.(data);window.battleGame?.receive?.(data);window.fieldPk?.receive?.(data);
       if(data.shared){
         const ownBasicHits=new Set((batch.hits||[]).filter(h=>h.basic).map(h=>h.id));
         const ownHits=new Set();for(const hit of data.combatHits||[]){damageNumber(hit.x,hit.y-48,hit.amount,hit.critical);ownHits.add(hit.id);}
@@ -57,7 +57,7 @@
           const bonus=bonusStats();if(window.combatDefense?.evading()||classCombat.isDashing()||Math.random()<Math.min(.2,bonus.dodge||0)){window.combatDefense?.dodge();}else{const amount=Math.max(1,Math.round((data.damage-(window.totalArmor?totalArmor(bonus):(P.world?.armor||0)+(bonus.armor||0)))*(window.newClassCombat?.damageTaken()||1)*(window.equipmentSystem?.damageTaken()||1)));P.hp=Math.max(0,P.hp-amount);P.med=0;fx(P.x,P.y-30,'-'+amount,'#ff788e');}
         }
       }
-      if(P.hp<=0&&!data.duel){worldMap.dialog.close();classCombat.onRespawn();worldMap.respawn();P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;saveCharacter();msg('Trọng thương! Trở về đài an toàn, mất 10% Linh Thạch.');}
+      if(P.hp<=0&&!data.duel&&!data.battle){worldMap.dialog.close();classCombat.onRespawn();worldMap.respawn();P.hp=mhp();P.gold=Math.floor(P.gold*.9);P.med=0;saveCharacter();msg('Trọng thương! Trở về đài an toàn, mất 10% Linh Thạch.');}
       showChat(data.chat);$('online-status').textContent='● Online · '+data.online+' đạo hữu'+(data.shared?' · quái chung':'');
     }catch(e){state.connected=false;$('online-status').textContent='● Mất kết nối · đang thử lại';retryAt=performance.now()+1500;if(e.status===401){account.state.ready=false;$('account-screen').hidden=false;$('account-error').textContent='Phiên đã hết hạn. Đăng nhập lại.';}}
     finally{busy=false;}

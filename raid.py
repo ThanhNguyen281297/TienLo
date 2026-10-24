@@ -21,6 +21,8 @@ WAVE = (('DungNham', 'Dung Nham Ma Vệ'), ('TrauQuy', 'Huyết Trì Ngưu Ma'))
 ADDS = ('Soi', 'Huyết Lang')
 GEAR_TIERS = (10, 25, 45, 70)
 SLAM_DELAY = 1.8
+QUEUE = {}          # uid -> time queued for automatic party finding
+MATCH_WAIT = 20     # seconds before a 2-3 player group is started
 
 
 def init_db(db):
@@ -59,11 +61,56 @@ def snapshot(db, uid, peers, at=None):
     party = community.group(db, uid, 'party')
     result = dict(rule=RULE, clearsToday=clears_today(db, uid), run=None, party=bool(party),
                   leader=bool(party) and party['leader'] == uid)
-    run = run or run_for(db, uid, at, ('cleared',))
+    match(db, peers, at)
+    run = run_for(db, uid, at) or run_for(db, uid, at, ('cleared',))
+    party = community.group(db, uid, 'party')
+    result.update(party=bool(party), leader=bool(party) and party['leader'] == uid, queued=uid in QUEUE, queueSize=len(QUEUE))
     if run:
         result['run'] = dict(token=run['token'], level=run['level'], members=_names(db, run['members']), status=run['status'],
                              expiresIn=max(0, round(run['expires'] - at)), leader=run['leader'])
     return result
+
+
+def enqueue(db, uid, peers, at=None):
+    at = time.time() if at is None else at
+    if community.group(db, uid, 'party'):
+        raise ValueError('Bạn đã có tổ đội: đội trưởng mở Ma Quật trực tiếp.')
+    peer = peers.get(uid)
+    if not peer or peer.get('map') != 'hub':
+        raise ValueError('Hãy tìm đội khi đang ở Thiên Vân Thành.')
+    row = db.execute('SELECT player FROM characters WHERE user_id=?', (uid,)).fetchone()
+    if not row or progression.level(json.loads(row['player'])) < RULE['level']:
+        raise ValueError(f"Cần cấp {RULE['level']} để vào Ma Quật.")
+    QUEUE.setdefault(uid, at)
+    match(db, peers, at)
+
+
+def dequeue(uid):
+    QUEUE.pop(uid, None)
+
+
+def match(db, peers, at=None):
+    """Form a party of 2-4 from the queue and open the raid for it."""
+    at = time.time() if at is None else at
+    now = time.monotonic()
+    for uid in list(QUEUE):
+        peer = peers.get(uid)
+        if not peer or now - peer['seen'] > 15 or peer.get('map') != 'hub' or community.group(db, uid, 'party') or run_for(db, uid, at):
+            QUEUE.pop(uid, None)
+    waiting = sorted(QUEUE, key=QUEUE.get)
+    if len(waiting) < RULE['minParty'] or (len(waiting) < RULE['maxParty'] and at - QUEUE[waiting[0]] < MATCH_WAIT):
+        return None
+    group = waiting[:RULE['maxParty']]
+    party_id = secrets.token_hex(12)
+    db.execute('INSERT INTO parties VALUES(?,?,?)', (party_id, group[0], at))
+    for uid in group:
+        db.execute('INSERT INTO party_members VALUES(?,?,?)', (uid, party_id, at))
+        QUEUE.pop(uid, None)
+    try:
+        start(db, group[0], peers, at=at)
+    except ValueError:
+        return None
+    return party_id
 
 
 def start(db, uid, peers, gm=False, at=None):

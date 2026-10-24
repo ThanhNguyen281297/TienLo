@@ -38,6 +38,12 @@ EVENTS = (
          desc='Yêu thú cho gấp đôi EXP và Linh Thạch.'),
     dict(id='huyet-ma-no', name='Huyết Ma Nộ', start=21, end=22, days=None, effect='boss', mult=2,
          desc='Rương Thái Cổ Huyết Ma nhân đôi.'),
+    dict(id='chinh-ta-trua', name='Chính – Tà Chi Chiến', start=12.5, end=12.75, days=None, effect='battle', mult=1,
+         desc='Chiến trường phe: chiếm cờ, hạ địch, nhận rương theo hạng.'),
+    dict(id='chinh-ta-toi', name='Chính – Tà Chi Chiến', start=21, end=21.25, days=None, effect='battle', mult=1,
+         desc='Chiến trường phe: chiếm cờ, hạ địch, nhận rương theo hạng.'),
+    dict(id='tong-mon-chien', name='Tông Môn Chiến', start=20, end=20.5, days=(2, 5), effect='outpost', mult=1,
+         desc='Tranh 4 cứ điểm Sơn Hà: tông môn gây nhiều sát thương nhất lên Trấn Thủ chiếm giữ cả tuần.'),
     dict(id='song-hy', name='Song Hỷ Cuối Tuần', start=0, end=24, days=(5, 6), effect='fragments', mult=2,
          desc='Bí Cảnh rơi gấp đôi mảnh linh khí cả ngày thứ Bảy và Chủ nhật.'),
 )
@@ -64,6 +70,8 @@ ACHIEVEMENT_IDS = {a['id']: a for a in ACHIEVEMENTS}
 BOARDS = (
     dict(id='kills', name='Săn Yêu Tuần', unit='yêu thú'),
     dict(id='tower', name='Vạn Tầng Tháp Tuần', unit='tầng'),
+    dict(id='battle', name='Chiến Trường Tuần', unit='điểm'),
+    dict(id='pk', name='Sát Thần Tuần', unit='mạng'),
 )
 BOARD_REWARDS = ((1, 3000, 30), (3, 1500, 15), (10, 600, 6))   # (up to rank, gold, fragments)
 
@@ -100,7 +108,11 @@ def previous_week(at=None):
 
 def active_events(at=None):
     moment = now_vn(at)
-    return [e for e in EVENTS if (e['days'] is None or moment.weekday() in e['days']) and e['start'] <= moment.hour < e['end']]
+    return [e for e in EVENTS if (e['days'] is None or moment.weekday() in e['days']) and e['start'] <= moment.hour + moment.minute / 60 < e['end']]
+
+
+def _hm(hours):
+    return f'{int(hours):02d}:{round(hours % 1 * 60):02d}'
 
 
 def multiplier(effect, at=None):
@@ -123,7 +135,7 @@ def schedule(at=None):
                 continue
             result.append(dict(id=e['id'], name=e['name'], desc=e['desc'], effect=e['effect'], mult=e['mult'],
                                active=start.timestamp() <= stamp, startsIn=max(0, round(start.timestamp() - stamp)),
-                               endsIn=round(end.timestamp() - stamp), hours=f"{e['start']:02d}:00–{e['end'] % 24:02d}:00",
+                               endsIn=round(end.timestamp() - stamp), hours=f"{_hm(e['start'])}–{_hm(e['end'] % 24)}",
                                weekend=e['days'] is not None))
             break
     return sorted(result, key=lambda e: (not e['active'], e['startsIn']))

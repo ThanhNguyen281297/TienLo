@@ -127,5 +127,20 @@ class EngagementTests(unittest.TestCase):
         self.assertIsNone(raid.run_for(self.db, 1))
 
 
+    def test_raid_party_finder_groups_waiting_players(self):
+        now = time.monotonic(); stamp = time.time()
+        server.PEERS.update({uid: dict(id=uid, map='hub', seen=now, x=1000, y=1100, hp=100) for uid in (1, 2, 3)})
+        raid.QUEUE.clear()
+        raid.enqueue(self.db, 1, server.PEERS, stamp)
+        self.assertIsNone(raid.run_for(self.db, 1), 'one player waits')
+        raid.enqueue(self.db, 2, server.PEERS, stamp + 1)
+        self.assertIsNone(raid.run_for(self.db, 1), 'two players wait for more first')
+        snap = raid.snapshot(self.db, 1, server.PEERS, stamp + raid.MATCH_WAIT + 2)
+        run = raid.run_for(self.db, 1, stamp + raid.MATCH_WAIT + 2)
+        self.assertIsNotNone(run); self.assertEqual(sorted(run['members']), [1, 2]); self.assertTrue(snap['party'])
+        self.assertEqual(raid.QUEUE, {})
+        with self.assertRaises(ValueError): raid.enqueue(self.db, 1, server.PEERS, stamp + 30)   # already in a party
+        raid.QUEUE.clear()
+
 if __name__ == '__main__':
     unittest.main()

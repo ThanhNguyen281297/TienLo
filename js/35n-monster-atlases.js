@@ -27,7 +27,7 @@
   variants.set(key,canvas);if(variants.size>48)variants.delete(variants.keys().next().value);return canvas;
  }
  const previousMon=mon;mon=function(e){
-  if(e.duelTarget)return;const f=pose(e);if(!f)return previousMon(e);if(!ready(f.image))return;
+  if(e.duelTarget||e.pvpTarget)return;const f=pose(e);if(!f)return previousMon(e);if(!ready(f.image))return;
   const [sx,sy,w,h]=f.rect,height=f.kind.height*(e.boss?1.25:1),scale=height/f.sourceHeight;
   const source=raster(f,Math.max(32,Math.min(768,Math.round(h*scale*Z)))),s=creatureArt.reaction(e),kick=Math.sin(Math.min(1,(s.impact||0)/.2)*Math.PI);
   g.save();g.imageSmoothingQuality='high';if(e.corpse)g.globalAlpha=Math.max(0,Math.min(1,(.95-e.age)*3));

@@ -91,7 +91,7 @@
  if(typeof mon==='function'&&window.expeditionMonsters){
   const previous=mon;
   mon=function(e){
-   if(!e.corpse&&!e.duelTarget){
+   if(!e.corpse&&!e.duelTarget&&!e.pvpTarget){
     const kind=window.expeditionMonsters.kinds.get(e.skin);
     if(kind){const height=kind.height*(e.boss?1.25:1);contactShadow(g,e.x,e.y,Math.max(18,height*.75));}
    }
