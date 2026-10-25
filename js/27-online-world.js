@@ -25,7 +25,7 @@
     if(busy||!account.state.ready||account.state.restoring||!P.ap||window.expeditionsGame?.assetsPending()||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
     if(lastMap!==scene){state.hits=[];state.players=[];state.fields=[];state.shared=false;retry=null;lastMap=scene;}
-    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,ride:!!window.mountGame?.riding(),respawn:!!state.respawned,cast:state.cast,hp:P.hp,duelAttacks:(state.duelAttacks||[]).splice(0,8),ackBoss:window.communityGame?.bossAcks||[],field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.respawned=false;state.cast=null;state.petCast=null;retry=batch;
+    const batch=retry||{stream,batch:String(++serial)+'-'+Date.now(),map:scene,x:P.x,y:P.y,airborne:0,dir:P.dir,f:P.f,med:!!P.med,respawn:!!state.respawned,cast:state.cast,hp:P.hp,duelAttacks:(state.duelAttacks||[]).splice(0,8),ackBoss:window.communityGame?.bossAcks||[],field:window.fieldEffects?.descriptor()??null,petCast:state.petCast??null,paused:paused()||worldMap.dialog.isOpen(),hits:state.hits.splice(0,32),ack:state.acks.slice(-100),emote:state.emote};state.emote=null;state.respawned=false;state.cast=null;state.petCast=null;retry=batch;
     try{
       const data=await account.api('/api/world',{...batch,ackSustain:P.world.sustainIds||[]});retry=null;state.connected=true;chat.hidden=false;
       if(scene!==worldMap.state.scene||account.state.restoring)return;

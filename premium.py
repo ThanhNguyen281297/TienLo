@@ -22,7 +22,7 @@ ITEMS = {
     'khoa-tay-luyen': dict(name='Khóa Tẩy Luyện', rarity='huyen', desc='Cần để khóa dòng thứ hai trở đi khi tẩy luyện (mỗi dòng một khóa).'),
     'be-quan-lenh': dict(name='Bế Quan Lệnh', rarity='linh', desc='Dùng: cộng thêm 4 giờ ủy thác bế quan offline (tối đa 24 giờ).'),
     'ruong-manh': dict(name='Rương Mảnh Thần Binh', rarity='tien', desc='Dùng: nhận 6 mảnh trang bị ngẫu nhiên (pháp bảo, pháp trận, hộ thuẫn, bước chân, mặt nạ, nhẫn, thú hồn).'),
-    'thu-hon-bao': dict(name='Thú Hồn Bao', rarity='tien', desc='Dùng: nhận 12 Thú Hồn để đổi thú cưỡi tại Trưởng môn.'),
+    'thu-hon-bao': dict(name='Thú Hồn Bao', rarity='tien', desc='Dùng: nhận 12 Thú Hồn để đổi linh thú tại Trưởng môn.'),
     'tui-linh-thach': dict(name='Túi Linh Thạch', rarity='huyen', desc='Dùng: nhận 30.000 Linh Thạch.'),
     'linh-nguyen-dan': dict(name='Linh Nguyên Đan', rarity='linh', desc='Dùng: nhận 600 Linh Nguyên.'),
 }

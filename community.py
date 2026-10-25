@@ -185,7 +185,7 @@ def action(db,uid,body,peers):
         if not reward:raise ValueError('Rương đã nhận hoặc không thuộc về bạn.')
         payload=json.loads(reward['payload'])
         # Mailbox chests from leaderboards and raids can also carry EXP, fragments, materials and gear.
-        if any(k in payload for k in ('xp','fragments','items','gear','mount','lot','shards','lq')):__import__('engagement').grant(db,uid,player,payload)
+        if any(k in payload for k in ('xp','fragments','items','gear','mount','pet','lot','shards','lq')):__import__('engagement').grant(db,uid,player,payload)
         else:apply_reward(player,payload)
         db.execute('UPDATE community_rewards SET claimed=1 WHERE id=?',(reward['id'],))
     elif op=='friend_list':

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import server, premium, shards, mailbox, engagement, equipment, forging, mounts
+import server, premium, shards, mailbox, engagement, equipment, forging, pets
 
 
 class Base(unittest.TestCase):
@@ -122,11 +122,11 @@ class ShardTests(Base):
         self.act('formation-1')
         self.assertEqual(shards.wallet(self.db, 1)['phaptran'], 5)
         self.assertIn('formation-1', [i['id'] for i in self.player()['world']['bag']])
-        self.act('mount-doc-thiem')
+        self.act('pet-doc-thiem')
         p = self.player()
-        self.assertEqual(p['world']['equip']['thucuoi']['id'], 'mount-doc-thiem')
+        self.assertEqual(p['world']['equip']['linhthu']['id'], 'pet-doc-thiem')
         with self.assertRaises(ValueError):
-            self.act('mount-doc-thiem')                                    # already owned
+            self.act('pet-doc-thiem')                                    # already owned
         p['world']['map'] = 'hub'
         self.db.execute('UPDATE characters SET player=?,revision=revision+1 WHERE user_id=1', (json.dumps(p),))
         shards.add(self.db, 1, 'phaptran', 40)

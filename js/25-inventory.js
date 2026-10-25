@@ -15,7 +15,6 @@
     {id:'hoi-linh-dan',type:'consume',name:'Hồi Linh Đan',rarity:'pham',price:12,mana:40,desc:'Hồi 40 linh lực.'},
     {id:'tu-vi-dan',type:'consume',name:'Tu Vi Đan',rarity:'huyen',price:25,xp:30,desc:'+30 đạo hạnh.'}
   ];
-  for(const [species,name] of [['BoNgua','Linh Đường Lang'],['Tho','Nguyệt Thố'],['Nhen','Huyết Nhện'],['Doi','Băng Dực Dơi']])TEMPLATES.push({id:'egg-'+species,type:'egg',species,name:'Trứng '+name,rarity:'huyen',price:0,desc:'Ấp để nở linh thú '+name+'.'});
   TEMPLATES.push(...equipmentData.templates,...equipmentData.materials);
   const BY_ID = Object.fromEntries(TEMPLATES.map(t => [t.id, t]));
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'it-' + Date.now() + '-' + Math.floor(Math.random() * 1e9));
@@ -34,13 +33,13 @@
     const item = Object.assign({}, t);
     item.uid = uid();
     if(equipmentData.pool(item).length)item.affixes=equipmentData.defaults(item);
-    if (['consume','egg'].includes(item.type)) item.qty = qty;
+    if (item.type==='consume') item.qty = qty;
     return item;
   }
   function addItem(id, qty = 1) {
     const p = progress(), t = BY_ID[equipmentData.canonicalId(id)];
     if (!t) return null;
-    if (['consume','egg'].includes(t.type)) {
+    if (t.type==='consume') {
       const found = p.bag.find(i => i.id === id);
       if (found) { found.qty = (found.qty || 1) + qty; saveCharacter(); return found; }
     }
@@ -226,10 +225,9 @@
     const wornArt=equipmentData.appearance(item);if(wornArt)return artworkURL(wornArt);
     if(item?.art)return artworkURL(item.art);
     if(item?.slot==='ngoc'||slot==='ngoc')return artworkURL('Item/Thuan/'+(item?.variant||1)+'.png');
-    if(item?.type==='egg'&&window.spiritPets)return spiritPets.eggIcon(item.species);
     if((item?.slot||slot)==='vukhi')return 'Item/VuKhi/'+characterClasses[P.ap.w].folder+'.png';
     const type=item?.type==='consume'?'consume':item?.slot||slot;
-    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png',matna:'Item/MatNa/slot.svg',thucuoi:'Character/Monsters/Soi/thumb.webp'};
+    const icons={daobao:'Item/Ao/daobao.png',chan:'Item/Chan/dai-v2.png',giay:'Item/Giay/giay.png',gioi:'Item/Nhan/gioi.png',consume:'Item/Consumable/consume.png',phapbao:characterEquipmentArt(P.ap.w,'lung'),phaptran:characterEquipmentArt(P.ap.w,'vong'),dichuyen:'Item/DiChuyen/1.png',matna:'Item/MatNa/slot.svg',linhthu:'Character/Monsters/sprites/Tho/1-01.png'};
     return artworkURL(icons[type]||'Item/Thuan/1.png');
   }
   function cells(p) {
@@ -323,7 +321,6 @@
       const actions=document.createElement('div');actions.className='item-detail-actions';panel.append(actions);
       function action(label,fn){const button=document.createElement('button');button.type='button';button.textContent=label;button.onclick=fn;actions.append(button);return button;}
       if(equipmentData.pool(item).length)action('Tẩy luyện · '+(60+(item.locks?.length||0)*25)+' ◈',()=>equipmentSystem.reforge(item.uid));
-      if(item.type==='egg')action('Ấp trứng',()=>spiritPets.startHatch(item.uid));
       if(equipped)action('Tháo trang bị',()=>unequip(item.slot));else{
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));
         if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
@@ -338,7 +335,6 @@
     const resources=document.createElement('div');resources.className='bag-resources';resources.textContent='Linh Nguyên '+(p.essence||0)+' · Đột Phá Đan '+(p.breakthroughPills||0)+' · Thăng Vị Đan '+(p.thangViDan||0);bag.append(resources);
     const shop=document.createElement('div');shop.className='quick-shop';bag.append(shop);
     ['hoi-huyet-dan','hoi-linh-dan'].forEach(id=>{const t=BY_ID[id],button=document.createElement('button');button.textContent=t.name+' · '+t.price+' ◈';button.onclick=()=>buyItem(id);button.disabled=P.gold<t.price;shop.append(button);});
-    dialog.action('Linh thú',()=>spiritPets.open());
     dialog.action('Thuộc tính (U)',openAttrs);
   }
   function openShopEquip() {

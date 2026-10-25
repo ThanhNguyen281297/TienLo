@@ -1,11 +1,11 @@
-"""Thú cưỡi (stable, stats, riding, raid drop, save protection) and Tụ Bảo Các auction house."""
+"""Linh thú (Ngự Thú Sư, stats, migration from mounts, raid drop, save protection) and Tụ Bảo Các auction house."""
 import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import server, adventure, auction, community, equipment, mounts, trade
+import server, adventure, auction, community, equipment, pets
 
 
 class Base(unittest.TestCase):
@@ -37,9 +37,9 @@ class Base(unittest.TestCase):
         return f'op-{self.ops:06d}'
 
 
-class MountTests(Base):
+class PetTests(Base):
     def act(self, op, uid=1, **args):
-        return mounts.action(self.db, uid, dict(action=op, opId=self.op(), revision=self.rev(uid), **args))
+        return pets.action(self.db, uid, dict(action=op, opId=self.op(), revision=self.rev(uid), **args))
 
     def test_buy_equip_upgrade_and_stats(self):
         base_hp, base_atk = server.player_max_hp(self.player()), server.player_attack(self.player())
@@ -49,74 +49,81 @@ class MountTests(Base):
         result = self.act('buy', id='loi-te')
         p = self.player()
         self.assertEqual(p['gold'], 100000 - 30000)
-        self.assertEqual(p['world']['mounts']['owned'], {'loi-te': 1})
-        self.assertEqual(p['world']['equip']['thucuoi']['id'], 'mount-loi-te')   # first mount is worn
+        self.assertEqual(p['world']['petBook']['owned'], {'loi-te': 1})
+        self.assertEqual(p['world']['equip']['linhthu']['id'], 'pet-loi-te')   # first pet is worn
         self.assertEqual(server.player_max_hp(p), base_hp + 160)
         self.assertAlmostEqual(server.player_attack(p), base_atk + 9)
         self.assertEqual(result['stable']['active'], 'loi-te')
         with self.assertRaises(ValueError): self.act('buy', id='loi-te')
         self.act('upgrade', id='loi-te')
         p = self.player()
-        self.assertEqual(p['world']['mounts']['owned']['loi-te'], 2)
-        self.assertEqual(p['gold'], 70000 - mounts.upgrade_cost('loi-te', 1))
-        self.assertEqual(mounts.bonus(p), dict(hp=208, atk=12))
+        self.assertEqual(p['world']['petBook']['owned']['loi-te'], 2)
+        self.assertEqual(p['gold'], 70000 - pets.upgrade_cost('loi-te', 1))
+        self.assertEqual(pets.bonus(p), dict(hp=208, atk=12))
         adventure.grant_fragments(self.db, 1, 130)
         self.act('buy', id='diem-hat')
         self.assertEqual(adventure.wallet(self.db, 1)['fragments'], 10)
         p = self.player()
-        self.assertEqual([i['id'] for i in p['world']['bag']], ['mount-diem-hat'])           # second goes to the bag
+        self.assertEqual([i['id'] for i in p['world']['bag']], ['pet-diem-hat'])           # second goes to the bag
         self.act('equip', id='diem-hat'); p = self.player()
-        self.assertEqual(mounts.data(p)['active'], 'diem-hat')
-        self.assertEqual([i['id'] for i in p['world']['bag']], ['mount-loi-te'])
+        self.assertEqual(pets.data(p)['active'], 'diem-hat')
+        self.assertEqual([i['id'] for i in p['world']['bag']], ['pet-loi-te'])
         self.act('unequip'); p = self.player()
-        self.assertEqual(mounts.bonus(p), dict(hp=0, atk=0))
-        self.assertEqual(sorted(i['id'] for i in p['world']['bag']), ['mount-diem-hat', 'mount-loi-te'])
+        self.assertEqual(pets.bonus(p), dict(hp=0, atk=0))
+        self.assertEqual(sorted(i['id'] for i in p['world']['bag']), ['pet-diem-hat', 'pet-loi-te'])
         # A lost item can be taken again from the stable, never duplicated.
-        p['world']['bag'] = [i for i in p['world']['bag'] if i['id'] != 'mount-loi-te']; self.write(1, p)
+        p['world']['bag'] = [i for i in p['world']['bag'] if i['id'] != 'pet-loi-te']; self.write(1, p)
         self.act('take', id='loi-te')
         with self.assertRaises(ValueError): self.act('take', id='loi-te')
-        self.assertEqual(sorted(i['id'] for i in self.player()['world']['bag']), ['mount-diem-hat', 'mount-loi-te'])
+        self.assertEqual(sorted(i['id'] for i in self.player()['world']['bag']), ['pet-diem-hat', 'pet-loi-te'])
 
-    def test_mount_items_are_bound_and_old_mounts_migrate(self):
+    def test_pet_items_are_bound_and_old_mounts_pets_and_eggs_migrate(self):
         self.act('buy', id='doc-thiem'); self.act('buy', id='bang-lang')
         p = self.player(); item = p['world']['bag'][0]
         self.assertTrue(item['bound'])
-        self.assertFalse(any(r['id'].startswith('mount-') for r in adventure.recipes(p)))
+        self.assertFalse(any(r['id'].startswith('pet-') for r in adventure.recipes(p)))
         with self.assertRaises(ValueError):
             auction.action(self.db, 1, dict(action='sell', uid=item['uid'], start=100, hours=12, opId=self.op(), revision=self.rev(1)))
-        old = dict(nm='Old', ap=dict(w=0), world=dict(bag=[], equip={}, mounts=dict(owned={'loi-te': 2, 'doc-thiem': 1}, active='loi-te')))
-        self.assertTrue(mounts.sync(old))
-        self.assertEqual(old['world']['equip']['thucuoi']['id'], 'mount-loi-te')
-        self.assertEqual([i['id'] for i in old['world']['bag']], ['mount-doc-thiem'])
-        self.assertEqual(mounts.data(old), dict(owned={'loi-te': 2, 'doc-thiem': 1}, active='loi-te'))
-        self.assertFalse(mounts.sync(old))
+        worn = dict(equipment.RULES['petItems'][0], id='mount-loi-te', slot='thucuoi', uid='keep-uid')
+        old = dict(nm='Old', ap=dict(w=0), world=dict(
+            bag=[dict(id='egg-Doi', type='egg', species='Doi', name='Trứng', uid='egg')],
+            equip={'thucuoi': worn}, mounts=dict(owned={'loi-te': 2, 'doc-thiem': 1}),
+            pets=[dict(id='p1', species='Tho', name='Nguyệt Thố')], activePet='p1'))
+        self.assertTrue(pets.sync(old))
+        w = old['world']
+        self.assertEqual((w['equip']['linhthu']['id'], w['equip']['linhthu']['uid']), ('pet-loi-te', 'keep-uid'))
+        self.assertNotIn('thucuoi', w['equip'])
+        self.assertEqual(sorted(i['id'] for i in w['bag']), ['pet-bang-doi', 'pet-doc-thiem', 'pet-nguyet-tho'])
+        self.assertEqual(pets.data(old)['owned'], {'loi-te': 2, 'doc-thiem': 1, 'nguyet-tho': 1, 'bang-doi': 1})
+        for key in ('mounts', 'pets', 'activePet'):
+            self.assertNotIn(key, w)
+        self.assertFalse(pets.sync(old))
 
-    def test_speed_cap_and_riding_rules(self):
-        self.assertEqual(mounts.speed('cot-long', 5), 1.58)
-        self.assertTrue(all(mounts.speed(m['id'], 5) <= mounts.SPEED_CAP for m in mounts.MOUNTS))
-        self.act('buy', id='doc-thiem')
-        p = self.player()
-        self.assertEqual(mounts.riding(p, 'field-meadow', True), dict(id='doc-thiem', tier=1))
-        self.assertIsNone(mounts.riding(p, 'battle', True))
-        self.assertIsNone(mounts.riding(p, 'hub', False))
+    def test_skills_cover_every_pet(self):
+        rules = json.loads((server.ROOT / 'Item' / 'pet-skills.json').read_text(encoding='utf-8'))
+        for p in pets.PETS:
+            self.assertIn(rules[p['species']]['kind'], ('strike', 'heal', 'poison', 'area'))
+        self.assertEqual(pets.peer_pet(self.player()), None)
 
-    def test_saves_cannot_forge_mounts(self):
+    def test_saves_cannot_forge_pets(self):
         self.act('buy', id='doc-thiem')
         old = self.player(); forged = json.loads(json.dumps(old))
-        forged['world']['mounts'] = dict(owned={'cot-long': 5, 'doc-thiem': 1}, active='cot-long')
-        mounts.preserve(old, forged)
-        self.assertEqual(forged['world']['mounts'], dict(owned={'doc-thiem': 1}, items=True))
-        fresh = dict(world=dict(mounts=dict(owned={'cot-long': 5}, active='cot-long')))
-        mounts.preserve(None, fresh); self.assertNotIn('mounts', fresh['world'])
+        forged['world']['petBook'] = dict(owned={'cot-long': 5, 'doc-thiem': 1})
+        forged['world']['pets'] = [dict(id='x', species='Tho', name='x')]
+        pets.preserve(old, forged)
+        self.assertEqual(forged['world']['petBook'], dict(owned={'doc-thiem': 1}))
+        self.assertNotIn('pets', forged['world'])
+        fresh = dict(world=dict(petBook=dict(owned={'cot-long': 5})))
+        pets.preserve(None, fresh); self.assertNotIn('petBook', fresh['world'])
 
-    def test_raid_chest_mount_and_duplicate(self):
+    def test_raid_chest_pet_and_duplicate(self):
         engagement = __import__('engagement')
         p = self.player()
-        engagement.grant(self.db, 1, p, dict(mount='cot-long'))
-        self.assertEqual(p['world']['mounts']['owned'], {'cot-long': 1})
-        self.assertEqual(p['world']['equip']['thucuoi']['id'], 'mount-cot-long')
-        gold = p['gold']; engagement.grant(self.db, 1, p, dict(mount='cot-long'))
-        self.assertEqual(p['gold'], gold + mounts.DUPLICATE_GOLD)
+        engagement.grant(self.db, 1, p, dict(pet='cot-long'))
+        self.assertEqual(p['world']['petBook']['owned'], {'cot-long': 1})
+        self.assertEqual(p['world']['equip']['linhthu']['id'], 'pet-cot-long')
+        gold = p['gold']; engagement.grant(self.db, 1, p, dict(pet='cot-long'))
+        self.assertEqual(p['gold'], gold + pets.DUPLICATE_GOLD)
 
 
 class AuctionTests(Base):

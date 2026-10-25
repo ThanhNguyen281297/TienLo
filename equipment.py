@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 RULES = json.loads((ROOT/'Item'/'equipment.json').read_text(encoding='utf-8'))
-TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails','masks','mountItems') for t in RULES[group]}
+TEMPLATES = {t['id']: t for group in ('classGear','rings','shields','backs','formations','trails','masks','petItems') for t in RULES.get(group,[])}
 STAT_KEYS = ('atk','hp','mp','armor','crit','dodge','skill')
 MATERIALS={
  'cuong-hoa-thach':dict(id='cuong-hoa-thach',type='material',name='Cường Hóa Thạch',rarity='huyen',price=8,art='Item/NguyenLieu/cuong-hoa-v1.png',desc='Nguyên liệu đặt vào lò rèn để cường hóa trang bị.'),
@@ -75,6 +75,7 @@ def normalize(player, collection=None):
             if item.get('slot')=='chan' and meta:item['art']=meta['art']
         # v8: the Mũ (helmet) slot was retired; drop worn and carried helmets.
         equip.pop('mu',None)
+        if equip.get('thucuoi') is None:equip.pop('thucuoi',None)   # v9: Thú cưỡi became Linh thú (pets.sync moves items)
         w['bag']=[i for i in w['bag'] if i.get('slot')!='mu']
         for slot in RULES['slots']:equip.setdefault(slot,None)
         w['equipmentVersion']=RULES['version']

@@ -1,6 +1,6 @@
 /* Shared catalog. Ratios use basis points; affixes do not scale with enhancement. */
 (function(){
- const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations,...rules.trails,...rules.masks,...(rules.mountItems||[])],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
+ const rules=equipmentRules,templates=[...rules.classGear,...rules.rings,...rules.shields,...rules.backs,...rules.formations,...rules.trails,...rules.masks,...(rules.petItems||[])],byId=new Map(templates.map(t=>[t.id,t])),statKeys=['atk','hp','mp','armor','crit','dodge','skill'];
  const materials=[{id:'cuong-hoa-thach',type:'material',name:'Cường Hóa Thạch',rarity:'huyen',price:8,art:'Item/NguyenLieu/cuong-hoa-v1.png',desc:'Nguyên liệu cường hóa tại Luyện Khí Phường.'},{id:'tinh-luyen-thach',type:'material',name:'Tinh Luyện Thạch',rarity:'linh',price:20,art:'Item/NguyenLieu/tinh-luyen-v1.png',desc:'Nguyên liệu cường hóa từ +10.'}];
  const optionStats=item=>Object.fromEntries((item?.options||[]).map(o=>[o.key,o.value/(['crit','dodge'].includes(o.key)?1000:1)]));
  const pool=item=>item?.slot==='phapbao'?rules.offense:item?.slot==='ngoc'?rules.defense:[];
@@ -15,7 +15,7 @@
  }
  function normalize(p,cls=P.ap?.w||0){
   p.bag??=[];p.equip??={};if(p.equipmentVersion>=rules.version)return p;
-  if(p.equipmentVersion>=4){for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)]){const meta=byId.get(item.id);if(item.slot==='chan'&&meta)item.art=meta.art;}delete p.equip.mu;p.bag=p.bag.filter(i=>i.slot!=='mu');for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;p.equipmentVersion=rules.version;return p;}
+  if(p.equipmentVersion>=4){for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)]){const meta=byId.get(item.id);if(item.slot==='chan'&&meta)item.art=meta.art;}delete p.equip.mu;if(p.equip.thucuoi==null)delete p.equip.thucuoi;p.bag=p.bag.filter(i=>i.slot!=='mu');for(const slot of Object.keys(rules.slots))p.equip[slot]??=null;p.equipmentVersion=rules.version;return p;}
   if(p.equip.gioi?.id.startsWith('rift-')){p.equip.chan=p.equip.gioi;p.equip.gioi=null;}
   function convert(item){const meta=byId.get(canonicalId(item.id,cls));if(meta){for(const key of [...statKeys,'classIndex','art','capacity','variant','setId','source','baseId'])delete item[key];Object.assign(item,meta);if(pool(item).length&&!item.affixes)item.affixes=defaults(item);}else{delete item.setId;delete item.source;}}
   for(const item of [...p.bag,...Object.values(p.equip).filter(Boolean)])convert(item);

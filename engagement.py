@@ -253,8 +253,9 @@ def grant(db, uid, player, reward):
         adventure.gain(player, reward['xp'])
     if reward.get('fragments'):
         adventure.grant_fragments(db, uid, reward['fragments'])
-    if reward.get('mount'):
-        __import__('mounts').grant(player, reward['mount'])
+    for key in ('pet', 'mount'):            # 'mount' kept for chests mailed before pets replaced mounts
+        if reward.get(key):
+            __import__('pets').grant(player, reward[key])
     if reward.get('lot'):
         __import__('auction').deliver(db, uid, player, reward['lot'], reward.get('from'))
     # Typed shards: {'kind': qty} or a number of random kinds.
@@ -276,7 +277,8 @@ def describe(reward):
     if reward.get('fragments'): parts.append(f"{reward['fragments']} mảnh linh khí")
     for iid, qty in (reward.get('items') or {}).items(): parts.append(f"{qty} {equipment.TEMPLATES[iid]['name']}")
     for iid in reward.get('gear') or []: parts.append(equipment.TEMPLATES[iid]['name'])
-    if reward.get('mount'): parts.append('Thú cưỡi ' + __import__('mounts').BY_ID[reward['mount']]['name'])
+    for key in ('pet', 'mount'):
+        if reward.get(key): parts.append('Linh thú ' + __import__('pets').BY_ID[reward[key]]['name'])
     shards = reward.get('shards')
     if isinstance(shards, dict): parts.append(__import__('shards').describe(shards))
     elif shards: parts.append(f"{shards} mảnh trang bị ngẫu nhiên")

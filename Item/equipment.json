@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "slots": {
     "vukhi": "Vũ khí",
     "daobao": "Đạo bào",
@@ -11,7 +11,7 @@
     "phaptran": "Pháp trận",
     "dichuyen": "Hiệu ứng chân",
     "matna": "Mặt nạ",
-    "thucuoi": "Thú cưỡi"
+    "linhthu": "Linh thú"
   },
   "combatSlots": [
     "vukhi",
@@ -910,7 +910,7 @@
     "gioi",
     "dichuyen",
     "matna",
-    "thucuoi"
+    "linhthu"
   ],
   "collectionAppearance": {
     "phong": {
@@ -5728,11 +5728,83 @@
       "level": 70
     }
   ],
-  "mountItems": [
+  "petItems": [
     {
-      "id": "mount-doc-thiem",
-      "slot": "thucuoi",
-      "mountId": "doc-thiem",
+      "id": "pet-duong-lang",
+      "slot": "linhthu",
+      "petId": "duong-lang",
+      "species": "BoNgua",
+      "name": "Linh Đường Lang",
+      "rarity": "pham",
+      "req": 1,
+      "price": 0,
+      "bound": true,
+      "art": "Character/Monsters/sprites/BoNgua/1-01.png",
+      "baseHp": 20,
+      "baseAtk": 3,
+      "skillName": "Liêm Phong",
+      "skillDesc": "Chém mục tiêu: 240% công.",
+      "skillCooldown": 12,
+      "desc": "Bọ ngựa linh tính, lưỡi liềm sắc bén."
+    },
+    {
+      "id": "pet-nguyet-tho",
+      "slot": "linhthu",
+      "petId": "nguyet-tho",
+      "species": "Tho",
+      "name": "Nguyệt Thố",
+      "rarity": "pham",
+      "req": 1,
+      "price": 0,
+      "bound": true,
+      "art": "Character/Monsters/sprites/Tho/1-01.png",
+      "baseHp": 40,
+      "baseAtk": 1,
+      "skillName": "Nguyệt Quang",
+      "skillDesc": "Hồi 18% HP và 15% MP tối đa.",
+      "skillCooldown": 20,
+      "desc": "Thỏ ngọc dưới trăng, chuyên hồi phục cho chủ nhân."
+    },
+    {
+      "id": "pet-huyet-nhen",
+      "slot": "linhthu",
+      "petId": "huyet-nhen",
+      "species": "Nhen",
+      "name": "Huyết Nhện",
+      "rarity": "huyen",
+      "req": 8,
+      "price": 0,
+      "bound": true,
+      "art": "Character/Monsters/sprites/Nhen/1-01.png",
+      "baseHp": 40,
+      "baseAtk": 4,
+      "skillName": "Độc Vụ",
+      "skillDesc": "Trúng độc 5 giây: mỗi giây 70% công.",
+      "skillCooldown": 16,
+      "desc": "Nhện máu giăng tơ độc."
+    },
+    {
+      "id": "pet-bang-doi",
+      "slot": "linhthu",
+      "petId": "bang-doi",
+      "species": "Doi",
+      "name": "Băng Dực Dơi",
+      "rarity": "huyen",
+      "req": 8,
+      "price": 0,
+      "bound": true,
+      "art": "Character/Monsters/sprites/Doi/1-01.png",
+      "baseHp": 50,
+      "baseAtk": 4,
+      "skillName": "Băng Tức",
+      "skillDesc": "Vùng băng 90% công, làm chậm 30% trong 3 giây; boss giảm một nửa.",
+      "skillCooldown": 14,
+      "desc": "Dơi cánh băng, thổi hàn khí làm chậm địch."
+    },
+    {
+      "id": "pet-doc-thiem",
+      "slot": "linhthu",
+      "petId": "doc-thiem",
       "species": "Ech",
       "name": "Độc Giác Thiềm",
       "rarity": "pham",
@@ -5740,12 +5812,17 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/Ech/thumb.webp",
-      "desc": "Cóc độc giáp gai, chậm rãi nhưng bền bỉ. Thú cưỡi nhập môn. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 30,
+      "baseAtk": 2,
+      "skillName": "Độc Thiềm Tiễn",
+      "skillDesc": "Phun độc 5 giây: mỗi giây 80% công.",
+      "skillCooldown": 15,
+      "desc": "Cóc độc giáp gai, chậm rãi nhưng bền bỉ."
     },
     {
-      "id": "mount-bang-lang",
-      "slot": "thucuoi",
-      "mountId": "bang-lang",
+      "id": "pet-bang-lang",
+      "slot": "linhthu",
+      "petId": "bang-lang",
       "species": "Soi",
       "name": "Hàn Băng Lang",
       "rarity": "huyen",
@@ -5753,12 +5830,17 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/Soi/thumb.webp",
-      "desc": "Sói băng phương Bắc, lướt nhanh trên tuyết. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 80,
+      "baseAtk": 5,
+      "skillName": "Hàn Lang Hống",
+      "skillDesc": "Vùng băng 100% công, làm chậm 30% trong 3 giây; boss giảm một nửa.",
+      "skillCooldown": 14,
+      "desc": "Sói băng phương Bắc, gầm lên đóng băng cả bầy địch."
     },
     {
-      "id": "mount-loi-te",
-      "slot": "thucuoi",
-      "mountId": "loi-te",
+      "id": "pet-loi-te",
+      "slot": "linhthu",
+      "petId": "loi-te",
       "species": "TeGiac",
       "name": "Lôi Giác Tê",
       "rarity": "linh",
@@ -5766,12 +5848,17 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/TeGiac/thumb.webp",
-      "desc": "Tê giác mang lôi điện, giáp dày như tường thành. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 160,
+      "baseAtk": 9,
+      "skillName": "Lôi Giác Xung",
+      "skillDesc": "Húc sấm vào mục tiêu: 280% công.",
+      "skillCooldown": 13,
+      "desc": "Tê giác mang lôi điện, giáp dày như tường thành."
     },
     {
-      "id": "mount-diem-hat",
-      "slot": "thucuoi",
-      "mountId": "diem-hat",
+      "id": "pet-diem-hat",
+      "slot": "linhthu",
+      "petId": "diem-hat",
       "species": "BoCap",
       "name": "Xích Diệm Hạt",
       "rarity": "linh",
@@ -5779,12 +5866,17 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/BoCap/thumb.webp",
-      "desc": "Bọ cạp lửa, đổi bằng mảnh linh khí. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 140,
+      "baseAtk": 12,
+      "skillName": "Xích Hạt Độc",
+      "skillDesc": "Độc hỏa 5 giây: mỗi giây 100% công.",
+      "skillCooldown": 15,
+      "desc": "Bọ cạp lửa, đổi bằng mảnh linh khí."
     },
     {
-      "id": "mount-thuy-long",
-      "slot": "thucuoi",
-      "mountId": "thuy-long",
+      "id": "pet-thuy-long",
+      "slot": "linhthu",
+      "petId": "thuy-long",
       "species": "RongNuoc",
       "name": "Huyền Thủy Long",
       "rarity": "tien",
@@ -5792,12 +5884,17 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/RongNuoc/thumb.webp",
-      "desc": "Rồng nước cuộn sóng, lướt trên mặt đất như cưỡi mây. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 260,
+      "baseAtk": 16,
+      "skillName": "Thủy Long Hộ Thể",
+      "skillDesc": "Hồi 24% HP và 20% MP tối đa.",
+      "skillCooldown": 18,
+      "desc": "Rồng nước cuộn sóng, che chở và hồi phục cho chủ nhân."
     },
     {
-      "id": "mount-phan-phuong",
-      "slot": "thucuoi",
-      "mountId": "phan-phuong",
+      "id": "pet-phan-phuong",
+      "slot": "linhthu",
+      "petId": "phan-phuong",
       "species": "PhuongHoang",
       "name": "Phần Thiên Phượng",
       "rarity": "tien",
@@ -5805,12 +5902,17 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/PhuongHoang/thumb.webp",
-      "desc": "Phượng hoàng lửa, thú cưỡi bay của bậc đại năng. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 320,
+      "baseAtk": 22,
+      "skillName": "Phượng Hỏa Liệu Nguyên",
+      "skillDesc": "Lửa phượng 150% công trên vùng rộng, làm chậm 15% trong 2 giây.",
+      "skillCooldown": 14,
+      "desc": "Phượng hoàng lửa, linh thú của bậc đại năng."
     },
     {
-      "id": "mount-cot-long",
-      "slot": "thucuoi",
-      "mountId": "cot-long",
+      "id": "pet-cot-long",
+      "slot": "linhthu",
+      "petId": "cot-long",
       "species": "RongXuong",
       "name": "Cốt Long Minh Vương",
       "rarity": "than",
@@ -5818,7 +5920,12 @@
       "price": 0,
       "bound": true,
       "art": "Character/Monsters/RongXuong/thumb.webp",
-      "desc": "Cốt long lửa xanh, chỉ những tổ đội phá Ma Quật mới có cơ duyên thu phục. Mặc vào ô Thú cưỡi để cưỡi; thuần hóa tại Mã Phu."
+      "baseHp": 360,
+      "baseAtk": 26,
+      "skillName": "Cốt Long Phệ Hồn",
+      "skillDesc": "Cắn xé linh hồn mục tiêu: 340% công.",
+      "skillCooldown": 12,
+      "desc": "Cốt long lửa xanh, chỉ những tổ đội phá Ma Quật mới có cơ duyên thu phục."
     }
   ]
 }

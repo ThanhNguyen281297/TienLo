@@ -18,7 +18,7 @@ import raid
 import battle
 import outposts
 import fieldpk
-import mounts
+import pets
 import auction
 AUCTION_SETTLED=0
 import hashlib
@@ -97,7 +97,7 @@ def init_db():
         engagement.init_db(db)
         raid.init_db(db)
         outposts.init_db(db)
-        mounts.init_db(db)
+        pets.init_db(db)
         auction.init_db(db)
         shards.init_db(db)
         premium.init_db(db)
@@ -155,14 +155,7 @@ def valid_player(p):
             if key in item and (type(item[key]) not in (int,float) or not math.isfinite(item[key]) or not 0<=item[key]<=10000):
                 raise ValueError('Chỉ số vật phẩm không hợp lệ.')
     equipment_rules.validate(p)
-    pets=world.get('pets',[])
-    species={'BoNgua','Tho','Nhen','Doi'}
-    if not isinstance(pets,list) or len(pets)>20:raise ValueError('Linh thú không hợp lệ.')
-    if any(not isinstance(pet,dict) or not isinstance(pet.get('id'),str) or not 1<=len(pet['id'])<=80 or pet.get('species') not in species or not isinstance(pet.get('name'),str) or len(pet['name'])>40 for pet in pets):raise ValueError('Linh thú không hợp lệ.')
-    pet_ids=[pet['id'] for pet in pets]
-    if len(set(pet_ids))!=len(pet_ids) or (world.get('activePet') is not None and world['activePet'] not in pet_ids):raise ValueError('Linh thú xuất chiến không hợp lệ.')
-    hatch=world.get('hatching')
-    if hatch is not None and (not isinstance(hatch,dict) or not isinstance(hatch.get('id'),str) or not 1<=len(hatch['id'])<=80 or hatch.get('species') not in species or type(hatch.get('readyAt')) not in (int,float) or not math.isfinite(hatch['readyAt']) or not 0<=hatch['readyAt']<=10000000000000):raise ValueError('Trứng đang ấp không hợp lệ.')
+    # The pet list, active pet and eggs are server-owned now (pets.py); preserve() drops client copies.
     for key in ('learnedSkills','skillLevels'):
         if key in world and (not isinstance(world[key],list) or len(world[key])!=4):raise ValueError('Kỹ năng không hợp lệ.')
     def inspect(value,depth=0):
@@ -190,12 +183,12 @@ def player_attack(player):
     level=player['r']*10+player['stage']-1
     gear,multiplier,_=equipment_stats(player)
     strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
-    return (8+level*1.3+(progression.level(player)-1)*.8+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0)+mounts.bonus(player)['atk'])*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
+    return (8+level*1.3+(progression.level(player)-1)*.8+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0)+pets.bonus(player)['atk'])*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
 
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
-    hp=equipment_rules.bonuses(player).get('hp',0)+mounts.bonus(player)['hp']+sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
+    hp=equipment_rules.bonuses(player).get('hp',0)+pets.bonus(player)['hp']+sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
     return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
 
@@ -265,12 +258,11 @@ def register_pet_cast(peer,body,player,now,mobs):
     if not isinstance(request,dict) or peer.get('paused'):return
     cast_id=request.get('id')
     if not isinstance(cast_id,str) or not 1<=len(cast_id)<=80 or cast_id==peer.get('lastPetCast'):return
-    world=player.get('world',{})
-    pet=next((v for v in world.get('pets',[]) if v['id']==world.get('activePet')),None)
+    pet=pets.peer_pet(player)
     if not pet or request.get('species')!=pet['species']:return
-    rule=PET_RULES[pet['species']]
+    rule=PET_RULES[pet['species']];kind=rule.get('kind','strike')
     target=next((m for m in mobs if m['id']==request.get('target') and not m['dead']),None)
-    if pet['species']!='Tho' and (not target or math.hypot(target['x']-peer['x'],target['y']-peer['y'])>rule['range']):return
+    if kind!='heal' and (not target or math.hypot(target['x']-peer['x'],target['y']-peer['y'])>rule['range']):return
     uid=peer['id'];wall=time.time()
     with connect() as db:
         db.execute('CREATE TABLE IF NOT EXISTS pet_skill_cooldowns(user_id INTEGER PRIMARY KEY,ready_at REAL NOT NULL,cast_id TEXT NOT NULL)')
@@ -278,11 +270,11 @@ def register_pet_cast(peer,body,player,now,mobs):
         if row and (row['ready_at']>wall or row['cast_id']==cast_id):return
         db.execute('INSERT INTO pet_skill_cooldowns VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET ready_at=excluded.ready_at,cast_id=excluded.cast_id',(uid,wall+rule['cooldown'],cast_id))
     peer['lastPetCast']=cast_id;peer['petCast']={'id':cast_id,'species':pet['species'],'x':target['x'] if target else peer['x'],'y':target['y'] if target else peer['y']};peer['petCastAt']=now
-    if not target:return
+    if not target or kind=='heal':return
     power=player_attack(player)*rule['power'];key=room_for(peer)
-    if pet['species']=='Nhen':
-        target.setdefault('_petEffects',{})[uid]={'kind':'poison','power':power,'ticks':5,'next':now+1,'petId':pet['id']}
-    elif pet['species']=='Doi':
+    if kind=='poison':
+        target.setdefault('_petEffects',{})[uid]={'kind':'poison','power':power,'ticks':rule.get('ticks',5),'next':now+1,'petId':pet['id']}
+    elif kind=='area':
         for mob in mobs:
             if not mob['dead'] and math.hypot(mob['x']-target['x'],mob['y']-target['y'])<=rule['radius']:
                 damage_mob(mob,power*field_vulnerability(mob),uid,now,key)
@@ -471,8 +463,8 @@ class GameHandler(SimpleHTTPRequestHandler):
                     db.execute('BEGIN IMMEDIATE')
                     row=db.execute('SELECT * FROM characters WHERE user_id=?',(user['user_id'],)).fetchone()
                     player,revision=(json.loads(row['player']),row['revision']) if row else (None,0)
-                    # Mounts owned before the Thú cưỡi gear slot get their items once.
-                    if player and mounts.sync(player):
+                    # Old mounts, client-side pets and eggs become pet items once.
+                    if player and pets.sync(player):
                         revision+=1
                         db.execute('UPDATE characters SET player=?,revision=? WHERE user_id=?',(json.dumps(player,ensure_ascii=False),revision,user['user_id']))
                 return self.reply(200,{'character':{'id':row['id'],'player':progression.normalize(player),'revision':revision} if row else None})
@@ -487,7 +479,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/engagement': return self.engagement(user)
             if path=='/api/raid': return self.raid(user)
             if path=='/api/battle': return self.battle(user)
-            if path=='/api/mounts': return self.mounts(user)
+            if path=='/api/pets': return self.mounts(user)
             if path=='/api/auction': return self.auction(user)
             if path=='/api/premium': return self.generic(user,None,lambda db,uid:premium.state(db,uid,bool(user['gm'])))
             if path=='/api/shards': return self.generic(user,None,lambda db,uid:shards.view(db,uid,json.loads(db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()['player'])))
@@ -560,7 +552,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/engagement': return self.engagement(user,body)
         if path=='/api/raid': return self.raid(user,body)
         if path=='/api/battle': return self.battle(user,body)
-        if path=='/api/mounts': return self.mounts(user,body)
+        if path=='/api/pets': return self.mounts(user,body)
         if path=='/api/auction': return self.auction(user,body)
         if path=='/api/premium': return self.generic(user,body,lambda db,uid:premium.action(db,uid,body,bool(user['gm'])))
         if path=='/api/shards': return self.generic(user,body,lambda db,uid:shards.action(db,uid,body))
@@ -639,7 +631,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         with DB_LOCK, connect() as db:
             db.execute('BEGIN IMMEDIATE')
             row=db.execute('SELECT * FROM characters WHERE user_id=?',(uid,)).fetchone()
-            mounts.preserve(json.loads(row['player']) if row else None,player)  # server-owned
+            pets.preserve(json.loads(row['player']) if row else None,player)  # server-owned
             if trade.locked(db,uid):return self.reply(409,{'error':'Mở khóa giao dịch trước khi đổi hành trang.'})
             if row and row['revision']!=revision: return self.reply(409,{'error':'Nhân vật đã được cập nhật ở phiên khác. Tải lại để tiếp tục.','conflict':True})
             equipment_rules.validate(player,db,uid)
@@ -772,7 +764,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             return self.reply(200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
-    def mounts(self,user,body=None):
+    def mounts(self,user,body=None):  # Ngự Thú Sư (pets)
         try:
             with DB_LOCK, connect() as db:
                 db.execute('BEGIN IMMEDIATE')
@@ -780,8 +772,8 @@ class GameHandler(SimpleHTTPRequestHandler):
                 if body is not None and trade.locked(db,uid):raise ValueError('Mở khóa giao dịch trước khi dùng dịch vụ.')
                 row=db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()
                 if not row:raise ValueError('Hãy tạo nhân vật trước.')
-                if body is None:result=dict(stable=mounts.view(json.loads(row['player']),adventure.wallet(db,uid)['fragments']))
-                else:result=mounts.action(db,uid,body)
+                if body is None:result=dict(stable=pets.view(json.loads(row['player']),adventure.wallet(db,uid)['fragments']))
+                else:result=pets.action(db,uid,body)
             return self.reply(409 if result.get('conflict') else 200,result)
         except ValueError as error:return self.reply(409,{'error':str(error)})
 
@@ -894,8 +886,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             ack_sustain=body.get('ackSustain',[])
             if not isinstance(ack_sustain,list) or len(ack_sustain)>100:raise ValueError()
             peer['sustain']=[event for event in peer.get('sustain',[]) if event['id'] not in ack_sustain]
-            peer['pet']=next((pet for pet in p.get('world',{}).get('pets',[]) if pet['id']==p.get('world',{}).get('activePet')),None)
-            peer['mount']=mounts.riding(p,scene,bool(body.get('ride'))) if not duel else None
+            peer['pet']=pets.peer_pet(p)
             if tower_run:peer['towerToken']=tower_run['token']
             if raid_run:peer['raidToken']=raid_run['token']
             else:peer.pop('raidToken',None)
@@ -982,7 +973,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 with DB_LOCK, connect() as db:pk_damage,pk_events=fieldpk.step(db,key,scene,uid,peer,body,p,player_max_hp,player_attack,PEERS)
                 state=fieldpk.public(uid);peer['pk']=state['on'];peer['red']=state['red']
             else:peer['pk']=False
-            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast','hp','maxHp','title','team','pk','red','mount')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
+            peers=[{k:v for k,v in other.items() if k in ('id','name','ap','r','stage','x','y','dir','f','med','airborne','emote','emoteAt','cast','pet','petCast','hp','maxHp','title','team','pk','red')} | {'emote':other.get('emote') if now-other.get('emoteAt',0)<3 else None,'cast':other.get('cast') if now-other.get('castAt',0)<2 else None,'petCast':other.get('petCast') if now-other.get('petCastAt',0)<1 else None} for other in PEERS.values() if other['id']!=uid and other['map']==scene and scene!='arena']
             damage=0
             if scene=='duel':peers=[other for other in peers if PEERS[other['id']].get('duelId')==duel['id']]
             safe=scene in SECT_MAPS

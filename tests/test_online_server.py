@@ -193,9 +193,16 @@ class OnlineServerTest(unittest.TestCase):
             time.sleep(.14)
             status,data,_=self.request('/api/world',{'csrf':token,'map':'field-meadow','x':525,'y':1320,'batch':server.secrets.token_hex(8),**extra},c)
             self.assertEqual(status,200);return data
+        self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':0,'player':p},cookie)[0],201)
+        import pets
         for species in ('BoNgua','Nhen','Doi'):
-            p['world'].update(pets=[{'id':'pet-one','species':species,'name':'Companion'}],activePet='pet-one')
-            self.assertEqual(self.request('/api/characters',{'csrf':csrf,'revision':revision,'player':p},cookie)[0],201);revision+=1
+            # Pets are server-issued items worn in the Linh thú slot.
+            pid=pets.BY_SPECIES[species]['id']
+            with server.connect() as db:
+                uid=db.execute("SELECT id FROM users WHERE username='pet_fighter'").fetchone()[0]
+                stored=json.loads(db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()[0])
+                stored['world']['petBook']={'owned':{pid:1}};stored['world'].setdefault('equip',{})['linhthu']=pets.new_item(pid,uid='pet-one')
+                db.execute('UPDATE characters SET player=? WHERE user_id=?',(json.dumps(stored),uid))
             initial=frame();mob_id=initial['mobs'][0]['id'];owner=next(v for v in server.PEERS.values() if v['name']==p['nm']);mob=next(m for m in server.ROOMS[server.room_for(owner)]['mobs'] if m['id']==mob_id)
             with server.WORLD_LOCK:mob.update(hp=500,maxHp=500,dead=0);mob.pop('_petEffects',None);mob['petEffects']=[]
             with server.connect() as db:db.execute('CREATE TABLE IF NOT EXISTS pet_skill_cooldowns(user_id INTEGER PRIMARY KEY,ready_at REAL NOT NULL,cast_id TEXT NOT NULL)');db.execute('DELETE FROM pet_skill_cooldowns')
@@ -241,12 +248,10 @@ class OnlineServerTest(unittest.TestCase):
             player['world']['equip']['vukhi']['enhance']=invalid
             with self.assertRaises(ValueError):server.valid_player(player)
         player['world']['equip']['vukhi']['enhance']=15
-        player['world']['pets']=[dict(id='pet-one',species='Tho',name='Nguyệt Thố')]
-        player['world']['activePet']='pet-one';server.valid_player(player)
-        player['world']['activePet']='other-account-pet'
-        with self.assertRaises(ValueError):server.valid_player(player)
-        player['world']['activePet']='pet-one';player['world']['pets'][0]['species']='Dragon'
-        with self.assertRaises(ValueError):server.valid_player(player)
+        # Client-side pet lists are retired: saves cannot grant pets.
+        player['world']['pets']=[dict(id='pet-one',species='Tho',name='Nguyệt Thố')];player['world']['activePet']='pet-one'
+        import pets;pets.preserve(None,player)
+        self.assertNotIn('pets',player['world']);self.assertNotIn('petBook',player['world'])
 
     def test_field_profiles_exposure_resistance_and_composition(self):
         rules_source=(server.ROOT/'js/13c-field-rules.js').read_text(encoding='utf-8')

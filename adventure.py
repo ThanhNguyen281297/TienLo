@@ -218,7 +218,6 @@ def action(db,uid,body,gm=False):
             if iid in equipment.TEMPLATES:grant_item(db,uid,player,iid)
             else:
                 extras={'hoi-huyet-dan':dict(type='consume',name='Hồi Huyết Đan',rarity='pham',price=12,heal=80),'hoi-linh-dan':dict(type='consume',name='Hồi Linh Đan',rarity='pham',price=12,mana=40),'tu-vi-dan':dict(type='consume',name='Tu Vi Đan',rarity='huyen',price=25,xp=30)}
-                extras.update({'egg-'+s:dict(type='egg',species=s,name='Trứng '+n,rarity='huyen',price=0) for s,n in (('BoNgua','Linh Đường Lang'),('Tho','Nguyệt Thố'),('Nhen','Huyết Nhện'),('Doi','Băng Dực Dơi'))})
                 if iid not in extras:raise ValueError('Vật phẩm không hợp lệ.')
                 bag=player['world']['bag'];existing=next((i for i in bag if i['id']==iid),None)
                 if existing:existing['qty']=min(999,existing.get('qty',1)+1)

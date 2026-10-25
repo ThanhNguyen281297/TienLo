@@ -26,7 +26,6 @@
   {id:'raid',label:'Ma Quật',img:null,thumb:'RongXuong',run:()=>window.raidGame?.open()},
   {id:'duel',label:'Lôi đài',img:art('Item/VuKhi/Kiem.png'),crop:[.15,0,.7,.75],run:()=>$('duel-button')?.click()},
   {id:'rank',label:'Xếp hạng',img:art('Character/NPC/bxh.png'),crop:[.22,.02,.56,.5],run:()=>worldMap.handleService('rank')||worldMap.openRank?.()},
-  {id:'pet',label:'Linh thú',img:null,thumb:'Tho',run:()=>$('pet-button')?.click()},
  ];
  const strip=document.createElement('nav');strip.id='vl-activities';strip.setAttribute('aria-label','Hoạt động');
  const toggle=document.createElement('button');toggle.id='vl-activities-toggle';toggle.type='button';toggle.setAttribute('aria-label','Thu gọn hoạt động');toggle.textContent='❯';
@@ -107,7 +106,7 @@ body.vl-hud #journey-objective{left:8px!important;right:auto!important;top:150px
 body.vl-hud #journey-objective small{display:none}body.vl-hud #journey-objective b{font-size:12px!important;color:#ffd27a!important}body.vl-hud #journey-objective span{font-size:11px!important}
 body.vl-hud #party-hud{left:8px!important;top:236px!important}
 #welfare-gift{display:none!important}
-#hud-more-menu #welfare-button,#hud-more-menu #adventure-button,#hud-more-menu #rift-button,#hud-more-menu #raid-button,#hud-more-menu #duel-button,#hud-more-menu #pet-button{display:none!important}
+#hud-more-menu #welfare-button,#hud-more-menu #adventure-button,#hud-more-menu #rift-button,#hud-more-menu #raid-button,#hud-more-menu #duel-button{display:none!important}
 #vl-chat-ticker{position:fixed;left:8px;bottom:186px;z-index:3;width:min(300px,40vw);padding:4px 8px;border:0;border-radius:6px;background:linear-gradient(90deg,#0a1418cc,#0a141800);text-align:left;display:grid;gap:1px;min-height:0!important;cursor:pointer}
 #vl-chat-ticker[hidden]{display:none}.vl-chat-line{margin:0;font:11px/1.35 Arial;color:#e6efe8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000}.vl-chat-line b{color:#ffd27a}
 body.vl-hud #event-banner{top:92px;bottom:auto;font-size:11px;padding:4px 12px}body.vl-hud #raid-status{top:8px}

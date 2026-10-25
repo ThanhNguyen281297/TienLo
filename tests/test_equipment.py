@@ -142,7 +142,7 @@ class EquipmentTest(unittest.TestCase):
         self.player['world']['equip'].pop('matna')
         self.player['world'].update(equipmentVersion=5,riftShards=7)
         expected=copy.deepcopy(self.player)
-        expected['world']['equip'].update(matna=None,thucuoi=None)
+        expected['world']['equip'].update(matna=None,linhthu=None)
         expected['world']['equipmentVersion']=equipment.RULES['version']
         self.assertTrue(equipment.normalize(self.player))
         self.assertEqual(self.player,expected)

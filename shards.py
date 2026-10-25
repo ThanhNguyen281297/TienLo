@@ -21,8 +21,9 @@ KINDS = {
 SECT_MAPS = ('sword', 'moon', 'thunder', 'mystic')
 MASTER = (910, 1125)   # mentor NPC position in every sect map (js/20-sect-layout-arena.js)
 
-# Mount exchange costs (Thú Hồn).
-MOUNT_COST = {'doc-thiem': 20, 'bang-lang': 40, 'loi-te': 80, 'diem-hat': 80, 'thuy-long': 160, 'phan-phuong': 200, 'cot-long': 300}
+# Pet exchange costs (Thú Hồn).
+PET_COST = {'duong-lang': 10, 'nguyet-tho': 10, 'doc-thiem': 15, 'huyet-nhen': 20, 'bang-doi': 20, 'bang-lang': 40, 'loi-te': 80, 'diem-hat': 80,
+            'thuy-long': 160, 'phan-phuong': 200, 'cot-long': 300}
 
 
 def catalog():
@@ -44,8 +45,8 @@ def catalog():
         offers.append(dict(id=t['id'], kind='matna', cost=50))
     for t, cost in zip([t for t in T['rings'] if not t['id'].startswith('mythic-')], (20, 50, 100, 180)):
         offers.append(dict(id=t['id'], kind='nhan', cost=cost))
-    for mid, cost in MOUNT_COST.items():
-        offers.append(dict(id='mount-' + mid, kind='thuhon', cost=cost, mount=mid))
+    for pid, cost in PET_COST.items():
+        offers.append(dict(id='pet-' + pid, kind='thuhon', cost=cost, pet=pid))
     return offers
 
 
@@ -117,21 +118,21 @@ def view(db, uid, player):
     w = wallet(db, uid)
     cls = player['ap']['w']
     gender = player['ap'].get('gender', 'Nam')
-    import mounts
-    owned = mounts.data(player)['owned']
+    import pets
+    owned = pets.data(player)['owned']
     rows = []
     for o in OFFERS.values():
         meta = equipment.TEMPLATES[o['id']]
         if meta.get('gender') and meta['gender'] != gender:
             continue
         rows.append(dict(o, name=meta['name'], rarity=meta.get('rarity'), slot=meta.get('slot'), req=meta.get('req', 0),
-                         owned=bool(o.get('mount') and o['mount'] in owned), forClass=meta.get('classIndex') in (None, cls)))
+                         owned=bool(o.get('pet') and o['pet'] in owned), forClass=meta.get('classIndex') in (None, cls)))
     return dict(wallet=w, kinds={k: dict(name=v['name'], icon=v['icon']) for k, v in KINDS.items()}, offers=rows)
 
 
 def action(db, uid, body):
     import adventure
-    import mounts
+    import pets
     row = db.execute('SELECT * FROM characters WHERE user_id=?', (uid,)).fetchone()
     if not row:
         raise ValueError('Hãy tạo nhân vật trước.')
@@ -154,14 +155,14 @@ def action(db, uid, body):
     meta = equipment.TEMPLATES[offer['id']]
     if meta.get('gender') and meta['gender'] != player['ap'].get('gender', 'Nam'):
         raise ValueError('Mặt nạ không phù hợp giới tính.')
-    if offer.get('mount') and offer['mount'] in mounts.data(player)['owned']:
-        raise ValueError('Bạn đã sở hữu thú cưỡi này.')
-    if len(w.get('bag', [])) >= equipment.capacity(w) and not (offer.get('mount') and not (w.get('equip') or {}).get('thucuoi')):
+    if offer.get('pet') and offer['pet'] in pets.data(player)['owned']:
+        raise ValueError('Bạn đã sở hữu linh thú này.')
+    if len(w.get('bag', [])) >= equipment.capacity(w) and not (offer.get('pet') and not (w.get('equip') or {}).get('linhthu')):
         raise ValueError('Túi đầy. Dọn một ô trước khi đổi.')
     if not spend(db, uid, offer['kind'], offer['cost']):
         raise ValueError(f"Chưa đủ {KINDS[offer['kind']]['name']} ({offer['cost']}).")
-    if offer.get('mount'):
-        message = mounts.grant(player, offer['mount'])
+    if offer.get('pet'):
+        message = pets.grant(player, offer['pet'])
     else:
         adventure.grant_item(db, uid, player, offer['id'])
         message = f"Đã đổi {meta['name']}."
