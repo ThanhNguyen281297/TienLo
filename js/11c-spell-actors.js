@@ -183,6 +183,51 @@
       part(ctx,sect,n%3?3:5,x+Math.cos(a)*r,y+Math.sin(a)*r*.5-p*12,7,10,a+p,fade*.7);
     }
   }
+  // Continuous in-world skill actor. Skill PNG poses remain useful as icons and
+  // reference art, but combat draws moving weapons/energy paths instead of
+  // crossfading complete paintings over one another.
+  function castMotion(ctx,sect,index,phase,x,y,width,height,angle=0,alpha=1){
+    const p=smooth(phase),clock=reduced.matches?0:(typeof tm==='number'?tm:0),fade=clamp(alpha);
+    if(fade<=0)return false;
+    const scale=Math.max(.35,Math.min(1.5,Math.min(width,height)/120));
+    const reach=(.18+.82*p)*scale,dir={x:Math.cos(angle),y:Math.sin(angle)},side={x:-dir.y,y:dir.x};
+    ctx.save();ctx.translate(x,y);ctx.globalAlpha*=fade;
+    light(ctx,sect,0,0,Math.max(width,height)*(.18+.12*Math.sin(p*Math.PI)),.18*(1-p*.45));
+    if(sect===0){
+      const n=index===0?3:index===2?8:index===3?11:1;
+      for(let i=0;i<n;i++){
+        const offset=(i-(n-1)/2)*Math.min(13,width*.07),spread=(index===2||index===3)?(1-p)*.55:0;
+        const sx=side.x*(offset+spread*height),sy=side.y*(offset+spread*height);
+        const sweep=(index===1?1.4:2.2)*(p-.5),r=width*(.18+.3*p);
+        ribbon(ctx,sect,sx,sy,r,height*.12,angle-sweep*.5,sweep,fade*(.28+.5*Math.sin(p*Math.PI)),angle);
+        if(index===0||index===2||index===3)weapon(ctx,sect,sx+dir.x*r*.35,sy+dir.y*r*.35,Math.max(20,height*.38),angle-Math.PI/2,fade*(.7-.25*p));
+      }
+    }else if(sect===1){
+      const n=index===0?3:index===2?5:1,r=width*(.2+.32*p);
+      for(let i=0;i<n;i++){
+        const a=angle+(i-(n-1)/2)*.48+clock*(i%2?-.16:.16),sweep=(index===1?1.8:2.35)*(p-.52);
+        ribbon(ctx,sect,dir.x*r*.25,dir.y*r*.25,r,height*.15,a-sweep*.5,sweep,fade*(.35+.55*Math.sin(p*Math.PI)),angle);
+        if(index!==1)part(ctx,sect,0,dir.x*r*.45+side.x*(i-(n-1)/2)*8,dir.y*r*.45+side.y*(i-(n-1)/2)*8,height*.28,height*.28,a,fade*.75);
+      }
+    }else if(sect===2){
+      const branches=index===2?7:index===3?3:1;
+      for(let i=0;i<branches;i++){
+        const offset=(i-(branches-1)/2)*width*.08,dist=width*(.12+.34*p),jag=height*.09;
+        flow(ctx,sect,u=>({x:dir.x*dist*u+side.x*(offset+Math.sin(u*8+clock*7+i)*jag*u),y:dir.y*dist*u+side.y*(offset+Math.sin(u*8+clock*7+i)*jag*u)}),Math.max(2,height*.025),fade*(.55+.35*Math.sin(p*Math.PI)),clock+i*.31);
+        if(index===0||index===1||index===3)weapon(ctx,sect,dir.x*dist*.62+side.x*offset,dir.y*dist*.62+side.y*offset,Math.max(22,height*.4),angle-Math.PI/2,fade*.75);
+      }
+    }else{
+      const n=index===2?8:index===3?10:index===0?3:1,r=width*(.16+.28*p);
+      for(let i=0;i<n;i++){
+        const a=angle+(i-(n-1)/2)*.34+clock*.12,tx=dir.x*r+side.x*(i-(n-1)/2)*width*.07,ty=dir.y*r+side.y*(i-(n-1)/2)*width*.07;
+        flow(ctx,sect,u=>({x:tx*u+side.x*Math.sin(u*Math.PI)*height*.12,y:ty*u-dir.y*Math.sin(u*Math.PI)*height*.12}),Math.max(2,height*.018),fade*.5,clock+i*.2);
+        part(ctx,sect,5,tx,ty,Math.max(10,width*.075),Math.max(18,height*.16),a,fade*(.55+.3*Math.sin(p*Math.PI)));
+      }
+      if(index===3)light(ctx,sect,0,0,width*.38,fade*.4*Math.sin(p*Math.PI));
+    }
+    if(p>.72)impact(ctx,sect,dir.x*width*.36,dir.y*width*.36,(p-.72)*.22,width*.28,.28);
+    ctx.restore();return true;
+  }
   function ultimate(ctx,sect,index,age,duration,x,y,width,height,hitAt=duration*.6,alpha=1){
     if(age<0||age>=duration)return false;
     const charge=clamp(age/hitAt),release=clamp((age-hitAt)/Math.max(.01,duration-hitAt));
@@ -234,7 +279,7 @@
     }
     return parts.length===8;
   }
-  window.spellActors={part,glint,field,projectile,impact,ultimate,weapon,light,ribbon,flow,stats,get ready(){return parts.length===8;},atlas};
+  window.spellActors={part,glint,field,projectile,impact,ultimate,weapon,light,ribbon,flow,castMotion,stats,get ready(){return parts.length===8;},atlas};
   // Keep icon rendering separate from in-world moving actors.
   skillSprites.animate=ultimate;
 })();

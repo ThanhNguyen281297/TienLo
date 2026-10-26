@@ -2,7 +2,7 @@
 (function(){
   window.combatNames=[['Phi Kiếm Quyết','Kiếm Ảnh Bộ','Bát Quái Kiếm Trận','Vạn Kiếm Quy Tông'],['Tam Nguyệt Trảm','Nguyệt Ảnh Bộ','Nguyệt Luân Trận','Minh Nguyệt Giáng Thế'],['Lôi Thương Đột Kích','Hoành Tảo Thiên Quân','Cửu Tiêu Lôi Trận','Lôi Long Giáng Thế'],['Phi Phù Chú','Phong Linh Phiến','Thiên Cơ Trận','Vạn Phù Phong Ấn']];
   window.combatMana=[[8,10,20,35],[9,12,22,38],[9,14,24,40],[8,12,24,40]];
-  const cds=()=>combatBalance.cooldowns(P.ap.w),state={cooldown:[0,0,0,0],aim:null,marks:new Map(),control:new Map(),projectiles:[],effects:[],field:null,ultimate:null,dash:null};
+  const cds=()=>combatBalance.cooldowns(P.ap.w),state={cooldown:[0,0,0,0],aim:null,marks:new Map(),control:new Map(),projectiles:[],effects:[],casts:[],field:null,ultimate:null,dash:null};
   const active=()=>P.ap?.w>=2,thunder=()=>P.ap?.w===2,live=e=>E.includes(e)&&!e.dead&&e.hp>0;
   // (unused eager preload of Lôi Thương/Thiên Cơ key frames removed; skillSprites loads per class)
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),inside=(e,f)=>distance(e,f)<=f.radius+(T[e.t]?.s||10);
@@ -15,6 +15,7 @@
   function strike(e,power,index){hit(e,window.skillPower?.(index,power)??power);}
   function cone(e,origin,angle,radius,width){const a=Math.atan2(e.y-origin.y,e.x-origin.x)-angle;return distance(e,origin)<=radius&&Math.abs(Math.atan2(Math.sin(a),Math.cos(a)))<=width/2;}
   function castNew(i){const end=target(i===3?300:240),angle=Math.atan2(end.y-P.y,end.x-P.x),power=atk();
+    state.casts.push({index:i,x:P.x,y:P.y-26,angle,age:0,duration:i===3?.72:.46});
     if(i===0&&thunder()){
       const start={x:P.x,y:P.y},dest=worldMap?.traceMove?worldMap.traceMove(start,end):end;
       state.dash={start,end:dest,age:0,hits:new Set(),first:false,power};flash(P,0,angle,70);
@@ -51,6 +52,7 @@
       if(!u.finished&&u.age>=(thunder()?1.3:3.2)){u.finished=true;for(const e of E)if(live(e)&&inside(e,u)){const n=stacks(e);strike(e,u.power*(thunder()?5:4)*(n===3?1.35:1),3);if(thunder()){mark(e,3);if(distance(e,u)<65)control(e,.7);}else consume(e,true);flash(e,3);}flash(u,3,0,180);}if(u.age>=(thunder()?2.2:4))state.ultimate=null;
     }
     for(const e of state.effects)e.age+=dt;state.effects=state.effects.filter(e=>e.age<.5);
+    for(const e of state.casts)e.age+=dt;state.casts=state.casts.filter(e=>e.age<e.duration);
   }
   function refreshUI(){if(!active())return;[...sb.children].forEach((b,i)=>{const name=combatNames[P.ap.w][i];if(b.getAttribute('aria-label')!==name){b.innerHTML='<img class="ic" width="48" height="48"><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';b.querySelector('img').src='Skill/Class/'+(thunder()?'Thuong':'Quat')+'/'+skillSprites.names[P.ap.w][i]+'/03.png';b.setAttribute('aria-label',name);}b.title=name;b.querySelector('.remaining').textContent=state.cooldown[i]>0?state.cooldown[i].toFixed(1):'';b.lastChild.style.height=state.cooldown[i]/cds()[i]*100+'%';b.disabled=(window.cultivation?!cultivation.canUse(i):P.r<i)||P.mp<combatMana[P.ap.w][i]||state.cooldown[i]>0||!!state.ultimate;});$('bs').textContent=combatNames[P.ap.w][0]+' (Space)';}
 
@@ -63,7 +65,8 @@
   }
   function draw(ctx){
     const color=thunder()?'#ae8eff':'#e8c477';ctx.save();
-    if(state.dash){const d=state.dash;spellActors.projectile(ctx,2,P.x,P.y-16,Math.atan2(d.end.y-d.start.y,d.end.x-d.start.x),d.age,60,.95);}
+    if(state.dash){const d=state.dash;spellActors.projectile(ctx,P.ap.w,P.x,P.y-16,Math.atan2(d.end.y-d.start.y,d.end.x-d.start.x),d.age,60,.95);}
+    for(const cast of state.casts){const p=cast.age/cast.duration;spellActors.castMotion(ctx,P.ap.w,cast.index,p,cast.x,cast.y,cast.index===3?175:125,cast.index===3?155:112,cast.angle,(1-p)*.9);}
     if(state.ultimate){
       const u=state.ultimate,duration=thunder()?2.2:4;
       const hitAt=thunder()?1.3:3.2;
@@ -73,7 +76,7 @@
     }
     for(const p of state.projectiles){
       spellMotion.trail(ctx,P.ap.w,p);
-      spellActors.projectile(ctx,3,p.x,p.y-15,p.angle,p.age,30,.9);
+      spellActors.projectile(ctx,P.ap.w,p.x,p.y-15,p.angle,p.age,30,.9);
     }
 
     for(const [e,m]of state.marks){
@@ -90,7 +93,7 @@
     }
     ctx.restore();
   }
-  const reset=()=>{state.cooldown.fill(0);state.aim=null;state.marks.clear();state.control.clear();state.projectiles=[];state.effects=[];state.field=state.ultimate=state.dash=null;};
+  const reset=()=>{state.cooldown.fill(0);state.aim=null;state.marks.clear();state.control.clear();state.projectiles=[];state.effects=[];state.casts=[];state.field=state.ultimate=state.dash=null;};
   window.newClassCombat={state,refreshUI,isDashing:()=>active()&&!!state.dash,drawGroundEffects:ctx=>{if(active())ground(ctx);},onRespawn:reset,enemySpeed:e=>{if(!active())return 1;let speed=state.control.get(e)?.speed??1;if(state.field&&inside(e,state.field))speed=Math.min(speed,thunder()?.8:.65);return speed;},attackInterval:()=>active()&&thunder()&&state.field&&inside(P,state.field)?.48:.6,damageTaken:()=>active()&&thunder()&&state.field&&inside(P,state.field)?.8:1};
   // Đánh thường và kỹ năng dùng cùng Ấn, cùng thời gian tồn tại và giới hạn ba tầng.
   Object.assign(window.newClassCombat, {

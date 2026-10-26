@@ -26,6 +26,10 @@
     const index=ART.indexOf(image);
     if(index<0)return;
     const frame=index===2?0:index===0?3:index===3?4:Math.max(0,DASH_FRAMES.indexOf(rect));
+    if(ctx.canvas===cv&&window.spellActors?.castMotion){
+      const phase=clamp(frame/5,0,1);
+      spellActors.castMotion(ctx,0,index,phase,x,y,width,height,rotation,alpha);return;
+    }
     skillSprites.draw(ctx,0,index,frame,x,y,width,height,rotation,alpha);
   }
 
@@ -236,7 +240,7 @@
       const length=distance(effect.start,effect.end),mx=(effect.start.x+effect.end.x)/2,my=(effect.start.y+effect.end.y)/2-16;
       ctx.save();ctx.strokeStyle=p<.15?'#fff':CYAN;ctx.lineWidth=p<.15?7:3;ctx.globalAlpha=1-p;
       ctx.beginPath();ctx.moveTo(effect.start.x,effect.start.y-16);ctx.lineTo(effect.end.x,effect.end.y-16);ctx.stroke();ctx.restore();
-      crop(ctx,ART[1],DASH_FRAMES[Math.min(4,Math.floor(p*5))],mx,my,Math.max(24,length),34,effect.angle,1-p);
+      spellActors.castMotion(ctx,0,1,p,mx,my,Math.max(48,length),52,effect.angle,1-p);
     }
   }
   dr=function() {
