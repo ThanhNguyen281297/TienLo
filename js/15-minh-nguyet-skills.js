@@ -190,6 +190,7 @@
   }
   function drawGround(ctx){
     if(!active())return;
+    if(window.skillVfx?.ground?.(1,ctx,state))return;
     if(state.field){const f=state.field,alpha=clamp(f.age/.3,0,1)*clamp((f.duration-f.age)/.4,0,1);drawRing(ctx,f,alpha*.85);}
   }
   function drawFlying(ctx){
@@ -212,6 +213,7 @@
     if(t>=3.25)spellMotion.impact(ctx,1,u.x,u.y,t-3.25,u.radius,.7);
   }
   function drawEffects(ctx){
+    if(window.skillVfx?.draw?.(1,ctx,state))return;
     if(state.field&&!window.spellImagery?.ownsFieldActors?.(1)){const f=state.field;for(let slot=0;slot<3;slot++)if(!state.flying.some(b=>b.slot===slot)){
       const p=orbit(slot,f),progress=clamp(f.age/.35,0,1);
       moonBlade(ctx,f.source.x+(p.x-f.source.x)*progress,f.source.y-20+(p.y-18-f.source.y+20)*progress,slot,f.age*2);

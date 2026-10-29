@@ -57,6 +57,7 @@
   function refreshUI(){if(!active())return;[...sb.children].forEach((b,i)=>{const name=combatNames[P.ap.w][i];if(b.getAttribute('aria-label')!==name){b.innerHTML='<img class="ic" width="48" height="48"><small>'+(i+1)+'</small><span class="remaining"></span><u></u>';b.querySelector('img').src='Skill/Class/'+(thunder()?'Thuong':'Quat')+'/'+skillSprites.names[P.ap.w][i]+'/03.png';b.setAttribute('aria-label',name);}b.title=name;b.querySelector('.remaining').textContent=state.cooldown[i]>0?state.cooldown[i].toFixed(1):'';b.lastChild.style.height=state.cooldown[i]/cds()[i]*100+'%';b.disabled=(window.cultivation?!cultivation.canUse(i):P.r<i)||P.mp<combatMana[P.ap.w][i]||state.cooldown[i]>0||!!state.ultimate;});$('bs').textContent=combatNames[P.ap.w][0]+' (Space)';}
 
   function ground(ctx){
+    if(window.skillVfx?.ground?.(P.ap.w,ctx,state))return;
     const f=state.field;if(!f)return;
     const fade=Math.min(1,f.age/.3,(5.5-f.age)/.55);
     // Original perspective art belongs beneath characters, without extra debug rings.
@@ -64,6 +65,7 @@
     spellMotion.formation(ctx,P.ap.w,f,fade);
   }
   function draw(ctx){
+    if(window.skillVfx?.draw?.(P.ap.w,ctx,state))return;
     const color=thunder()?'#ae8eff':'#e8c477';ctx.save();
     if(state.dash){const d=state.dash;spellActors.projectile(ctx,P.ap.w,P.x,P.y-16,Math.atan2(d.end.y-d.start.y,d.end.x-d.start.x),d.age,60,.95);}
     for(const cast of state.casts){const p=cast.age/cast.duration;spellActors.castMotion(ctx,P.ap.w,cast.index,p,cast.x,cast.y,cast.index===3?175:125,cast.index===3?155:112,cast.angle,(1-p)*.9);}

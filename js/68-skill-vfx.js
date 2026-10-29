@@ -1,4 +1,4 @@
-/* Kiếm Tông skill VFX, drawn entirely with canvas code (no sprite art), in a bright
+/* Skill VFX core + Kiếm Tông. Everything is drawn with canvas code (no sprite art), in a bright
    wuxia style: luminous sword blades with ribbon trails and afterimages, sword-qi
    crescents, a rotating Bát Quái seal on the ground, a sky of falling swords for
    Vạn Kiếm Quy Tông, hit sparks, shockwaves, light pillars and a short screen flash.
@@ -6,7 +6,8 @@
    Presentation only: damage, timing and cooldowns stay in js/14-kiem-tong-skills.js,
    which hands its draw calls to this module (kiemVfx.drawEffects / drawGround).
    Older flourish layers (28, 30, 31, 44) stand down for the classes listed in
-   skillVfx.owns(). */
+   skillVfx.owns(). The toolkit (window.skillVfxKit) and the per-class registry
+   (skillVfx.register) are shared with js/69-skill-vfx-classes.js. */
 (function(){
  const TAU=Math.PI*2,reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const C={core:'#ffffff',hot:'#d8fbff',qi:'#7fe8ff',deep:'#2a9bff',gold:'#ffe7a3'};
@@ -80,11 +81,12 @@
 
  // ---------------------------------------------------------------- per-frame updates
  let fieldSeen=null;
- function step(dt){const s=state();
+ function step(dt){
   for(const list of [parts,rings,arcs,beams,streaks])for(const e of list)e.age+=dt;
   for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g||0)*dt;p.vx*=1-dt*2.2;if(p.kind==='mote')p.vy*=1-dt*.4;}
   for(const list of [parts,rings,arcs,beams,streaks])for(let i=list.length-1;i>=0;i--)if(list[i].age>=list[i].life)list.splice(i,1);
-  flash=Math.max(0,flash-dt*2.4);
+  flash=Math.max(0,flash-dt*2.4);}
+ function kiemStep(dt){const s=state();
   if(!s||!kiem())return;
   for(const sw of s.flying)if(Math.random()<dt*30)parts.push({x:sw.x+rnd(-3,3),y:sw.y-10+rnd(-3,3),vx:rnd(-10,10),vy:rnd(-14,4),g:0,age:0,life:.35,size:rnd(.8,1.5),color:C.qi,kind:'mote'});
   if(s.dash){const d=s.dash,t=clamp(d.elapsed/d.duration,0,1);streaks.push({x:P.x,y:P.y-20,age:0,life:.25,angle:d.angle});cap(streaks,40);if(t>=.99&&!d._vfxEnd){d._vfxEnd=true;arc(d.end.x,d.end.y-20,d.angle,42,.4,C.hot,2.6,9);arc(d.end.x,d.end.y-20,d.angle+.5,34,.4,C.qi,2,5);burst(d.end.x,d.end.y-6,18,140,C.hot,.5,30);ring(d.end.x,d.end.y,8,56,.45,C.qi,3);kick(2.5);}}
@@ -122,10 +124,7 @@
    for(let slot=0;slot<5;slot++){if(s.flying.some(x=>x.slot===slot))continue;const a=-Math.PI/2+slot*TAU/5+f.age*.6,px=f.x+Math.cos(a)*f.radius*.83,py=f.y+Math.sin(a)*f.radius*.55*.83,bob=Math.sin(f.age*3+slot)*3,
     home=f.source||P,x=home.x+(px-home.x)*spawn,y=home.y+(py-home.y)*spawn-22+bob;
     dot(ctx,px,py,12,C.qi,.45*fade);blade(ctx,x,y,Math.PI/2,40,fade*spawn);}}
-  // Dash: comet streak along the path (the body is hidden by 14 during the dash).
-  for(const st of streaks){const p=st.age/st.life;
-   if(st.stab){blade(ctx,st.x,st.y-36+p*30,Math.PI/2,34,1-p);dot(ctx,st.x,st.y,14*(1-p)+4,C.hot,1-p);continue;}
-   dot(ctx,st.x,st.y,18*(1-p),C.qi,(1-p)*.6);dot(ctx,st.x,st.y,8*(1-p),C.core,(1-p)*.9);}
+  // Dash: the comet streak is in the shared layers; the blade leads it (14 hides the body).
   if(s.dash){const d=s.dash;blade(ctx,P.x,P.y-20,d.angle,40,1);}
   // Vạn Kiếm Quy Tông: a ring of swords in the sky, waves raining down, one giant sword.
   const u=s.ultimate;
@@ -137,25 +136,40 @@
    // the giant sword: hangs above, then drops at 2.05
    const drop=clamp((t-1.75)/.3,0,1),gy=sky-30+(u.y-60-(sky-30))*ease(drop);
    if(t>1.2&&t<2.45){const a=clamp((t-1.2)/.4,0,1)*fade*(t<2.05?1:1-(t-2.05)/.4);blade(ctx,u.x,gy,Math.PI/2,150,a,C.hot);if(drop>0&&drop<1)ribbon(ctx,[{x:u.x,y:sky-80},{x:u.x,y:gy-60}],22,C.qi,.7);}}
-  // Generic layers: beams, rings, crescents, particles.
+  drawLayers(ctx);ctx.restore();return true;}
+ // Generic layers shared by every class: beams, rings, crescents, particles.
+ let layersDrawn=false;
+ function drawLayers(ctx){layersDrawn=true;ctx.save();ctx.globalCompositeOperation='lighter';
+  for(const st of streaks){const p=st.age/st.life;
+   if(st.stab){blade(ctx,st.x,st.y-36+p*30,Math.PI/2,34,1-p,st.color||C.qi);dot(ctx,st.x,st.y,14*(1-p)+4,C.hot,1-p);continue;}
+   dot(ctx,st.x,st.y,18*(1-p),st.color||C.qi,(1-p)*.6);dot(ctx,st.x,st.y,8*(1-p),C.core,(1-p)*.9);}
   for(const b of beams){const p=b.age/b.life,a=(1-p)*(p<.15?p/.15:1);ctx.globalAlpha=a*.7;const gr=ctx.createLinearGradient(0,b.y-b.h,0,b.y);gr.addColorStop(0,b.color+'00');gr.addColorStop(.7,b.color+'aa');gr.addColorStop(1,'#ffffff');ctx.fillStyle=gr;const w=b.w*(1-p*.5);ctx.fillRect(b.x-w/2,b.y-b.h,w,b.h);dot(ctx,b.x,b.y,w*1.2,C.core,a*.8);}
   for(const r of rings){const p=ease(r.age/r.life);ellipse(ctx,r.x,r.y,r.r0+(r.r1-r.r0)*p,r.width*(1-p)+.4,r.color,(1-p)*.85);}
   for(const c of arcs){const p=c.age/c.life,a=1-p,r=c.r*(.7+.5*ease(p));ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.angle);ctx.scale(1,.55);
-   for(const [w,col,k] of [[c.width*1.8,c.color,.5],[c.width*.5,C.core,1]]){ctx.globalAlpha=a*k;ctx.strokeStyle=col;ctx.lineWidth=w*(1-p*.6);ctx.lineCap='round';ctx.beginPath();ctx.arc(0,0,r,-c.span/2,c.span/2);ctx.stroke();}ctx.restore();}
+   for(const [w,col,k] of [[c.width*1.8,c.color,.5],[c.width*.5,c.core||C.core,1]]){ctx.globalAlpha=a*k;ctx.strokeStyle=col;ctx.lineWidth=w*(1-p*.6);ctx.lineCap='round';ctx.beginPath();ctx.arc(0,0,r,-c.span/2,c.span/2);ctx.stroke();}ctx.restore();}
   for(const p of parts){const k=1-p.age/p.life;if(p.kind==='spark'){ctx.globalAlpha=k;ctx.strokeStyle=p.color;ctx.lineWidth=p.size;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*.03,p.y-p.vy*.03);ctx.stroke();}else dot(ctx,p.x,p.y,p.size*2.4,p.color,k*.8);}
   ctx.restore();return true;}
 
- // ---------------------------------------------------------------- hooks
- const castSkill=skill;skill=function(index){const mp=P.mp,result=castSkill(index);try{if(kiem()&&P.mp<mp)onCast(index);}catch{}return result;};
- const baseHit=hit;hit=function(enemy,power){const alive=enemy&&!enemy.dead&&enemy.hp>0,s=state(),result=baseHit(enemy,power);
-  try{if(alive&&kiem()&&s&&!enemy.rewardReplay&&!window.petCombat?.dealing&&(s.flying.length||s.dash||s.field||s.ultimate))onHit(enemy);}catch{}return result;};
- const update=up;up=function(dt){update(dt);if(!paused())step(dt);};
- const draw=dr;dr=function(){draw();if(flash>0&&kiem()){g.save();g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='lighter';g.globalAlpha=flash*.55;g.fillStyle=flashColor;g.fillRect(0,0,W,H);g.restore();}};
- // Effects not tied to a live skill state (hit sparks after the swords return) still draw.
- const lateDraw=dr;dr=function(){lateDraw();if(!kiem()||!P.ap)return;const s=state();if(s&&(s.flying.length||s.dash||s.field||s.ultimate))return;
-  if(!(parts.length||rings.length||arcs.length||beams.length||streaks.length))return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);drawEffects(g,{flying:[],field:null,dash:null,ultimate:null});g.restore();};
+ // ---------------------------------------------------------------- registry and hooks
+ const registry=new Map(),lastCast={cls:-1,at:-99};let clock=0;
+ const owner=()=>registry.get(P.ap?.w);
+ function register(cls,module){registry.set(cls,module);}
+ register(0,{state,onCast,onHit,step:kiemStep,effects:drawEffects,ground:drawGround,flash:C.hot,
+  busy:s=>!!(s&&(s.flying.length||s.dash||s.field||s.ultimate))});
+ const castSkill=skill;skill=function(index){const mp=P.mp,result=castSkill(index);try{const m=owner();if(m&&P.mp<mp){lastCast.cls=P.ap.w;lastCast.at=clock;m.onCast(index);}}catch{}return result;};
+ const baseHit=hit;hit=function(enemy,power){const alive=enemy&&!enemy.dead&&enemy.hp>0,result=baseHit(enemy,power);
+  try{const m=owner();if(alive&&m&&!enemy.rewardReplay&&!window.petCombat?.dealing&&(m.busy(m.state())||clock-lastCast.at<1.2))m.onHit(enemy);}catch{}return result;};
+ const update=up;up=function(dt){update(dt);if(paused())return;clock+=dt;step(dt);try{owner()?.step?.(dt);}catch{}};
+ // One wrapper: resets the layer flag, lets the class modules draw through their
+ // combat files, then draws leftover layers (sparks after a skill ended) and the flash.
+ const draw=dr;dr=function(){layersDrawn=false;draw();const m=owner();if(!m||!P.ap)return;
+  if(!layersDrawn&&(parts.length||rings.length||arcs.length||beams.length||streaks.length)){const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);drawLayers(g);g.restore();}
+  if(flash>0){g.save();g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='lighter';g.globalAlpha=flash*.55;g.fillStyle=flashColor;g.fillRect(0,0,W,H);g.restore();}};
  const respawn=classCombat.onRespawn;classCombat.onRespawn=function(...a){for(const l of [parts,rings,arcs,beams,streaks])l.length=0;flash=0;return respawn.apply(this,a);};
  window.kiemVfx={drawEffects,drawGround,onCast,onHit,seal,blade};
- // Which classes the new VFX own (the older flourish layers skip them).
- window.skillVfx={owns:cls=>cls===0};
+ window.skillVfx={owns:cls=>registry.has(cls),register,
+  draw:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.effects(ctx,s);return true;},
+  ground:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.ground(ctx,s);return true;}};
+ window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,
+  parts,rings,arcs,beams,streaks,kick:(amount,flashAmount=0,color=C.hot)=>{kick(amount,flashAmount);if(flashAmount)flashColor=color;}};
 })();
