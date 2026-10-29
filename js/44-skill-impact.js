@@ -97,14 +97,14 @@
  const baseSkill=skill;
  skill=function(index){
   const mp=P.mp,result=baseSkill(index);
-  try{if(P.ap&&P.mp<mp&&Number.isInteger(index))castFlourish(index);}catch(e){}
+  try{if(P.ap&&P.mp<mp&&Number.isInteger(index)&&!window.skillVfx?.owns(cls()))castFlourish(index);}catch(e){}
   return result;
  };
  const baseHit=hit;
  hit=function(enemy,power){
   const alive=enemy&&!enemy.dead&&enemy.hp>0;
   const result=baseHit(enemy,power);
-  try{if(alive&&P.ap&&!enemy.rewardReplay&&power>1)impact(enemy,power);}catch(e){}
+  try{if(alive&&P.ap&&!enemy.rewardReplay&&power>1&&!window.skillVfx?.owns(cls()))impact(enemy,power);}catch(e){}
   return result;
  };
  const baseDraw=dr;

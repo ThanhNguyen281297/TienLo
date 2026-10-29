@@ -228,6 +228,7 @@
     if(t>=2.05)spellMotion.impact(ctx,0,u.x,u.y,t-2.05,u.radius,.65);
   }
   function drawEffects(ctx) {
+    if(window.kiemVfx?.drawEffects(ctx,state))return; // code-drawn VFX (js/68-vfx-kiem.js)
     if(state.ultimate)drawUltimate(ctx,state.ultimate);
     for(const sword of state.flying) {
       window.characterWeapon.trail(ctx,sword.trail,sword,10,CYAN);
@@ -303,6 +304,7 @@
     drawBackSwords,
     drawGroundEffects:ctx=>{
       if(!isSword())return;
+      if(window.kiemVfx?.drawGround(ctx,state))return;
       if(state.field)drawField(ctx,state.field);
       const u=state.ultimate;
       if(u)drawRing(ctx,u,60+55*clamp(u.age/.7,0,1),clamp((u.duration-u.age)/.5,0,1)*.85);

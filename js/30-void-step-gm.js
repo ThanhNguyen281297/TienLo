@@ -37,7 +37,7 @@
         end=worldMap.traceMove(start,{x:P.x+dx/d*Math.min(d,160),y:P.y+dy/d*Math.min(d,160)});
         P.x=end.x;P.y=end.y;ptr=null;
       }
-      if(Math.hypot(end.x-start.x,end.y-start.y)>2)spawn(start,end,P.ap.w);
+      if(Math.hypot(end.x-start.x,end.y-start.y)>2&&!window.skillVfx?.owns(P.ap.w))spawn(start,end,P.ap.w);
     }
     if(gmTest.enabled){combat.state.cooldown.fill(0);P.mp=Math.max(before,mmp(),...combatMana[P.ap.w]);cultivation.refresh();}
     return result;

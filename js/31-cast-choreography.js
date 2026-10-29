@@ -4,7 +4,7 @@
   const previous=skill;
   skill=function(index){
     const before=P.mp,start={x:P.x,y:P.y-22},result=previous(index);
-    if(P.mp<before&&index!==1){
+    if(P.mp<before&&index!==1&&!window.skillVfx?.owns(P.ap.w)){
       const sect=P.ap.w,origin=characterWeapon.position(sect,start.x,start.y+22);
       cues.push({sect,index,x:origin.x,y:origin.y,age:0,duration:index===3?.7:.35});
       if(cues.length>12)cues.shift();
