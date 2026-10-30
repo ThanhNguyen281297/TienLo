@@ -24,7 +24,7 @@
   for(let i=0;i<12;i++){const p=(t*.45+i/12)%1,a=i/12*TAU+t*.6,r=11+((i*7)%6),px=x+Math.cos(a)*r,behind=Math.sin(a)<0;if(behind===front)continue;const py=y-2-p*50,k=Math.sin(p*Math.PI);
    ctx.save();ctx.globalAlpha=k*.95;ctx.fillStyle=main;ctx.beginPath();ctx.arc(px,py,1.6+((i*13)%3)*.5,0,TAU);ctx.fill();ctx.fillStyle=hot;ctx.beginPath();ctx.arc(px,py,.8,0,TAU);ctx.fill();ctx.restore();glow(ctx,px,py,5,main,k*.6);}}
  const isHero=(x,y,ap)=>ap===P.ap&&Math.abs(x-P.x)<1&&Math.abs(y-P.y)<1;
- const base=drawChar;
+ const base=drawChar,ghosts=[];
  drawChar=function(ctx,x,y,dir,facing,moving,phase,attacking,ap,...rest){
   if(typeof g==='undefined'||ctx!==g||!ap)return base.call(this,ctx,x,y,dir,facing,moving,phase,attacking,ap,...rest);
   const t=clock(),hero=isHero(x,y,ap),seed=(x*.013+y*.007)%TAU;
@@ -37,6 +37,9 @@
   if(moving){lift=Math.abs(Math.sin(t*9+seed))*1.6;lean=(dir===2?facing:0)*.045;}
   else{const b=Math.sin(t*2.1+seed);sy=1+b*.012;sx=1-b*.006;}
   if(attacking&&hero){const k=Math.max(0,P.sl||0)/.22;shift=(dir===2?facing:0)*2.5*k;}
+  // Afterimages while dashing or blinking (hero only): fading copies along the path.
+  if(hero){const dashing=!!window.classCombat?.isDashing?.();if(dashing)ghosts.push({x,y,dir,facing,phase});if(ghosts.length>5||(!dashing&&ghosts.length))ghosts.shift();
+   ghosts.forEach((q,i)=>{ctx.save();ctx.globalAlpha=.12+.06*i;try{base.call(this,ctx,q.x,q.y,q.dir,q.facing,true,q.phase,false,ap,...rest);}catch{}ctx.restore();});}
   ctx.save();ctx.translate(x+shift,y-lift);ctx.transform(sx,0,-lean,sy,0,0);ctx.translate(-x,-y);
   try{return base.call(this,ctx,x,y,dir,facing,moving,phase,attacking,ap,...rest);}
   finally{ctx.restore();if(tier)aura(ctx,x,y,tier,true,t);}

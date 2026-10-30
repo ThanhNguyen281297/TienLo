@@ -85,7 +85,7 @@
   for(const list of [parts,rings,arcs,beams,streaks])for(const e of list)e.age+=dt;
   for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g||0)*dt;p.vx*=1-dt*2.2;if(p.kind==='mote')p.vy*=1-dt*.4;}
   for(const list of [parts,rings,arcs,beams,streaks])for(let i=list.length-1;i>=0;i--)if(list[i].age>=list[i].life)list.splice(i,1);
-  flash=Math.max(0,flash-dt*2.4);}
+  flash=Math.max(0,flash-dt*2.4);for(const d of decals)d.age+=dt;for(let i=decals.length-1;i>=0;i--)if(decals[i].age>=decals[i].life)decals.splice(i,1);}
  function kiemStep(dt){const s=state();
   if(!s||!kiem())return;
   for(const sw of s.flying)if(Math.random()<dt*30)parts.push({x:sw.x+rnd(-3,3),y:sw.y-10+rnd(-3,3),vx:rnd(-10,10),vy:rnd(-14,4),g:0,age:0,life:.35,size:rnd(.8,1.5),color:C.qi,kind:'mote'});
@@ -99,7 +99,7 @@
   const u=s.ultimate;
   if(u){const n=Math.min(6,Math.floor(Math.max(0,u.age-.9)/.18)+(u.age>=.9?1:0));
    while(lastUltPulse<n){lastUltPulse++;for(let i=0;i<5;i++){const a=rnd(0,TAU),r=rnd(0,80);const x=u.x+Math.cos(a)*r,y=u.y+Math.sin(a)*r*.5;burst(x,y-4,6,110,C.hot,.4,40,1.2);ring(x,y,2,22,.3,C.qi,1.6);}kick(1.4);}
-   if(!ultFinale&&u.age>=2.05){ultFinale=true;burst(u.x,u.y-10,60,260,C.hot,.9,60,2);burst(u.x,u.y-10,30,180,C.gold,.8,40,1.8);ring(u.x,u.y,10,190,.8,C.hot,5);ring(u.x,u.y,6,130,.6,C.gold,3);beam(u.x,u.y,260,60,.6,C.hot);kick(9,.55);}}
+   if(!ultFinale&&u.age>=2.05){ultFinale=true;burst(u.x,u.y-10,60,260,C.hot,.9,60,2);burst(u.x,u.y-10,30,180,C.gold,.8,40,1.8);ring(u.x,u.y,10,190,.8,C.hot,5);ring(u.x,u.y,6,130,.6,C.gold,3);beam(u.x,u.y,260,60,.6,C.hot);kick(9,.55);decal(u.x,u.y,120,C.qi);hitstop(.09);}}
  }
 
  // ---------------------------------------------------------------- drawing
@@ -159,6 +159,12 @@
  const castSkill=skill;skill=function(index){const mp=P.mp,result=castSkill(index);try{const m=owner();if(m&&P.mp<mp){lastCast.cls=P.ap.w;lastCast.at=clock;m.onCast(index);}}catch{}return result;};
  const baseHit=hit;hit=function(enemy,power){const alive=enemy&&!enemy.dead&&enemy.hp>0,result=baseHit(enemy,power);
   try{const m=owner();if(alive&&m&&!enemy.rewardReplay&&!window.petCombat?.dealing&&(m.busy(m.state())||clock-lastCast.at<1.2))m.onHit(enemy);}catch{}return result;};
+ // Scorch marks left on the ground by the heaviest blows (fade over a few seconds).
+ const decals=[];function decal(x,y,r,color){if(reduced.matches)return;decals.push({x,y,r,color,age:0,life:4.5,seed:Math.random()*99});if(decals.length>10)decals.shift();}
+ const baseDetails=worldMap.drawGroundDetails;worldMap.drawGroundDetails=function(ctx,...a){baseDetails.call(this,ctx,...a);if(!decals.length)return;ctx.save();
+  for(const d of decals){const k=1-d.age/d.life;if(k<=0)continue;ctx.save();ctx.translate(d.x,d.y);ctx.scale(1,.5);const gr=ctx.createRadialGradient(0,0,0,0,0,d.r);gr.addColorStop(0,'rgba(25,18,14,'+.42*k+')');gr.addColorStop(.7,'rgba(25,18,14,'+.18*k+')');gr.addColorStop(1,'rgba(25,18,14,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(0,0,d.r,0,TAU);ctx.fill();
+   ctx.globalCompositeOperation='lighter';ctx.strokeStyle=d.color;ctx.lineWidth=2.2;ctx.globalAlpha=k*.8;for(let i=0;i<9;i++){let a=i/9*TAU+d.seed,x=d.r*.12*Math.cos(a),y=d.r*.12*Math.sin(a);ctx.beginPath();ctx.moveTo(x,y);for(let s=1;s<5;s++){a+=Math.sin(d.seed+i*s)*.5;const rr=d.r*(.12+s*.17);x=Math.cos(a)*rr;y=Math.sin(a)*rr;ctx.lineTo(x,y);}ctx.stroke();}ctx.restore();}
+  ctx.restore();};
  // Hit-stop: heavy blows freeze the action for a few frames (presentation timing only).
  let stop=0;const hitstop=s=>{if(!reduced.matches)stop=Math.max(stop,s);};
  const update=up;up=function(dt){const k=stop>0?.08:1;stop=Math.max(0,stop-dt);update(dt*k);if(paused())return;clock+=dt;step(dt);try{owner()?.step?.(dt);}catch{}};
@@ -172,6 +178,6 @@
  window.skillVfx={owns:cls=>registry.has(cls),register,
   draw:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.effects(ctx,s);return true;},
   ground:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.ground(ctx,s);return true;}};
- window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,hitstop,
+ window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,hitstop,decal,
   parts,rings,arcs,beams,streaks,kick:(amount,flashAmount=0,color=C.hot)=>{kick(amount,flashAmount);if(flashAmount)flashColor=color;}};
 })();

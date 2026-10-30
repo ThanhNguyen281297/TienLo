@@ -99,7 +99,7 @@
    const u=s.ultimate;if(u){const {moon:m}=moonUlt(u);if(u.age<3.25&&Math.random()<dt*20)motes(m.x+rnd(-m.r,m.r),m.y+m.r,1,4,MN.silver);
     if((u._vfx??0)!==u.lightHits){u._vfx=u.lightHits;beam(u.x,u.y,u.y-m.y+20,46,.5,MN.frost);ring(u.x,u.y,10,u.radius,.55,MN.silver,3.5);burst(u.x,u.y-8,26,200,MN.frost,.5,30,1.4);kick(3,.18,'#bff6ff');}
     if(u.age>=3.25&&!u._vfxEnd){u._vfxEnd=true;ring(u.x,u.y,10,u.radius*1.4,.85,MN.silver,5);ring(u.x,u.y,6,u.radius,.65,MN.frost,3);ring(u.x,u.y,4,u.radius*.6,.5,MN.mint,2);
-     burst(u.x,u.y-10,60,280,MN.silver,.9,60,2);burst(u.x,u.y-10,30,200,MN.frost,.8,40,1.6);burst(m.x,m.y,40,220,MN.silver,.9,-40,1.6);beam(u.x,u.y,u.y-m.y+40,70,.6,MN.silver);kick(9,.55,'#d9fbff');}}},
+     burst(u.x,u.y-10,60,280,MN.silver,.9,60,2);burst(u.x,u.y-10,30,200,MN.frost,.8,40,1.6);burst(m.x,m.y,40,220,MN.silver,.9,-40,1.6);beam(u.x,u.y,u.y-m.y+40,70,.6,MN.silver);kick(9,.55,'#d9fbff');K.decal(u.x,u.y,u.radius,MN.frost);K.hitstop(.09);}}},
   ground(ctx,s){const f=s.field;
    if(f){const spawn=ease(f.age/.4),fade=clamp((f.duration-f.age)/.4,0,1),pulse=Math.max(0,1-(f.age%1)/.3);moonSeal(ctx,f.x,f.y,f.radius*(.55+.45*spawn),f.age*.5,fade,pulse);}
    const u=s.ultimate;if(u){const fade=clamp((u.duration-u.age)/.5,0,1),hot=u.age>=3.25?Math.max(0,1-(u.age-3.25)/.6):0;moonSeal(ctx,u.x,u.y,u.radius*(.5+.5*ease(u.age/.8))*(1+hot*.2),u.age*1.1,fade*(.75+hot*.25),hot);}},
@@ -156,7 +156,7 @@
    const u=s.ultimate;if(u){if(u.age<1.3&&Math.random()<dt*10){const x=u.x+rnd(-90,90);bolt(x,u.y-190+rnd(-10,10),x+rnd(-50,50),u.y-170+rnd(-15,15),.15,LT.hot,1.5,1);}
     if(u.age>=1.3&&!u._vfxEnd){u._vfxEnd=true;bolt(u.x+rnd(-15,15),u.y-260,u.x,u.y,.6,LT.bolt,9,5);bolt(u.x-30,u.y-230,u.x-10,u.y,.45,LT.blue,4,2);bolt(u.x+30,u.y-230,u.x+10,u.y,.45,LT.blue,4,2);
      for(let k=0;k<8;k++){const a=k/8*TAU+rnd(-.2,.2),r=u.radius*rnd(.7,1.05);bolt(u.x,u.y,u.x+Math.cos(a)*r,u.y+Math.sin(a)*r*.5,.5,LT.bolt,2.4,1);}
-     ring(u.x,u.y,10,u.radius*1.4,.8,LT.hot,5);ring(u.x,u.y,6,u.radius,.6,LT.bolt,3);burst(u.x,u.y-10,60,300,LT.hot,.9,60,2);burst(u.x,u.y-10,30,200,LT.bolt,.8,40,1.6);beam(u.x,u.y,260,60,.5,LT.hot);kick(10,.6,'#e9dcff');}}},
+     ring(u.x,u.y,10,u.radius*1.4,.8,LT.hot,5);ring(u.x,u.y,6,u.radius,.6,LT.bolt,3);burst(u.x,u.y-10,60,300,LT.hot,.9,60,2);burst(u.x,u.y-10,30,200,LT.bolt,.8,40,1.6);beam(u.x,u.y,260,60,.5,LT.hot);kick(10,.6,'#e9dcff');K.decal(u.x,u.y,u.radius,LT.bolt);K.hitstop(.1);}}},
   ground(ctx,s){const f=s.field;
    if(f){const fade=Math.min(1,f.age/.3,(5.5-f.age)/.55),pulse=Math.max(0,1-(f.age%1)/.3);thunderSeal(ctx,f.x,f.y,f.radius*(.55+.45*ease(f.age/.4)),f.age*.7,fade,pulse);}
    const u=s.ultimate;if(u){const grow=ease(u.age/1.2),hot=u.age>=1.3?Math.max(0,1-(u.age-1.3)/.6):0,fade=clamp((2.2-u.age)/.4,0,1);thunderSeal(ctx,u.x,u.y,u.radius*(.4+.6*grow)*(1+hot*.15),u.age*(1.5+hot*4),fade*(.6+hot*.4),hot+(u.age<1.3?.3*Math.random():0));}},
@@ -195,7 +195,7 @@
    const f=s.field;if(f&&Math.random()<dt*10)motes(f.x+rnd(-f.radius,f.radius)*.7,f.y+rnd(-f.radius,f.radius)*.3,1,0,Math.random()<.5?TC.jade:TC.gold);
    const u=s.ultimate;if(u){if(u.age>=1.8&&!u._vfxBind){u._vfxBind=true;ring(u.x,u.y,u.radius,20,.7,TC.gold,3);kick(2);}
     if(u.age>=3.2&&!u._vfxEnd){u._vfxEnd=true;for(let k=0;k<12;k++){const p=vortex(u,k,3.2),a=Math.atan2(p.y-u.y,p.x-u.x);for(let j=0;j<3;j++)K.parts.push({x:p.x,y:p.y,vx:Math.cos(a)*rnd(120,260),vy:Math.sin(a)*rnd(60,140)-40,g:120,age:0,life:rnd(.6,1),size:rnd(1.6,2.4),color:TC.paper,kind:'mote'});}
-     ring(u.x,u.y,10,u.radius*1.4,.85,TC.hot,5);ring(u.x,u.y,6,u.radius,.6,TC.jade,3);burst(u.x,u.y-10,60,280,TC.gold,.9,60,2);burst(u.x,u.y-10,30,200,TC.jade,.8,40,1.6);beam(u.x,u.y,240,64,.6,TC.gold);kick(9,.55,'#fff1c8');}}},
+     ring(u.x,u.y,10,u.radius*1.4,.85,TC.hot,5);ring(u.x,u.y,6,u.radius,.6,TC.jade,3);burst(u.x,u.y-10,60,280,TC.gold,.9,60,2);burst(u.x,u.y-10,30,200,TC.jade,.8,40,1.6);beam(u.x,u.y,240,64,.6,TC.gold);kick(9,.55,'#fff1c8');K.decal(u.x,u.y,u.radius,TC.gold);K.hitstop(.09);}}},
   ground(ctx,s){const f=s.field;
    if(f){const fade=Math.min(1,f.age/.3,(5.5-f.age)/.55),pulse=Math.max(0,1-(f.age%1)/.3);octagram(ctx,f.x,f.y,f.radius*(.55+.45*ease(f.age/.4)),f.age*.4,fade,pulse);}
    const u=s.ultimate;if(u){const hot=u.age>=3.2?Math.max(0,1-(u.age-3.2)/.6):0,bind=u.age>=1.8&&u.age<2.6?1:0,fade=clamp((4-u.age)/.5,0,1);octagram(ctx,u.x,u.y,u.radius*(.5+.5*ease(u.age/.8))*(1+hot*.2),u.age*(.8+bind*1.5),fade*(.7+hot*.3),Math.max(hot,bind*.6));}},
