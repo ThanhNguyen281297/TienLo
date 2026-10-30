@@ -1,7 +1,8 @@
 /* Basic attack VFX (đánh thường) for all four sects, in the same code-drawn wuxia style
    as the skills (js/68, js/69). Presentation only: js/22-basic-combos.js decides timing,
    hits and damage; js/23 hands its drawing here.
-   - Kiếm Tông: sword-qi crescents that sweep and leave a ribbon, flying swords, a cross cut.
+   - Kiếm Tông: a sword flash that releases a flying crescent of sword-qi, flying swords, a cross cut.
+   No trails anywhere: energy is drawn as shapes (waves, glints, halos), never as smears.
    - Minh Nguyệt: spinning frost crescents that fly out and return.
    - Lôi Thương: lightning spear thrusts, a crackling wide sweep, a bolt on the finisher.
    - Thiên Cơ: a golden folding fan flicks paper talismans that burst into seals.
@@ -9,7 +10,7 @@
 (function(){
  'use strict';
  const C=window.basicCombat,K=window.skillVfxKit,S=window.skillVfxShapes;if(!C||!K||!S)return;
- const {TAU,rnd,clamp,ease,dot,ribbon,blade,burst,ring,kick,hitstop}=K;
+ const {TAU,rnd,clamp,ease,dot,blade,burst,ring,kick,hitstop}=K;
  const H=18,seen=new WeakSet();
  const PAL=[{main:'#7fe8ff',core:'#ffffff',hot:'#d8fbff',deep:'#2a9bff',gold:'#ffe7a3'},
   {main:'#7fdcff',core:'#ffffff',hot:'#e8fbff',deep:'#3a7bff',mint:'#9fffe0'},
@@ -17,29 +18,21 @@
   {main:'#ffd36b',core:'#ffffff',hot:'#fff6d8',deep:'#c98a2a',jade:'#6dffc4'}];
  const life=o=>clamp(o.age/(o.duration||.3),0,1);
  const env=p=>Math.min(1,p/.08)*(1-ease((p-.55)/.45));
- // Points on an iso arc around (x,y): angle offsets a0..a1 relative to the facing.
- const arcPoints=(x,y,face,r,a0,a1,n=16)=>Array.from({length:n+1},(_,i)=>{const a=face+a0+(a1-a0)*i/n;return{x:x+Math.cos(a)*r,y:y+Math.sin(a)*r*.62};});
 
- // Dark underlay so light effects stay readable on bright jade and snow.
- function under(ctx,pts,w,a){if(pts.length<2)return;const op=ctx.globalCompositeOperation;ctx.globalCompositeOperation='source-over';ctx.globalAlpha=a*.3;ctx.strokeStyle='#0a2440';ctx.lineWidth=w;ctx.lineCap=ctx.lineJoin='round';ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y+2):ctx.moveTo(q.x,q.y+2));ctx.stroke();ctx.globalCompositeOperation=op;}
  // ------------------------------------------------------------- swings
- function kiemSwing(ctx,s){const p=life(s),c=PAL[0],sign=s.step===1?-1:1,r=(s.radius||82)*.95,x=s.x,y=s.y-H,a=env(p);
-  const start=-1.2*sign,head=start+2.4*sign*ease((p-.06)/.34);if(Math.abs(head-start)<.05)return;
-  const pts=arcPoints(x,y,s.angle,r,start,head),inner=arcPoints(x,y,s.angle,r*.78,start,head);
-  under(ctx,pts,26,a);ribbon(ctx,pts,24,c.main,a);ribbon(ctx,inner,12,c.hot,a*.8);ribbon(ctx,arcPoints(x,y,s.angle,r*1.12,start,head),6,c.deep,a*.6);
-  for(let k=3;k>=1;k--){const q=pts[Math.max(0,pts.length-1-k*3)],q2=pts[Math.max(0,pts.length-2-k*3)]||q;blade(ctx,q.x,q.y,Math.atan2(q.y-q2.y,q.x-q2.x),40,a*(.25-k*.05),c.main);}
-  const tip=pts[pts.length-1],prev=pts[pts.length-2]||tip;blade(ctx,tip.x,tip.y,Math.atan2(tip.y-prev.y,tip.x-prev.x),44,a,c.main);
-  dot(ctx,tip.x,tip.y,22,c.hot,a*.7);}
+ // Kiếm Tông: the sword flashes across and releases a crescent of sword-qi that flies ahead.
+ function kiemSwing(ctx,s){const p=life(s),c=PAL[0],sign=s.step===1?-1:1,x=s.x,y=s.y-H,a=env(p),r=(s.radius||82);
+  const head=-1.1*sign+2.2*sign*ease((p-.04)/.3),bx=x+Math.cos(s.angle+head)*22,by=y+Math.sin(s.angle+head)*14;blade(ctx,bx,by,s.angle+head+sign*Math.PI/2*.6,40,a*(1-ease((p-.35)/.3)),c.main);
+  S.wave(ctx,x,y+8,s.angle,24+r*.8*ease(p/.7),1.5,16,c.main,a);S.wave(ctx,x,y+8,s.angle,18+r*.6*ease(p/.7),1.1,8,c.hot,a*.8);}
+ // Lôi Thương: the spear thrusts out; lightning crackles only around the tip.
  function spearThrust(ctx,s,side){const p=life(s),c=PAL[2],r=s.radius||115,heavy=s.step===3,x=s.x-Math.sin(s.angle)*side*6,y=s.y-H+Math.cos(s.angle)*side*4,a=env(p);
   const reach=14+(r*.78-14)*ease((p-.04)/.3)*(1-.5*ease((p-.55)/.45)),tx=x+Math.cos(s.angle)*reach,ty=y+Math.sin(s.angle)*reach*.8;
-  const line=[{x,y},{x:(x+tx)/2,y:(y+ty)/2},{x:tx,y:ty}];under(ctx,line,heavy?30:22,a);ribbon(ctx,line,heavy?30:20,c.main,a*.85);ribbon(ctx,line,heavy?12:8,c.hot,a*.8);
-  S.spear(ctx,tx-Math.cos(s.angle)*20,ty-Math.sin(s.angle)*16,s.angle,heavy?92:72,a);
-  if(Math.random()<.6)S.drawBolt(ctx,S.jag(x,y,tx,ty,heavy?8:5,6),heavy?1.8:1.1,c.hot,a);
-  dot(ctx,tx,ty,heavy?36:24,c.hot,a*.8);}
- function spearSweep(ctx,s){const p=life(s),c=PAL[2],r=(s.radius||115)*.8,x=s.x,y=s.y-H+8,a=env(p),start=-1.85,head=start+3.7*ease((p-.08)/.5);
-  const pts=arcPoints(x,y,s.angle,r,start,head,20);under(ctx,pts,30,a);S.sweep(ctx,pts,30,c.main,a);S.drawBolt(ctx,pts.map(q=>({x:q.x+rnd(-4,4),y:q.y+rnd(-3,3)})),1.4,c.hot,a);
-  const tip=pts[pts.length-1];S.spear(ctx,(x+tip.x)/2,(y-6+tip.y)/2,Math.atan2(tip.y-y+6,tip.x-x),r*1.05,a);dot(ctx,tip.x,tip.y,20,c.hot,a*.7);}
- function fanGust(ctx,s){const p=life(s),c=PAL[3],a=env(p),r=40+80*ease(p),pts=arcPoints(s.x,s.y-H+6,s.angle,r,-.55,.55,12);under(ctx,pts,16,a);S.sweep(ctx,pts,16,c.jade,a*.85);}
+  S.spear(ctx,tx-Math.cos(s.angle)*20,ty-Math.sin(s.angle)*16,s.angle,heavy?92:72,a);dot(ctx,tx,ty,heavy?40:26,c.main,a*.6);dot(ctx,tx,ty,heavy?16:10,c.core,a);
+  if(Math.random()<.7)S.drawBolt(ctx,S.jag(tx,ty,tx+rnd(-18,18),ty+rnd(-14,14),5,4),1.2,c.hot,a);}
+ function spearSweep(ctx,s){const p=life(s),c=PAL[2],r=(s.radius||115)*.8,x=s.x,y=s.y-H+8,a=env(p),head=-1.85+3.7*ease((p-.08)/.5);
+  S.wave(ctx,x,y,s.angle,30+r*ease(p/.6),3.2,24,c.main,a);const tip={x:x+Math.cos(s.angle+head)*r*.7,y:y+Math.sin(s.angle+head)*r*.42};
+  S.spear(ctx,(x+tip.x)/2,(y-6+tip.y)/2,Math.atan2(tip.y-y+6,tip.x-x),r,a);if(Math.random()<.6)S.drawBolt(ctx,S.jag(tip.x,tip.y,tip.x+rnd(-20,20),tip.y+rnd(-14,14),5,4),1.3,c.hot,a);}
+ function fanGust(ctx,s){const p=life(s),c=PAL[3],a=env(p);S.wave(ctx,s.x,s.y-H+6,s.angle,30+90*ease(p),1.1,14,c.jade,a*.85);}
 
  // ------------------------------------------------------------- casts (Thiên Cơ folding fan)
  function fan(ctx,cst){const p=life(cst),c=PAL[3],a=env(p),open=ease(p/.35),x=cst.x+Math.cos(cst.angle)*14,y=cst.y-H-6+Math.sin(cst.angle)*10,span=1.9*open,len=40;
@@ -50,10 +43,10 @@
   ctx.restore();dot(ctx,x,y,10,c.main,a*.6);}
 
  // ------------------------------------------------------------- projectiles
- function projectile(ctx,p){const sect=p.sect,c=PAL[sect],dir=p.viewAngle??p.angle,y=p.y-H,a=p.returning?.75:1,trail=[...p.trail.map(t=>({x:t.x,y:t.y-H})),{x:p.x,y}];
-  if(sect===0){under(ctx,trail,18,a);ribbon(ctx,trail,p.step===3?16:20,c.main,a);blade(ctx,p.x,y,dir,p.step===3?44:52,a,c.main);dot(ctx,p.x+Math.cos(dir)*18,y+Math.sin(dir)*18,16,c.hot,a*.7);}
-  else if(sect===1){const big=p.step===2;under(ctx,trail,big?22:16,a);ribbon(ctx,trail,big?24:16,c.main,a*.9);S.crescent(ctx,p.x,y,big?24:17,p.age*16,a,c.main);}
-  else if(sect===3){under(ctx,trail,12,a);ribbon(ctx,trail,p.step===2?14:10,c.jade,a*.9);S.talisman(ctx,p.x,y,dir,p.step===2?24:18,a,p.age*20);}}
+ function projectile(ctx,p){const sect=p.sect,c=PAL[sect],dir=p.viewAngle??p.angle,y=p.y-H,a=p.returning?.75:1;
+  if(sect===0){dot(ctx,p.x,y,26,c.main,a*.35);blade(ctx,p.x,y,dir,p.step===3?44:52,a,c.main);dot(ctx,p.x+Math.cos(dir)*18,y+Math.sin(dir)*18,16,c.hot,a*.7);}
+  else if(sect===1){const big=p.step===2;dot(ctx,p.x,y,big?34:24,c.main,a*.4);S.crescent(ctx,p.x,y,big?24:17,p.age*16,a,c.main);}
+  else if(sect===3){dot(ctx,p.x,y,22,c.jade,a*.35);S.talisman(ctx,p.x,y,dir,p.step===2?24:18,a,p.age*20);}}
 
  // ------------------------------------------------------------- impacts (spawned once per effect)
  function impact(e){const c=PAL[e.sect],x=e.x,y=e.y-H+4,r=Math.min(38,e.radius||22);

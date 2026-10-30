@@ -38,7 +38,7 @@
   else{const b=Math.sin(t*2.1+seed);sy=1+b*.012;sx=1-b*.006;}
   if(attacking&&hero){const k=Math.max(0,P.sl||0)/.22;shift=(dir===2?facing:0)*2.5*k;}
   // Afterimages while dashing or blinking (hero only): fading copies along the path.
-  if(hero){const dashing=!!window.classCombat?.isDashing?.();if(dashing)ghosts.push({x,y,dir,facing,phase});if(ghosts.length>5||(!dashing&&ghosts.length))ghosts.shift();
+  if(hero&&window.vfxTrails){const dashing=!!window.classCombat?.isDashing?.();if(dashing)ghosts.push({x,y,dir,facing,phase});if(ghosts.length>5||(!dashing&&ghosts.length))ghosts.shift();
    ghosts.forEach((q,i)=>{ctx.save();ctx.globalAlpha=.12+.06*i;try{base.call(this,ctx,q.x,q.y,q.dir,q.facing,true,q.phase,false,ap,...rest);}catch{}ctx.restore();});}
   ctx.save();ctx.translate(x+shift,y-lift);ctx.transform(sx,0,-lean,sy,0,0);ctx.translate(-x,-y);
   try{return base.call(this,ctx,x,y,dir,facing,moving,phase,attacking,ap,...rest);}

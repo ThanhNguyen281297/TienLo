@@ -8,7 +8,7 @@ human=function(){if(P.med){sit();drawPlayerName();return;}orbit();const dx=P.x-h
  else if(dx||dy){if(Math.abs(dx)>Math.abs(dy)){P.dir=2;P.f=dx<0?-1:1}else P.dir=dy>0?0:1}
  const c=RC[P.r],d=P.dir||0;glow(P.x,P.y-8,34,c,.25);sh(P.x,P.y+1,8,3,.3);
  drawChar(g,P.x,P.y,d,P.f,P.mv,tm*10,P.sl>0,AP(),c);
- if(P.sl>0&&!window.basicCombat?.poseActive()){const vx=d==2?P.f:0,vy=d==0?1:d==1?-1:0,an=Math.atan2(vy,vx);g.save();g.globalCompositeOperation='lighter';g.strokeStyle='#bff';g.lineWidth=3;g.beginPath();g.arc(P.x+vx*10,P.y-10+vy*10,18,an-1,an+1);g.stroke();g.restore()}
+ if(P.sl>0&&window.vfxTrails&&!window.basicCombat?.poseActive()){const vx=d==2?P.f:0,vy=d==0?1:d==1?-1:0,an=Math.atan2(vy,vx);g.save();g.globalCompositeOperation='lighter';g.strokeStyle='#bff';g.lineWidth=3;g.beginPath();g.arc(P.x+vx*10,P.y-10+vy*10,18,an-1,an+1);g.stroke();g.restore()}
  drawPlayerName()};
 const _up=up;up=function(dt){if(cr.style.display!='none')return;_up(dt)};
 const OPT=[];
