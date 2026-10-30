@@ -105,6 +105,9 @@
   stonePaving.draw(g,{left:1000-RX,top:1100-RY,right:1000+RX,bottom:1100+RY},{x:cx,y:cy,width:vw,height:vh});world.mapThemes.finishDeck(g,1000,1100,RX,RY);
   const tint=g.createLinearGradient(1000-RX,0,1000+RX,0);tint.addColorStop(0,'rgba(60,120,220,.22)');tint.addColorStop(.45,'rgba(0,0,0,0)');tint.addColorStop(.55,'rgba(0,0,0,0)');tint.addColorStop(1,'rgba(220,60,40,.22)');g.fillStyle=tint;g.fillRect(1000-RX,1100-RY,RX*2,RY*2);g.restore();
   g.save();g.lineWidth=3;g.strokeStyle='#e6c477aa';g.beginPath();g.ellipse(1000,1100,RX-4,RY-3,0,0,7);g.stroke();g.restore();
+  };
+ // Bases, flags and attack marks go on the ground layer, above any floor art.
+ const battleDetails=world.drawGroundDetails;world.drawGroundDetails=function(ctx,cx,cy,vw,vh){battleDetails.call(this,ctx,cx,cy,vw,vh);if(!inBattle())return;
   const v=state.view;if(!v)return;g.save();
   for(const [team,t] of Object.entries(v.teams)){const [bx,by]=t.base;g.fillStyle=team==='chinh'?'rgba(80,150,255,.18)':'rgba(255,80,60,.18)';g.strokeStyle=t.color;g.lineWidth=2;g.beginPath();g.ellipse(bx,by,v.baseRadius,v.baseRadius/1.4,0,0,7);g.fill();g.stroke();}
   for(const f of v.flags){const color=f.owner==='chinh'?'#6fb6ff':f.owner==='ta'?'#ff6b5a':'#e6c477',r=v.flagRadius;g.fillStyle=color+'22';g.strokeStyle=color;g.lineWidth=2;g.beginPath();g.ellipse(f.x,f.y,r,r/1.4,0,0,7);g.fill();g.stroke();

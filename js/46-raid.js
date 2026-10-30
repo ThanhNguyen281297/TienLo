@@ -67,7 +67,8 @@
    const glow=g.createRadialGradient(GATE.x,GATE.y-26,2,GATE.x,GATE.y-26,34);glow.addColorStop(0,'rgba(255,90,70,.55)');glow.addColorStop(1,'rgba(255,40,40,0)');g.fillStyle=glow;g.fillRect(GATE.x-36,GATE.y-62,72,72);
    g.fillStyle='#ff8a6a';for(let n=0;n<7;n++){const t=(tm*.35+n*.15)%1;g.globalAlpha=Math.sin(t*Math.PI)*.7;g.fillRect(GATE.x+Math.sin(n*2.1+tm)*16,GATE.y-t*50,1.2,2.2);}g.restore();}]);};
  // Slam telegraphs on the ground (under actors); ellipse matches the server test (dy*1.6).
- const floor=drawGround;drawGround=function(cx,cy,vw,vh){floor(cx,cy,vw,vh);if(!inRaid()||!state.view)return;
+ // Slam telegraphs sit on the ground layer, above any floor art.
+ const details=world.drawGroundDetails;world.drawGroundDetails=function(ctx,cx,cy,vw,vh){details.call(this,ctx,cx,cy,vw,vh);if(!inRaid()||!state.view)return;
   g.save();for(const s of state.view.slams){const age=(performance.now()-state.view.at)/1000,remain=Math.max(0,s.remain-age),p=1-remain/s.total;
    g.globalAlpha=.25+.25*Math.sin(tm*14);g.fillStyle='#ff3b2a';g.beginPath();g.ellipse(s.x,s.y,s.r,s.r/1.6,0,0,Math.PI*2);g.fill();
    g.globalAlpha=.55;g.beginPath();g.ellipse(s.x,s.y,s.r*p,s.r*p/1.6,0,0,Math.PI*2);g.fill();

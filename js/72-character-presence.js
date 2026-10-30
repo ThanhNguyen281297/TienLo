@@ -30,7 +30,7 @@
   const t=clock(),hero=isHero(x,y,ap),seed=(x*.013+y*.007)%TAU;
   longShadow(ctx,x,y);
   glow(ctx,x,y-22,night()?34:26,sceneLight(),night()?.22:.12);
-  const level=hero?(P.world?.equip?.vukhi?.enhance|0):(ap.enhance|0),tier=tierFor(level);
+  const level=hero?(P.world?.equip?.vukhi?.enhance|0):((ap.enhance??ap.weaponEnhance)|0),tier=tierFor(level);
   if(tier)aura(ctx,x,y,tier,false,t);
   // body motion: breathing when still, bounce and lean while walking, lunge while attacking
   let sx=1,sy=1,lift=0,lean=0,shift=0;

@@ -17,7 +17,7 @@
  const scenes=L.scenes,themes=L.themes,materials=L.materials;
  let disabled=false;
  const owns=id=>!disabled&&!!scenes[id];
- const scene=()=>world.state.scene,design=()=>owns(scene())?scenes[scene()]:null;
+ const scene=()=>world.state.scene,design=()=>owns(scene())?scenes[scene()]:null,full=()=>{const d=design();return d&&!d.skin?d:null;};
  const clock=()=>reduced.matches?0:(world.environmentClock||performance.now()/1000);
  const ready=i=>i&&i.complete&&i.naturalWidth>0;
  const rgb=h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255];};
@@ -369,7 +369,7 @@
   return{ok:!bad.length,bad};}
 
  // Grid route for auto-navigation: BFS on the walk mask, then line-of-sight smoothing.
- function findPath(from,to){const id=scene();if(!owns(id))return null;const m=mask(id),S=m.S,cell=p=>[Math.max(0,Math.min(S-1,Math.floor(p.x/4))),Math.max(0,Math.min(S-1,Math.floor(p.y/4)))];
+ function findPath(from,to){const id=scene();if(!full())return null;const m=mask(id),S=m.S,cell=p=>[Math.max(0,Math.min(S-1,Math.floor(p.x/4))),Math.max(0,Math.min(S-1,Math.floor(p.y/4)))];
   let [si,sj]=cell(from),[gi,gj]=cell(to);const open=k=>m.grid[k]===1;
   const nearest=(i,j)=>{for(let r=0;r<20;r++)for(let a=-r;a<=r;a++)for(const [x,y] of [[i+a,j-r],[i+a,j+r],[i-r,j+a],[i+r,j+a]])if(x>=0&&y>=0&&x<S&&y<S&&open(y*S+x))return[x,y];return null;};
   if(!open(sj*S+si)){const n=nearest(si,sj);if(!n)return null;[si,sj]=n;}if(!open(gj*S+gi)){const n=nearest(gi,gj);if(!n)return null;[gi,gj]=n;}
@@ -428,8 +428,8 @@
    else{ctx.save();ctx.translate(x,y);ctx.rotate(t*2+i);ctx.scale(1,.5+.5*Math.sin(t*3+i));ctx.fillStyle=kind==='petal'?(i%3?'#ffc6dc':'#ffffff'):(i%2?'#9fd16a':'#c9b85a');ctx.globalAlpha=.85;ctx.beginPath();ctx.ellipse(0,0,2.2,1.1,0,0,TAU);ctx.fill();ctx.restore();}}
   ctx.restore();}
  const weatherDraw=dr;dr=function(){weatherDraw();const d=design();if(!d||paused())return;const c=gameCamera();g.save();g.setTransform(Z,0,0,Z,-c.x*Z,-c.y*Z);try{weather(g,d,c.x,c.y,c.vw,c.vh);}catch{}g.restore();};
- const baseDetails=world.drawGroundDetails;world.drawGroundDetails=function(ctx,cx,cy,vw,vh){const d=design();if(!d)return baseDetails.call(this,ctx,cx,cy,vw,vh);drawAnimated(ctx,d,cx,cy,vw,vh);};
- const baseQueue=world.queueActors;world.queueActors=function(items,cx,cy,vw,vh){const d=design();if(!d)return baseQueue.call(this,items,cx,cy,vw,vh);
+ const baseDetails=world.drawGroundDetails;world.drawGroundDetails=function(ctx,cx,cy,vw,vh){const d=design();if(!d)return baseDetails.call(this,ctx,cx,cy,vw,vh);if(d.skin){drawAnimated(ctx,d,cx,cy,vw,vh);return baseDetails.call(this,ctx,cx,cy,vw,vh);}drawAnimated(ctx,d,cx,cy,vw,vh);};
+ const baseQueue=world.queueActors;world.queueActors=function(items,cx,cy,vw,vh){const d=full();if(!d){baseQueue.call(this,items,cx,cy,vw,vh);const s2=design();if(s2?.skin)for(const p of s2.props)if(p.x>cx-p.w&&p.x<cx+vw+p.w&&p.y>cy-20&&p.y<cy+vh+p.w*1.2)items.push([p.islet?p.y-400:p.y,()=>drawProp(p)]);return;}
   // Older scenery layers read world.buildings and the decoration tables: hide them
   // while the chain adds NPCs, pets, portals and other gameplay actors.
   const keep=world.buildings.splice(0),deco=world.mapDecorations?.[scene()],hubDeco=world.layoutArt?.hubDecor,saved=[deco?.splice(0),scene()==='hub'?hubDeco?.splice(0):null];
@@ -439,25 +439,25 @@
  const swordArt=new Image();swordArt.src='Item/VuKhi/Kiem.png';
  function monument(m){if(!ready(swordArt))return;const h=m.h,w=h*swordArt.naturalWidth/swordArt.naturalHeight;g.save();g.translate(m.x,m.y-h*.42);g.rotate(Math.PI);g.shadowColor='#9ff3df';g.shadowBlur=12;g.drawImage(swordArt,-w/2,-h/2,w,h);g.restore();
   g.save();g.globalAlpha=.35;g.fillStyle='#203030';g.beginPath();g.ellipse(m.x,m.y,18,7,0,0,TAU);g.fill();g.restore();}
- const baseWalk=world.canWalk;world.canWalk=p=>owns(scene())?walkable(scene(),p):baseWalk(p);
- const baseTrace=world.traceMove;world.traceMove=function(a,b){if(!owns(scene()))return baseTrace.call(this,a,b);if(!world.canWalk(a))return{...a};const steps=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3));let last={...a};for(let i=1;i<=steps;i++){const p={x:a.x+(b.x-a.x)*i/steps,y:a.y+(b.y-a.y)*i/steps};if(!world.canWalk(p))break;last=p;}return last;};
- const baseCamera=world.camera;world.camera=function(vw,vh){const d=design();if(!d)return baseCamera(vw,vh);const [x0,y0,x1,y1]=d.bounds,axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return{x:axis(P.x,vw,x0,x1),y:axis(P.y,vh,y0,y1),vw,vh};};
+ const baseWalk=world.canWalk;world.canWalk=p=>full()?walkable(scene(),p):baseWalk(p);
+ const baseTrace=world.traceMove;world.traceMove=function(a,b){if(!full())return baseTrace.call(this,a,b);if(!world.canWalk(a))return{...a};const steps=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3));let last={...a};for(let i=1;i<=steps;i++){const p={x:a.x+(b.x-a.x)*i/steps,y:a.y+(b.y-a.y)*i/steps};if(!world.canWalk(p))break;last=p;}return last;};
+ const baseCamera=world.camera;world.camera=function(vw,vh){const d=full();if(!d)return baseCamera(vw,vh);const [x0,y0,x1,y1]=d.bounds,axis=(v,size,lo,hi)=>size>hi-lo?(lo+hi-size)/2:Math.max(lo,Math.min(hi-size,v-size/2));return{x:axis(P.x,vw,x0,x1),y:axis(P.y,vh,y0,y1),vw,vh};};
  // The hub and sect cameras come from gameCamera() directly in some builds: route them here too.
- const view=gameCamera;gameCamera=function(vw=W/Z,vh=H/Z){return design()?world.camera(vw,vh):view(vw,vh);};
- function placeServices(){const d=design();if(!d)return;for(const s of world.services){const p=d.services?.[s.id];if(p){s.x=p[0];s.y=p[1];}}world.state.near=null;}
- function applyBuildings(){const d=design();if(!d)return;world.buildings.splice(0,world.buildings.length,...d.props.filter(p=>!p.islet).map(p=>({key:p.key,x:p.x,y:p.y,w:p.w,tienHiep:true})));}
+ const view=gameCamera;gameCamera=function(vw=W/Z,vh=H/Z){return full()?world.camera(vw,vh):view(vw,vh);};
+ function placeServices(){const d=full();if(!d)return;for(const s of world.services){const p=d.services?.[s.id];if(p){s.x=p[0];s.y=p[1];}}world.state.near=null;}
+ function applyBuildings(){const d=full();if(!d)return;world.buildings.splice(0,world.buildings.length,...d.props.filter(p=>!p.islet).map(p=>({key:p.key,x:p.x,y:p.y,w:p.w,tienHiep:true})));}
  // Hub feature positions read by other modules (pets, auction, raid gate, rift portals).
  const anchors=window.sceneAnchors?.hub;if(anchors&&window.expeditionRules)for(const m of expeditionRules.maps){const p=anchors.rifts?.[m.id];if(p)m.portal={x:p[0],y:p[1]};}
- const baseSwitch=world.switchScene;world.switchScene=function(...args){const r=baseSwitch.apply(this,args);if(design()){applyBuildings();placeServices();}return r;};
- if(design()){applyBuildings();placeServices();}
- const baseMini=world.renderMini;world.renderMini=function(ctx,size){const d=design();if(!d)return baseMini.call(this,ctx,size);const th=themes[d.theme];ctx.fillStyle=th.sky[1];ctx.fillRect(0,0,size,size);
+ const baseSwitch=world.switchScene;world.switchScene=function(...args){const r=baseSwitch.apply(this,args);if(full()){applyBuildings();placeServices();}return r;};
+ if(full()){applyBuildings();placeServices();}
+ const baseMini=world.renderMini;world.renderMini=function(ctx,size){const d=full();if(!d)return baseMini.call(this,ctx,size);const th=themes[d.theme];ctx.fillStyle=th.sky[1];ctx.fillRect(0,0,size,size);
   const [x0,y0,x1,y1]=d.bounds,span=Math.max(x1-x0,y1-y0),s=size/span,ox=(size-(x1-x0)*s)/2-x0*s,oy=(size-(y1-y0)*s)/2-y0*s;ctx.save();ctx.translate(ox,oy);ctx.scale(s,s);
   for(const t of d.all){ctx.fillStyle=t.walk?(materials[t.mat]?.kind==='grass'?'#8cb867':'#e7dfca'):'#9fb39a';path(ctx,t.pts);ctx.fill();}
   for(const w of d.water){ctx.fillStyle='#5fb6c4';path(ctx,w.pts);ctx.fill();}
   ctx.strokeStyle='#e7dfca';ctx.lineCap='round';for(const b of d.bridges){ctx.lineWidth=b.w;ctx.beginPath();ctx.moveTo(b.a[0],b.a[1]);ctx.lineTo(b.b[0],b.b[1]);ctx.stroke();}
   for(const sv of world.services){ctx.fillStyle=sv.npc?'#d9a441':'#6cc9e0';ctx.beginPath();ctx.arc(sv.x,sv.y,span/90,0,TAU);ctx.fill();}
   ctx.fillStyle='#fff';ctx.strokeStyle='#203040';ctx.lineWidth=span/250;ctx.beginPath();ctx.arc(P.x,P.y,span/70,0,TAU);ctx.fill();ctx.stroke();ctx.restore();};
- const basePreview=world.renderMapPreview;world.renderMapPreview=function(ctx,size){const d=design();if(!d)return basePreview?.call(this,ctx,size);world.renderMini(ctx,size);};
+ const basePreview=world.renderMapPreview;world.renderMapPreview=function(ctx,size){const d=full();if(!d)return basePreview?.call(this,ctx,size);world.renderMini(ctx,size);};
 
  window.tienHiep={owns,scenes,setEnabled:on=>{disabled=!on;},validate,walkable,mask,paintTerrain:(ctx,id,view)=>paintTerrain(ctx,prepare(scenes[id]),view||[0,0,2000,2000]),reset:()=>{chunks.clear();masks.clear();overviewScene='';}};
 })();

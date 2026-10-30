@@ -339,8 +339,37 @@
   islets:[{pts:blob(340,760,80,44,741,.12,22),mat:'void',h:150,props:[[T('11-041'),340,780,70]]},{pts:blob(1660,760,80,44,742,.12,22),mat:'void',h:150,props:[[T('11-037'),1660,780,70]]}],
   scatter:[{keys:['tint:void:'+T('11-017'),'tint:void:'+T('11-051'),T('11-028')],groves:12,per:3,size:[40,72],solid:[9,5]},{keys:[T('11-049'),T('11-073'),T('11-058')],loose:80,size:[16,30],road:8}]});
 
+ // ------------------------------------------------------------------ event arenas (art only:
+ // their own modules keep walkability, cameras, telegraphs and actors)
+ const ringAround=(cx,cy,n,rx,ry,key,w,solid=null)=>ring(cx,cy,n,rx,ry).map(([x,y])=>[key,x,y,w,solid]);
+ const duel={theme:'dawn',skin:true,bounds:[200,560,1800,1640],
+  terraces:[{id:'gallery',pts:ring(1000,1100,72,710,436),mat:'jade',h:160,rail:true,trim:true,falls:[760,1240]},{id:'dais',pts:ring(1000,1100,64,360,218),mat:'jadeCool',h:22,z:1,trim:true}],
+  islets:[{pts:blob(300,760,90,50,801,.12,24),mat:'grass',h:180,props:[['sakura',300,750,80]]},{pts:blob(1700,760,90,50,802,.12,24),mat:'grass',h:180,props:[['pineTree',1700,750,80]]}],
+  inlays:[{x:1000,y:1100,r:170,kind:'compass',z:1},{x:1000,y:1100,r:90,kind:'sword',z:1}],
+  props:[...ringAround(1000,1100,12,680,414,T('14-013'),28),...ringAround(1000,1100,4,690,422,'lantern',24).map(p=>(p[1]+=30,p))]};
+ const battle={theme:'verdant',skin:true,bounds:[140,520,1860,1680],
+  terraces:[{id:'field',pts:ring(1000,1100,80,790,490),mat:'grass',h:200,falls:[700,1300]}],
+  pads:[{pts:oct(430,1100,115,78,.24),mat:'jadeCool'},{pts:oct(1570,1100,115,78,.24),mat:'jade'},...[[1000,830],[1000,1100],[1000,1370]].map(([x,y])=>({pts:oct(x,y,95,64,.26),mat:'stone',trim:false}))],
+  paths:[{pts:spline([[430,1100],[700,1060],[1000,1100],[1300,1140],[1570,1100]],26),w:46,mat:'stone'},{pts:spline([[1000,830],[970,960],[1000,1100],[1030,1240],[1000,1370]],26),w:40,mat:'stone'}],
+  patchMats:['grassDark','flowers'],patchCount:18,seed:803,
+  props:[...ringAround(1000,1100,16,760,468,'pineTree',70),[T('14-024'),360,1020,26],[T('14-024'),500,1020,26],[T('15-014'),1500,1020,26],[T('15-014'),1640,1020,26]]};
+ const worldboss={theme:'ember',skin:true,bounds:[480,780,1520,1420],
+  terraces:[{id:'altar',pts:oct(1000,1100,340,176,.02),mat:'slate',h:220,rail:true,falls:[1000]}],
+  islets:[{pts:blob(560,860,70,40,804,.12,22),mat:'ash',h:200,props:[[T('15-030'),560,880,60]]},{pts:blob(1440,860,70,40,805,.12,22),mat:'ash',h:200,props:[[T('15-039'),1440,880,60]]}],
+  inlays:[{x:1000,y:1100,r:150,kind:'octagram'},{x:1000,y:1100,r:80,kind:'thunder'}],
+  props:[[T('15-013'),700,1100,36],[T('15-013'),1300,1100,36],[T('15-034'),1000,955,40],[T('15-022'),860,1030,26],[T('15-022'),1140,1030,26],[T('15-022'),860,1170,26],[T('15-022'),1140,1170,26]]};
+ const raid={theme:'ember',skin:true,bounds:[300,700,1700,1500],
+  terraces:[{id:'cavern',pts:blob(1000,1100,655,362,806,.03,80),mat:'ashRed',h:230,falls:[820,1180]}],
+  islets:[{pts:blob(360,800,80,44,807,.12,22),mat:'ash',h:180,props:[[T('15-041'),360,820,70]]},{pts:blob(1640,800,80,44,808,.12,22),mat:'ash',h:180,props:[[T('15-040'),1640,820,70]]}],
+  pads:[{pts:oct(1000,870,170,90,.24),mat:'slate'},{pts:oct(1000,1390,110,58,.26),mat:'slate'}],
+  clearings:[[730,1035],[1270,1035],[825,1210],[1175,1210]].map(([x,y])=>({x,y,rx:140,ry:95,mat:'ash'})),
+  inlays:[{x:1000,y:870,r:80,kind:'thunder'},{x:1000,y:1390,r:46,kind:'portal'}],
+  patchMats:['ash','ashRed'],patchCount:14,seed:806,
+  props:[[T('15-017'),1000,800,110],[T('15-013'),860,870,34],[T('15-013'),1140,870,34],...ringAround(1000,1100,10,600,330,T('15-022'),26)]};
+
  window.tienHiepLayouts={TAU,rng,oct,blob,coast,ribbon,spline,ring,themes,materials,scenes:{hub,sword,moon,thunder,mystic,tower,
   'field-meadow':meadow,'field-bamboo':bamboo,'field-marsh':marsh,'field-frost':frost,'field-ember':ember,'field-abyss':abyss,
+  duel,battle,worldboss,raid,
   'rift-wood':riftWood,'rift-tide':riftTide,'rift-fire':riftFire,'rift-void':riftVoid}};
  window.sceneAnchors={hub:hub.anchors};
 })();
