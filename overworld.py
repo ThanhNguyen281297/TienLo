@@ -20,7 +20,7 @@ def mob_attack(level):return (.69+.124*level)*min(1,.6+.04*level)  # newbie camp
 
 def room(scene):
     rule=MAPS[scene];mobs=[]
-    for ci,camp in enumerate(RULES['camps']):
+    for ci,camp in enumerate(rule.get('camps') or RULES['camps']):
         for n in range(8):
             angle=n*math.tau/8;level=rule['level']+ci%3
             x=camp['x']+math.cos(angle)*85;y=camp['y']+math.sin(angle)*65

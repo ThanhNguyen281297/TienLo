@@ -73,11 +73,16 @@
   for(const k of ['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'])if(K[k])return true;
   return !!(ptr||window.mobileInput?.active);
  }
+ // Maps with a walk grid (js/70) give a route around gaps, bridges and buildings.
+ let route=null,routeFor=null,routeT=0;
+ function waypoint(t,dt){if(!worldMap.findPath)return t;routeT-=dt;if(routeFor!==t||!route||routeT<=0){route=worldMap.findPath(P,t);routeFor=t;routeT=1.5;}
+  if(!route||!route.length)return t;while(route.length>1&&Math.hypot(route[0].x-P.x,route[0].y-P.y)<14)route.shift();return route[0];}
  function steer(dt){
   const t=state.target;if(!t)return null;
-  const dx=t.x-P.x,dy=t.y-P.y,d=Math.hypot(dx,dy);
+  const d=Math.hypot(t.x-P.x,t.y-P.y);
   if(d<(t.npc?NPC_ARRIVE:ARRIVE)){state.target=null;return 'arrived';}
-  let ux=dx/d,uy=dy/d;
+  const w=waypoint(t,dt),wx=w.x-P.x,wy=w.y-P.y,wd=Math.hypot(wx,wy)||1;
+  let ux=wx/wd,uy=wy/wd;
   state.checkT+=dt;
   if(state.checkT>=STEP_CHECK){
    const moved=Math.hypot(P.x-state.lastX,P.y-state.lastY);state.checkT=0;state.lastX=P.x;state.lastY=P.y;

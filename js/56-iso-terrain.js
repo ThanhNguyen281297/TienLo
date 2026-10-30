@@ -282,7 +282,7 @@
   r.props=out;return out;}
 
  // ---------------------------------------------------------------- runtime hooks
- const current=()=>{const m=og.current();return m&&DESIGNS[m.id]?region(m.id):null;};
+ const current=()=>{if(window.tienHiep?.owns(world.state.scene))return null;const m=og.current();return m&&DESIGNS[m.id]?region(m.id):null;};
  window.isoTerrain={DESIGNS,region,current,bake,lights:()=>lights()};
  const change=world.switchScene;world.switchScene=function(...args){const result=change.apply(this,args);const r=current();
   if(r){world.buildings.splice(0,world.buildings.length,...layout(r));if(!world.services.some(s=>s.id==='field-road'))0;

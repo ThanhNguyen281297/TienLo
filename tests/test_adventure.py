@@ -118,6 +118,15 @@ class AdventureTests(unittest.TestCase):
             if not key.startswith('hunt:'):continue
             floor=dict(adventure.HUNT_FLOORS)[int(key[5:])];top=levels[adventure.goal(key,self.player)['map']][1]
             self.assertGreaterEqual(top,floor,key)
+    def test_each_zone_spawns_mobs_at_its_own_camps(self):
+        import overworld
+        for scene,rule in overworld.MAPS.items():
+            camps={(c['x'],c['y']) for c in rule['camps']}
+            self.assertEqual(len(camps),6,scene)
+            mobs=overworld.room(scene)['mobs']
+            self.assertEqual({(m['campX'],m['campY']) for m in mobs},camps,scene)
+            goal=adventure.goal('zone:'+scene,self.player)
+            self.assertIn((goal['x'],goal['y']),camps,scene)
     def test_zone_kills_and_enhance_progress_side_quests(self):
         for n in range(40):adventure.record_kill(self.db,1,dict(map='field-meadow',level=2),'zone-'+str(n))
         adventure.add(self.db,1,'enhance')

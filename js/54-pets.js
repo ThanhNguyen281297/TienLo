@@ -5,7 +5,7 @@
    Thiên Vân Thành; the item card shows the pet's skill and stats. */
 (function(){
  const world=worldMap,d=world.dialog,ui=visualUI,TITLE='Ngự Thú Sư · Linh thú';
- const NPC={x:445,y:1160};
+ const NPC=(a=>a?{x:a[0],y:a[1]}:{x:445,y:1160})(window.sceneAnchors?.hub?.stable);
  // Follower height and hover for species drawn from the expedition atlases.
  const LOOK={Ech:{h:30},Soi:{h:36},TeGiac:{h:36},BoCap:{h:32},RongNuoc:{h:40,fly:8},PhuongHoang:{h:40,fly:9},RongXuong:{h:40,fly:7}};
  const state={stable:null,busy:false};

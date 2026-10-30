@@ -3,7 +3,7 @@
    expedition arena; this module adds the gate, prompts, slam telegraphs and status. */
 (function(){
  const world=worldMap,d=world.dialog,ui=visualUI,exp=expeditionsGame;
- const GATE={x:1000,y:1480};
+ const GATE=(a=>a?{x:a[0],y:a[1]}:{x:1000,y:1480})(window.sceneAnchors?.hub?.raidGate);
  const RULE={id:'raid',name:'Huyết Trì Ma Quật',level:20,theme:'worldboss',species:['DungNham','TrauQuy','Soi','RongXuong'],boss:'RongXuong',color:'#ff7a6b',direction:'Nam',dropRate:0,portal:GATE};
  const state={data:null,view:null,busy:false,lastPoll:0,announced:''};
  exp.maps.set('raid',RULE);

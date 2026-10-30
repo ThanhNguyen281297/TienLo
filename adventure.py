@@ -124,6 +124,11 @@ def progress(db,uid,key,daily=False):
 FIELDS=(('field-meadow',1,1),('field-bamboo',8,6),('field-marsh',18,15),('field-frost',30,25),('field-ember',45,40),('field-abyss',65,60))
 RIFTS=(('rift-wood',10),('rift-tide',25),('rift-fire',45),('rift-void',70))
 CAMP=(440,1320)
+def camp(scene):
+    """First hunting camp of an outdoor zone (each zone has its own layout)."""
+    import overworld
+    c=(overworld.MAPS.get(scene) or {}).get('camps') or [dict(x=CAMP[0],y=CAMP[1])]
+    return c[0]['x'],c[0]['y']
 
 MAP_NAMES={'hub':'Thiên Vân Thành','sword':'Vạn Kiếm Sơn','moon':'Minh Nguyệt Tông','thunder':'Lôi Thương Tông','mystic':'Thiên Cơ Môn',
  'field-meadow':'Thanh Phong Nguyên','field-bamboo':'Trúc Hải U Cốc','field-marsh':'Vân Mộng Trạch','field-frost':'Hàn Sương Lĩnh','field-ember':'Xích Diệm Hoang','field-abyss':'U Minh Cổ Địa',
@@ -141,14 +146,14 @@ def _goal(key,player):
     if key in ('craft','enhance'):return dict(map='hub',npc='forge')
     if key.startswith('visit:'):
         scene=key[6:];return dict(map=scene,npc='mentor') if scene in SECT_MAPS else dict(map=scene)
-    if key.startswith('zone:field-'):return dict(map=key[5:],x=CAMP[0],y=CAMP[1],auto=True)
+    if key.startswith('zone:field-'):x,y=camp(key[5:]);return dict(map=key[5:],x=x,y=y,auto=True)
     if key.startswith('zone:rift-'):return dict(map=key[5:],x=1000,y=1100,auto=True)
     if key.startswith('boss:'):return dict(map=key[5:],x=1000,y=930,auto=True)
     if key.startswith('hunt:'):
         need=dict(HUNT_FLOORS).get(int(key[5:]),int(key[5:]));field=next((f for f in FIELDS if f[1]+2>=need),FIELDS[-1])
-        return dict(map=field[0],x=CAMP[0],y=CAMP[1],auto=True)
+        x,y=camp(field[0]);return dict(map=field[0],x=x,y=y,auto=True)
     if key in ('kills','sectKills'):
-        field=[f for f in FIELDS if f[2]<=lv][-1];return dict(map=field[0],x=CAMP[0],y=CAMP[1],auto=True)
+        field=[f for f in FIELDS if f[2]<=lv][-1];x,y=camp(field[0]);return dict(map=field[0],x=x,y=y,auto=True)
     if key in ('riftVisits','riftBosses','riftKills'):
         rift=[r for r in RIFTS if r[1]<=lv]
         if not rift:return None

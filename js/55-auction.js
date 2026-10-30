@@ -3,7 +3,7 @@
    the sell form and the delivery box ("Hòm nhận"). */
 (function(){
  const world=worldMap,d=world.dialog,ui=visualUI,TITLE='Tụ Bảo Các';
- const NPC={x:650,y:1235};
+ const NPC=(a=>a?{x:a[0],y:a[1]}:{x:650,y:1235})(window.sceneAnchors?.hub?.auction);
  const GROUPS=[['','Tất cả'],['weapon','Vũ khí'],['armor','Phòng cụ'],['treasure','Pháp bảo'],['accessory','Trang sức'],['material','Nguyên liệu']];
  const SORTS=[['ending','Sắp kết thúc'],['new','Mới đăng'],['cheap','Giá thấp'],['expensive','Giá cao']];
  const RARITIES=[['','Mọi phẩm'],['pham','Phàm'],['huyen','Huyền'],['linh','Linh'],['tien','Tiên'],['than','Thần']];

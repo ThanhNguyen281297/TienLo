@@ -186,7 +186,7 @@
     if(!kit.mist.length)return[];
     return Array.from({length:coarse.matches?3:5},(_,i)=>{const [atlas,n]=kit.mist[i%kit.mist.length];return{key:sid(atlas,n),y:420+rand()*1200,speed:6+rand()*8,phase:rand(),w:360+rand()*220,alpha:.2+rand()*.1};});
   }
-  function current(){const scene=world.state.scene;let c=cache.get(scene);if(c===undefined){c=null;try{c=build(scene);}catch(e){c=null;}cache.set(scene,c);}return c;}
+  function current(){const scene=world.state.scene;if(window.tienHiep?.owns(scene))return null;let c=cache.get(scene);if(c===undefined){c=null;try{c=build(scene);}catch(e){c=null;}cache.set(scene,c);}return c;}
   // Rebuild after every scene change so buildings/services of the new scene are respected.
   // Field vegetation: the stock map sprinkles ~300 plants uniformly. Regroup them into woods with
   // feathered fringes, open clearings around camps and wildflowers along the road verges.
