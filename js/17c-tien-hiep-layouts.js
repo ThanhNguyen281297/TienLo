@@ -134,7 +134,7 @@
   return{theme:o.theme,bounds:[180,420,1820,1720],
    terraces:[{id:'court',pts:court,mat:o.mat,h:120,rail:true,trim:o.trim!==false,falls:o.falls||[760,1240]},
     {id:'hall',pts:oct(1000,795,350,160,.2),mat:o.mat,h:60,z:1,rail:true,trim:o.trim!==false,stairs:[{x:1000,w:110}]},
-    {id:'west',pts:o.west||blob(520,1140,210,150,o.seed,.08,48),mat:o.westMat||'grass',h:120,falls:[480]},
+    {id:'west',pts:o.west||blob(440,1140,205,150,o.seed,.08,48),mat:o.westMat||'grass',h:120,falls:[400]},
     {id:'east',pts:o.east||oct(1490,1130,200,140,.25),mat:o.eastMat||o.mat,h:120,rail:o.eastRail!==false},
     {id:'south',pts:oct(1000,1470,170,100,.26),mat:o.mat,h:110,rail:true}],
    islets:o.islets||[],water:o.water||[],paths:o.paths||[],
@@ -149,9 +149,9 @@
    ['pineTree',1340,880,70,[10,6]],['tree',660,880,70,[10,6]]],
   islets:[{pts:blob(330,820,90,50,41,.12,24),mat:'grass',h:220,props:[[T('14-004'),330,840,80]]},{pts:blob(1690,820,80,44,42,.12,24),mat:'grass',h:180,props:[['pineTree',1690,815,70]]},
    {pts:blob(1700,1480,70,40,43,.12,22),mat:'grass',h:160,props:[[T('14-007'),1700,1500,90]]}],
-  monument:{x:520,y:1150,h:170}});
+  monument:{x:440,y:1150,h:170}});
  const moon=sect({theme:'moonNight',mat:'jadeNight',seed:32,inlay:'moon',hall:'garden',hallW:300,westMat:'moss',eastMat:'moss',eastRail:false,
-  east:blob(1490,1130,215,150,33,.08,44),
+  east:blob(1550,1130,215,150,33,.08,44),
   water:[{pts:blob(1000,1025,150,48,34,.06,32),lotus:9,moon:true},{pts:blob(520,1160,95,48,35,.1,24),lotus:6},{pts:blob(1500,1150,90,45,36,.1,24),lotus:6}],
   props:[[T('12-002'),1500,1090,150,[50,22]],['whiteBlossom',460,1080,80,[11,7]],['whiteBlossom',610,1230,64,[10,6]],['sakura',1400,1230,64,[10,6]],
    [T('12-023'),830,1030,30,[6,4]],[T('12-023'),1170,1030,30,[6,4]],[T('12-022'),1000,1480,46,[10,5]],[T('12-029'),830,1215,28,[6,4]],[T('12-029'),1170,1215,28,[6,4]],
@@ -159,14 +159,14 @@
   islets:[{pts:blob(330,830,90,50,44,.12,24),mat:'moss',h:200,props:[[T('12-011'),330,850,90]]},{pts:blob(1700,820,90,48,45,.12,24),mat:'moss',h:180,props:[[T('12-019'),1700,840,80]]},
    {pts:blob(1650,1500,70,40,46,.12,22),mat:'moss',h:150,props:[[T('12-026'),1650,1520,80]]}]});
  const thunder=sect({theme:'storm',mat:'slate',seed:51,inlay:'thunder',hall:'thunderHall',hallW:340,westMat:'moss',eastMat:'slate',trim:false,bridge:'stone',
-  west:blob(520,1140,205,150,52,.12,44),
+  west:blob(440,1140,205,150,52,.12,44),
   props:[['thunderAltar',1490,1110,110,[32,16]],['crystalPillar',830,1040,30,[8,5]],['crystalPillar',1170,1040,30,[8,5]],['crystalPillar',830,1215,26,[7,4]],['crystalPillar',1170,1215,26,[7,4]],
    [T('10-015'),470,1100,70,[16,8]],[T('10-058'),600,1220,64,[16,8]],[T('10-059'),440,1210,58,[14,7]],[T('10-016'),1000,1480,46,[12,6]],
    [T('10-009'),1350,900,40,[8,5]],[T('10-009'),650,900,40,[8,5]]],
   islets:[{pts:blob(330,830,90,50,53,.14,24),mat:'slate',h:240,props:[[T('10-032'),330,850,80]]},{pts:blob(1690,830,90,50,54,.14,24),mat:'slate',h:200,props:[['cloudRock',1690,850,120]]},
    {pts:blob(1680,1500,70,40,55,.14,22),mat:'slate',h:160,props:[[T('10-021'),1680,1520,70]]}]});
  const mystic=sect({theme:'verdant',mat:'jadeGreen',seed:61,inlay:'bagua',hall:'mysticHall',hallW:300,westMat:'grass',eastMat:'grass',eastRail:false,
-  east:blob(1490,1130,215,150,62,.08,44),
+  east:blob(1550,1130,215,150,62,.08,44),
   water:[{pts:blob(1520,1180,80,40,63,.1,24),lotus:6}],
   props:[['mysticArchive',520,1090,210,[76,26]],['mysticGarden',1480,1085,200,[70,24]],['sakura',640,1230,66,[10,6]],['sakura',1380,1240,60,[10,6]],
    ['mysticDais',1000,1480,60,[16,8]],[T('14-018'),830,1040,26,[6,4]],[T('14-018'),1170,1040,26,[6,4]],[T('14-022'),830,1215,24,[6,4]],[T('14-022'),1170,1215,24,[6,4]],
@@ -188,7 +188,12 @@
  for(const [id,sc] of Object.entries({sword,moon,thunder,mystic})){const [lamp,banner]=sectDress[id];
   sc.props.push([banner,880,1000,26,[4,3]],[banner,1120,1000,26,[4,3]],[lamp,720,1125,24,[5,3]],[lamp,1280,1125,24,[5,3]],...ringAt(1000,1130,6,170,104,id==='thunder'?T('10-052'):id==='moon'?T('12-021'):T('14-056'),22,Math.PI/6),
    [lamp,880,860,22,[5,3]],[lamp,1120,860,22,[5,3]],[T('14-055'),760,820,24,null],[T('14-055'),1240,820,24,null],[lamp,920,1470,20,[4,3]],[lamp,1080,1470,20,[4,3]]);}
- for(const s of [sword,moon,thunder,mystic]){s.bridges[0].a=[602,1135];s.bridges[0].b=[740,1130];s.bridges[1].a=[1260,1130];s.bridges[1].b=[1400,1130];}
+ // Side islands sit apart from the court so a bridge spans a real gap (props move with them).
+ for(const [sc,east] of [[sword,0],[moon,60],[thunder,0],[mystic,60]]){
+  const side=(x,y)=>y>950&&y<1340?(x<720?-80:x>1300?east:0):0;
+  for(const p of sc.props){const dx=side(p[1],p[2]);p[1]+=dx;}
+  for(const w of sc.water){const cx=w.pts.reduce((a,q)=>a+q[0],0)/w.pts.length,cy=w.pts.reduce((a,q)=>a+q[1],0)/w.pts.length,dx=side(cx,cy);if(dx)w.pts=w.pts.map(([x,y])=>[x+dx,y]);}
+  sc.bridges[0].a=[560,1132];sc.bridges[0].b=[800,1130];sc.bridges[1].a=[1200,1130];sc.bridges[1].b=[1470,1130];}
 
  // ------------------------------------------------------------------ tower
  const tower={theme:'twilight',bounds:[300,520,1700,1700],

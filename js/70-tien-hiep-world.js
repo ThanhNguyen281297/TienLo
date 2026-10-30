@@ -40,6 +40,16 @@
   d.all=[...d.islets,...d.terraces].sort((a,b)=>(a.z-b.z)||(a.cy-b.cy));
   d.props=(d.props||[]).map(([k,x,y,w,solid])=>({key:k,x,y,w,solid}));
   for(const t of d.islets)for(const [k,x,y,w] of t.props||[])d.props.push({key:k,x,y,w,islet:true});
+  // Snap every bridge to the gap it spans: walk from a to b, find where the deck
+  // leaves the first island and where it meets the next, and end 8 units onto each rim.
+  const land=d.terraces.filter(t=>t.walk);const onLand=(x,y)=>land.some(t=>x>=t.box[0]&&x<=t.box[2]&&y>=t.box[1]&&y<=t.box[3]&&inside(t.pts,x,y));
+  for(const b of d.bridges){const [ax,ay]=b.a,[bx,by]=b.b,len=Math.hypot(bx-ax,by-ay)||1,ux=(bx-ax)/len,uy=(by-ay)/len,ext=60;let exit=null,entry=null,prev=onLand(ax-ux*ext,ay-uy*ext);
+   for(let s2=-ext;s2<=len+ext;s2+=2){const here=onLand(ax+ux*s2,ay+uy*s2);if(prev&&!here&&exit==null)exit=s2;if(!prev&&here&&exit!=null)entry=s2;prev=here;}
+   if(exit!=null&&entry!=null&&entry>exit){b.a=[Math.round(ax+ux*(exit-10)),Math.round(ay+uy*(exit-10))];b.b=[Math.round(ax+ux*(entry+10)),Math.round(ay+uy*(entry+10))];b.arch=Math.min(b.arch??10,(entry-exit)*.08);}}
+  // Keep hand-placed props on solid ground: nudge strays toward their island, drop the rest.
+  {const tops=d.terraces;const ok=(x,y)=>tops.some(t=>inside(t.pts,x,y-2)&&lineDist([...t.pts,t.pts[0]],x,y)>14);
+   d.props=d.props.filter(p=>{if(p.islet||ok(p.x,p.y))return true;let best=null;for(const t of tops){const dd=Math.hypot(t.cx-p.x,t.cy-p.y);if(!best||dd<best.d)best={t,d:dd};}
+    if(!best)return false;const ux=(best.t.cx-p.x)/(best.d||1),uy=(best.t.cy-p.y)/(best.d||1);for(let k=4;k<=220;k+=4){const x=p.x+ux*k,y=p.y+uy*k;if(ok(x,y)){p.x=Math.round(x);p.y=Math.round(y);return true;}}return false;});}
   if(d.patchMats){const r2=L.rng((d.seed||3)*31);d.patches=[];for(let i=0;i<(d.patchCount||34);i++){const x=d.bounds[0]+r2()*(d.bounds[2]-d.bounds[0]),y=d.bounds[1]+r2()*(d.bounds[3]-d.bounds[1]),rx=90+r2()*170;d.patches.push({x:Math.round(x),y:Math.round(y),rx:Math.round(rx),ry:Math.round(rx*(.45+r2()*.2)),mat:d.patchMats[i%d.patchMats.length]});}}
   if(d.scatter)scatter(d);
   // Stairs: where each stair crosses the terrace's south-facing rim.
@@ -230,10 +240,10 @@
   for(let i=0;i<steps;i++){const y=top+i*h/steps;ctx.fillStyle=alpha('#000000',.14);ctx.fillRect(s.x-w,y+h/steps*.62,s.w,h/steps*.38);ctx.fillStyle=alpha('#ffffff',.35);ctx.fillRect(s.x-w,y,s.w,1.2);}
   for(const sx of [-1,1]){ctx.fillStyle='#d9d1bc';ctx.fillRect(s.x+sx*w-(sx>0?4:0),top-10,4,h+10);ctx.fillStyle='#d8b45c';ctx.beginPath();ctx.arc(s.x+sx*(w-2),top-11,2.4,0,TAU);ctx.fill();}
   ctx.restore();}
- function drawRails(ctx,t,d){const gaps=[...d.bridges.flatMap(b=>[b.a,b.b]).map(p=>({x:p[0],y:p[1],r:b_r(d,p)})),...d.stairs.map(s=>({x:s.x,y:s.y,r:s.w/2+6}))];
+ function drawRails(ctx,t,d){const gaps=[...d.bridges.flatMap(b=>[b.a,b.b]).map(p=>({x:p[0],y:p[1],r:b_r(d,p),bridge:true})),...d.stairs.map(s=>({x:s.x,y:s.y,r:s.w/2+6}))];
   const col='#f1ece0',dark='#b7ad97';
   for(const e of t.edges){const n=Math.max(1,Math.round(e.len/22));let prev=null;
-   for(let i=0;i<=n;i++){const k=i/n,x=e.a[0]+(e.b[0]-e.a[0])*k-e.nx*4,y=e.a[1]+(e.b[1]-e.a[1])*k-e.ny*4,gap=gaps.some(g=>Math.hypot(g.x-x,(g.y-y)*1.6)<g.r)||(!t.z&&d.terraces.some(u=>u.z===1&&(inside(u.pts,x,y)||inside(u.pts,x,y-u.h-6))));
+   for(let i=0;i<=n;i++){const k=i/n,x=e.a[0]+(e.b[0]-e.a[0])*k-e.nx*4,y=e.a[1]+(e.b[1]-e.a[1])*k-e.ny*4,gap=d.bridges.some(b=>segDist(x,y,b.a[0],b.a[1],b.b[0],b.b[1])<b.w/2+8)||gaps.some(g=>!g.bridge&&Math.hypot(g.x-x,(g.y-y)*1.6)<g.r)||(!t.z&&d.terraces.some(u=>u.z===1&&(inside(u.pts,x,y)||inside(u.pts,x,y-u.h-6))));
     if(gap){prev=null;continue;}
     if(prev){ctx.strokeStyle=dark;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(prev[0],prev[1]-7);ctx.lineTo(x,y-7);ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(prev[0],prev[1]-8);ctx.lineTo(x,y-8);ctx.stroke();
      ctx.strokeStyle=alpha(dark,.8);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(prev[0],prev[1]-3);ctx.lineTo(x,y-3);ctx.stroke();}
