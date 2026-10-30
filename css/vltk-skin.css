@@ -1,0 +1,99 @@
+/* Giao diện phong cách kiếm hiệp cổ: gỗ sơn mài đỏ nâu, viền vàng kép, chữ vàng kim.
+   Chỉ đổi màu sắc và khung; bố cục, kích thước và chức năng giữ nguyên.
+   Được nạp cuối cùng nên ghi đè các lớp màu xanh ngọc cũ. */
+:root{
+ --vk-lacquer-1:#3a1a12;--vk-lacquer-2:#1c0c08;--vk-lacquer-3:#120705;
+ --vk-gold:#e2b860;--vk-gold-hi:#fff0b8;--vk-gold-lo:#8a5f22;
+ --vk-ink:#f6e6c0;--vk-muted:#d1b483;--vk-red:#a8281e;--vk-jade:#5fc9a0;
+ --vk-frame:0 0 0 1px #1a0a05,0 0 0 3px var(--vk-gold-lo),0 0 0 4px var(--vk-gold),0 0 0 5px #1a0a05;
+ --vk-panel:radial-gradient(120% 90% at 50% 0%,#4a2418 0%,var(--vk-lacquer-1) 35%,var(--vk-lacquer-2) 80%,var(--vk-lacquer-3) 100%);
+ --vk-ring:radial-gradient(circle at 34% 26%,#7a4a2a,#3a1c10 58%,#160805 100%);
+ --ci-ring:radial-gradient(circle at 34% 24%,#7a4a2a,#3a1c10 60%,#160805);
+}
+
+/* ---------- Dialogs and panels ---------- */
+#world-dialog>section,.mobile-hud #hud-more-menu,#hud-more-menu,#online-panel,#player-context-menu,#vl-drawer,#target-frame,#party-hud,#battle-board{
+ background:var(--vk-panel)!important;
+ border:1px solid var(--vk-gold)!important;
+ box-shadow:var(--vk-frame),0 22px 60px #000d,inset 0 0 0 1px #ffe2a022,inset 0 0 60px #00000080!important;
+ color:var(--vk-ink)}
+#world-dialog>section{border-radius:10px!important;
+ background-image:radial-gradient(circle at 12px 12px,#e2b86055 2px,transparent 3px),radial-gradient(circle at calc(100% - 12px) 12px,#e2b86055 2px,transparent 3px),var(--vk-panel)!important}
+#world-dialog h2{color:var(--vk-gold-hi)!important;letter-spacing:.04em;
+ background:linear-gradient(180deg,#fff4c8,#e2b860 55%,#a8742c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+ filter:drop-shadow(0 1px 1px #000c);border-image:linear-gradient(90deg,#e2b860,#e2b86000) 1!important}
+#world-dialog .world-eyebrow{color:var(--vk-muted)!important}
+#world-dialog p,#world-dialog .world-line,#world-dialog li{color:var(--vk-ink)}
+
+/* tabs and buttons inside panels: red lacquer with gold rim */
+#world-dialog button:not(.item-cell):not(.world-close),#hud-more-menu nav button,.journal-tabs button,.auction-tabs button{
+ background:linear-gradient(180deg,#8a2a1c,#5a160e 60%,#3a0c06)!important;
+ border:1px solid var(--vk-gold)!important;color:var(--vk-gold-hi)!important;
+ box-shadow:inset 0 1px 0 #ffd28a55,inset 0 -2px 4px #0008,0 2px 4px #0009!important;text-shadow:0 1px 1px #000}
+#world-dialog button:not(.item-cell):hover:not(:disabled){filter:brightness(1.15)}
+#world-dialog button:not(.item-cell):not(.world-close)[aria-pressed=true],.journal-tabs button[aria-pressed=true]{
+ background:linear-gradient(180deg,#f0c86a,#c08a32 60%,#8a5a1c)!important;color:#2a1206!important;text-shadow:none;border-color:#fff0b8!important}
+#world-dialog button:disabled{filter:grayscale(.6) brightness(.75)}
+#world-dialog button.world-close,#world-dialog [aria-label='Đóng']{border-radius:50%!important}
+
+/* cards and item cells */
+#world-dialog .visual-card,#world-dialog .quest-card,#world-dialog article,.outpost-row,.battle-result{
+ background:linear-gradient(180deg,#2a120cdd,#160806ee)!important;border:1px solid #c99a4588!important;box-shadow:inset 0 1px 0 #ffe2a018}
+.item-cell,#world-dialog .item-cell{background:radial-gradient(circle at 50% 35%,#3a1e12,#1a0a06)!important;color:inherit!important;border:1px solid #b07f3a77!important}
+.item-cell.occupied{box-shadow:inset 0 0 0 1px #00000080,inset 0 0 12px color-mix(in srgb,var(--rarity,#e2b860) 40%,transparent),0 0 0 1px color-mix(in srgb,var(--rarity,#e2b860) 65%,#1a0a05)!important}
+
+/* ---------- HUD: portrait plate, bars, dock ---------- */
+#hud.vl-frame{background:linear-gradient(90deg,#2a120cf2,#3a1a12e0 70%,#3a1a1200)!important;box-shadow:inset 0 1px 0 #ffe2a030}
+#hud .bar{border:1px solid #c99a4599!important;background:#140604!important}
+#xp.vl-exp{background:#140604!important;border-top:1px solid #c99a4588!important}
+body.mobile-hud #bt,#bt{background:linear-gradient(180deg,#3a1a12ee,#1a0a06f5)!important;border:1px solid var(--vk-gold)!important;
+ box-shadow:0 0 0 1px #1a0a05,0 0 0 3px #8a5f2288,0 8px 24px #000a!important}
+.mobile-hud #bt button,.mobile-hud #hud-more-menu button,#bt button,#vl-activities button{
+ border:1.5px solid var(--vk-gold)!important;background:var(--vk-ring)!important;
+ box-shadow:0 0 0 1.5px #1a0a05,inset 0 2px 3px #ffd28a40,inset 0 -3px 6px #0008,0 4px 9px #000a!important}
+.mobile-hud .hud-icon::after{color:var(--vk-gold-hi)!important}
+
+/* skill buttons: bronze medallions; basic attack: big gold-rimmed seal */
+#sb button.sk{background:radial-gradient(circle at 34% 24%,#6a3a1e,#2a1008 62%,#120604)!important;border:2px solid var(--vk-gold)!important;
+ box-shadow:0 0 0 2px #1a0a05,0 0 0 4px #8a5f2299,inset 0 2px 4px #ffd28a40,0 4px 10px #000b!important}
+#basic-attack{background:radial-gradient(circle at 34% 24%,#9a5a2a,#4a1c0c 60%,#1a0804)!important;border:2.5px solid #f6d27a!important;
+ box-shadow:0 0 0 2px #1a0a05,0 0 0 5px #a8742c,0 0 18px #ffb84a55,inset 0 3px 6px #ffe0a050!important}
+
+/* minimap, region, objective, interact */
+#world-minimap{background:radial-gradient(circle,#2a120c,#120604)!important;border:2px solid var(--vk-gold)!important;
+ box-shadow:0 0 0 2px #1a0a05,0 0 0 5px #8a5f22,0 8px 20px #000a!important}
+#world-region,#vl-region{background:linear-gradient(90deg,#2a120ce8,#4a2014e8)!important;border:1px solid #c99a4588!important;color:var(--vk-gold-hi)!important}
+#journey-objective{background:linear-gradient(100deg,#2a120ceb,#3a1a12d6)!important;border:1px solid #c99a4566!important;border-left:3px solid var(--vk-gold)!important}
+#world-interact{background:linear-gradient(180deg,#8a2a1c,#4a1008)!important;border:1.5px solid var(--vk-gold)!important;color:var(--vk-gold-hi)!important;box-shadow:0 0 18px #e2b86055,0 6px 16px #000a!important}
+#quest-nav-banner{background:#2a120ce6!important;border-color:var(--vk-gold)!important}
+.stick-thumb{background:radial-gradient(circle at 34% 26%,#e8c07a,#7a4a1e 72%)!important;border-color:#fff0b8!important}
+
+/* gear panel, welfare calendar */
+#world-dialog .gear-panel{background:radial-gradient(at 50% 38%,#5a2a1844,transparent 70%),linear-gradient(180deg,#2a120c,#160806)!important;border:1px solid #c99a4588!important}
+#world-dialog .welfare-day{background:linear-gradient(180deg,#2a120cdd,#160806ee)!important;border:1px solid #c99a4577!important}
+#world-dialog .welfare-day.next{border-color:var(--vk-gold)!important;box-shadow:0 0 12px #e2b86055}
+#world-dialog .welfare-day.grand{background:linear-gradient(160deg,#6a3a12,#2a120c)!important}
+#world-dialog .welfare-icon{background:radial-gradient(circle at 50% 35%,#5a3018,#1a0a06)!important;border-color:#c99a4599!important}
+#world-dialog .world-close{background:radial-gradient(circle,#8a2a1c,#3a0c06)!important;border:1.5px solid var(--vk-gold)!important;color:var(--vk-gold-hi)!important}
+
+/* ---------- HUD details (higher specificity: older skins use body-level selectors) ---------- */
+html body #hud.vl-frame{background:linear-gradient(90deg,#2a120cf0,#3a1a12d8 70%,#3a1a1200)!important}
+html body #player-avatar{background:radial-gradient(circle at 50% 35%,#8a4a24,#2a0e06)!important;border-color:var(--vk-gold)!important;box-shadow:0 0 0 2px #1a0a05,0 0 0 4px #a8742c,0 0 12px #ffb84a44!important}
+html body #hp.bar,html body #mp.bar,html body #cultivation-progress.bar{background:#1a0804!important;border:1px solid #a8742c99!important}
+html body #account-badge{background:#2a120ce6!important;border:1px solid #c99a4588!important}
+html body #account-badge button{background:linear-gradient(180deg,#5a1c10,#2a0a06)!important;border:1px solid #c99a4599!important;color:var(--vk-gold-hi)!important}
+html body #journey-objective{background:linear-gradient(90deg,#2a120ce6,#2a120c00)!important}
+html body #journey-objective .quest-hud-go{background:linear-gradient(180deg,#8a2a1c,#4a1008)!important;border:1px solid var(--vk-gold)!important;color:var(--vk-gold-hi)!important}
+html body #combat-wheel{background:linear-gradient(180deg,#2a120cd0,#160806d8)!important;border:1px solid #c99a4577!important}
+html body #sb button.sk,html body #pet-skill{background:radial-gradient(circle at 34% 24%,#6a3a1e,#2a1008 62%,#120604)!important;border:2px solid var(--vk-gold)!important;box-shadow:0 0 0 2px #1a0a05,0 0 0 4px #8a5f2299,inset 0 2px 4px #ffd28a40,0 4px 10px #000b!important}
+html body #sb button.sk small{background:#2a0e06dd!important;color:var(--vk-gold-hi)!important;border-color:#c99a45!important}
+html body #sb button.sk u{background:#1a0604b0!important}
+html body #basic-attack{background:radial-gradient(circle at 34% 24%,#9a5a2a,#4a1c0c 60%,#1a0804)!important;border:2.5px solid #f6d27a!important;box-shadow:0 0 0 2px #1a0a05,0 0 0 5px #a8742c,0 0 18px #ffb84a55,inset 0 3px 6px #ffe0a050!important}
+html body #vl-activities-toggle,html body #vl-settings,html body #vl-audio{background:radial-gradient(circle at 34% 26%,#6a3a1e,#2a1008)!important;border:1.5px solid var(--vk-gold)!important;color:var(--vk-gold-hi)!important}
+html body #vl-chat-ticker{background:linear-gradient(90deg,#2a120ccc,#2a120c00)!important}
+
+/* vl-hud layer (js/47) uses body.vl-hud selectors */
+html body.vl-hud #hud.vl-frame{background:linear-gradient(90deg,#2a120cf0,#3a1a12d8 70%,#3a1a1200)!important}
+html body.vl-hud #hud .bar{background:#1a0804!important;border:1px solid #a8742c99!important}
+html body.vl-hud #journey-objective{background:linear-gradient(90deg,#2a120ce6,#2a120c00)!important;border-left:3px solid var(--vk-gold)!important}
+html body.mobile-hud #combat-wheel #basic-attack,html body #combat-wheel #basic-attack{background:radial-gradient(circle at 34% 24%,#9a5a2a,#4a1c0c 60%,#1a0804)!important;border:2.5px solid #f6d27a!important;box-shadow:0 0 0 2px #1a0a05,0 0 0 5px #a8742c,0 0 18px #ffb84a55,inset 0 3px 6px #ffe0a050!important}
