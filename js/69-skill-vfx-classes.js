@@ -216,4 +216,5 @@
     dot(ctx,u.x,u.y-40,18+30*clamp(u.age/3.2,0,1),TC.gold,show*(.4+(bind?.3:0)));}
    marks(ctx,s,TC.gold,false);drawBolts(ctx);K.drawLayers(ctx);ctx.restore();}};
  skillVfx.register(3,tc);
+ window.skillVfxShapes={crescent,talisman,spear,jag,drawBolt,sweep,line,arcPts,bolt};
 })();

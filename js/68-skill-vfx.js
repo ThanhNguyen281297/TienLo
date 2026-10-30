@@ -159,7 +159,9 @@
  const castSkill=skill;skill=function(index){const mp=P.mp,result=castSkill(index);try{const m=owner();if(m&&P.mp<mp){lastCast.cls=P.ap.w;lastCast.at=clock;m.onCast(index);}}catch{}return result;};
  const baseHit=hit;hit=function(enemy,power){const alive=enemy&&!enemy.dead&&enemy.hp>0,result=baseHit(enemy,power);
   try{const m=owner();if(alive&&m&&!enemy.rewardReplay&&!window.petCombat?.dealing&&(m.busy(m.state())||clock-lastCast.at<1.2))m.onHit(enemy);}catch{}return result;};
- const update=up;up=function(dt){update(dt);if(paused())return;clock+=dt;step(dt);try{owner()?.step?.(dt);}catch{}};
+ // Hit-stop: heavy blows freeze the action for a few frames (presentation timing only).
+ let stop=0;const hitstop=s=>{if(!reduced.matches)stop=Math.max(stop,s);};
+ const update=up;up=function(dt){const k=stop>0?.08:1;stop=Math.max(0,stop-dt);update(dt*k);if(paused())return;clock+=dt;step(dt);try{owner()?.step?.(dt);}catch{}};
  // One wrapper: resets the layer flag, lets the class modules draw through their
  // combat files, then draws leftover layers (sparks after a skill ended) and the flash.
  const draw=dr;dr=function(){layersDrawn=false;draw();const m=owner();if(!m||!P.ap)return;
@@ -170,6 +172,6 @@
  window.skillVfx={owns:cls=>registry.has(cls),register,
   draw:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.effects(ctx,s);return true;},
   ground:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.ground(ctx,s);return true;}};
- window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,
+ window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,hitstop,
   parts,rings,arcs,beams,streaks,kick:(amount,flashAmount=0,color=C.hot)=>{kick(amount,flashAmount);if(flashAmount)flashColor=color;}};
 })();
