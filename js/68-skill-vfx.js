@@ -95,10 +95,10 @@
   for(const list of [parts,rings,arcs,beams,streaks])for(const e of list)e.age+=dt;
   for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g||0)*dt;p.vx*=1-dt*2.2;if(p.kind==='mote')p.vy*=1-dt*.4;}
   for(const list of [parts,rings,arcs,beams,streaks])for(let i=list.length-1;i>=0;i--)if(list[i].age>=list[i].life)list.splice(i,1);
-  flash=Math.max(0,flash-dt*2.4);for(const u of runes)u.age+=dt;for(let i=runes.length-1;i>=0;i--)if(runes[i].age>=runes[i].life)runes.splice(i,1);for(const d of decals)d.age+=dt;for(let i=decals.length-1;i>=0;i--)if(decals[i].age>=decals[i].life)decals.splice(i,1);}
+  flash=Math.max(0,flash-dt*2.4);for(const d of dusts){d.age+=dt;d.x+=d.vx*dt;d.y+=d.vy*dt;d.vx*=1-dt*3;d.vy*=1-dt*3;}for(let i=dusts.length-1;i>=0;i--)if(dusts[i].age>=dusts[i].life)dusts.splice(i,1);for(const u of runes)u.age+=dt;for(let i=runes.length-1;i>=0;i--)if(runes[i].age>=runes[i].life)runes.splice(i,1);for(const d of decals)d.age+=dt;for(let i=decals.length-1;i>=0;i--)if(decals[i].age>=decals[i].life)decals.splice(i,1);}
  function kiemStep(dt){const s=state();
   if(!s||!kiem())return;
-  if(s.dash){const d=s.dash,t=clamp(d.elapsed/d.duration,0,1);streaks.push({x:P.x,y:P.y-20,age:0,life:.25,angle:d.angle});cap(streaks,40);if(t>=.99&&!d._vfxEnd){d._vfxEnd=true;arc(d.end.x,d.end.y-20,d.angle,42,.4,C.hot,2.6,9);arc(d.end.x,d.end.y-20,d.angle+.5,34,.4,C.qi,2,5);burst(d.end.x,d.end.y-6,18,140,C.hot,.5,30);ring(d.end.x,d.end.y,8,56,.45,C.qi,3);kick(2.5);}}
+  if(s.dash){const d=s.dash,t=clamp(d.elapsed/d.duration,0,1);streaks.push({x:P.x,y:P.y-20,age:0,life:.25,angle:d.angle});cap(streaks,40);if(t>=.99&&!d._vfxEnd){d._vfxEnd=true;arc(d.end.x,d.end.y-20,d.angle,42,.4,C.hot,2.6,9);arc(d.end.x,d.end.y-20,d.angle+.5,34,.4,C.qi,2,5);burst(d.end.x,d.end.y-6,18,140,C.hot,.5,30);ring(d.end.x,d.end.y,8,56,.45,C.qi,3);dust(d.end.x,d.end.y,10,40);kick(2.5);}}
   const f=s.field;
   if(f){if(fieldSeen!==f){fieldSeen=f;lastPulse=-1;}
    if(Math.random()<dt*18)motes(f.x+rnd(-f.radius*.8,f.radius*.8),f.y+rnd(-f.radius*.3,f.radius*.3),1,0,Math.random()<.3?C.gold:C.qi);
@@ -107,8 +107,8 @@
      const slot=pulse%5,a=-Math.PI/2+slot*TAU/5;streaks.push({x:f.x+Math.cos(a)*f.radius*.45,y:f.y+Math.sin(a)*f.radius*.25,age:0,life:.3,stab:true});burst(f.x+Math.cos(a)*f.radius*.45,f.y+Math.sin(a)*f.radius*.25,7,90,C.hot,.35,40,1.2);}}}
   const u=s.ultimate;
   if(u){const n=Math.min(6,Math.floor(Math.max(0,u.age-.9)/.18)+(u.age>=.9?1:0));
-   while(lastUltPulse<n){lastUltPulse++;for(let i=0;i<5;i++){const a=rnd(0,TAU),r=rnd(0,80);const x=u.x+Math.cos(a)*r,y=u.y+Math.sin(a)*r*.5;burst(x,y-4,6,110,C.hot,.4,40,1.2);ring(x,y,2,22,.3,C.qi,1.6);}kick(1.4);}
-   if(!ultFinale&&u.age>=2.05){ultFinale=true;burst(u.x,u.y-10,60,260,C.hot,.9,60,2);burst(u.x,u.y-10,30,180,C.gold,.8,40,1.8);ring(u.x,u.y,10,190,.8,C.hot,5);ring(u.x,u.y,6,130,.6,C.gold,3);beam(u.x,u.y,260,60,.6,C.hot);kick(9,.55);decal(u.x,u.y,120,C.qi);hitstop(.09);}}
+   while(lastUltPulse<n){lastUltPulse++;for(let i=0;i<5;i++){const a=rnd(0,TAU),r=rnd(0,80);const x=u.x+Math.cos(a)*r,y=u.y+Math.sin(a)*r*.5;burst(x,y-4,6,110,C.hot,.4,40,1.2);ring(x,y,2,22,.3,C.qi,1.6);dust(x,y,3,18);}kick(1.4);}
+   if(!ultFinale&&u.age>=2.05){ultFinale=true;burst(u.x,u.y-10,60,260,C.hot,.9,60,2);burst(u.x,u.y-10,30,180,C.gold,.8,40,1.8);ring(u.x,u.y,10,190,.8,C.hot,5);ring(u.x,u.y,6,130,.6,C.gold,3);beam(u.x,u.y,260,60,.6,C.hot);kick(9,.55);decal(u.x,u.y,120,C.qi);dust(u.x,u.y,26,120);hitstop(.09);}}
  }
 
  // ---------------------------------------------------------------- drawing
@@ -125,8 +125,7 @@
    const ang=sw.angle+Math.PI/2,len=sw.returning?30:46;
    dot(ctx,sw.x,sw.y-10,len*.5,C.qi,.18);for(let k=0;k<3;k++){const q=tm*6+k*TAU/3;star(ctx,sw.x+Math.cos(q)*len*.32,sw.y-10+Math.sin(q)*len*.2,4,q,C.qi,C.core,.85);}
    blade(ctx,sw.x,sw.y-10,ang,len,1);dot(ctx,sw.x+Math.cos(ang)*len*.5,sw.y-10+Math.sin(ang)*len*.5,8,C.core,.9);
-   if(!sw.returning){ctx.save();ctx.translate(sw.x+Math.cos(ang)*len*.35,sw.y-10+Math.sin(ang)*len*.35);ctx.rotate(ang);ctx.scale(.6,1);
-    for(const [w,col,k] of [[7,C.qi,.45],[2.2,C.core,.9]]){ctx.globalAlpha=k;ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.arc(0,0,18,-1.1,1.1);ctx.stroke();}ctx.restore();}}
+   if(!sw.returning&&window.skillVfxShapes)skillVfxShapes.wave(ctx,sw.x-Math.cos(ang)*8,sw.y-10-Math.sin(ang)*5,ang,len*.55,1.7,10,C.qi,.9);}
   // Hovering swords of the seal.
   const f=s.field;
   if(f){const spawn=ease(f.age/.4),fade=clamp((f.duration-f.age)/.35,0,1);
@@ -148,7 +147,10 @@
   drawLayers(ctx);ctx.restore();return true;}
  // Generic layers shared by every class: beams, rings, crescents, particles.
  let layersDrawn=false;
- function drawLayers(ctx){layersDrawn=true;ctx.save();ctx.globalCompositeOperation='lighter';
+ const dusts=[];function dust(x,y,n=8,spread=30,color='#b8a68a'){if(reduced.matches)return;for(let i=0;i<n;i++){const a=rnd(0,TAU),s=rnd(.3,1);dusts.push({x:x+Math.cos(a)*spread*.3*s,y:y+Math.sin(a)*spread*.15*s,vx:Math.cos(a)*spread*1.4*s,vy:Math.sin(a)*spread*.5*s-6,r:rnd(5,10),age:0,life:rnd(.7,1.2),color});}if(dusts.length>90)dusts.splice(0,dusts.length-90);}
+ function drawLayers(ctx){layersDrawn=true;ctx.save();
+  for(const d of dusts){const p=d.age/d.life,r=d.r*(1+p*1.8);ctx.globalAlpha=(1-p)*.38*Math.min(1,d.age/.08);ctx.drawImage(glow(d.color),d.x-r,d.y-r*.7,r*2,r*1.4);}
+  ctx.globalCompositeOperation='lighter';
   for(const st of streaks){const p=st.age/st.life;
    if(st.stab){blade(ctx,st.x,st.y-36+p*30,Math.PI/2,34,1-p,st.color||C.qi);dot(ctx,st.x,st.y,14*(1-p)+4,C.hot,1-p);continue;}
    }
@@ -187,6 +189,6 @@
  window.skillVfx={owns:cls=>registry.has(cls),register,
   draw:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.effects(ctx,s);return true;},
   ground:(cls,ctx,s)=>{const m=registry.get(cls);if(!m)return false;m.ground(ctx,s);return true;}};
- window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,hitstop,decal,star,rune,
+ window.skillVfxKit={TAU,rnd,clamp,ease,glow,dot,ribbon,blade,ellipse,burst,motes,ring,arc,beam,drawLayers,cap,hitstop,decal,star,rune,dust,
   parts,rings,arcs,beams,streaks,kick:(amount,flashAmount=0,color=C.hot)=>{kick(amount,flashAmount);if(flashAmount)flashColor=color;}};
 })();

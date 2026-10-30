@@ -51,9 +51,9 @@
  // ------------------------------------------------------------- impacts (spawned once per effect)
  function impact(e){const c=PAL[e.sect],x=e.x,y=e.y-H+4,r=Math.min(38,e.radius||22);
   if(e.kind==='impact'){const a0=rnd(0,Math.PI);K.arcs.push({x,y,angle:a0,r:20,age:0,life:.22,color:c.main,span:1.8,width:5,core:c.core});K.arcs.push({x,y,angle:a0+1.6,r:16,age:0,life:.2,color:c.hot,span:1.4,width:3,core:c.core});burst(x,y,12,190,c.hot,.34,12,1.4);ring(x,y+12,3,24,.28,c.main,1.8);if(e.sect===2)S.bolt(x,y,x+rnd(-26,26),y+rnd(-14,14),.16,c.main,1.2,0);}
-  else if(e.kind==='x'){for(const a of [-.7,.7])K.arcs.push({x,y,angle:a+Math.PI/2,r:24,age:0,life:.3,color:c.main,span:2.6,width:6,core:c.core});burst(x,y,18,220,c.hot,.45,20,1.6);ring(x,y+12,4,40,.4,c.main,2.6);kick(2.2,.08,c.hot);hitstop(.05);}
+  else if(e.kind==='x'){for(const a of [-.7,.7])K.arcs.push({x,y,angle:a+Math.PI/2,r:24,age:0,life:.3,color:c.main,span:2.6,width:6,core:c.core});burst(x,y,18,220,c.hot,.45,20,1.6);ring(x,y+12,4,40,.4,c.main,2.6);kick(2.2,.08,c.hot);hitstop(.05);K.dust(x,y+14,6,26);}
   else if(e.kind==='converge'){ring(x,y+10,6,r*1.6,.4,c.main,2.6);burst(x,y,16,180,c.hot,.45,10,1.4);for(let i=0;i<3;i++){const a=i*TAU/3;K.arcs.push({x:x+Math.cos(a)*10,y:y+Math.sin(a)*6,angle:a,r:16,age:0,life:.3,color:c.mint,span:2,width:4,core:c.core});}kick(1.6);hitstop(.04);}
-  else if(e.kind==='lightning'){S.bolt(x+rnd(-12,12),y-150,x,y,.32,c.main,3.5,2);ring(x,y+12,4,44,.4,c.hot,2.6);burst(x,y,18,220,c.hot,.45,20,1.5);kick(2.6,.1,c.hot);hitstop(.05);}
+  else if(e.kind==='lightning'){S.bolt(x+rnd(-12,12),y-150,x,y,.32,c.main,3.5,2);ring(x,y+12,4,44,.4,c.hot,2.6);burst(x,y,18,220,c.hot,.45,20,1.5);kick(2.6,.1,c.hot);hitstop(.05);K.dust(x,y+14,8,30);}
   else if(e.kind==='explode'){ring(x,y+12,6,r*1.8,.45,c.main,3);ring(x,y+12,4,r*1.2,.35,c.jade,2);burst(x,y,22,230,c.main,.5,30,1.6);for(let i=0;i<5;i++)K.parts.push({x,y,vx:rnd(-70,70),vy:rnd(-90,-30),g:120,age:0,life:rnd(.5,.8),size:rnd(1.4,2.2),color:'#fff0bf',kind:'mote'});kick(2.2,.08,c.hot);hitstop(.04);}
   else if(e.kind==='seal'){ring(x,y+10,3,22,.3,c.jade,1.6);}}
  function sealMark(ctx,e){const p=life(e),a=(1-p);S.talisman(ctx,e.x,e.y-H-10-p*8,-Math.PI/2,12,a,e.age*10);}
