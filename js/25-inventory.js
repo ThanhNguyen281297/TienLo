@@ -214,8 +214,8 @@
       max.type='button';max.textContent='Tối đa';max.disabled=input.disabled;max.setAttribute('aria-label','Cộng tối đa '+info.name);max.onclick=()=>{const other=total()-amount(key);input.value=String(Math.max(0,Math.min(1000-(p.attrs[key]||0),p.attrPoints-(Number.isFinite(other)?other:0))));refreshDraft();};
       row.append(label,input,max);form.append(row);
     }
-    if(window.sectPotential?.sect()&&p.attrPoints>0){const bar=document.createElement('div'),pick=document.createElement('button');bar.className='attribute-suggest';pick.type='button';pick.id='attribute-suggest';pick.textContent='Cộng theo đề xuất';pick.title='Chia '+p.attrPoints+' điểm theo điểm mạnh của phái ('+window.sectPotential.ratioText()+')';
-      pick.onclick=()=>{const add=window.sectPotential.suggest(p.attrPoints,p.attrs);for(const key of Object.keys(inputs))inputs[key].value=String(add[key]||0);refreshDraft();};bar.append(pick);form.append(bar);}
+    if(window.sectPotential?.sect()&&p.attrPoints>0){const bar=document.createElement('div'),pick=document.createElement('button');bar.className='attribute-suggest';pick.type='button';pick.id='attribute-suggest';pick.textContent='Cộng nhanh theo đề xuất';pick.title='Chia '+p.attrPoints+' điểm theo điểm mạnh của phái ('+window.sectPotential.ratioText()+')';
+      pick.onclick=()=>{const add=window.sectPotential.suggest(p.attrPoints,p.attrs);for(const key of Object.keys(inputs))inputs[key].value=String(add[key]||0);refreshDraft();if(!apply.disabled)form.requestSubmit?form.requestSubmit(apply):apply.click();};bar.append(pick);form.append(bar);}
     form.append(status,apply);$('world-content').append(form);refreshDraft();
     form.onsubmit=event=>{event.preventDefault();refreshDraft();if(apply.disabled||!form.reportValidity())return;
       const sum=total(),health=mhp(),mana=mmp();for(const key of Object.keys(inputs))p.attrs[key]=(p.attrs[key]||0)+amount(key);p.attrPoints-=sum;

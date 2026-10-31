@@ -68,5 +68,8 @@
   if(key&&!reported.has(key)&&!tut('ui:'+key)&&account.state.ready){reported.add(key);
    account.api('/api/adventure',{action:'tutorial',key}).then(data=>{if(data&&window.adventureGame?.state)adventureGame.state.data=data;update();}).catch(()=>reported.delete(key));}
   return r;};
+ // Tân thủ hộ thân (below level 15): monsters hit 40% softer (js/27-online-world.js) and
+ // HP slowly recovers, so auto-hunting in the first fields does not end in repeated deaths.
+ const tick=up;up=function(dt){const r=tick(dt);try{if(P.ap&&P.hp>0&&characterLevel()<15&&!paused())P.hp=Math.min(mhp(),P.hp+mhp()*.012*dt);}catch{}return r;};
  window.newbieGuide={STEPS,update,reset:()=>write({})};
 })();

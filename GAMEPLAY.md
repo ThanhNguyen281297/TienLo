@@ -263,3 +263,10 @@ Mỗi hoạt động cho một loại mảnh riêng (shards.py `SOURCE`), đổi
 | Boss thế giới Thái Cổ Huyết Ma | Thần Binh | theo hạng sát thương: 10/8/6/5/5/4/4/3/3/3, còn lại 2 |
 
 Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
+
+## Tân thủ
+
+- Thẻ Tân thủ 6 bước (js/51-newbie-guide.js) dẫn từ Vân Châu → săn quái → túi đồ → thuộc tính → cấp 10 → bí cảnh đầu tiên. Trong lúc thẻ hiện, bảng nhiệm vụ chính bên trái tạm ẩn để chỉ có một mục tiêu.
+- Hộ thân tân thủ dưới cấp 15: quái đánh nhẹ hơn 40% và hồi 1,2% máu tối đa mỗi giây.
+- Phúc lợi chỉ tự bật từ cấp 8; trước đó chỉ hiện chấm đỏ.
+- Nút "…" trên thanh dưới (phím H) mở bảng Chức năng: hoạt động kèm mảnh thưởng, giờ mở, cấp yêu cầu; và các nhóm Nhân vật, Giao lưu, Phúc lợi.
