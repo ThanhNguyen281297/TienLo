@@ -1,5 +1,5 @@
 /* MÀN HÌNH CHÍNH + 4 KỸ NĂNG + HIỆU ỨNG */
-const V=[],SP=[],LT=[],SC=[0,0,0,0],SN=[['火','Hỏa Cầu','#ff8a3d'],['冰','Băng Châm','#7fd0ff'],['风','Phong Nhẫn','#7fffc8'],['雷','Lôi Kiếp','#b79bff']],SCD=[1,1.6,2.6,5],SMP=[10,14,18,30];
+const V=[],SP=[],LT=[],SC=[0,0,0,0],SN=[['✦','Hỏa Cầu','#ff8a3d'],['❄','Băng Châm','#7fd0ff'],['≋','Phong Nhẫn','#7fffc8'],['ϟ','Lôi Kiếp','#b79bff']],SCD=[1,1.6,2.6,5],SMP=[10,14,18,30];
 let shk=0,lr=P.r;
 const paused=()=>cr.style.display!='none'||ttl.style.display!='none',dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Noto+Serif:wght@600;900&display=swap';document.head.appendChild(fl);
