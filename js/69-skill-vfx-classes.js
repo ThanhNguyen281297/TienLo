@@ -69,9 +69,23 @@
  function stepBolts(dt){for(const b of bolts)b.age+=dt;for(let i=bolts.length-1;i>=0;i--)if(bolts[i].age>=bolts[i].life)bolts.splice(i,1);}
 
  // ---------------------------------------------------------------- shapes
+ // Painted weapons from the game (Item/VuKhi): the liềm (hollow facing +x), the thương
+ // (tip up) and the quạt (opening up). Downsampled once with a soft dark silhouette.
+ const ART={},ART_SRC={liem:'Item/VuKhi/Liem.png',thuong:'Item/VuKhi/Thuong.png',quat:'Item/VuKhi/Quat.png'};
+ function art(name){let a=ART[name];if(!a){const img=new Image();img.src=artworkURL(ART_SRC[name]);a=ART[name]={img,c:null,s:null};}
+  if(a.c)return a;const img=a.img;if(!img.complete||!img.naturalWidth)return null;const H=240,W=Math.round(H*img.naturalWidth/img.naturalHeight);
+  const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').drawImage(img,0,0,W,H);
+  const s=document.createElement('canvas');s.width=W+10;s.height=H+10;const x=s.getContext('2d');x.filter='brightness(0) blur(4px)';x.drawImage(c,5,5);a.c=c;a.s=s;return a;}
+ // Draw weapon art centred at (x,y), rotated, `size` = longest side, with shadow and aura.
+ function weaponArt(ctx,name,x,y,rot,size,alpha,hue){const a=art(name);if(!a)return false;const k=size/Math.max(a.c.width,a.c.height),w=a.c.width*k,h=a.c.height*k;
+  const op=ctx.globalCompositeOperation;ctx.save();ctx.translate(x,y);
+  ctx.globalCompositeOperation='lighter';if(hue)dot(ctx,0,0,size*.6,hue,alpha*.3);ctx.rotate(rot);
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=alpha*.3;ctx.drawImage(a.s,-w/2-5*k+3,-h/2-5*k+4,w+10*k,h+10*k);
+  ctx.globalAlpha=alpha;ctx.drawImage(a.c,-w/2,-h/2,w,h);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*.2;ctx.drawImage(a.c,-w/2,-h/2,w,h);
+  ctx.restore();ctx.globalCompositeOperation=op;return true;}
  // Crescent with the hollow facing +x; r is the outer radius.
  function crescentPath(ctx,r){ctx.beginPath();ctx.arc(0,0,r,.927,TAU-.927);ctx.arc(.42*r,0,.82*r,-1.35,1.35,true);ctx.closePath();}
- function crescent(ctx,x,y,r,angle,alpha,hue,core='#ffffff'){if(alpha<=0)return;ctx.save();ctx.translate(x,y);
+ function crescent(ctx,x,y,r,angle,alpha,hue,core='#ffffff'){if(alpha<=0)return;if(weaponArt(ctx,'liem',x,y,angle,r*2.5,alpha,hue))return;ctx.save();ctx.translate(x,y);
   const op=ctx.globalCompositeOperation;ctx.globalCompositeOperation='source-over';ctx.globalAlpha=alpha*.28;ctx.drawImage(glow('#123f73'),-r*1.4,-r*1.4,r*2.8,r*2.8);ctx.globalCompositeOperation=op;
   ctx.globalAlpha=alpha*.42;ctx.drawImage(glow(hue),-r*1.7,-r*1.7,r*3.4,r*3.4);ctx.rotate(angle);
   const gr=ctx.createRadialGradient(-r*.5,0,0,-r*.3,0,r);gr.addColorStop(0,core);gr.addColorStop(.6,'#e9fbff');gr.addColorStop(1,hue);
@@ -168,7 +182,7 @@
  const LT={bolt:'#b48cff',hot:'#efe4ff',blue:'#8fb8ff',deep:'#6a4cff'};
  const TC={gold:'#ffd36b',jade:'#6dffc4',paper:'#fff0bf',hot:'#fff6d8'};
  const newState=()=>window.newClassCombat?.state;
- function spear(ctx,x,y,angle,len,alpha){ctx.save();ctx.translate(x,y);ctx.rotate(angle);dot(ctx,len*.3,0,len*.45,LT.bolt,alpha*.6);
+ function spear(ctx,x,y,angle,len,alpha){if(weaponArt(ctx,'thuong',x,y,angle+Math.PI/2,len*1.25,alpha,LT.bolt))return;ctx.save();ctx.translate(x,y);ctx.rotate(angle);dot(ctx,len*.3,0,len*.45,LT.bolt,alpha*.6);
   ctx.globalAlpha=alpha;ctx.strokeStyle='#d9c8ff';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-len/2,0);ctx.lineTo(len*.3,0);ctx.stroke();
   const gr=ctx.createLinearGradient(len*.25,0,len/2,0);gr.addColorStop(0,LT.bolt);gr.addColorStop(1,'#ffffff');ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(len/2,0);ctx.lineTo(len*.26,-len*.07);ctx.lineTo(len*.3,0);ctx.lineTo(len*.26,len*.07);ctx.closePath();ctx.fill();
   dot(ctx,len/2,0,8,'#ffffff',alpha);ctx.restore();}
@@ -200,6 +214,7 @@
    const u=s.ultimate;if(u){const grow=ease(u.age/1.2),hot=u.age>=1.3?Math.max(0,1-(u.age-1.3)/.6):0,fade=clamp((2.2-u.age)/.4,0,1);thunderSeal(ctx,u.x,u.y,u.radius*(.4+.6*grow)*(1+hot*.15),u.age*(1.5+hot*4),fade*(.6+hot*.4),hot+(u.age<1.3?.3*Math.random():0));}},
   effects(ctx,s){ctx.save();
    const u=s.ultimate;
+   if(u){const sp=clamp((u.age-.9)/.4,0,1),gone=clamp((u.age-1.6)/.4,0,1);if(sp>0&&gone<1)spear(ctx,u.x,u.y-200+170*ease(sp),Math.PI/2,170,1-gone);}
    if(u){const grow=ease(u.age/1),fade=clamp((2.2-u.age)/.5,0,1),cy=u.y-185,flick=u.age<1.3?Math.random()*.35:0;   // storm cloud
     ctx.globalCompositeOperation='source-over';for(let k=0;k<9;k++){const x=u.x+(k-4)*26*grow,y=cy+Math.sin(k*1.7)*10;dot(ctx,x,y,(34+((k*13)%18))*grow,'#241a3e',fade*.55);}
     ctx.globalCompositeOperation='lighter';for(let k=0;k<5;k++)dot(ctx,u.x+(k-2)*40*grow,cy+Math.sin(k*2.3)*8,30*grow,LT.deep,fade*(.25+flick));
@@ -240,8 +255,7 @@
    for(const p of s.projectiles){const t=trails.get(p)||[];ribbon(ctx,[...t,{x:p.x,y:p.y-15}],8,TC.jade,.8);talisman(ctx,p.x,p.y-15,p.angle,16,clamp((1.3-p.age)/.2,0,1),p.age*22);}
    for(const c of s.casts){const p=c.age/c.duration,fade=1-clamp((p-.6)/.4,0,1);
     if(c.index===1){const w=Math.PI*.6,open=ease(p/.3),x=c.x,y=c.y;   // folding fan opens toward the aim, then a gust sweeps out
-     for(let k=0;k<9;k++){const a=c.angle-w*open/2+w*open*k/8;line(ctx,[{x,y},{x:x+Math.cos(a)*34,y:y+Math.sin(a)*34*.7}],1.4,TC.gold,fade);}
-     ctx.globalAlpha=fade*.35;ctx.fillStyle=TC.gold;ctx.beginPath();ctx.ellipse(x,y,34,34*.7,0,c.angle-w*open/2,c.angle+w*open/2);ctx.ellipse(x,y,14,14*.7,0,c.angle+w*open/2,c.angle-w*open/2,true);ctx.closePath();ctx.fill();
+     weaponArt(ctx,'quat',x+Math.cos(c.angle)*26,y-6+Math.sin(c.angle)*16,c.angle+Math.PI/2,40+40*open,fade,TC.jade);
      wave(ctx,c.x,c.y+26,c.angle,30+140*ease(p),w*1.1,22,TC.jade,fade*.9);wave(ctx,c.x,c.y+26,c.angle,10+110*ease(p),w*.8,12,TC.gold,fade*.7);
      for(let k=0;k<7;k++){const a=c.angle-w/2+w*((k*.37)%1),r0=165*ease(clamp(p*1.2-(k%3)*.1,0,1));talisman(ctx,c.x+Math.cos(a)*r0,c.y+26+Math.sin(a)*r0*.55-10,a+p*6,8,fade*.9,p*30+k);}}
     if(c.index===3)dot(ctx,c.x,c.y,18+30*p,TC.gold,(1-p)*.7);}
@@ -250,8 +264,8 @@
     for(let k=0;k<12;k++){const p=vortex(u,k,Math.min(u.age,3.2));
      if(bind)line(ctx,[{x:p.x,y:p.y},{x:u.x+(p.x-u.x)*.3,y:u.y-20+(p.y-u.y+20)*.3}],1.6,TC.gold,.7*show);
      talisman(ctx,p.x,p.y,p.a+Math.PI/2,15,show,u.age*12+k);}
-    dot(ctx,u.x,u.y-40,18+30*clamp(u.age/3.2,0,1),TC.gold,show*(.4+(bind?.3:0)));}
+    weaponArt(ctx,'quat',u.x,u.y-70-10*Math.sin(u.age*2),Math.sin(u.age*1.5)*.25,90+40*clamp(u.age/3.2,0,1),show*.95,TC.gold);dot(ctx,u.x,u.y-40,18+30*clamp(u.age/3.2,0,1),TC.gold,show*(.4+(bind?.3:0)));}
    marks(ctx,s,TC.gold,false);drawBolts(ctx);K.drawLayers(ctx);ctx.restore();}};
  skillVfx.register(3,tc);
- window.skillVfxShapes={crescent,talisman,spear,jag,drawBolt,sweep,line,arcPts,bolt,wave,crackle};
+ window.skillVfxShapes={weaponArt,crescent,talisman,spear,jag,drawBolt,sweep,line,arcPts,bolt,wave,crackle};
 })();

@@ -37,12 +37,9 @@
  function fanGust(ctx,s){const p=life(s),c=PAL[3],a=env(p);S.wave(ctx,s.x,s.y-H+6,s.angle,30+90*ease(p),1.1,14,c.jade,a*.85);}
 
  // ------------------------------------------------------------- casts (Thiên Cơ folding fan)
- function fan(ctx,cst){const p=life(cst),c=PAL[3],a=env(p),open=ease(p/.35),x=cst.x+Math.cos(cst.angle)*14,y=cst.y-H-6+Math.sin(cst.angle)*10,span=1.9*open,len=40;
-  ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=a*.85;ctx.fillStyle='#fff0bf';ctx.beginPath();ctx.moveTo(x,y);
-  for(let i=0;i<=12;i++){const k=cst.angle-span/2+span*i/12;ctx.lineTo(x+Math.cos(k)*len,y+Math.sin(k)*len*.8);}ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#c8382a';ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<=12;i++){const k=cst.angle-span/2+span*i/12;ctx[i?'lineTo':'moveTo'](x+Math.cos(k)*len*.72,y+Math.sin(k)*len*.72*.8);}ctx.stroke();
-  ctx.strokeStyle='#b07a24';ctx.lineWidth=1.2;for(let i=0;i<=8;i++){const k=cst.angle-span/2+span*i/8;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(k)*len,y+Math.sin(k)*len*.8);ctx.stroke();}
-  ctx.restore();dot(ctx,x,y,10,c.main,a*.6);}
+ function fan(ctx,cst){const p=life(cst),c=PAL[3],a=env(p),open=ease(p/.35),x=cst.x+Math.cos(cst.angle)*16,y=cst.y-H-6+Math.sin(cst.angle)*10;
+  // the painted fan snaps open toward the target, then flicks the talisman out
+  if(!S.weaponArt(ctx,'quat',x,y,cst.angle+Math.PI/2+(1-open)*.6,34+22*open,a,c.jade))dot(ctx,x,y,10,c.main,a*.6);}
 
  // ------------------------------------------------------------- projectiles
  function projectile(ctx,p){const sect=p.sect,c=PAL[sect],dir=p.viewAngle??p.angle,y=p.y-H,a=p.returning?.75:1;
