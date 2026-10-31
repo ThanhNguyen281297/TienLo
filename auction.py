@@ -70,6 +70,49 @@ def min_bid(lot):
     return lot['start'] if not lot['bids'] else max(lot['bid'] + 1, math.ceil(lot['bid'] * (1 + STEP)))
 
 
+# ---------------------------------------------------------------- Tiên Thương (NPC stock)
+# A merchant keeps a few lots open so the market is never empty on a quiet server:
+# materials and every-class gear of the early tiers. Money paid to it leaves the economy.
+NPC_NAME = 'Tiên Thương'
+NPC_USER = 'npc-tien-thuong'          # not a valid login name, so nobody can sign in as it
+NPC_TARGET = 8
+NPC_STOCK = (('cuong-hoa-thach', 5, 70), ('cuong-hoa-thach', 10, 130), ('tinh-luyen-thach', 2, 90), ('tinh-luyen-thach', 5, 210))
+NPC_GEAR = ('huyen-kiem', 'linh-kiem', 'huyen-bao', 'linh-giap', 'exp-10-vukhi', 'exp-25-vukhi')
+
+
+def npc_id(db):
+    row = db.execute('SELECT id FROM users WHERE username=?', (NPC_USER,)).fetchone()
+    if row:
+        return row['id']
+    return db.execute('INSERT INTO users(username,password,created_at) VALUES(?,?,?)', (NPC_USER, '00' * 16 + ':locked', int(time.time()))).lastrowid
+
+
+def npc_restock(db, now):
+    npc = npc_id(db)
+    open_lots = db.execute("SELECT COUNT(*) FROM auction_lots WHERE seller=? AND status='open'", (npc,)).fetchone()[0]
+    for _ in range(max(0, NPC_TARGET - open_lots)):
+        if secrets.randbelow(100) < 45:
+            iid, qty, buyout = NPC_STOCK[secrets.randbelow(len(NPC_STOCK))]
+            item = dict(equipment.MATERIALS[iid], uid=secrets.token_hex(16), qty=qty)
+        else:
+            base = NPC_GEAR[secrets.randbelow(len(NPC_GEAR))]
+            meta = equipment.TEMPLATES.get(f'{base}-class-{secrets.randbelow(4)}')
+            if not meta:
+                continue
+            item = dict(meta, uid=secrets.token_hex(16))
+            buyout = round(max(60, meta.get('price', 100)) * 1.6)
+            qty = 1
+        hours = DURATIONS[secrets.randbelow(len(DURATIONS))]
+        db.execute('INSERT INTO auction_lots(id,seller,item,item_id,name,category,rarity,qty,start,buyout,created,ends,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                   (secrets.token_hex(12), npc, json.dumps(item, ensure_ascii=False), item['id'], item_name(item), category(item), item.get('rarity', 'pham'),
+                    qty, max(MIN_PRICE, round(buyout * .6)), buyout, now, now + hours * 3600 - secrets.randbelow(3600), 'open'))
+
+
+def is_npc(db, seller):
+    row = db.execute('SELECT username FROM users WHERE id=?', (seller,)).fetchone()
+    return bool(row and row['username'] == NPC_USER)
+
+
 # ---------------------------------------------------------------- settlement
 def close(db, lot, now):
     if lot['bidder']:
@@ -77,6 +120,8 @@ def close(db, lot, now):
         sell(db, lot, lot['bid'], lot['bidder'], now)
     else:
         db.execute("UPDATE auction_lots SET status='expired',closed=? WHERE id=?", (now, lot['id']))
+        if is_npc(db, lot['seller']):
+            return
         item = json.loads(lot['item'])
         mail(db, lot['seller'], f'Đấu giá · Không ai mua: trả lại {item_name(item)}', dict(lot=item, **{'from': lot['seller']}), f"auc:back:{lot['id']}")
 
@@ -84,7 +129,10 @@ def close(db, lot, now):
 def sell(db, lot, price, buyer, now):
     item = json.loads(lot['item'])
     tax = math.floor(price * TAX_RATE)
-    mail(db, buyer, f'Đấu giá · Mua được {item_name(item)}', dict(lot=item, **{'from': lot['seller']}), f"auc:item:{lot['id']}")
+    npc = is_npc(db, lot['seller'])
+    mail(db, buyer, f'Đấu giá · Mua được {item_name(item)}', dict(lot=item, **{'from': None if npc else lot['seller']}), f"auc:item:{lot['id']}")
+    if npc:
+        return
     mail(db, lot['seller'], f'Đấu giá · Đã bán {item_name(item)}: {price - tax} ◈ (thuế {tax})', dict(gold=price - tax), f"auc:gold:{lot['id']}")
 
 
@@ -120,7 +168,7 @@ def lot_view(db, lot, uid, now):
     return dict(id=lot['id'], item=json.loads(lot['item']), name=lot['name'], category=lot['category'], rarity=lot['rarity'],
                 start=lot['start'], buyout=lot['buyout'], bid=lot['bid'], bids=lot['bids'], minBid=min_bid(lot),
                 endsIn=max(0, round(lot['ends'] - now)), status=lot['status'], price=lot['price'],
-                seller=seller[0] if seller else '?', mine=lot['seller'] == uid, leading=lot['bidder'] == uid and lot['bids'] > 0)
+                seller=seller[0] if seller else (NPC_NAME if is_npc(db, lot['seller']) else '?'), mine=lot['seller'] == uid, leading=lot['bidder'] == uid and lot['bids'] > 0)
 
 
 def reference(db, item_id, now):
@@ -135,6 +183,7 @@ def reference(db, item_id, now):
 def browse(db, uid, query=None, now=None):
     now = time.time() if now is None else now
     settle(db, now)
+    npc_restock(db, now)
     query = query if isinstance(query, dict) else {}
     where, args = ["status='open'"], []
     group = query.get('group')

@@ -129,6 +129,8 @@ class PetTests(Base):
 class AuctionTests(Base):
     def setUp(self):
         super().setUp()
+        self._npc = auction.NPC_TARGET; auction.NPC_TARGET = 0   # player-only market in these tests
+        self.addCleanup(setattr, auction, 'NPC_TARGET', self._npc)
         p = self.player(1)
         sword = dict(equipment.TEMPLATES['train-10-daobao-class-1'], uid='sword-uid-0001', enhance=3)
         stones = dict(equipment.TEMPLATES['cuong-hoa-thach'], uid='stone-uid-0001', qty=10)
@@ -212,6 +214,21 @@ class AuctionTests(Base):
         self.db.execute("INSERT INTO player_trades VALUES('t1',1,2,'open',1,?,?,0)", (json.dumps(offers), 10 ** 12))
         with self.assertRaises(ValueError): self.act('sell', uid='sword-uid-0001', start=500, hours=12)
 
+
+
+class NpcMarketTests(Base):
+    def test_npc_keeps_lots_and_sells_without_proceeds(self):
+        view = auction.browse(self.db, 1, None, self.now if hasattr(self, 'now') else None)
+        self.assertEqual(view['total'], auction.NPC_TARGET)
+        self.assertTrue(all(l['seller'] == auction.NPC_NAME for l in view['lots']))
+        npc = auction.npc_id(self.db)
+        self.assertIsNone(self.db.execute("SELECT 1 FROM characters WHERE user_id=?", (npc,)).fetchone())
+        lot = min(view['lots'], key=lambda l: l['buyout'])
+        p = self.player(1); p['gold'] = 100000
+        self.db.execute('UPDATE characters SET player=? WHERE user_id=1', (json.dumps(p),))
+        r = auction.action(self.db, 1, dict(action='buyout', id=lot['id'], opId='op-npc-buy-1', revision=self.db.execute('SELECT revision FROM characters WHERE user_id=1').fetchone()[0]))
+        self.assertIn('Đã mua ngay', r['message'])
+        self.assertIsNone(self.db.execute("SELECT 1 FROM community_rewards WHERE user_id=?", (npc,)).fetchone())
 
 if __name__ == '__main__':
     unittest.main()

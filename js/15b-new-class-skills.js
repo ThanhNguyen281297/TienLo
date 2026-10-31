@@ -33,7 +33,7 @@
   }
   const baseHit=hit;hit=function(e,power){return baseHit(e,power*(!window.petCombat?.dealing&&active()&&!thunder()&&state.field&&inside(e,state.field)?1.15:1));};
   const oldSkill=skill,oldCast=cast,oldUp=up,oldDraw=dr,oldCombat=classCombat;
-  skill=function(i){if(!active())return oldSkill(i);if(paused()||!Number.isInteger(i)||i<0||i>3||state.ultimate||state.dash)return;if((!window.gmTest?.enabled&&characterLevel()<characterProgression.SKILL_LEVELS[i])||state.cooldown[i]>0||P.mp<combatMana[P.ap.w][i])return;P.mp-=combatMana[P.ap.w][i];P.med=0;P.sl=.35;state.cooldown[i]=cds()[i];castNew(i);msg(combatNames[P.ap.w][i]);refreshUI();};
+  skill=function(i){if(!active())return oldSkill(i);if(paused()||!Number.isInteger(i)||i<0||i>3||state.ultimate||state.dash)return;if((!window.gmTest?.enabled&&characterLevel()<characterProgression.SKILL_LEVELS[i]&&!window.masterGift?.active(i))||state.cooldown[i]>0||P.mp<combatMana[P.ap.w][i])return;P.mp-=combatMana[P.ap.w][i];P.med=0;P.sl=.35;state.cooldown[i]=cds()[i];castNew(i);msg(combatNames[P.ap.w][i]);refreshUI();};
   cast=function(){if(active())skill(0);else oldCast();};$('bs').onclick=()=>cast();
   function advance(dt){
     state.cooldown=state.cooldown.map(v=>Math.max(0,v-dt));

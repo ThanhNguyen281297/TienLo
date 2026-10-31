@@ -94,7 +94,7 @@
   skill=function(index){
     if(!active())return previousSkill(index);
     if(paused()||!Number.isInteger(index)||index<0||index>3||state.blink)return;
-    if(!window.gmTest?.enabled&&characterLevel()<characterProgression.SKILL_LEVELS[index])return msg(NAMES[index]+' mở ở cấp '+characterProgression.SKILL_LEVELS[index]+'.');
+    if(!window.gmTest?.enabled&&characterLevel()<characterProgression.SKILL_LEVELS[index]&&!window.masterGift?.active(index))return msg(NAMES[index]+' mở ở cấp '+characterProgression.SKILL_LEVELS[index]+'.');
     if(state.cooldown[index]>0||P.mp<MANA[index])return;
     if(state.ultimate)return msg('Đang thi triển Minh Nguyệt Giáng Thế.');
     if((index===0||index===2)&&state.flying.length)return msg('Chờ Nguyệt Nhận trở về để thi triển.');

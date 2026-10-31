@@ -283,3 +283,6 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Điểm danh ngày 3/5 thêm mảnh ngẫu nhiên, ngày 7 thêm 30 Mảnh Thần Binh.
 - Nhắc sự kiện (js/79-reminders.js): Chiến trường 12:30/21:00, Tông môn chiến T4/T7 20:00 và sự kiện Phúc lợi được báo trước 5 phút và khi mở; bật/tắt và cho phép thông báo hệ thống trong bảng Chức năng.
 - Ảnh theo phái tải khi cần (js/00-asset-gate.js): màn đăng nhập từ ~16 MB xuống ~8,5 MB; ảnh skill/thân/mặt của một phái chỉ tải khi phái đó xuất hiện.
+- Sư phụ truyền công (js/80-master-gift.js): cấp 2–19, lần đầu đánh quái ngoài bãi, sư phụ cho dùng thử Tuyệt kỹ (chiêu 4) một lần trong 30 giây, đầy linh lực.
+- Thủ lĩnh lần đầu: gặp mỗi loại thủ lĩnh lần đầu (dưới cấp 60), auto tạm tắt và có thẻ hướng dẫn tự tay đánh; hạ xong hoặc rời xa thì auto bật lại.
+- Tụ Bảo Các có Tiên Thương (NPC) luôn treo 8 món: Cường Hóa/Tinh Luyện Thạch và trang bị Hiếm/Cực hiếm các phái, giá mua ngay ≈ 1,6× giá gốc; tiền trả cho NPC không vào túi ai.

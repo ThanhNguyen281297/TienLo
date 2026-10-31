@@ -9,7 +9,7 @@
   const progress=()=>{const p=world.progress();p.learnedSkills??=[false,false,false,false];p.skillLevels??=[0,0,0,0];p.essence??=0;p.breakthroughPills??=0;p.thangViDan??=0;p.attrs??={luc:0,the:0,nhanh:0,linh:0};p.attrPoints??=0;p.bag??=[];p.equip??={vukhi:null,daobao:null,ngoc:null,gioi:null,giay:null,phapbao:null};return p;};
   const realmName=()=>R[P.r]+' '+(P.stage||1);
   const eligible=i=>!!requirements[i]&&characterLevel()>=requirements[i].level;
-  const canUse=i=>Number.isInteger(i)&&i>=0&&i<4&&(!!window.gmTest?.enabled||eligible(i));
+  const canUse=i=>Number.isInteger(i)&&i>=0&&i<4&&(!!window.gmTest?.enabled||eligible(i)||!!window.masterGift?.active(i));
   function training(){window.overworldGame?.openRoutes();}
   function openTrainer(){if(world.state.scene!=='hub')return msg('Nâng kỹ năng tại Truyền Công Các ở Thiên Vân Thành.');
     characterProgression.normalize();const p=progress(),ui=visualUI;dialog.show('Truyền Công Các · Kỹ năng','Cấp '+characterLevel()+' · Tự mở chiêu ở cấp 10 / 20 / 30 / 40');
