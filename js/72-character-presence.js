@@ -46,3 +46,23 @@
  };
  window.characterPresence={tierFor,TIERS};
 })();
+/* Weapon in hand: while the hero's weapon is out in the world (a flying sword or crescent,
+   a sword swing, a spear thrust or dash, the open fan), the copy in the hand is hidden, and
+   it fades back in when the weapon returns. Returns the hand weapon's opacity (0..1). */
+(function(){
+ 'use strict';
+ let away=0,last=performance.now();
+ const any=l=>Array.isArray(l)&&l.length>0;
+ function out(){const w=P.ap?.w,b=window.basicCombat?.state;if(w==null)return false;
+  if(b&&((b.swings||[]).some(s=>s.sect===w&&w!==3)||(b.projectiles||[]).some(p=>p.sect===w&&(w===0||w===1))||(w===3&&(b.casts||[]).some(c=>c.sect===3))))return true;
+  if(w===0){const s=window.kiemCombat?.state;return!!s&&(any(s.flying)||!!s.dash||!!s.ultimate);}
+  if(w===1){const s=window.moonCombat?.state;return!!s&&(any(s.flying)||!!s.ultimate);}
+  const s=window.newClassCombat?.state;if(!s)return false;
+  if(w===2)return!!s.dash||!!s.ultimate||(s.casts||[]).some(c=>c.index===1);
+  return!!s.ultimate||(s.casts||[]).some(c=>c.index===1);}
+ window.weaponHeld=function(ap,ctx){if(ap!==P.ap||typeof g==='undefined'||ctx!==g)return 1;
+  const now=performance.now(),dt=Math.min(.1,(now-last)/1000);last=now;
+  if(out()){away=1;return 0;}
+  // back in the hand: a quick fade-in after the weapon returns
+  away=Math.max(0,away-dt/.18);return 1-away;};
+})();

@@ -217,7 +217,9 @@
     const drawWeapon = () => {
       if(ap===tp&&!P.ap)return;
       if ((ap===P.ap&&!gear)||(ap!==P.ap&&ap?.weaponId===null)||!ready(images.vukhi)) return;
-      ctx.save();
+      // The weapon leaves the hand while it is out in the world (flying, swinging, thrusting).
+      const held=window.weaponHeld?window.weaponHeld(ap,ctx):1;if(held<=0)return;
+      ctx.save();ctx.globalAlpha*=held;
       ctx.translate(wx, wy);
       ctx.rotate(angle);
       if(dir===2&&facing<0)ctx.scale(-scale,scale);else ctx.scale(scale,scale);
