@@ -61,6 +61,28 @@ def canonical_id(item_id, cls):
     return style['back'] if meta['slot']=='phapbao' else 'shield-'+str(style['shield'])
 
 
+# v10: the three code-drawn shields were withdrawn. Owned copies are removed and the
+# Mảnh Hộ Thuẫn paid for them is refunded (init_db) — see RETIRED_REFUND.
+RETIRED_REFUND={'shield-8':160,'shield-9':160,'shield-10':240}
+
+
+def drop_retired(player):
+    """Remove withdrawn items from bag and equipment. Returns the shard refund."""
+    w=player.get('world',{});refund=0
+    bag=w.get('bag',[])
+    if isinstance(bag,list):
+        keep=[]
+        for i in bag:
+            if isinstance(i,dict) and i.get('id') in RETIRED_REFUND:refund+=RETIRED_REFUND[i['id']]
+            else:keep.append(i)
+        w['bag']=keep
+    equip=w.get('equip',{})
+    if isinstance(equip,dict):
+        for slot,i in list(equip.items()):
+            if isinstance(i,dict) and i.get('id') in RETIRED_REFUND:refund+=RETIRED_REFUND[i['id']];equip[slot]=None
+    return refund
+
+
 def normalize(player, collection=None):
     """Migrate owned gear, never grant starting items. Keep UIDs and reforge lines."""
     if not isinstance(player.get('ap'),dict) or not isinstance(player.get('world',{}),dict):return False
@@ -170,6 +192,12 @@ def init_db(db, collection):
     db.execute('CREATE TABLE IF NOT EXISTS equipment_locks(user_id INTEGER NOT NULL REFERENCES users(id),item_uid TEXT NOT NULL,indices TEXT NOT NULL,PRIMARY KEY(user_id,item_uid))')
     for row in db.execute('SELECT * FROM characters').fetchall():
         player=json.loads(row['player'])
+        refund=drop_retired(player)
+        if refund:
+            db.execute('CREATE TABLE IF NOT EXISTS shard_wallet(user_id INTEGER NOT NULL,kind TEXT NOT NULL,qty INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(user_id,kind))')
+            db.execute("INSERT INTO shard_wallet VALUES(?,'hothuan',?) ON CONFLICT(user_id,kind) DO UPDATE SET qty=MIN(99999,qty+excluded.qty)",(row['user_id'],refund))
+            db.execute('UPDATE characters SET player=?,revision=revision+1 WHERE user_id=?',(json.dumps(player,ensure_ascii=False),row['user_id']))
+            row=dict(row,player=json.dumps(player,ensure_ascii=False),revision=row['revision']+1)
         if normalize(player,collection):
             # Original JSON stays recoverable alongside the migrated character.
             db.execute('CREATE TABLE IF NOT EXISTS equipment_migration_backup(user_id INTEGER PRIMARY KEY,player TEXT NOT NULL,revision INTEGER NOT NULL)')

@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "slots": {
     "vukhi": "Vũ khí",
     "daobao": "Đạo bào",
@@ -351,51 +351,6 @@
       "rarity": "than",
       "art": "Item/Thuan/7.png",
       "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể."
-    },
-    {
-      "id": "shield-8",
-      "name": "Thanh Long Quy Giáp Thuẫn",
-      "skillName": "Thanh Long Hộ Giáp",
-      "variant": 8,
-      "buff": 8,
-      "slot": "ngoc",
-      "armor": 11,
-      "hp": 65,
-      "price": 320,
-      "req": 30,
-      "rarity": "tien",
-      "art": "Item/Thuan/8.png",
-      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể với kết giới mới."
-    },
-    {
-      "id": "shield-9",
-      "name": "Kim Cang Liên Hoa Thuẫn",
-      "skillName": "Kim Liên Bất Hoại",
-      "variant": 9,
-      "buff": 9,
-      "slot": "ngoc",
-      "armor": 12.5,
-      "hp": 78,
-      "price": 400,
-      "req": 45,
-      "rarity": "tien",
-      "art": "Item/Thuan/9.png",
-      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể với kết giới mới."
-    },
-    {
-      "id": "shield-10",
-      "name": "Cửu Thiên Tinh Hà Thuẫn",
-      "skillName": "Tinh Hà Hộ Thể",
-      "variant": 10,
-      "buff": 10,
-      "slot": "ngoc",
-      "armor": 14,
-      "hp": 95,
-      "price": 520,
-      "req": 60,
-      "rarity": "than",
-      "art": "Item/Thuan/10.png",
-      "desc": "Hộ thuẫn có 5 dòng phòng thủ và kỹ năng hộ thể với kết giới mới."
     }
   ],
   "backs": [

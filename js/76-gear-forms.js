@@ -6,7 +6,6 @@
    - Đạo bào: higher robes add a silhouette behind the body: waist sashes (Hiếm), a
      floating celestial ribbon (Cực hiếm), a back halo (Siêu phẩm), a turning rune halo
      with rising gold motes (Thần phẩm).
-   - Hộ thuẫn 8–10: drawn entirely in code (icon, arm shield and barrier effect).
    All art is original and drawn here; presentation only. */
 (function(){
  'use strict';
@@ -166,61 +165,14 @@
   }
  }
 
- // ------------------------------------------------------------------ code-drawn shields 8..10
- const SHIELD_ART={
-  8:{name:'jade',rim:'#e9c46a',face:['#0e4a36','#2fb985','#a8ffd8'],accent:'#ffe39a'},
-  9:{name:'lotus',rim:'#ffd36b',face:['#6a2a00','#ffb52e','#fff3c4'],accent:'#ff3d6a'},
-  10:{name:'stars',rim:'#dfe8ff',face:['#060b2e','#2a3f9a','#8fb0ff'],accent:'#ffffff'}
- };
- function shieldArt(ctx,variant,size,t=0){const s=SHIELD_ART[variant];if(!s)return false;const R=size/2;ctx.save();ctx.lineJoin='round';
-  const face=g=>{g.addColorStop(0,s.face[2]);g.addColorStop(.45,s.face[1]);g.addColorStop(1,s.face[0]);return g;};
-  if(variant===8){
-   // Thanh Long Quy Giáp: round jade tortoise-shell with a gold dragon-cloud boss
-   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.arc(R*.04,R*.06,R*.98,0,TAU);ctx.fill();
-   const rim=ctx.createLinearGradient(-R,-R,R,R);rim.addColorStop(0,'#fff3c0');rim.addColorStop(.5,s.rim);rim.addColorStop(1,'#7a4a10');ctx.fillStyle=rim;ctx.beginPath();ctx.arc(0,0,R*.96,0,TAU);ctx.fill();
-   for(let i=0;i<8;i++){const a=i*TAU/8;ctx.save();ctx.rotate(a);ctx.fillStyle=rim;ctx.beginPath();ctx.moveTo(-R*.12,-R*.9);ctx.quadraticCurveTo(0,-R*1.12,R*.12,-R*.9);ctx.closePath();ctx.fill();ctx.restore();}
-   ctx.fillStyle=face(ctx.createRadialGradient(-R*.25,-R*.3,R*.05,0,0,R*.85));ctx.beginPath();ctx.arc(0,0,R*.82,0,TAU);ctx.fill();
-   ctx.strokeStyle='rgba(220,255,236,.55)';ctx.lineWidth=R*.035;const hx=R*.27;
-   for(const [q,r2] of [[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,1]]){const x=(q+r2/2)*hx*1.75,y=r2*hx*1.5;if(Math.hypot(x,y)>R*.7)continue;ctx.beginPath();for(let i=0;i<6;i++){const a=i*TAU/6+Math.PI/6;ctx.lineTo(x+Math.cos(a)*hx,y+Math.sin(a)*hx);}ctx.closePath();ctx.stroke();}
-   ctx.fillStyle=rim;ctx.beginPath();ctx.arc(0,0,R*.26,0,TAU);ctx.fill();ctx.strokeStyle='#7a4a10';ctx.lineWidth=R*.03;ctx.stroke();
-   for(let i=0;i<4;i++){ctx.save();ctx.rotate(i*TAU/4+t*.2);ctx.strokeStyle=s.accent;ctx.lineWidth=R*.045;ctx.lineCap='round';ctx.beginPath();ctx.arc(R*.36,0,R*.1,Math.PI*.2,Math.PI*1.7);ctx.stroke();ctx.restore();}
-   gem(ctx,0,0,R*.13,'#5fffc0',t);
-  }else if(variant===9){
-   // Kim Cang Liên Hoa: layered golden lotus with a ruby heart
-   ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.arc(R*.04,R*.08,R*.95,0,TAU);ctx.fill();
-   const petal=(len,wid,rot,c1,c2)=>{ctx.save();ctx.rotate(rot);const g=ctx.createLinearGradient(0,0,0,-len);g.addColorStop(0,c2);g.addColorStop(1,c1);ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(wid,-len*.35,wid*.8,-len*.8,0,-len);ctx.bezierCurveTo(-wid*.8,-len*.8,-wid,-len*.35,0,0);ctx.fill();ctx.strokeStyle='rgba(120,60,0,.6)';ctx.lineWidth=R*.02;ctx.stroke();
-    ctx.strokeStyle='rgba(255,250,220,.7)';ctx.lineWidth=R*.012;ctx.beginPath();ctx.moveTo(0,-len*.15);ctx.lineTo(0,-len*.85);ctx.stroke();ctx.restore();};
-   for(let i=0;i<10;i++)petal(R*.98,R*.32,i*TAU/10+TAU/20,'#fff6d0','#c07a10');
-   for(let i=0;i<8;i++)petal(R*.74,R*.26,i*TAU/8,'#ffffff','#ffb52e');
-   for(let i=0;i<6;i++)petal(R*.48,R*.2,i*TAU/6+.3,'#ffffff','#ffd36b');
-   ctx.fillStyle='#7a3a00';ctx.beginPath();ctx.arc(0,0,R*.22,0,TAU);ctx.fill();for(let i=0;i<12;i++){const a=i*TAU/12;ctx.fillStyle='#ffe39a';ctx.beginPath();ctx.arc(Math.cos(a)*R*.17,Math.sin(a)*R*.17,R*.025,0,TAU);ctx.fill();}
-   gem(ctx,0,0,R*.14,s.accent,t);
-  }else{
-   // Cửu Thiên Tinh Hà: eight-pointed silver star shield with a night sky and crescent moon
-   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.arc(R*.04,R*.06,R*.98,0,TAU);ctx.fill();
-   const sil=ctx.createLinearGradient(-R,-R,R,R);sil.addColorStop(0,'#ffffff');sil.addColorStop(.5,'#a9b8e0');sil.addColorStop(1,'#3a4670');ctx.fillStyle=sil;
-   ctx.beginPath();for(let i=0;i<16;i++){const a=i*TAU/16-Math.PI/2,rr=i%2?R*.82:R;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);}ctx.closePath();ctx.fill();ctx.strokeStyle='#2a3050';ctx.lineWidth=R*.025;ctx.stroke();
-   ctx.fillStyle=face(ctx.createRadialGradient(R*.2,-R*.25,R*.05,0,0,R*.75));ctx.beginPath();ctx.arc(0,0,R*.72,0,TAU);ctx.fill();
-   const pts=[];for(let i=0;i<22;i++){const a=hash(i)*TAU,r2=Math.sqrt(hash(i+40))*R*.66;pts.push([Math.cos(a)*r2,Math.sin(a)*r2]);const tw=.6+.4*Math.sin(t*3+i);ctx.fillStyle='#ffffff';ctx.globalAlpha=tw;ctx.beginPath();ctx.arc(pts[i][0],pts[i][1],R*(i%5?.012:.024),0,TAU);ctx.fill();}
-   ctx.globalAlpha=.5;ctx.strokeStyle='#bcd0ff';ctx.lineWidth=R*.01;ctx.beginPath();[3,7,11,2,15].forEach((k,i)=>i?ctx.lineTo(...pts[k]):ctx.moveTo(...pts[k]));ctx.stroke();ctx.globalAlpha=1;
-   glowDot(ctx,0,0,R*.5,'#fff3c0',.35);ctx.fillStyle='#fff8dc';ctx.beginPath();ctx.arc(0,0,R*.3,0,TAU);ctx.arc(R*.13,-R*.07,R*.26,0,TAU,true);ctx.fill('evenodd');
-   ctx.strokeStyle='#dfe8ff';ctx.lineWidth=R*.03;ctx.beginPath();ctx.arc(0,0,R*.72,0,TAU);ctx.stroke();
-   for(let i=0;i<8;i++){const a=i*TAU/8-Math.PI/2;star4(ctx,Math.cos(a)*R*.9,Math.sin(a)*R*.9,R*.07,'#ffffff',.9,0);}
-  }
-  // shared sheen
-  ctx.globalCompositeOperation='lighter';const sh=ctx.createLinearGradient(-R,-R,R*.3,R*.3);sh.addColorStop(0,'rgba(255,255,255,.28)');sh.addColorStop(.4,'rgba(255,255,255,0)');ctx.fillStyle=sh;ctx.beginPath();ctx.arc(0,0,R*.9,0,TAU);ctx.fill();
-  ctx.restore();return true;}
- // Arm shield (all variants): code art for 8..10, plus a quality rim glow for every shield.
+ // Arm shield: the painted shield with a quality rim glow.
  function drawShield(ctx,item,variant,img,dir,facing,at,H,t=clock()){const size=H*(dir===2?.42:.46),q=ROBE_TIER[window.equipmentData?.byId?.get(item?.id)?.rarity||item?.rarity]??1;
   ctx.save();ctx.translate(at.x,at.y);ctx.rotate(Math.sin(t*1.6)*.03);ctx.scale(dir===2?.62:1,1);if(dir===2&&facing>0)ctx.scale(-1,1);
-  const tone=SHIELD_ART[variant]?.rim||['#d4cbb6','#70df9c','#6fc8ff','#cf9cff','#ffcc70'][q];
+  const tone=['#d4cbb6','#70df9c','#6fc8ff','#cf9cff','#ffcc70'][q];
   if(q>=2)glowDot(ctx,0,0,size*.85,tone,.22+.08*q+.08*Math.sin(t*2.2));
-  if(!shieldArt(ctx,variant,size,t)){if(!img?.complete||!img.naturalWidth){ctx.restore();return;}ctx.drawImage(img,-size/2,-size/2,size,size);}
+  if(!img?.complete||!img.naturalWidth){ctx.restore();return;}ctx.drawImage(img,-size/2,-size/2,size,size);
   if(q>=3){const g=(t*.3+variant*.17)%1;if(g<.3)star4(ctx,size*.28,-size*.3,size*.12*(1+g*2),'#ffffff',Math.sin(g/.3*Math.PI),g*2);}
   ctx.restore();}
 
- // Barrier effects 8..10 use painted rings (Item/BuffThuan/8-10.png, drawn by code in the same
- // style as the other barriers) through js/12b-equipment-motion.js.
-
- window.gearForms={FORMS,TIER_FORM,formOf,drawWeapon,weaponScale,drawRobe,robeOf,shieldArt,drawShield,SHIELD_ART};
+ window.gearForms={FORMS,TIER_FORM,formOf,drawWeapon,weaponScale,drawRobe,robeOf,drawShield};
 })();

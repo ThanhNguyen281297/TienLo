@@ -296,3 +296,5 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Liên Trảm: hạ quái liên tiếp trong vòng 6 giây được cộng dồn, mỗi mắt xích +5% EXP và Linh Thạch (tối đa +50%); hiện bộ đếm bên phải màn hình từ ×3. Không áp dụng ở Tháp và Ma Quật.
 - Di chuyển: chân bám đất (bỏ nhún bay lên), thân nhún và lắc theo nhịp bước, bụi đất ở mỗi bước chân, bóng tiếp đất dưới chân nhân vật; người chơi khác giữ nhịp bước giữa các gói mạng.
 - Linh thú nhỏ lại (×0,78) và theo sau xa hơn; hộ thuẫn cầm xa thân người hơn.
+
+- Ba hộ thuẫn vẽ bằng code (Thanh Long Quy Giáp, Kim Cang Liên Hoa, Cửu Thiên Tinh Hà) đã gỡ (equipment v10). Ai đã đổi được hoàn lại Mảnh Hộ Thuẫn (160/160/240) khi máy chủ khởi động.

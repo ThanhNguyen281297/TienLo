@@ -47,7 +47,7 @@
   ctx.restore();
  }
  // Shield on the off-hand forearm: a little over half the body height, foreshortened in profile.
- function drawShield(ctx,x,y,dir,facing,ap,front,fit){const item=gear(ap,'ngoc','shieldId');if(!item)return;if(front!==null&&front!==undefined&&(dir===1)===front)return;const variant=data.shieldVariant(item),img=window.gearForms?.SHIELD_ART?.[variant]?null:image('Item/Thuan/'+variant+'.png');
+ function drawShield(ctx,x,y,dir,facing,ap,front,fit){const item=gear(ap,'ngoc','shieldId');if(!item)return;if(front!==null&&front!==undefined&&(dir===1)===front)return;const variant=data.shieldVariant(item),img=image('Item/Thuan/'+variant+'.png');
   if(window.gearForms){window.gearForms.drawShield(ctx,item,variant,img,dir,facing,fit?.arm||{x:x-14,y:y-20},fit?.H||40);return;}if(!img?.complete||!img.naturalWidth)return;
   const H=fit?.H||40,size=H*(dir===2?.4:.44),at=fit?.arm||{x:x-14,y:y-20};ctx.save();ctx.translate(at.x,at.y);ctx.scale(dir===2?.62:1,1);if(dir===2&&facing>0)ctx.scale(-1,1);ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();}
  function drawRing(ctx,x,y,dir,facing,ap,fit){const item=gear(ap,'gioi','ringId');if(!item)return;const img=image(data.appearance(item));if(!img.complete||!img.naturalWidth)return;const tier=Math.max(0,rules.rings.findIndex(r=>r.id===item.id)),size=5+tier*.5,tone=['#d9b67b','#8de3bc','#85c9ff','#ffdc81'][tier];const at=fit?.hand||{x:x+(dir===2?facing*10:11),y:y-17};ctx.save();ctx.translate(at.x,at.y+1);ctx.shadowColor=tone;ctx.shadowBlur=2+tier;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();}
