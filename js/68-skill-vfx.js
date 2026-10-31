@@ -31,17 +31,29 @@
   for(const [w,col,a] of [[width,color,alpha*.55],[width*.35,C.core,alpha]])for(let i=1;i<pts.length;i++){const t=i/(pts.length-1);
    ctx.globalAlpha=a*t;ctx.strokeStyle=col;ctx.lineWidth=Math.max(.3,w*t);ctx.beginPath();ctx.moveTo(pts[i-1].x,pts[i-1].y);ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();}}
  // A luminous sword pointing along `angle` (0 = right), centre at (x,y).
- function blade(ctx,x,y,angle,len,alpha,hue=C.qi){if(alpha<=0)return;
+ // Real swords: the game's painted Kiếm (Item/VuKhi/Kiem.png, tip pointing down in the art)
+ // downsampled once; every flying, hovering and falling sword is this blade, so the
+ // Kiếm Tông skills read as actual swords. The vector blade is only a fallback while loading.
+ const swordArt=new Image();swordArt.src=artworkURL('Item/VuKhi/Kiem.png');let swordSprite=null,swordShade=null;
+ function sword(){if(swordSprite)return swordSprite;if(!swordArt.complete||!swordArt.naturalWidth)return null;
+  const box=[31,19,1002,1505],sx=box[0]*swordArt.naturalWidth/1024,sy=box[1]*swordArt.naturalHeight/1536,sw=(box[2]-box[0])*swordArt.naturalWidth/1024,sh=(box[3]-box[1])*swordArt.naturalHeight/1536,H=220,W=Math.round(H*sw/sh);
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(swordArt,sx,sy,sw,sh,0,0,W,H);swordSprite=c;
+  const d=document.createElement('canvas');d.width=W+8;d.height=H+8;const y=d.getContext('2d');y.filter='brightness(0) blur(3px)';y.drawImage(c,4,4);swordShade=d;return c;}
+ function blade(ctx,x,y,angle,len,alpha,hue=C.qi){if(alpha<=0)return;const art=sword();
   ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  // A dark-blue underglow (normal blending) keeps the light blade readable in daylight.
-  const op=ctx.globalCompositeOperation;ctx.globalCompositeOperation='source-over';ctx.globalAlpha=alpha*.3;ctx.drawImage(glow('#0b3d7a'),-len*.6,-len*.17,len*1.2,len*.34);ctx.globalCompositeOperation=op;
+  const op=ctx.globalCompositeOperation;
+  if(art){// soft qi aura along the blade, a grounding shadow, then the painted sword itself
+   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*.35;ctx.drawImage(glow(hue),-len*.62,-len*.2,len*1.24,len*.4);
+   ctx.globalCompositeOperation='source-over';ctx.rotate(-Math.PI/2);const w=len*art.width/art.height;
+   if(swordShade){ctx.globalAlpha=alpha*.3;const k=len/art.height;ctx.drawImage(swordShade,-w/2-4*k+3,-len/2-4*k+4,w+8*k,len+8*k);}
+   ctx.globalAlpha=alpha;ctx.drawImage(art,-w/2,-len/2,w,len);
+   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*.25;ctx.drawImage(art,-w/2,-len/2,w,len);
+   ctx.globalCompositeOperation=op;ctx.restore();return;}
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=alpha*.3;ctx.drawImage(glow('#0b3d7a'),-len*.6,-len*.17,len*1.2,len*.34);ctx.globalCompositeOperation=op;
   ctx.globalAlpha=alpha*.32;ctx.drawImage(glow(hue),-len*.6,-len*.18,len*1.2,len*.36);
   const half=len/2,w=Math.max(1.4,len*.07);
   const gr=ctx.createLinearGradient(-half,0,half,0);gr.addColorStop(0,hue);gr.addColorStop(.55,C.hot);gr.addColorStop(1,C.core);
   ctx.globalAlpha=alpha;ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(half,0);ctx.lineTo(-half*.35,-w);ctx.lineTo(-half*.42,0);ctx.lineTo(-half*.35,w);ctx.closePath();ctx.fill();
-  ctx.fillStyle=C.gold;ctx.fillRect(-half*.44,-w*2.1,len*.04,w*4.2);       // guard
-  ctx.fillStyle='#9fd8ff';ctx.fillRect(-half,-w*.55,half*.56,w*1.1);         // grip
-  dot(ctx,-half,0,w*1.8,C.gold,alpha*.8);                                     // pommel gem
   ctx.restore();}
  // Iso (2:1) ellipse helpers.
  function ellipse(ctx,x,y,r,width,color,alpha,start=0,end=TAU){ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.ellipse(x,y,r,r*.5,0,start,end);ctx.stroke();}
@@ -122,28 +134,30 @@
  function drawEffects(ctx,s){ctx.save();ctx.globalCompositeOperation='lighter';
   // Flying swords: ribbon trail, two afterimages, then the blade.
   for(const sw of s.flying){const trail=[...sw.trail,{x:sw.x,y:sw.y}].map(p=>({x:p.x,y:p.y-10}));ribbon(ctx,trail,sw.returning?5:11,C.qi,sw.returning?.45:.95);
-   const ang=sw.angle+Math.PI/2,len=sw.returning?30:46;
-   dot(ctx,sw.x,sw.y-10,len*.5,C.qi,.18);for(let k=0;k<3;k++){const q=tm*6+k*TAU/3;star(ctx,sw.x+Math.cos(q)*len*.32,sw.y-10+Math.sin(q)*len*.2,4,q,C.qi,C.core,.85);}
+   const ang=sw.angle+Math.PI/2,len=sw.returning?66:88;
+   dot(ctx,sw.x,sw.y-10,len*.45,C.qi,.14);for(let k=0;k<3;k++){const q=tm*6+k*TAU/3;star(ctx,sw.x+Math.cos(q)*len*.32,sw.y-10+Math.sin(q)*len*.2,4,q,C.qi,C.core,.85);}
    blade(ctx,sw.x,sw.y-10,ang,len,1);dot(ctx,sw.x+Math.cos(ang)*len*.5,sw.y-10+Math.sin(ang)*len*.5,8,C.core,.9);
-   if(!sw.returning&&window.skillVfxShapes)skillVfxShapes.wave(ctx,sw.x-Math.cos(ang)*8,sw.y-10-Math.sin(ang)*5,ang,len*.55,1.7,10,C.qi,.9);}
+}
   // Hovering swords of the seal.
   const f=s.field;
   if(f){const spawn=ease(f.age/.4),fade=clamp((f.duration-f.age)/.35,0,1);
    for(let slot=0;slot<5;slot++){if(s.flying.some(x=>x.slot===slot))continue;const a=-Math.PI/2+slot*TAU/5+f.age*.6,px=f.x+Math.cos(a)*f.radius*.83,py=f.y+Math.sin(a)*f.radius*.55*.83,bob=Math.sin(f.age*3+slot)*3,
     home=f.source||P,x=home.x+(px-home.x)*spawn,y=home.y+(py-home.y)*spawn-22+bob;
-    dot(ctx,px,py,12,C.qi,.45*fade);blade(ctx,x,y,Math.PI/2,40,fade*spawn);}}
+    dot(ctx,px,py,12,C.qi,.45*fade);blade(ctx,x,y,Math.PI/2,74,fade*spawn);}
+   const ring=[];for(let k=0;k<7;k++){const a=k*TAU/7-f.age*.9,px=f.x+Math.cos(a)*f.radius*1.05,py=f.y+Math.sin(a)*f.radius*.6,bob=Math.sin(f.age*2.4+k*1.3)*4;ring.push({a,px,py,bob});}
+   ring.sort((m,n)=>m.py-n.py);for(const q of ring){const al=fade*spawn*(.55+.45*Math.max(0,Math.sin(q.a)));dot(ctx,q.px,q.py,8,C.qi,.3*al);blade(ctx,q.px,q.py-30+q.bob,Math.PI/2,58,al);}}
   // Dash: the comet streak is in the shared layers; the blade leads it (14 hides the body).
-  if(s.dash){const d=s.dash;blade(ctx,P.x,P.y-20,d.angle,40,1);}
+  if(s.dash){const d=s.dash;blade(ctx,P.x,P.y-20,d.angle,78,1);}
   // Vạn Kiếm Quy Tông: a ring of swords in the sky, waves raining down, one giant sword.
   const u=s.ultimate;
   if(u){const t=u.age,fade=clamp((u.duration-t)/.5,0,1),sky=u.y-150;
    if(t<2.05){const gather=ease(t/.8);for(let i=0;i<24;i++){const a=i/24*TAU+t*.8,r=95*gather,x=u.x+Math.cos(a)*r,y=sky+Math.sin(a)*r*.32;
      const fallen=t>=.9&&i<Math.min(24,Math.floor((t-.9)/.18+1)*5)?clamp((t-.9-Math.floor(i/5)*.18)/.18,0,1):0;
-     blade(ctx,x+(u.x-x)*fallen*.4,y+(u.y-y)*fallen,Math.PI/2,34,(1-fallen*.7)*gather);if(fallen>0&&fallen<1)ribbon(ctx,[{x,y},{x:x+(u.x-x)*fallen*.4,y:y+(u.y-y)*fallen}],3,C.qi,.6);}
+     blade(ctx,x+(u.x-x)*fallen*.4,y+(u.y-y)*fallen,Math.PI/2,70,(1-fallen*.7)*gather);if(fallen>0&&fallen<1)ribbon(ctx,[{x,y},{x:x+(u.x-x)*fallen*.4,y:y+(u.y-y)*fallen}],3,C.qi,.6);}
     dot(ctx,u.x,sky,50*gather,C.qi,.45);ctx.save();ctx.globalCompositeOperation='source-over';seal(ctx,u.x,sky,90*gather,-t*1.2,gather*.8);ctx.restore();}
    // the giant sword: hangs above, then drops at 2.05
    const drop=clamp((t-1.75)/.3,0,1),gy=sky-30+(u.y-60-(sky-30))*ease(drop);
-   if(t>1.2&&t<2.45){const a=clamp((t-1.2)/.4,0,1)*fade*(t<2.05?1:1-(t-2.05)/.4);blade(ctx,u.x,gy,Math.PI/2,150,a,C.hot);if(drop>0&&drop<1)ribbon(ctx,[{x:u.x,y:sky-80},{x:u.x,y:gy-60}],22,C.qi,.7);}}
+   if(t>1.2&&t<2.45){const a=clamp((t-1.2)/.4,0,1)*fade*(t<2.05?1:1-(t-2.05)/.4);blade(ctx,u.x,gy,Math.PI/2,260,a,C.hot);if(drop>0&&drop<1)ribbon(ctx,[{x:u.x,y:sky-80},{x:u.x,y:gy-60}],22,C.qi,.7);}}
   drawLayers(ctx);ctx.restore();return true;}
  // Generic layers shared by every class: beams, rings, crescents, particles.
  let layersDrawn=false;
@@ -152,7 +166,7 @@
   for(const d of dusts){const p=d.age/d.life,r=d.r*(1+p*1.8);ctx.globalAlpha=(1-p)*.38*Math.min(1,d.age/.08);ctx.drawImage(glow(d.color),d.x-r,d.y-r*.7,r*2,r*1.4);}
   ctx.globalCompositeOperation='lighter';
   for(const st of streaks){const p=st.age/st.life;
-   if(st.stab){blade(ctx,st.x,st.y-36+p*30,Math.PI/2,34,1-p,st.color||C.qi);dot(ctx,st.x,st.y,14*(1-p)+4,C.hot,1-p);continue;}
+   if(st.stab){blade(ctx,st.x,st.y-48+p*36,Math.PI/2,64,1-p,st.color||C.qi);dot(ctx,st.x,st.y,14*(1-p)+4,C.hot,1-p);continue;}
    }
   for(const b of beams){const p=b.age/b.life,a=(1-p)*(p<.15?p/.15:1);ctx.globalAlpha=a*.7;const gr=ctx.createLinearGradient(0,b.y-b.h,0,b.y);gr.addColorStop(0,b.color+'00');gr.addColorStop(.7,b.color+'aa');gr.addColorStop(1,'#ffffff');ctx.fillStyle=gr;const w=b.w*(1-p*.5);ctx.fillRect(b.x-w/2,b.y-b.h,w,b.h);dot(ctx,b.x,b.y,w*1.2,C.core,a*.8);}
   for(const r of rings){const p=ease(r.age/r.life);ellipse(ctx,r.x,r.y,r.r0+(r.r1-r.r0)*p,r.width*(1-p)+.4,r.color,(1-p)*.85);}
