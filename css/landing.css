@@ -83,3 +83,5 @@ html.landing-on,html.landing-on body{overflow:hidden!important}
 #landing img{max-width:100%;height:auto;border:0}
 #landing .act img,#landing .gallery img{height:auto!important;aspect-ratio:16/9!important;object-fit:cover}
 #landing .ld-hero picture img{height:100%!important}
+#landing .sect .duo{display:flex;justify-content:center;align-items:flex-end;gap:2px;margin-bottom:6px}
+#landing .sect .duo img{width:50%;max-width:150px;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 10px 18px #000a)}
