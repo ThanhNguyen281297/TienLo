@@ -48,7 +48,7 @@
 
  function open(){if(!P.ap)return;const s=state.snap;d.show('Chính – Tà Chi Chiến','');const c=$('world-content');
   const {body}=ui.panel('Chiến trường phe',artworkURL('Item/PhapTran/5.png'),c);
-  ui.chips([['Giờ mở',(s?.windows||['12:30','21:00']).join(' · ')],['Thời lượng',(s?.minutes||15)+' phút'],['Cấp','15+'],['Đang chiến',s?.players??0]],body);
+  ui.chips([['Giờ mở',(s?.windows||['12:30','21:00']).join(' · ')],['Thời lượng',(s?.minutes||15)+' phút'],['Cấp','15+'],['Đang chiến',s?.players??0],['Mảnh Hộ Thuẫn','4–25']],body);
   ui.details('Vào từ Thiên Vân Thành, hệ thống tự chia phe Chính/Tà. Hạ địch +10 điểm (phe +5). Chiếm cờ: đứng trong vòng cờ khi không có địch; cờ của phe cho phe +1 điểm mỗi 5 giây. Doanh trại phe mình an toàn. Hết giờ, ai có từ 5 điểm nhận rương qua hộp thư; phe thắng thưởng ×1,5, top 3 thêm thưởng lớn.',body,'Luật chơi');
   if(s?.open){if(inBattle())d.action('Rời chiến trường',()=>{d.close();leave();});else d.action('⚔ Tham chiến',join,world.state.scene!=='hub'||characterLevel()<15);}
   else c.append(ui.node('p','world-line','Chưa mở. Trận kế tiếp sau '+fmt((s?.next||0)-serverNow())+'.'));
@@ -57,7 +57,7 @@
  // Tông môn chiến: four outposts held by guilds for a week.
  async function outpostSection(root){let data;try{data=await account.api('/api/outposts');}catch{return;}if($('world-title').textContent!=='Chính – Tà Chi Chiến')return;
   const {body}=ui.panel('Tông Môn Chiến · Cứ điểm',null,root);
-  ui.chips([['Giờ','T4 · T7 20:00'],['Thời lượng','30 phút'],[data.war?'Còn':'Trận sau',data.war?fmt(data.endsIn):fmt((data.next||0)-data.now)]],body);
+  ui.chips([['Giờ','T4 · T7 20:00'],['Thời lượng','30 phút'],[data.war?'Còn':'Trận sau',data.war?fmt(data.endsIn):fmt((data.next||0)-data.now)],['Mảnh Nhẫn',6]],body);
   ui.details('Mỗi cứ điểm Sơn Hà xuất hiện một Trấn Thủ trong giờ chiến. Sát thương của thành viên được cộng cho tông môn; tông môn gây nhiều sát thương nhất khi Trấn Thủ ngã (hoặc hết giờ) giữ cứ điểm tới trận sau: +10% EXP/Linh Thạch ở vùng đó, mỗi lần hạ quái +1 điểm tông môn, thành viên có mặt nhận rương.',body,'Luật chơi');
   const list=ui.node('div','outpost-list');
   for(const o of data.outposts){const row=ui.node('div','outpost-row'+(o.mine?' mine':''));row.append(ui.node('b','',o.name),ui.node('span','',o.owner?'Chủ: '+o.owner:'Chưa có chủ'));

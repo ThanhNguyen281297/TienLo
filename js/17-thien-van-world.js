@@ -233,5 +233,5 @@
     if(s.farmPortal)return s.reverse?'Về đài':'Bãi '+s.route.name.split(' · ')[0];
     return {quest:'Nhiệm vụ',shop:'Bảo khí',forge:'Luyện khí',teleport:'Truyền tống',arena:'Đấu trường',boss:'Đấu trường',rank:'Bảng xếp hạng',skills:'Truyền công',sectSkills:'Truyền công',mentor:'Sư phụ','valley-info':'Linh mạch'}[s.id]||s.name.split(' · ')[0];
   }
-  window.worldMap={state,regions,services,buildings,isSafe,queueActors,drawGroundDetails,resolve,travel,interact,openMap,progress,atlases,definitions,sprite,spriteBounds,asset:isolate,city:CITY,preloadSprites,npc,rebuild,stopArena,updateInterface,serviceCaption,dialog:{show,close,line,action,isOpen:()=>dialogOpen}};updateInterface();
+  window.worldMap={state,regions,services,buildings,isSafe,queueActors,drawGroundDetails,resolve,travel,interact,openMap,openRank,progress,atlases,definitions,sprite,spriteBounds,asset:isolate,city:CITY,preloadSprites,npc,rebuild,stopArena,updateInterface,serviceCaption,dialog:{show,close,line,action,isOpen:()=>dialogOpen}};updateInterface();
 })();

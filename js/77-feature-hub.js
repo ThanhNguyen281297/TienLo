@@ -28,7 +28,7 @@
    {seal:'寵',name:'Linh thú',run:()=>window.spiritPets?.open()},{seal:'碎',name:'Đổi mảnh',run:()=>window.shardsGame?.goMaster()}]],
   ['Giao lưu',[
    {seal:'隊',name:'Đội · Tông môn',run:click('community-button')},{seal:'友',name:'Bạn bè',run:click('friends-button')},{seal:'道',name:'Đạo hữu',run:click('player-lookup-button')},
-   {seal:'易',name:'Giao dịch',run:click('trade-button')},{seal:'拍',name:'Đấu giá',run:()=>window.auctionGame?.open()},{seal:'榜',name:'Xếp hạng',run:()=>document.querySelector('.vl-activity[data-id=rank]')?.click()}]],
+   {seal:'易',name:'Giao dịch',run:click('trade-button')},{seal:'拍',name:'Đấu giá',run:()=>window.auctionGame?.open()},{seal:'榜',name:'Xếp hạng',run:()=>worldMap.handleService('rank')||worldMap.openRank?.()}]],
   ['Phúc lợi',[
    {seal:'福',name:'Phúc lợi',run:()=>window.engagementGame?.open()},{seal:'珍',name:'Kỳ Trân Các',run:()=>window.premiumGame?.open('shop')},{seal:'信',name:'Hòm thư',run:()=>window.mailbox?.open()},
    {seal:'慶',name:'Sự kiện',run:()=>window.engagementGame?.open('events')},{seal:'圖',name:'Bản đồ',run:click('hud-map')}]]

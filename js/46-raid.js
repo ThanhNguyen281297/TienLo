@@ -38,7 +38,7 @@
  function open(silent=false){if(!P.ap)return;if(!silent||!d.isOpen())d.show(RULE.name,'Phó bản tổ đội 2–4 người · cấp '+RULE.level+'+');else if($('world-title').textContent!==RULE.name)return;
   const content=$('world-content');content.replaceChildren();
   const {body}=ui.panel('Huyết Trì Ma Long',creatureArt.thumbnail?.(RULE.boss)||null,content);
-  ui.chips([['Tổ đội','2–4'],['Cấp',RULE.level+'+'],['Lượt thưởng/ngày',(state.data?.clearsToday??0)+'/3'],['Thời gian','15 phút']],body);
+  ui.chips([['Tổ đội','2–4'],['Cấp',RULE.level+'+'],['Lượt thưởng/ngày',(state.data?.clearsToday??0)+'/3'],['Thời gian','15 phút'],['Mảnh Pháp Bảo','5+']],body);
   ui.details('Giai đoạn 1: hạ 8 ma vệ. Giai đoạn 2: Huyết Trì Ma Long đập đất — vòng đỏ hiện trước 1,8 giây, chạy ra ngoài hoặc lướt để né. Dưới 50% máu Ma Long cuồng nộ, gọi 4 Huyết Lang. Hạ Ma Long: mỗi thành viên có mặt nhận rương (Linh Thạch, Linh Nguyên, mảnh linh khí, đá cường hóa, 35% trang bị).',body,'Cơ chế');
   const x=state.data;if(!x){content.append(ui.node('p','world-line','Đang tải…'));poll(true);return;}
   const run=x.run;

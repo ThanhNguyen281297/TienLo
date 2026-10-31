@@ -18,7 +18,7 @@
    done:()=>{if(!window.adventureGame?.state?.data)return false;const q=quest('awakening');return !q||q.claimed;},go:()=>questNav.go({map:'hub',npc:'quest',name:'Thiên Vân Thành'},'Gặp Vân Châu'),target:null},
   {id:'hunt',icon:'⚔',text:()=>'Ra Sơn Hà săn yêu thú',progress:()=>[Math.min(5,kills()),5],done:()=>kills()>=5,
    go:()=>questNav.go({map:'field-meadow',x:440,y:1320,auto:true},'Săn yêu thú'),target:null},
-  {id:'bag',icon:'🎒',text:()=>'Mở Túi đồ, mặc trang bị vừa nhặt',done:()=>tut('ui:bag')>0,go:()=>$('bag-button')?.click(),target:'bag-button'},
+  {id:'bag',icon:'🎒',text:()=>'Mở Túi đồ (I) xem trang bị của bạn',done:()=>tut('ui:bag')>0,go:()=>$('bag-button')?.click(),target:'bag-button'},
   {id:'attrs',icon:'✚',text:()=>'Cộng điểm Thuộc tính',done:()=>tut('ui:attrs')>0,go:()=>$('attr-button')?.click(),target:'attr-button'},
   {id:'level',icon:'⬆',text:()=>'Đạt cấp 10 để mở chiêu đầu tiên',progress:()=>[Math.min(10,characterLevel()),10],done:()=>characterLevel()>=10,
    go:()=>{if(!autoCombat.state.enabled)autoCombat.toggle(true);if(world.state.scene==='hub'||world.isSectMap?.(world.state.scene))questNav.go({map:'field-meadow',x:440,y:1320,auto:true},'Luyện cấp');},target:'auto-button'},
@@ -60,5 +60,13 @@
 @media(prefers-reduced-motion:no-preference){.vl-pulse{animation:vl-pulse 1.1s ease-in-out infinite}@keyframes vl-pulse{50%{outline-color:#ffd27a33}}}
 @media(max-height:500px){#vl-guide{bottom:calc(70px + env(safe-area-inset-bottom,0px))}}`;
  document.head.append(css);
+ // Opening the bag / attributes counts for the guide: report it to the server once
+ // (adventure.py 'tutorial' action), so steps 3–4 complete and the next one shows.
+ const reported=new Set();
+ const show=world.dialog.show;world.dialog.show=function(title,...rest){const r=show.call(this,title,...rest);
+  const key=/^Hành trang/.test(title||'')?'bag':/^Thuộc tính/.test(title||'')?'attrs':null;
+  if(key&&!reported.has(key)&&!tut('ui:'+key)&&account.state.ready){reported.add(key);
+   account.api('/api/adventure',{action:'tutorial',key}).then(data=>{if(data&&window.adventureGame?.state)adventureGame.state.data=data;update();}).catch(()=>reported.delete(key));}
+  return r;};
  window.newbieGuide={STEPS,update,reset:()=>write({})};
 })();
