@@ -140,3 +140,13 @@ html body #landscape-hint{display:none!important}
  html body #world-interact{bottom:76px!important;top:auto!important}
  html body #vl-chat-ticker{top:auto!important;bottom:150px!important}
 }
+
+/* Phones: the page never zooms or scrolls (double-tap and pinch zoom used to push the HUD off screen). */
+html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+html body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
+html body canvas#c{touch-action:none}
+html body input,html body textarea,html body select{font-size:16px!important}
+@media (orientation:portrait) and (max-width:620px){
+ /* target plate sits just above the play controls instead of over the event banner */
+ html body #target-frame{top:auto!important;bottom:calc(372px + env(safe-area-inset-bottom,0px))!important;left:50%!important;transform:translateX(-50%)!important;width:min(230px,62vw)!important;padding:5px 10px!important}
+}

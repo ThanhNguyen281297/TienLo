@@ -13,3 +13,10 @@
    that scripts inject at start-up, so move its <link> after the last stylesheet in the document. */
 (function(){const move=()=>{const l=document.querySelector('link[href$="vltk-skin.css"]'),all=[...document.querySelectorAll('link[rel=stylesheet],style')],last=all[all.length-1];if(l&&last&&last!==l)last.after(l);};
  move();addEventListener('load',move);setTimeout(move,1500);})();
+/* iOS Safari ignores user-scalable=no: block pinch and double-tap zoom, and snap any
+   accidental page scroll back to the origin so the HUD never drifts off screen. */
+(function(){let lastTouch=0;
+ for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
+ document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouch<320&&!e.target.closest('input,textarea,select'))e.preventDefault();lastTouch=now;},{passive:false});
+ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+ const snap=()=>{if(scrollX||scrollY)scrollTo(0,0);};addEventListener('scroll',snap,{passive:true});addEventListener('resize',snap);addEventListener('orientationchange',()=>setTimeout(snap,300));})();
