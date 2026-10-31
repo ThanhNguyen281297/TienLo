@@ -1,0 +1,17 @@
+name: Domain check
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Resolve and probe
+        run: |
+          for host in tienlo2d.xyz www.tienlo2d.xyz mkt.ddnsfree.com; do
+            ip=$(getent hosts $host | awk '{print $1}' | head -1)
+            http=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 http://$host/ || true)
+            https=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 https://$host/ || true)
+            cert=$(echo | timeout 10 openssl s_client -servername $host -connect $host:443 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null | tr '\n' ' ' || true)
+            echo "::notice title=$host::ip=$ip http=$http https=$https cert=$cert"
+          done
