@@ -1,0 +1,85 @@
+/* Trang chủ giới thiệu (index.html #landing). Shown to new visitors and search engines;
+   the game boots only after "Chơi ngay" (or automatically in the apps / for returning players). */
+html.landing-on,html.landing-on body{overflow:hidden!important}
+#landing{--gold:#f0cf8a;--gold-2:#c99a4a;--ink:#0b1418;--ink-2:#14232a;--text:#e9e2cf;--muted:#a9b6b3;--jade:#5fe0b5;
+ position:fixed;inset:0;z-index:100000;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--ink);color:var(--text);
+ font:16px/1.65 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;scroll-behavior:smooth;text-align:left}
+#landing[hidden]{display:none}
+#landing *{box-sizing:border-box}
+#landing a{color:inherit}
+#landing h1,#landing h2,#landing h3{font-family:'Noto Serif',Georgia,'Times New Roman',serif;font-weight:700;line-height:1.2;margin:0;color:#fff4d8}
+#landing .wrap{width:min(1120px,100% - 32px);margin:0 auto}
+/* nav */
+#landing .ld-nav{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#0b1418f2,#0b1418cc);backdrop-filter:blur(6px);border-bottom:1px solid #f0cf8a22}
+#landing .ld-nav .wrap{display:flex;align-items:center;gap:18px;height:60px}
+#landing .ld-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 19px Georgia,serif;color:var(--gold)}
+#landing .ld-brand img{width:34px;height:34px;border-radius:9px}
+#landing .ld-links{display:flex;gap:18px;margin-left:auto;font-size:14px}
+#landing .ld-links a{text-decoration:none;color:var(--muted)}#landing .ld-links a:hover{color:var(--gold)}
+@media(max-width:760px){#landing .ld-links{display:none}}
+/* buttons */
+#landing .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:12px;border:1px solid #f5dfa9;font:700 16px system-ui,sans-serif;text-decoration:none;cursor:pointer;transition:transform .15s,filter .15s}
+#landing .btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+#landing .btn-gold{background:linear-gradient(180deg,#f6dc9c,#c99a4a);color:#2a1a06;box-shadow:0 6px 20px #c99a4a55}
+#landing .btn-ghost{background:#ffffff0d;color:var(--text);border-color:#ffffff33}
+#landing .btn-sm{min-height:40px;padding:0 16px;font-size:14px}
+#landing .ld-nav .btn{margin-left:8px}
+/* hero */
+#landing .ld-hero{position:relative;min-height:min(86vh,760px);display:grid;align-items:end;padding:120px 0 64px;isolation:isolate}
+#landing .ld-hero picture,#landing .ld-hero picture img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+#landing .ld-hero::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#0b141855 0%,#0b141822 35%,#0b1418e6 82%,#0b1418 100%),radial-gradient(ellipse at 20% 80%,#0b1418cc,transparent 60%)}
+#landing .ld-kicker{display:inline-block;padding:4px 12px;border-radius:999px;border:1px solid #f0cf8a55;background:#0b141899;color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+#landing .ld-hero h1{font-size:clamp(38px,6vw,68px);margin:14px 0 10px;text-shadow:0 4px 24px #000}
+#landing .ld-hero p.lead{max-width:640px;font-size:clamp(16px,2vw,19px);color:#e6dfcb;margin:0 0 26px;text-shadow:0 2px 10px #000}
+#landing .ld-cta{display:flex;flex-wrap:wrap;gap:12px}
+#landing .ld-badges{display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;color:var(--muted);font-size:14px}
+#landing .ld-badges b{color:var(--gold)}
+/* sections */
+#landing section.ld-sec{padding:72px 0;border-top:1px solid #ffffff0f}
+#landing .ld-sec h2{font-size:clamp(28px,3.6vw,40px);margin-bottom:8px}
+#landing .ld-sec .sub{color:var(--muted);max-width:720px;margin:0 0 30px}
+#landing .ld-video{position:relative;border-radius:18px;overflow:hidden;border:1px solid #f0cf8a33;box-shadow:0 20px 60px #0009;background:#000;aspect-ratio:16/9}
+#landing .ld-video video{width:100%;height:100%;display:block;object-fit:cover}
+#landing .grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+#landing .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media(max-width:900px){#landing .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}#landing .grid-3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){#landing .grid-4,#landing .grid-3{grid-template-columns:1fr}}
+#landing .card{background:linear-gradient(180deg,#16262d,#0f1b20);border:1px solid #f0cf8a22;border-radius:16px;overflow:hidden}
+#landing .card h3{font-size:20px;margin-bottom:4px}
+#landing .card p{margin:0;color:var(--muted);font-size:14.5px}
+#landing .sect{padding:18px;text-align:center}
+#landing .sect img{width:100%;max-width:190px;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 10px 18px #000a)}
+#landing .sect .role{color:var(--gold);font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+#landing .act img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+#landing .act .body{padding:14px 16px 18px}
+#landing .chip{display:inline-block;margin-top:10px;padding:2px 10px;border-radius:999px;font-size:12px;color:#ffe39a;background:#3a2a0a99;border:1px solid #ffd27a55}
+#landing .feature{padding:18px}
+#landing .feature .ico{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;margin-bottom:10px;background:radial-gradient(circle at 35% 30%,#fff1c4,#e9b65a 55%,#8a5418);color:#3a1c06;font-weight:800}
+#landing .split{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center}
+@media(max-width:860px){#landing .split{grid-template-columns:1fr}}
+#landing .split img{width:100%;border-radius:16px;border:1px solid #f0cf8a33}
+#landing ul.ticks{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+#landing ul.ticks li{padding-left:28px;position:relative;color:#ddd5c0}
+#landing ul.ticks li::before{content:'✦';position:absolute;left:0;color:var(--gold)}
+#landing .gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#landing .gallery a{display:block;border-radius:12px;overflow:hidden;border:1px solid #ffffff14}
+#landing .gallery img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;transition:transform .3s}
+#landing .gallery a:hover img{transform:scale(1.04)}
+@media(max-width:700px){#landing .gallery{grid-template-columns:1fr 1fr}}
+#landing .dl{padding:24px;display:grid;gap:10px;align-content:start}
+#landing .dl .plat{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+#landing .dl .req{font-size:13px;color:var(--muted)}
+#landing .dl .btn{width:100%}
+#landing .dl .note{font-size:12.5px;color:#8fa3a0}
+#landing details{border:1px solid #ffffff1a;border-radius:12px;padding:14px 18px;background:#ffffff06;margin-bottom:10px}
+#landing summary{cursor:pointer;font-weight:700;color:#fff2d4}
+#landing details p{margin:10px 0 0;color:var(--muted)}
+#landing footer{padding:36px 0 60px;border-top:1px solid #ffffff12;color:#7f908d;font-size:13.5px}
+#landing footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+#landing .ld-lightbox{position:fixed;inset:0;z-index:10;background:#000d;display:grid;place-items:center;padding:20px}
+#landing .ld-lightbox img{max-width:100%;max-height:90vh;border-radius:12px}
+@media(prefers-reduced-motion:reduce){#landing{scroll-behavior:auto}#landing .btn,#landing .gallery img{transition:none}}
+/* game stylesheets also style <img>; keep the landing's images to their own boxes */
+#landing img{max-width:100%;height:auto;border:0}
+#landing .act img,#landing .gallery img{height:auto!important;aspect-ratio:16/9!important;object-fit:cover}
+#landing .ld-hero picture img{height:100%!important}

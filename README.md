@@ -110,3 +110,11 @@ Browser tests dùng Chrome và Playwright. Có thể chỉ định module qua `P
 Đọc [CICD.md](CICD.md) để thiết lập một lần. Sau đó commit/push lên main sẽ chạy kiểm thử, đồng bộ code, restart service và kiểm tra health; cấu hình/DB VPS được giữ nguyên.
 
 Hệ thống pháp bảo, tẩy luyện, hộ thuẫn và cấu trúc asset: xem [Item/README.md](Item/README.md).
+
+## Trang chủ & bản tải
+
+- `/` là trang giới thiệu (SEO, trailer, ảnh, tải game). Game chỉ nạp khi bấm "Chơi ngay"; ứng dụng Android/PC, bản cài từ trình duyệt (`/?play`) và người đã từng chơi vào thẳng game. `/?home` luôn mở trang giới thiệu.
+- Ảnh/clip trang chủ: `Map/landing/` (chụp từ game bằng Playwright).
+- APK Android build trong workflow deploy (`android/build.sh`, khóa ký test lưu trong cache Actions) → `Character/App/TienLo-Android.apk`.
+- Bản PC: `desktop/` (Electron portable) build bởi `.github/workflows/desktop.yml` → Release `desktop-latest` → deploy chép vào `Character/App/TienLo-PC.exe`.
+- `robots.txt`/`sitemap.xml` cần thêm `location = /robots.txt` và `location = /sitemap.xml` vào Nginx trên VPS (CI không đổi được cấu hình Nginx).

@@ -6,6 +6,7 @@ import sys
 import tempfile
 import threading
 import unittest
+import unittest.mock
 from functools import partial
 from datetime import datetime,timezone
 from http.client import HTTPConnection
@@ -131,7 +132,8 @@ class OnlineServerTest(unittest.TestCase):
         self.assertFalse(any(m['text']=='Đội riêng' for m in frame(outsider)['chat']))
         self.assertEqual(self.request('/api/chat',{'csrf':outsider[1],'text':'hack','channel':'party'},outsider[0])[0],409)
 
-    def test_world_boss_shared_phases_telegraphs_rewards_and_restart(self):
+    @unittest.mock.patch('engagement.multiplier', return_value=1)   # timed x2 events must not change the expected chest
+    def test_world_boss_shared_phases_telegraphs_rewards_and_restart(self, _multiplier):
         import time
         cooldowns=server.re.findall(r'cooldowns:\[([^\]]+)\]',(server.ROOT/'js/13b-combat-balance.js').read_text(encoding='utf-8'))
         self.assertEqual(tuple(int(row.split(',')[1]) for row in cooldowns),server.EVASION_COOLDOWNS)

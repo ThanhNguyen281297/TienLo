@@ -3,7 +3,7 @@
   "short_name": "Tiên Lộ",
   "description": "MMORPG tu tiên 2D chơi ngay trên trình duyệt.",
   "lang": "vi",
-  "start_url": "/",
+  "start_url": "/?play",
   "scope": "/",
   "display": "fullscreen",
   "orientation": "landscape",

@@ -86,7 +86,9 @@
     finally{state.restoring=false;}
   }
   window.account={state,api,flush,restore,transact};
-  addEventListener('DOMContentLoaded',async()=>{
+  // The game may boot after the landing page (scripts added after DOMContentLoaded).
+  const whenReady=f=>document.readyState==='loading'?addEventListener('DOMContentLoaded',f):setTimeout(f,0);
+  whenReady(async()=>{
     if(location.protocol==='file:'){error.textContent='Game online cần server. Chạy python server.py rồi mở http://127.0.0.1:8080.';submit.disabled=true;return;}
     try{const session=await api('/api/session');if(session.user)await enter(session);}catch(e){error.textContent=e.message;}
   });

@@ -1,0 +1,20 @@
+{
+  "name": "tienlo-desktop",
+  "productName": "Tiên Lộ Online",
+  "version": "0.1.0",
+  "description": "Tiên Lộ Online – bản PC (cửa sổ game kết nối máy chủ online).",
+  "main": "main.js",
+  "private": true,
+  "author": "Tiên Lộ Online",
+  "license": "UNLICENSED",
+  "scripts": { "dist": "electron-builder --win portable --x64 --publish never" },
+  "devDependencies": { "electron": "33.2.1", "electron-builder": "25.1.8" },
+  "build": {
+    "appId": "com.tienlo.desktop",
+    "productName": "Tiên Lộ Online",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "package.json"],
+    "win": { "target": [{ "target": "portable", "arch": ["x64"] }], "icon": "build/icon.png" },
+    "portable": { "artifactName": "TienLo-PC.exe" }
+  }
+}

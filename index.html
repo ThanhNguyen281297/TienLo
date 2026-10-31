@@ -1,5 +1,30 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><title>Tiên Lộ 2D</title>
+<html lang="vi"><head><meta charset="utf-8"><title>Tiên Lộ Online – Game nhập vai tu tiên 2D miễn phí | Chơi web, Android, PC</title>
+<meta name="description" content="Tiên Lộ Online: MMORPG tu tiên 2D miễn phí, chơi ngay trên trình duyệt, Android và PC. Bốn tông môn, bí cảnh, Ma Quật, Chiến trường Chính – Tà, boss thế giới, thần binh và linh thú.">
+<meta name="keywords" content="Tiên Lộ Online, game tu tiên, game kiếm hiệp, MMORPG 2D, game nhập vai online, game chơi trên web, game Android, game PC miễn phí">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://mkt.ddnsfree.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tiên Lộ Online">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:title" content="Tiên Lộ Online – MMORPG tu tiên 2D miễn phí">
+<meta property="og:description" content="Chọn tông môn, luyện tuyệt kỹ, săn bí cảnh và tranh bá cùng đạo hữu. Chơi ngay trên web, Android và PC.">
+<meta property="og:url" content="https://mkt.ddnsfree.com/">
+<meta property="og:image" content="https://mkt.ddnsfree.com/Map/landing/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:video" content="https://mkt.ddnsfree.com/Map/landing/trailer.mp4">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tiên Lộ Online – MMORPG tu tiên 2D miễn phí">
+<meta name="twitter:description" content="Chơi ngay trên web, Android và PC: bốn tông môn, bí cảnh, Ma Quật, chiến trường và boss thế giới.">
+<meta name="twitter:image" content="https://mkt.ddnsfree.com/Map/landing/og.jpg">
+<link rel="preload" as="image" href="Map/landing/hero-city.webp" media="(min-width:641px)">
+<link rel="stylesheet" href="css/landing.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+{"@type":"VideoGame","name":"Tiên Lộ Online","url":"https://mkt.ddnsfree.com/","image":"https://mkt.ddnsfree.com/Map/landing/og.jpg","description":"MMORPG tu tiên 2D miễn phí chơi trên trình duyệt, Android và PC với bốn tông môn, bí cảnh, Ma Quật, Chiến trường Chính – Tà và boss thế giới.","genre":["MMORPG","Nhập vai","Tu tiên"],"gamePlatform":["Web browser","Android","Windows"],"applicationCategory":"Game","operatingSystem":"Web, Android 8+, Windows 10+","inLanguage":"vi","playMode":["MultiPlayer","SinglePlayer"],"offers":{"@type":"Offer","price":"0","priceCurrency":"VND","availability":"https://schema.org/InStock"},"trailer":{"@type":"VideoObject","name":"Trailer gameplay Tiên Lộ Online","description":"Cảnh chiến đấu thật trong bí cảnh.","thumbnailUrl":"https://mkt.ddnsfree.com/Map/landing/trailer-poster.webp","contentUrl":"https://mkt.ddnsfree.com/Map/landing/trailer.mp4","uploadDate":"2026-10-31"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Tiên Lộ Online có miễn phí không?","acceptedAnswer":{"@type":"Answer","text":"Có. Game miễn phí, chơi ngay trên trình duyệt; Kỳ Trân Các chỉ bán vật phẩm tiện ích."}},
+{"@type":"Question","name":"Chơi trên điện thoại được không?","acceptedAnswer":{"@type":"Answer","text":"Được. Giao diện tối ưu cho màn hình dọc và ngang, có cả ứng dụng Android."}},
+{"@type":"Question","name":"Tài khoản web và app có dùng chung không?","acceptedAnswer":{"@type":"Answer","text":"Dùng chung. Nhân vật, trang bị và tiến trình lưu trên máy chủ."}}]}]}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <link rel="manifest" href="js/manifest.json">
 <meta name="theme-color" content="#0f1d24">
@@ -16,6 +41,7 @@
 <script src="js/00-asset-webp.js"></script>
 <script src="js/00-asset-gate.js"></script></head>
 <body>
+
 <canvas id="c"></canvas><div class="v"></div>
 <div id="hud"><div class="hud-identity"><canvas id="player-avatar" width="128" height="128" role="img" aria-label="Chân dung nhân vật"></canvas><div class="hud-identity-text"><b id="rn">Phàm Nhân</b><span id="gd">◈ 0</span></div></div>
 <div class="bar" id="hp"><i></i></div><div class="bar" id="mp"><i></i></div><div class="bar" id="xp"><i></i></div>
@@ -23,14 +49,24 @@
 <div id="log">Tiên lộ mở ra, đạo hữu cùng hành.</div>
 <div id="tip" hidden>WASD / chạm kéo: di chuyển · tự đánh khi áp sát · Space: Hỏa Cầu · Q: đả tọa · B: đột phá</div>
 <div id="bt"><button id="bq">Đả Tọa (Q)</button><button id="bs">Kỹ năng (Space)</button><button id="bb" class="go">Đột Phá (B)</button></div>
+<link rel="stylesheet" href="css/game-ui.css">
+<link rel="stylesheet" href="css/online-ui.css">
+<link rel="stylesheet" href="css/visual-polish.css">
+<link rel="stylesheet" href="css/mobile-hud.css">
+<link rel="stylesheet" href="css/visual-panels.css">
+<link rel="stylesheet" href="css/equipment.css">
+<link rel="stylesheet" href="css/mmorpg-social.css">
+<link rel="stylesheet" href="css/character-masks.css">
+<link rel="stylesheet" href="css/cinematic-ui.css">
+<link rel="stylesheet" href="css/xianxia-ui.css">
+<link rel="stylesheet" href="css/vltk-skin.css">
+<template id="game-boot">
 <script src="js/01-core-game.js"></script>
 <script src="js/00-render-quality.js"></script>
 <script src="js/00-character-level.js"></script>
 <script src="js/02-scene-renderer.js"></script>
 <script src="js/04-character-4dir-creator.js"></script>
 <script src="js/05-title-skills-effects.js"></script>
-<link rel="stylesheet" href="css/game-ui.css">
-<link rel="stylesheet" href="css/online-ui.css">
 <script src="js/10-skill-sprite-manifest.js"></script>
 <script src="js/10b-sprite-catalog.js"></script>
 <script src="js/11-skill-sprites.js"></script>
@@ -158,13 +194,145 @@
 <script src="js/79-reminders.js"></script>
 <script src="js/80-master-gift.js"></script>
 <script src="js/24-game-start.js"></script>
-<link rel="stylesheet" href="css/visual-polish.css">
-<link rel="stylesheet" href="css/mobile-hud.css">
-<link rel="stylesheet" href="css/visual-panels.css">
-<link rel="stylesheet" href="css/equipment.css">
-<link rel="stylesheet" href="css/mmorpg-social.css">
-<link rel="stylesheet" href="css/character-masks.css">
-<link rel="stylesheet" href="css/cinematic-ui.css">
-<link rel="stylesheet" href="css/xianxia-ui.css">
-<link rel="stylesheet" href="css/vltk-skin.css">
+</template>
+<div id="landing" role="document">
+<header class="ld-nav"><div class="wrap">
+ <a class="ld-brand" href="/" aria-label="Tiên Lộ Online – trang chủ"><img src="Character/App/icon-192.webp" alt="" width="34" height="34">Tiên Lộ Online</a>
+ <nav class="ld-links" aria-label="Mục lục"><a href="#trailer">Trailer</a><a href="#tong-mon">Tông môn</a><a href="#hoat-dong">Hoạt động</a><a href="#trang-bi">Trang bị</a><a href="#tai-game">Tải game</a><a href="#hoi-dap">Hỏi đáp</a></nav>
+ <button class="btn btn-gold btn-sm" type="button" data-play>Chơi ngay</button>
+</div></header>
+<main>
+<section class="ld-hero" aria-labelledby="ld-title">
+ <picture><source srcset="Map/landing/hero-city-sm.webp" media="(max-width:640px)"><img src="Map/landing/hero-city.webp" alt="Thiên Vân Thành – thành chính của Tiên Lộ Online" width="1280" height="720" fetchpriority="high"></picture>
+ <div class="wrap">
+  <span class="ld-kicker">MMORPG tu tiên 2D · miễn phí</span>
+  <h1 id="ld-title">Tiên Lộ Online</h1>
+  <p class="lead">Game nhập vai tu tiên 2D chơi ngay trên trình duyệt, Android và PC. Chọn một trong bốn tông môn, luyện chiêu thức, săn bí cảnh, kết tổ đội hạ Ma Long và tranh bá Chiến trường Chính – Tà cùng đạo hữu khắp nơi.</p>
+  <div class="ld-cta">
+   <button class="btn btn-gold" type="button" data-play>▶ Chơi ngay trên web</button>
+   <a class="btn btn-ghost" href="#tai-game">Tải Android / PC</a>
+  </div>
+  <div class="ld-badges"><span><b>4</b> tông môn</span><span><b>16</b> chiêu thức</span><span><b>8</b> hoạt động mỗi ngày</span><span><b>Không</b> cần cài đặt</span></div>
+ </div>
+</section>
+
+<section class="ld-sec" id="trailer" aria-labelledby="h-trailer"><div class="wrap">
+ <h2 id="h-trailer">Trailer gameplay</h2>
+ <p class="sub">Cảnh chiến đấu thật trong game: Minh Nguyệt Tông và Kiếm Tông càn quét bí cảnh bằng tuyệt kỹ.</p>
+ <div class="ld-video"><video id="ld-trailer" muted loop playsinline preload="none" poster="Map/landing/trailer-poster.webp" aria-label="Trailer gameplay Tiên Lộ Online"><source data-src="Map/landing/trailer.webm" type="video/webm"><source data-src="Map/landing/trailer.mp4" type="video/mp4"></video></div>
+</div></section>
+
+<section class="ld-sec" id="tong-mon" aria-labelledby="h-sect"><div class="wrap">
+ <h2 id="h-sect">Bốn tông môn, bốn lối tu luyện</h2>
+ <p class="sub">Mỗi phái có điểm mạnh riêng và cách cộng tiềm năng đề xuất. Chọn phái hợp với lối chơi của bạn.</p>
+ <div class="grid-4">
+  <article class="card sect"><img src="Character/Kiem/Nam/truoc.webp" alt="Nhân vật Kiếm Tông" loading="lazy" width="190" height="190"><div class="role">Cận chiến · bạo kích</div><h3>Kiếm Tông</h3><p>Phi kiếm, kiếm ảnh, Vạn Kiếm Quy Tông. Bạo kích cao nhất, dồn sát thương nhanh.</p></article>
+  <article class="card sect"><img src="Character/Liem/Nam/truoc.webp" alt="Nhân vật Minh Nguyệt Tông" loading="lazy" width="190" height="190"><div class="role">Đánh xa · kỹ năng</div><h3>Minh Nguyệt Tông</h3><p>Nguyệt nhận bay vòng, dịch chuyển, khống chế. Sát thương kỹ năng mạnh nhất.</p></article>
+  <article class="card sect"><img src="Character/Thuong/Nam/truoc.webp" alt="Nhân vật Lôi Thương Tông" loading="lazy" width="190" height="190"><div class="role">Cận chiến · trấn tuyến</div><h3>Lôi Thương Tông</h3><p>Lôi ấn, đột kích, bùng nổ. Trâu nhất với thêm 20% sinh lực, giữ tuyến cho đội.</p></article>
+  <article class="card sect"><img src="Character/Quat/Nam/truoc.webp" alt="Nhân vật Thiên Cơ Môn" loading="lazy" width="190" height="190"><div class="role">Đánh xa · linh hoạt</div><h3>Thiên Cơ Môn</h3><p>Linh phù, trận pháp, phong ấn. Né tránh cao, kỹ năng biến hóa khó lường.</p></article>
+ </div>
+</div></section>
+
+<section class="ld-sec" id="hoat-dong" aria-labelledby="h-act"><div class="wrap">
+ <h2 id="h-act">Hoạt động mỗi ngày</h2>
+ <p class="sub">Mỗi hoạt động thưởng một loại mảnh trang bị riêng – cày đúng nơi để đổi đúng món bạn muốn tại Trưởng môn.</p>
+ <div class="grid-3">
+  <article class="card act"><img src="Map/landing/rift-sm.webp" alt="Chiến đấu trong bí cảnh" loading="lazy" width="640" height="360"><div class="body"><h3>Bí cảnh</h3><p>Bốn bí cảnh theo cấp, thủ lĩnh gồng chiêu, chuỗi Liên Trảm cộng thêm tới 50% EXP.</p><span class="chip">Mảnh Bước Chân</span></div></article>
+  <article class="card act"><img src="Map/landing/raid-sm.webp" alt="Ma Quật – hạ Huyết Trì Ma Long" loading="lazy" width="640" height="360"><div class="body"><h3>Ma Quật</h3><p>Tổ đội 1–4 người hạ Huyết Trì Ma Long, né vòng đỏ khi nó cuồng nộ.</p><span class="chip">Mảnh Pháp Bảo</span></div></article>
+  <article class="card act"><img src="Map/landing/ult-loi-sm.webp" alt="Chiến trường Chính – Tà" loading="lazy" width="640" height="360"><div class="body"><h3>Chiến trường Chính – Tà</h3><p>Đấu phe 15 phút lúc 12:30 và 21:00: giữ cờ, hạ đối thủ, lên bảng xếp hạng.</p><span class="chip">Mảnh Hộ Thuẫn</span></div></article>
+  <article class="card act"><img src="Map/landing/ult-thienco-sm.webp" alt="Boss thế giới" loading="lazy" width="640" height="360"><div class="body"><h3>Boss thế giới</h3><p>Cả server hợp sức hạ Thái Cổ Huyết Ma, chia thưởng theo hạng sát thương.</p><span class="chip">Mảnh Thần Binh</span></div></article>
+  <article class="card act"><img src="Map/landing/ult-nguyet-sm.webp" alt="Tháp thí luyện" loading="lazy" width="640" height="360"><div class="body"><h3>Tháp thí luyện</h3><p>Leo tầng mỗi ngày, cứ 5 tầng gặp yêu vương trấn tháp.</p><span class="chip">Mảnh Pháp Trận</span></div></article>
+  <article class="card act"><img src="Map/landing/ult-kiem-sm.webp" alt="Tông môn chiến" loading="lazy" width="640" height="360"><div class="body"><h3>Tông môn chiến</h3><p>Thứ 4 và Thứ 7 lúc 20:00, các tông môn tranh bốn cứ điểm Sơn Hà.</p><span class="chip">Mảnh Nhẫn</span></div></article>
+ </div>
+</div></section>
+
+<section class="ld-sec" id="trang-bi" aria-labelledby="h-gear"><div class="wrap split">
+ <div>
+  <h2 id="h-gear">Trang bị đổi hình thái</h2>
+  <p class="sub">Nhân vật thay đổi theo trang bị: vũ khí từ gỗ, huyền thiết tới thần binh rực sáng; đạo bào thêm dải lụa và vầng hào quang; hộ thuẫn bật kết giới riêng.</p>
+  <ul class="ticks">
+   <li>8 thần binh mới, mỗi phái 2 món với hiệu ứng riêng</li>
+   <li>10 hộ thuẫn, kết giới ngọc bích, kim liên, tinh hà</li>
+   <li>Cường hóa tới +15, tẩy luyện dòng thuộc tính</li>
+   <li>Linh thú theo người, tự tung kỹ năng khi chiến đấu</li>
+  </ul>
+ </div>
+ <img src="Map/landing/gear.webp" alt="Các hình thái vũ khí và hộ thuẫn trong Tiên Lộ Online" loading="lazy" width="1440" height="480">
+</div></section>
+
+<section class="ld-sec" aria-labelledby="h-feat"><div class="wrap">
+ <h2 id="h-feat">Vì sao chơi Tiên Lộ?</h2>
+ <p class="sub">Vào game trong vài giây, có mục tiêu rõ ràng và lý do quay lại mỗi ngày.</p>
+ <div class="grid-4">
+  <article class="card feature"><div class="ico">1</div><h3>Ra chiêu từ cấp 2</h3><p>Sư phụ còn cho mượn tuyệt kỹ ngay trận đầu tiên.</p></article>
+  <article class="card feature"><div class="ico">2</div><h3>Tự đánh hoặc tự tay</h3><p>Bật auto khi bận, tự tay đánh được thêm 20% EXP.</p></article>
+  <article class="card feature"><div class="ico">3</div><h3>Năng động mỗi ngày</h3><p>9 việc nhỏ, 4 rương mốc, điểm danh 7 ngày nhận Thần Binh.</p></article>
+  <article class="card feature"><div class="ico">4</div><h3>Chơi cùng nhau</h3><p>Tổ đội, tông môn, giao dịch, đấu giá, lôi đài và bảng xếp hạng.</p></article>
+ </div>
+</div></section>
+
+<section class="ld-sec" aria-labelledby="h-gal"><div class="wrap">
+ <h2 id="h-gal">Hình ảnh trong game</h2>
+ <p class="sub">Toàn bộ là ảnh chụp trực tiếp từ bản đang chạy.</p>
+ <div class="gallery" id="ld-gallery">
+  <a href="Map/landing/hero-city.webp"><img src="Map/landing/hero-city-sm.webp" alt="Thiên Vân Thành" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/ult-kiem.webp"><img src="Map/landing/ult-kiem-sm.webp" alt="Kiếm Tông tung Vạn Kiếm Quy Tông" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/ult-nguyet.webp"><img src="Map/landing/ult-nguyet-sm.webp" alt="Minh Nguyệt Tông tung tuyệt kỹ" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/raid.webp"><img src="Map/landing/raid-sm.webp" alt="Ma Quật giai đoạn 2" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/master.webp"><img src="Map/landing/master-sm.webp" alt="Sư phụ truyền công cho tân thủ" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/create.webp"><img src="Map/landing/create-sm.webp" alt="Tạo nhân vật chọn tông môn" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/pet.webp"><img src="Map/landing/pet-sm.webp" alt="Linh thú và kết giới hộ thuẫn" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/hub.webp"><img src="Map/landing/hub-sm.webp" alt="Bảng chức năng và mục tiêu trang bị" loading="lazy" width="640" height="360"></a>
+  <a href="Map/landing/auction.webp"><img src="Map/landing/auction-sm.webp" alt="Tụ Bảo Các – chợ đấu giá" loading="lazy" width="640" height="360"></a>
+ </div>
+</div></section>
+
+<section class="ld-sec" id="tai-game" aria-labelledby="h-dl"><div class="wrap">
+ <h2 id="h-dl">Tải game &amp; chơi ngay</h2>
+ <p class="sub">Một tài khoản dùng chung cho mọi nền tảng – chơi trên máy tính rồi tiếp tục trên điện thoại.</p>
+ <div class="grid-3">
+  <article class="card dl"><span class="plat">Trình duyệt</span><h3>Chơi trên web</h3><p class="req">Chrome, Edge, Firefox, Safari mới · máy tính và điện thoại.</p><button class="btn btn-gold" type="button" data-play>▶ Chơi ngay</button><p class="note">Không cần cài đặt.</p></article>
+  <article class="card dl"><span class="plat">Android</span><h3>Ứng dụng Android</h3><p class="req">Android 8.0 trở lên · cần kết nối mạng.</p><a class="btn btn-gold" id="dl-android" href="Character/App/TienLo-Android.apk" download>⬇ Tải APK</a><button class="btn btn-ghost btn-sm" type="button" data-install hidden>Hoặc cài từ trình duyệt</button><p class="note" id="dl-android-note">Cho phép “Cài ứng dụng không rõ nguồn” khi được hỏi.</p></article>
+  <article class="card dl"><span class="plat">Windows</span><h3>Bản PC</h3><p class="req">Windows 10/11 · 64-bit · cần kết nối mạng.</p><a class="btn btn-gold" id="dl-pc" href="Character/App/TienLo-PC.exe" download>⬇ Tải bản PC</a><button class="btn btn-ghost btn-sm" type="button" data-install hidden>Cài từ Chrome/Edge</button><p class="note" id="dl-pc-note">Bản chạy trực tiếp, không cần cài. Windows có thể cảnh báo vì chưa ký số – chọn “Vẫn chạy”.</p></article>
+ </div>
+</div></section>
+
+<section class="ld-sec" id="hoi-dap" aria-labelledby="h-faq"><div class="wrap">
+ <h2 id="h-faq">Hỏi đáp</h2>
+ <details><summary>Tiên Lộ Online có miễn phí không?</summary><p>Có. Game miễn phí, chơi ngay trên trình duyệt; Kỳ Trân Các chỉ bán vật phẩm tiện ích.</p></details>
+ <details><summary>Chơi trên điện thoại được không?</summary><p>Được. Giao diện tối ưu cho màn hình dọc và ngang, có cả ứng dụng Android.</p></details>
+ <details><summary>Tài khoản web và app có dùng chung không?</summary><p>Dùng chung. Nhân vật, trang bị và tiến trình lưu trên máy chủ.</p></details>
+ <details><summary>Nên chọn tông môn nào khi mới chơi?</summary><p>Lôi Thương Tông trâu và dễ chơi; Minh Nguyệt Tông đánh xa an toàn; Kiếm Tông dồn sát thương; Thiên Cơ Môn linh hoạt. Mỗi phái có nút cộng tiềm năng theo đề xuất.</p></details>
+ <details><summary>Có cần treo máy cả ngày không?</summary><p>Không. Mỗi ngày khoảng 15–30 phút cho Năng động, bí cảnh và một sự kiện là đủ nhận phần thưởng chính.</p></details>
+</div></section>
+</main>
+<footer><div class="wrap"><span>© Tiên Lộ Online · MMORPG tu tiên 2D</span><span><a href="#tai-game">Tải game</a> · <a href="#hoi-dap">Hỏi đáp</a> · <a href="/?play" data-play>Vào game</a></span></div></footer>
+</div>
+<script>
+/* Landing: new visitors and search engines see the introduction; the game boots on
+   "Chơi ngay", in the Android/PC apps, in the installed web app, or for returning players. */
+(function(){
+ var q=new URLSearchParams(location.search),ua=navigator.userAgent||'',land=document.getElementById('landing');
+ var app=/TienLoAndroid|TienLoDesktop/.test(ua),standalone=window.matchMedia&&matchMedia('(display-mode: standalone),(display-mode: fullscreen)').matches;
+ var played=false;try{played=localStorage.getItem('tienlo.played')==='1';}catch(e){}
+ function boot(){if(window.__tienloBooted)return;window.__tienloBooted=true;var t=document.getElementById('game-boot');if(!t)return;
+  var list=t.content.querySelectorAll('script');for(var i=0;i<list.length;i++){var s=document.createElement('script');s.src=list[i].getAttribute('src');s.async=false;document.body.appendChild(s);}}
+ function play(e){if(e)e.preventDefault();try{localStorage.setItem('tienlo.played','1');}catch(x){}
+  if(land)land.remove();document.documentElement.classList.remove('landing-on');document.title='Tiên Lộ Online';boot();}
+ if(!q.has('home')&&(q.has('play')||app||standalone||played)){play();return;}
+ document.documentElement.classList.add('landing-on');
+ document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',play);});
+ // trailer loads only when it scrolls into view
+ var v=document.getElementById('ld-trailer');
+ if(v&&'IntersectionObserver' in window){new IntersectionObserver(function(es,o){es.forEach(function(en){if(!en.isIntersecting)return;v.querySelectorAll('source').forEach(function(s){s.src=s.dataset.src;});v.load();v.play().catch(function(){});o.disconnect();});},{root:land,rootMargin:'200px'}).observe(v);}
+ // downloads: hide a missing build behind the browser-install option
+ [['dl-android','dl-android-note'],['dl-pc','dl-pc-note']].forEach(function(p){var a=document.getElementById(p[0]);if(!a)return;fetch(a.getAttribute('href'),{method:'HEAD'}).then(function(r){if(!r.ok)throw 0;var mb=+r.headers.get('content-length')/1048576;if(mb)a.textContent+=' · '+(mb<1?Math.max(.1,mb).toFixed(1):Math.round(mb))+' MB';}).catch(function(){a.removeAttribute('href');a.textContent='Đang chuẩn bị bản tải';a.classList.replace('btn-gold','btn-ghost');a.setAttribute('aria-disabled','true');var n=document.getElementById(p[1]);if(n)n.textContent='Trong lúc chờ, bạn có thể cài trực tiếp từ trình duyệt hoặc chơi trên web.';a.parentNode.querySelector('[data-install]').hidden=false;});});
+ // browser install (PWA)
+ var deferred=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;document.querySelectorAll('[data-install]').forEach(function(b){b.hidden=false;});});
+ document.querySelectorAll('[data-install]').forEach(function(b){b.addEventListener('click',function(){if(deferred){deferred.prompt();deferred=null;}else alert('Mở menu trình duyệt và chọn “Cài đặt ứng dụng” / “Thêm vào màn hình chính”.');});});
+ // gallery lightbox
+ var gal=document.getElementById('ld-gallery');if(gal)gal.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;e.preventDefault();var box=document.createElement('div');box.className='ld-lightbox';box.setAttribute('role','dialog');var img=document.createElement('img');img.src=a.getAttribute('href');img.alt=a.querySelector('img').alt;box.appendChild(img);box.onclick=function(){box.remove();};land.appendChild(box);});
+})();
+</script>
+
 </body></html>
