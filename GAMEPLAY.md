@@ -286,3 +286,10 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Sư phụ truyền công (js/80-master-gift.js): cấp 2–19, lần đầu đánh quái ngoài bãi, sư phụ cho dùng thử Tuyệt kỹ (chiêu 4) một lần trong 30 giây, đầy linh lực.
 - Thủ lĩnh lần đầu: gặp mỗi loại thủ lĩnh lần đầu (dưới cấp 60), auto tạm tắt và có thẻ hướng dẫn tự tay đánh; hạ xong hoặc rời xa thì auto bật lại.
 - Tụ Bảo Các có Tiên Thương (NPC) luôn treo 8 món: Cường Hóa/Tinh Luyện Thạch và trang bị Hiếm/Cực hiếm các phái, giá mua ngay ≈ 1,6× giá gốc; tiền trả cho NPC không vào túi ai.
+
+## Cân bằng tiền tệ
+
+- Bán trang bị nhặt được chỉ còn 20% giá gốc (trước 50%) Linh Thạch.
+- Luyện hóa trang bị → Linh Nguyên theo phẩm chất: Thường 3, Hiếm 8, Cực hiếm 20, Siêu phẩm 50, Thần phẩm 120, cộng 5 mỗi cấp cường hóa. Túi đồ có nút luyện hóa nhanh toàn bộ đồ Thường/Hiếm chưa cường hóa.
+- Linh Nguyên từ quái thường giảm: 12% cơ hội mỗi lần hạ (trước 30%); tinh anh và thủ lĩnh vẫn chắc chắn rơi.
+- Máy chủ (economy.py) chấp nhận Linh Thạch theo giá bán 20% và Linh Nguyên theo giá trị luyện hóa của món rời túi.

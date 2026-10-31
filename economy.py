@@ -47,13 +47,25 @@ def total_xp(player):
     return sum(progression.required(n) for n in range(1, rank)) + player.get('levelXp', 0)
 
 
+# Looted gear sells for 20% of its price (js/25-inventory.js) or is refined into Linh
+# Nguyên by quality; an item leaving the bag may explain either.
+SELL_RATE = .2
+REFINE = dict(pham=3, huyen=8, linh=20, tien=50, than=120)
+
+
 def sold_value(old_items, new_items):
     kept = {item['uid'] for item in new_items}
     value = 0
     for item in old_items:
         if item['uid'] not in kept and item.get('type') != 'material':
-            value += max(1, math.floor(item.get('price', 10) * .5)) * item.get('qty', 1)
+            value += max(1, math.floor(item.get('price', 10) * SELL_RATE)) * item.get('qty', 1)
     return value
+
+
+def refined_value(old_items, new_items):
+    kept = {item['uid'] for item in new_items}
+    return sum(REFINE.get(item.get('rarity'), 3) + item.get('enhance', 0) * 5 for item in old_items
+               if item['uid'] not in kept and item.get('slot') and item.get('type') != 'material' and not item.get('bound'))
 
 
 LEVEL_FIELDS = ('level', 'levelXp')
@@ -81,7 +93,7 @@ def enforce(db, uid, old, new, elapsed, old_items, new_items):
 
     ow, nw = old.get('world', {}), new.get('world', {})
     ok, have['essence'] = allow('essence', nw.get('essence', 0) - ow.get('essence', 0), have['essence'],
-                                ESSENCE_PER_SEC, ESSENCE_SLACK)
+                                ESSENCE_PER_SEC, ESSENCE_SLACK, refined_value(old_items, new_items))
     if not ok:
         nw['essence'] = ow.get('essence', 0)
         corrected.append('essence')

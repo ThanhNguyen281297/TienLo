@@ -64,7 +64,15 @@ class EconomyUnitTests(unittest.TestCase):
     def test_selling_items_explains_gold(self):
         item = dict(id='hoi-huyet-dan', uid='u' * 32, type='consume', name='Hồi Huyết Đan', rarity='pham', price=12000, qty=1)
         old = self.player(); old['world']['bag'] = [item]
-        new = self.player(gold=100 + 6000)
+        new = self.player(gold=100 + 2400)              # sells for 20%
+        self.assertEqual(self.enforce(old, new), [])
+        new = self.player(gold=100 + 6000)              # the old 50% is no longer explained
+        self.assertEqual(self.enforce(old, new), ['gold'])
+
+    def test_refining_gear_explains_essence(self):
+        gear = [dict(id='x', uid=str(n) * 32, slot='vukhi', rarity='than', price=10, enhance=4) for n in range(3)]
+        old = self.player(); old['world']['bag'] = gear
+        new = self.player(); new['world']['essence'] = new['world'].get('essence', 0) + 3 * (120 + 20)
         self.assertEqual(self.enforce(old, new), [])
 
 

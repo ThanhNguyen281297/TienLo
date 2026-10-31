@@ -159,3 +159,4 @@ html body .account-tabs button:not(.active):hover{color:#f3e3b4!important;border
 body:has(#vl-guide:not([hidden])) #journey-objective{display:none!important}
 /* Target frame sits left of the activity icon row on wide screens instead of under it. */
 @media(min-width:900px) and (min-height:501px){html body #target-frame{left:min(50%,calc(100vw - 760px))!important}}
+html body .bag-refine-all{display:block;width:100%;margin:8px 0;background:linear-gradient(180deg,#2f6a5a,#1c4a3e)!important;border-color:#7fe0c0!important;color:#e8fff6!important}

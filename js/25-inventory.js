@@ -151,6 +151,18 @@
     if (item.qty <= 0) p.bag.splice(p.bag.indexOf(item), 1);
     saveCharacter(); openBag();
   }
+  // Currency balance: looted gear sells for 20% of its value in Linh Thạch, or can be
+  // refined (Luyện hóa) into Linh Nguyên by quality — the main way to earn Linh Nguyên.
+  const SELL_RATE=.2,REFINE={pham:3,huyen:8,linh:20,tien:50,than:120};
+  const sellPrice=item=>Math.max(1,Math.floor((item.price||10)*SELL_RATE))*(item.qty||1);
+  const refineValue=item=>item.slot&&item.type!=='material'&&!item.bound?(REFINE[item.rarity]||3)+(item.enhance||0)*5:0;
+  function refineItems(uids){
+    if(window.tradeGame?.locked())return msg('Mở khóa giao dịch trước.');
+    const p=progress();let total=0,count=0;
+    for(const uid of uids){const idx=p.bag.findIndex(i=>i.uid===uid);if(idx<0)continue;const value=refineValue(p.bag[idx]);if(!value)continue;total+=value;count++;p.bag.splice(idx,1);if(selectedUid===uid)selectedUid=null;}
+    if(!count)return;p.essence=(p.essence||0)+total;saveCharacter();openBag();msg('Luyện hóa '+count+' món +'+total+' Linh Nguyên.');window.gameAudio?.play('pickup');
+  }
+  window.inventoryRefine={refineValue,sellPrice,refineItems,REFINE,SELL_RATE};
   function sellItem(itemUid) {
     if(window.tradeGame?.locked())return msg('Mở khóa giao dịch trước.');
     const p = progress();
@@ -158,7 +170,7 @@
     if (idx < 0) return;
     const item = p.bag[idx];
     if (item.bound) return msg('Thú cưỡi đã khế ước, không thể bán.');
-    const price = Math.max(1, Math.floor((item.price || 10) * 0.5)) * (item.qty || 1);
+    const price = sellPrice(item);
     P.gold += price;
     p.bag.splice(idx, 1);
     if (selectedUid === itemUid) selectedUid = null;
@@ -328,7 +340,8 @@
         if(item.slot)action('Trang bị',()=>equipItem(item.uid));
         if(item.type==='consume')action('Sử dụng',()=>useItem(item.uid));
         if(item.premium&&window.premiumGame?.usable(item))action('Sử dụng',()=>premiumGame.use(item.uid));
-        if(!item.bound)action('Bán '+Math.max(1,Math.floor((item.price||10)*.5))*(item.qty||1)+' ◈',()=>sellItem(item.uid));
+        if(refineValue(item))action('Luyện hóa +'+refineValue(item)+' Linh Nguyên',()=>refineItems([item.uid]));
+        if(!item.bound)action('Bán '+sellPrice(item)+' ◈',()=>sellItem(item.uid));
       }
       popup.hidden=false;const rect=anchor?.getBoundingClientRect()||grid.getBoundingClientRect(),mobile=matchMedia('(max-width:700px)').matches,w=Math.min(370,innerWidth-24);popup.style.width=w+'px';popup.style.maxHeight=Math.min(innerHeight*.72,560)+'px';
       if(mobile){popup.style.left='12px';popup.style.top=Math.max(12,Math.min(innerHeight-popup.offsetHeight-12,rect.top-popup.offsetHeight-10))+'px';}
@@ -336,6 +349,8 @@
     }
     const selected=p.bag.find(i=>i.uid===selectedUid);if(selected)showDetails(selected,false,grid.querySelector('.selected'));
     const resources=document.createElement('div');resources.className='bag-resources';resources.textContent='Linh Nguyên '+(p.essence||0)+' · Đột Phá Đan '+(p.breakthroughPills||0)+' · Thăng Vị Đan '+(p.thangViDan||0);bag.append(resources);
+    const low=p.bag.filter(i=>refineValue(i)&&(i.rarity==='pham'||i.rarity==='huyen')&&!(i.enhance>0));
+    if(low.length){const bulk=document.createElement('button');bulk.type='button';bulk.className='bag-refine-all';bulk.textContent='Luyện hóa '+low.length+' đồ Thường/Hiếm · +'+low.reduce((n,i)=>n+refineValue(i),0)+' Linh Nguyên';bulk.onclick=()=>refineItems(low.map(i=>i.uid));bag.append(bulk);}
     const shop=document.createElement('div');shop.className='quick-shop';bag.append(shop);
     ['hoi-huyet-dan','hoi-linh-dan'].forEach(id=>{const t=BY_ID[id],button=document.createElement('button');button.textContent=t.name+' · '+t.price+' ◈';button.onclick=()=>buyItem(id);button.disabled=P.gold<t.price;shop.append(button);});
     dialog.action('Thuộc tính (U)',openAttrs);
