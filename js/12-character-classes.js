@@ -136,6 +136,7 @@
     const aura={canvas,edges};weaponAuras.set(index,aura);return aura;
   }
   function weaponEnergy(ctx,index,quality,attacking,front) {
+    if(window.gearForms)return; // js/76-gear-forms.js draws each weapon form's own glow
     const aura=weaponAura(index);if(!aura)return;
     const t=reducedWeaponMotion.matches?0:tm,color=weaponTones[index];
     const power=1+quality*.1+(attacking?.18:0);
@@ -203,6 +204,7 @@
     // Only an equipped formation is projected onto the ground beneath the body.
     if(!window.equipmentSystem?.suppressFormation)window.equipmentSystem?.drawFormation(ctx,x,y,ap,fit);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
+    window.gearForms?.drawRobe(ctx,ap,fit,false);
     // Facing left the weapon hand is the far one; facing right the shield arm is.
     const weaponBehind=dir===2&&facing<0,shieldFront=dir===2?facing<0:dir===0;
     if(!shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);
@@ -210,7 +212,7 @@
     if(back&&dir!==1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
     // The weapon keeps its class angle; its grip sits in the hand.
     // Held at the side, tilted outward (forward in profile) so it never covers the face.
-    const lean=[.2,.28,.12,.3][index],angle=dir===2?facing*(lean+.12):lean,scale=Math.min(1.14,H*.86/36);
+    const lean=[.2,.28,.12,.3][index],angle=dir===2?facing*(lean+.12):lean,scale=Math.min(1.14,H*.86/36)*(window.gearForms?.weaponScale(ap)||1);
     const grip=13*scale,wx=fit.hand.x+Math.sin(angle)*grip,wy=fit.hand.y-Math.cos(angle)*grip;
     const gear=P.world?.equip?.vukhi,quality=({pham:0,huyen:1,linh:2,tien:3,than:4}[ap===P.ap?gear?.rarity:ap?.weaponRarity]||0);
     const weaponColor=weaponTones[index];
@@ -226,7 +228,7 @@
       weaponEnergy(ctx,index,quality,attacking,false);
       ctx.shadowColor = weaponColor;
       ctx.shadowBlur = attacking ? 7 : 3+quality*.5;
-      sprite(ctx, images.vukhi, 0, 18, 36);
+      if(!window.gearForms?.drawWeapon(ctx,index,ap,images.vukhi,attacking))sprite(ctx, images.vukhi, 0, 18, 36);
       const n=ap===P.ap?window.equipmentProgression?.level(gear):(ap?.weaponEnhance||0);
       window.equipmentProgression?.outline(ctx,images.vukhi,-18*images.vukhi.naturalWidth/images.vukhi.naturalHeight,-18,36*images.vukhi.naturalWidth/images.vukhi.naturalHeight,36,n||0,weaponColor);
       ctx.shadowBlur = 0;
@@ -248,6 +250,7 @@
     if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
     if(shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);
     window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap,fit);
+    window.gearForms?.drawRobe(ctx,ap,fit,true);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,true);
     ctx.restore();
   };

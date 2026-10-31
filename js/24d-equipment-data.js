@@ -29,6 +29,8 @@
  function appearance(item){if(!item)return null;const meta=byId.get(item.id),style=item.id?.startsWith('rift-')?rules.collectionAppearance[item.setId]:null;
   if(item.slot==='ngoc')return 'Item/Thuan/'+shieldVariant(item)+'.png';
   if(item.slot==='gioi')return 'Item/Nhan/gioi.png';
+  // Each weapon tier has its own reforged look (js/76-gear-forms.js); icons follow it.
+  if(item.slot==='vukhi'&&meta&&!meta.form&&meta.classIndex!=null){const form={pham:'moc',huyen:'thiet',tien:'tien',than:'than'}[meta.rarity];if(form)return 'Item/VuKhi/Forms/'+meta.classIndex+'-'+form+'.png';}
   if(item.slot==='phapbao'&&style)return byId.get(style.back).art;
   return meta?.art||null;
  }

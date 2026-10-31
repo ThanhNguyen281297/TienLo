@@ -7,7 +7,7 @@
  const fmt=n=>Number(n||0).toLocaleString('vi-VN');
  async function load(){try{state.data=await account.api('/api/shards');}catch(e){msg(e.message);}}
  function kindName(k){return state.data?.kinds?.[k]?.name||k;}
- function onDrop(got){const parts=Object.entries(got||{}).map(([k,q])=>'+'+q+' '+(state.data?.kinds?.[k]?.name||({phapbao:'Mảnh Pháp Bảo',phaptran:'Mảnh Pháp Trận',hothuan:'Mảnh Hộ Thuẫn',buocchan:'Mảnh Bước Chân',matna:'Mảnh Mặt Nạ',nhan:'Mảnh Nhẫn',thuhon:'Thú Hồn'})[k]||k));
+ function onDrop(got){const parts=Object.entries(got||{}).map(([k,q])=>'+'+q+' '+(state.data?.kinds?.[k]?.name||({phapbao:'Mảnh Pháp Bảo',phaptran:'Mảnh Pháp Trận',hothuan:'Mảnh Hộ Thuẫn',buocchan:'Mảnh Bước Chân',matna:'Mảnh Mặt Nạ',nhan:'Mảnh Nhẫn',thanbinh:'Mảnh Thần Binh',thuhon:'Thú Hồn'})[k]||k));
   if(!parts.length)return;msg('✦ '+parts.join(' · '));try{fx(P.x,P.y-60,parts[0],'#ffd27a');}catch{}window.gameAudio?.play?.('pickup');if(state.data)for(const [k,q] of Object.entries(got))state.data.wallet[k]=(state.data.wallet[k]||0)+q;}
  async function exchange(id){if(state.busy)return;state.busy=true;render();try{const r=await account.transact('/api/shards',{action:'exchange',id,opId:crypto.randomUUID()},{live:true,world:['equip','mounts']});state.data=r.shards;msg(r.message||'Đã đổi.');window.skillImpact?.flash?.('#ffd27a');window.gameAudio?.play?.('reward');}
   catch(e){msg(e.message);}finally{state.busy=false;render();}}

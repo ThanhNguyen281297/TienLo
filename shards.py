@@ -1,5 +1,5 @@
 """Typed equipment shards (Mảnh Pháp Bảo, Pháp Trận, Hộ Thuẫn, Thú Hồn, Bước Chân,
-Mặt Nạ, Nhẫn). Kept in a server table, never in the player JSON, so saves cannot
+Mặt Nạ, Nhẫn, Thần Binh). Kept in a server table, never in the player JSON, so saves cannot
 forge them. They drop rarely (rift bosses, elites, Ma Quật chests, daily quests,
 Kỳ Trân Các) and are exchanged with any sect master (Trưởng môn) for gear."""
 import json
@@ -17,6 +17,7 @@ KINDS = {
     'matna': dict(name='Mảnh Mặt Nạ', icon='Item/MatNa/slot.svg', weight=14),
     'nhan': dict(name='Mảnh Nhẫn', icon='Item/Nhan/gioi.png', weight=10),
     'thuhon': dict(name='Thú Hồn', icon='Character/Monsters/Soi/thumb.webp', weight=8),
+    'thanbinh': dict(name='Mảnh Thần Binh', icon='Item/VuKhi/Forms/manh-than-binh.png', weight=8),
 }
 SECT_MAPS = ('sword', 'moon', 'thunder', 'mystic')
 MASTER = (910, 1125)   # mentor NPC position in every sect map (js/20-sect-layout-arena.js)
@@ -38,7 +39,11 @@ def catalog():
             offers.append(dict(id=t['id'], kind='phaptran', cost=40))
     for t in T['shields']:
         if not t['id'].startswith('mythic-'):
-            offers.append(dict(id=t['id'], kind='hothuan', cost=50 if t['rarity'] == 'huyen' else 100))
+            offers.append(dict(id=t['id'], kind='hothuan', cost={'huyen': 50, 'linh': 100, 'tien': 160, 'than': 240}.get(t['rarity'], 100)))
+    # Thần binh: per-class divine weapons (Item/equipment.json, source 'thanbinh').
+    for t in T['classGear']:
+        if t.get('source') == 'thanbinh':
+            offers.append(dict(id=t['id'], kind='thanbinh', cost=120 if t['req'] < 90 else 240))
     for n, t in enumerate(T['trails']):
         offers.append(dict(id=t['id'], kind='buocchan', cost=60 + n * 10))
     for t in T['masks']:
