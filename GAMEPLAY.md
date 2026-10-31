@@ -293,3 +293,6 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Luyện hóa trang bị → Linh Nguyên theo phẩm chất: Thường 3, Hiếm 8, Cực hiếm 20, Siêu phẩm 50, Thần phẩm 120, cộng 5 mỗi cấp cường hóa. Túi đồ có nút luyện hóa nhanh toàn bộ đồ Thường/Hiếm chưa cường hóa.
 - Linh Nguyên từ quái thường giảm: 12% cơ hội mỗi lần hạ (trước 30%); tinh anh và thủ lĩnh vẫn chắc chắn rơi.
 - Máy chủ (economy.py) chấp nhận Linh Thạch theo giá bán 20% và Linh Nguyên theo giá trị luyện hóa của món rời túi.
+- Liên Trảm: hạ quái liên tiếp trong vòng 6 giây được cộng dồn, mỗi mắt xích +5% EXP và Linh Thạch (tối đa +50%); hiện bộ đếm bên phải màn hình từ ×3. Không áp dụng ở Tháp và Ma Quật.
+- Di chuyển: chân bám đất (bỏ nhún bay lên), thân nhún và lắc theo nhịp bước, bụi đất ở mỗi bước chân, bóng tiếp đất dưới chân nhân vật; người chơi khác giữ nhịp bước giữa các gói mạng.
+- Linh thú nhỏ lại (×0,78) và theo sau xa hơn; hộ thuẫn cầm xa thân người hơn.

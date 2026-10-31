@@ -190,7 +190,7 @@
   drawChar = function (ctx, x, y, dir, facing, moving, phase, attacking, ap) {
     const index = classOf(ap), images = assets[index];
     const direction = dir === 1 ? 'sau' : dir === 2 ? (facing < 0 ? 'trai' : 'phai') : 'truoc';
-    const bob = moving ? Math.abs(Math.sin(phase)) * 1.2 : Math.sin(tm * 2) * .4;
+    const bob = moving ? Math.abs(Math.sin(phase)) * .35 : Math.sin(tm * 2) * .4;
     const gender = ap?.gender === 'Nu' ? 'Nu' : 'Nam';
     const fitSpear = index === 2 && gender === 'Nam' ? spearMaleFit : null;
     const bodyHeight = fitSpear ? fitSpear.height : 42;
@@ -204,7 +204,7 @@
       // Weapon hand on the screen-right side (forward hand in side views), shield arm opposite.
       // The chibi head fills the top half: hands sit at the hips (~3/4 down the body).
       hand:dir===2?{x:cx+facing*(W*.55+3+(index===1||index===3?W*.15:0)),y:top+H*.78}:{x:cx+W*.5+1+(index===1||index===3?W*.12:0),y:top+H*.74},
-      arm:dir===2?{x:cx+facing*W*.16,y:top+H*.76}:{x:cx-W*.5-1,y:top+H*.7},
+      arm:dir===2?{x:cx+facing*W*.42,y:top+H*.74}:{x:cx-W*.78-5,y:top+H*.68},
       spine:{x:dir===2?cx-facing*W*.22:cx,y:top+H*.58}};
     ctx.save();
     ctx.imageSmoothingEnabled = true;

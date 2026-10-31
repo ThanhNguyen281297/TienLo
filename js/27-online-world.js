@@ -46,6 +46,7 @@
           if(state.seenRewards.has(reward.eventId)||claimed.includes(reward.eventId)){if(!state.acks.includes(reward.eventId))state.acks.push(reward.eventId);continue;}
           state.seenRewards.add(reward.eventId);claimed.push(reward.eventId);if(claimed.length>100)claimed.shift();
           if(reward.shards)try{window.shardsGame?.onDrop(reward.shards,reward);}catch{}
+          if(reward.streak)window.killStreak?.show(reward.streak);
           // Replay each server-issued death once through existing quest/loot hooks.
           const e={...reward,hp:1,dead:0,network:false,rewardReplay:true},existingPopups=new Set(X);localHit(e,1);
           // Reward replay is bookkeeping, not a real one-point attack popup.
@@ -71,7 +72,7 @@
     for(const peer of state.players){peer.drawX+=(peer.x-peer.drawX)*.22;peer.drawY+=(peer.y-peer.drawY)*.22;peer.drawLift+=((peer.airborne||0)-peer.drawLift)*.22;
       peer.ap.meditating=!!peer.med;
       if(peer.drawX<cx-80||peer.drawX>cx+vw+80||peer.drawY<cy-100||peer.drawY>cy+vh+80)continue;
-      const moving=!peer.med&&Math.hypot(peer.x-peer.drawX,peer.y-peer.drawY)>.5;
+      if(Math.hypot(peer.x-peer.drawX,peer.y-peer.drawY)>.3)peer.lastMoveAt=tm;const moving=!peer.med&&tm-(peer.lastMoveAt??-9)<.4; // hold the walk cycle between network snapshots
       items.push([peer.drawY,()=>{g.save();drawChar(g,peer.drawX,peer.drawY-peer.drawLift,peer.dir,peer.f,moving,tm*10,false,peer.ap,characterClasses[peer.ap.w].color);const displayName=(window.communityGame?.isAlly(peer.id)?'◆ ':'')+peer.name;drawWorldCaption(g,displayName,peer.drawX,peer.drawY-peer.drawLift+14,'#96efda',6.5);
         if(peer.emote){g.textAlign='center';g.font='bold 15px sans-serif';g.fillStyle='#fff1c9';g.fillText({wave:'✦ Xin chào!',heart:'♥',ready:'⚔ Sẵn sàng'}[peer.emote],peer.drawX,peer.drawY-peer.drawLift-(window.characterNameHeight?.(peer.ap)||70)-(window.characterTitles?.height(peer.ap)||0)-12);}
         g.restore();}]);

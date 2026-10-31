@@ -35,6 +35,20 @@ class RetentionTests(Base):
         self.assertEqual(community.new_boss(5)['maxHp'], 30000)
         self.assertEqual(community.new_boss(50)['maxHp'], 90000)
 
+    def test_kill_streak_chains_within_window(self):
+        import server
+        server.PEERS[77] = dict(id=77)
+        try:
+            self.assertEqual(server.streak(77, 100), (1, 1))
+            self.assertEqual(server.streak(77, 104)[0], 2)
+            n, mult = server.streak(77, 108)
+            self.assertEqual(n, 3); self.assertAlmostEqual(mult, 1.1)
+            self.assertEqual(server.streak(77, 120)[0], 1)          # chain broken
+            for t in range(30): n, mult = server.streak(77, 121 + t)
+            self.assertAlmostEqual(mult, 1.5)                        # capped at +50%
+        finally:
+            server.PEERS.pop(77, None)
+
     def test_early_skills(self):
         self.assertEqual(progression.SKILL_LEVELS, (2, 6, 12, 20))
 

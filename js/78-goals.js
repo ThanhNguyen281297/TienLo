@@ -61,5 +61,19 @@
 .goal-go{min-width:74px}.goal-empty{margin:0;color:#cdbb98;font-size:12px}
 @media(max-width:600px){.vl-goal-chip{top:auto;bottom:calc(150px + env(safe-area-inset-bottom,0px));max-width:170px}.goal-list{grid-template-columns:1fr}}
 `;document.head.append(css);
+ // ---------------------------------------------------------------- Liên Trảm (kill streak)
+ // The server chains kills made within 6 s; each link adds 5% EXP/Linh Thạch (max +50%).
+ const streak=node('div','vl-streak');streak.hidden=true;document.body.append(streak);let streakHide=0;
+ function showStreak(n){streak.replaceChildren(node('b','',String(n)),node('span','','LIÊN TRẢM'),node('small','','+'+Math.min(50,(n-1)*5)+'% EXP · Linh Thạch'));
+  streak.hidden=false;streak.classList.remove('hit');void streak.offsetWidth;streak.classList.add('hit');streak.dataset.tier=n>=11?'3':n>=7?'2':'1';clearTimeout(streakHide);streakHide=setTimeout(()=>{streak.hidden=true;},6000);
+  if(n===5||n===10||n===20)window.gameAudio?.play('level');}
+ window.killStreak={show:showStreak};
+ const css2=node('style');css2.textContent=`
+.vl-streak{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));top:calc(236px + env(safe-area-inset-top,0px));z-index:14;pointer-events:none;display:grid;justify-items:end;text-align:right;color:#fff3c4;text-shadow:0 2px 4px #000,0 0 12px #ff9a3a}
+.vl-streak b{font:900 40px/1 var(--xx-title,Georgia,serif);color:#ffe39a}.vl-streak span{font:800 13px/1.1 var(--xx-title,Georgia,serif);letter-spacing:3px}.vl-streak small{font-size:11px;color:#ffd9a8}
+.vl-streak[data-tier="2"] b{color:#ffb35a}.vl-streak[data-tier="3"] b{color:#ff6a5a;text-shadow:0 0 16px #ff3a2a,0 2px 4px #000}
+.vl-streak.hit b{animation:vl-streak-pop .32s ease-out}@keyframes vl-streak-pop{0%{transform:scale(1.6)}100%{transform:scale(1)}}
+@media(max-width:600px){.vl-streak{top:calc(190px + env(safe-area-inset-top,0px))}.vl-streak b{font-size:30px}}
+`;document.head.append(css2);
  window.gearGoals={goals,load,state};
 })();

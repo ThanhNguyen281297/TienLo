@@ -38,12 +38,12 @@
 
  // ---------- followers (own pet and other players' pets)
  const followers=new Map();let lastScene=world.state.scene;
- function follow(key,pet,x,y,dir,facing,dt){if(!pet?.species){followers.delete(key);return;}let f=followers.get(key);if(!f||f.id!==pet.id){f={...pet,x:x-28,y:y+18,time:0,moving:false};followers.set(key,f);}
-  let tx=x+(dir===2?-facing*36:-32),ty=y+(dir===1?26:18);if(!world.canWalk({x:tx,y:ty})){tx=x;ty=y;}if(!world.canWalk(f)){f.x=x;f.y=y;}const distance=Math.hypot(tx-f.x,ty-f.y);if(distance>300){f.x=tx;f.y=ty;}
+ function follow(key,pet,x,y,dir,facing,dt){if(!pet?.species){followers.delete(key);return;}let f=followers.get(key);if(!f||f.id!==pet.id){f={...pet,x:x-52,y:y+30,time:0,moving:false};followers.set(key,f);}
+  let tx=x+(dir===2?-facing*60:-52),ty=y+(dir===1?40:30);if(!world.canWalk({x:tx,y:ty})){tx=x;ty=y;}if(!world.canWalk(f)){f.x=x;f.y=y;}const distance=Math.hypot(tx-f.x,ty-f.y);if(distance>300){f.x=tx;f.y=ty;}
   const step=Math.min(distance,220*dt,distance*(1-Math.exp(-dt*6)));f.moving=distance>8;f.facing=tx>=f.x?1:-1;if(distance>1){const end=world.traceMove(f,{x:f.x+(tx-f.x)/distance*step,y:f.y+(ty-f.y)/distance*step});f.x=end.x;f.y=end.y;}f.time+=dt;}
  // Pets are drawn larger and animated: breathing at rest, a hop while running, a crouch,
  // lunge toward the target and a bright flash of their colour when they cast.
- const PET_SCALE=1.45;
+ const PET_SCALE=.78;
  function draw(ctx,f){const cast=window.petCombat?.effects?.find(e=>e.petId===f.id&&e.age<.6),t=f.time,col=window.petCatalog?.[f.species]?.color||'#ffffff';
   let sx=1,sy=1,lift=0,dx=0,flash=0;
   if(cast){const p=cast.age/.6,wind=Math.min(1,p/.18),strike=p<.18?0:Math.sin(Math.min(1,(p-.18)/.42)*Math.PI);const dir=Math.sign((cast.tx??f.x)-f.x)||f.facing||1;

@@ -195,6 +195,16 @@ def player_max_hp(player):
 
 # Tự tay đánh (auto off) earns more EXP/Linh Thạch per kill than auto-hunting.
 MANUAL_BONUS=1.2
+# Liên Trảm: kills within STREAK_WINDOW seconds chain; each link adds 5% EXP/Linh Thạch (max +50%).
+STREAK_WINDOW=6
+
+
+def streak(uid,now):
+    peer=PEERS.get(uid)
+    if not peer:return 1,1
+    n=peer.get('streak',0)+1 if now-peer.get('streakAt',-99)<STREAK_WINDOW else 1
+    peer['streak']=n;peer['streakAt']=now
+    return n,1+min(.5,(n-1)*.05)
 
 
 def damage_mob(mob,damage,owner,now,key):
@@ -232,13 +242,14 @@ def damage_mob(mob,damage,owner,now,key):
             event_id=secrets.token_hex(12)
             engagement.record_kill(db,contributor)
             expeditions.queue_drop(db,contributor,mob,event_id)
-            mult=bonus*outposts.bonus(db,contributor,mob.get('map',''))*premium.exp_mult(db,contributor)*(1 if PEERS.get(contributor,{}).get('auto',True) else MANUAL_BONUS)
+            chain,chain_mult=streak(contributor,now) if not (mob.get('tower') or mob.get('raid')) else (0,1)
+            mult=bonus*outposts.bonus(db,contributor,mob.get('map',''))*premium.exp_mult(db,contributor)*(1 if PEERS.get(contributor,{}).get('auto',True) else MANUAL_BONUS)*chain_mult
             economy.credit_kill(db,contributor,dict(mob,xpReward=(mob.get('xpReward') or 20+mob.get('level',1)*8)*mult))
             adventure.record_kill(db,contributor,mob,event_id)
             dropped=shards.on_kill(db,contributor,mob)
             if mob.get('tower'):tower.record_kill(db,contributor,mob)
             expeditions.queue_farm_drop(db,contributor,mob,event_id)
-            EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id} | ({'xpReward':round((mob.get('xpReward') or 20+mob.get('level',1)*8)*mult),'eventBonus':mult} if mult!=1 else {}) | ({'shards':dropped} if dropped else {}))
+            EVENTS[contributor].append({k:v for k,v in public_mob(mob).items() if k!='dead'} | {'eventId':event_id} | ({'xpReward':round((mob.get('xpReward') or 20+mob.get('level',1)*8)*mult),'eventBonus':mult} if mult!=1 else {}) | ({'shards':dropped} if dropped else {}) | ({'streak':chain} if chain>=3 else {}))
             EVENTS[contributor]=EVENTS[contributor][-100:]
 
 
