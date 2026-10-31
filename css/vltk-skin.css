@@ -150,3 +150,10 @@ html body input,html body textarea,html body select{font-size:16px!important}
  /* target plate sits just above the play controls instead of over the event banner */
  html body #target-frame{top:auto!important;bottom:calc(372px + env(safe-area-inset-bottom,0px))!important;left:50%!important;transform:translateX(-50%)!important;width:min(230px,62vw)!important;padding:5px 10px!important}
 }
+
+/* ---- Onboarding polish ---- */
+html body .account-tabs button{background:#142330!important;color:#c9d6df!important;border:1px solid #344657!important;box-shadow:none!important;filter:none!important}
+html body .account-tabs button.active,html body .account-tabs button.active:hover{background:linear-gradient(180deg,#f3d58f,#c99a4a)!important;color:#1d1408!important;border-color:#f5dfa9!important;font-weight:700}
+html body .account-tabs button:not(.active):hover{color:#f3e3b4!important;border-color:#b8925088!important}
+/* One objective at a time: while the newbie guide card is up, the main-quest tracker steps aside. */
+body:has(#vl-guide:not([hidden])) #journey-objective{display:none!important}

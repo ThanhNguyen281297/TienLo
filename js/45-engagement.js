@@ -20,7 +20,7 @@
  function refreshBadges(){const n=claimable();badge.hidden=!n;badge.textContent=n;gift.hidden=!n||!P.ap||!account.state.ready;const more=$('hud-more');if(more)more.classList.toggle('welfare-alert',!!n);}
 
  async function refresh(){if(state.busy||!P.ap||!account.state.ready||account.state.restoring)return;try{state.data=await account.api('/api/engagement');state.fetchedAt=performance.now();refreshBadges();
-   if(!state.popped&&!world.dialog.isOpen()&&!paused()){const x=state.data;if(!x.checkin.today||x.offline.minutes>=5){state.popped=true;open(!x.checkin.today?'checkin':'offline');}else state.popped=true;}
+   if(!state.popped&&!world.dialog.isOpen()&&!paused()&&characterLevel()>=8){const x=state.data;if(!x.checkin.today||x.offline.minutes>=5){state.popped=true;open(!x.checkin.today?'checkin':'offline');}else state.popped=true;}
    if(d.isOpen()&&$('world-title').textContent==='Phúc lợi')render();}catch{}}
 
  async function act(action,extra={}){if(state.busy)return;state.busy=true;try{const result=await account.transact('/api/engagement',{action,opId:crypto.randomUUID(),...extra});state.data=result.engagement;state.fetchedAt=performance.now();if(result.message){msg(result.message);window.skillImpact?.flash?.('#ffd27a');}refreshBadges();render();}catch(e){msg(e.message);}finally{state.busy=false;}}

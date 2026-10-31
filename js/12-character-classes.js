@@ -36,16 +36,16 @@
   const badge=document.createElement('div');badge.className='creator-badge';preview.appendChild(badge);
   const controls=document.createElement('div');controls.className='creator-controls';layout.appendChild(controls);
   controls.appendChild($('rows'));
-  const label=document.createElement('label');label.htmlFor='nm';label.textContent='ĐẠO HIỆU';controls.appendChild(label);
-  controls.appendChild($('nm'));$('nm').setAttribute('autocomplete','off');
-  const note=document.createElement('p');note.className='creator-note';note.textContent='Đạo hiệu từ 3–12 ký tự. Tông môn được giữ cố định sau khi tạo.';controls.appendChild(note);controls.appendChild($('ok'));
+  const label=document.createElement('label');label.htmlFor='nm';label.textContent='ĐẠO HIỆU';const footer=document.createElement('div');footer.className='creator-footer';panel.appendChild(footer);footer.appendChild(label);
+  footer.appendChild($('nm'));$('nm').setAttribute('autocomplete','off');$('nm').placeholder='Đặt đạo hiệu (3–12 ký tự)';
+  const note=document.createElement('p');note.className='creator-note';note.textContent='Tông môn được giữ cố định sau khi tạo. Mỗi phái có điểm mạnh riêng và cách cộng tiềm năng đề xuất trong game.';controls.appendChild(note);footer.appendChild($('ok'));
   $('ok').textContent='Bắt đầu hành trình →';
   rows=function(){
     $('rows').innerHTML='<div class="creator-label">CHỌN TÔNG MÔN</div>';
     classes.forEach((info,index)=>{
       const button=document.createElement('button');button.className='sect-choice';button.type='button';button.setAttribute('aria-pressed',String(classOf(tp)===index));
       const weapon=document.createElement('img');weapon.src='Item/VuKhi/'+info.folder+'.png';weapon.alt='';button.appendChild(weapon);
-      const text=document.createElement('span');const title=document.createElement('b');title.textContent=info.name;const description=document.createElement('small');description.textContent=['Kiếm khí · tốc độ · bộc phát','Nguyệt nhận · dịch chuyển · khống chế','Lôi Ấn · đột kích · bùng nổ','Linh phù · trận pháp · phong ấn'][index];text.append(title,description);button.appendChild(text);
+      const text=document.createElement('span');const title=document.createElement('b');title.textContent=info.name;const description=document.createElement('small');description.textContent=['Cận chiến · bạo kích cao nhất','Đánh xa · sát thương kỹ năng cao nhất','Cận chiến · trâu nhất, +20% máu','Đánh xa · linh hoạt, né cao'][index];const role=document.createElement('em');role.textContent=['Kiếm khí · tốc độ · bộc phát','Nguyệt nhận · dịch chuyển · khống chế','Lôi Ấn · đột kích · bùng nổ','Linh phù · trận pháp · phong ấn'][index];text.append(title,description,role);button.appendChild(text);
       button.onclick=()=>{tp.w=index;rows();};$('rows').appendChild(button);
     });
     const genders=document.createElement('div');genders.className='gender-choice';
@@ -76,6 +76,13 @@
     #cr .creator-note{font-size:11px;color:#899ba8;line-height:1.8;margin:12px 0 20px}
     #cr #ok{background:#d7bd88;border:0;border-radius:10px;color:#201b12;min-height:48px;font-weight:bold}
     #cr #ok:hover{background:#e9d3a8}
+    #cr .sect-choice em{display:block;font-style:normal;font-size:10.5px;color:#8fa3b0;margin-top:2px}
+    #cr .sect-choice small{color:#e9d3a0!important}
+    #cr .gender-choice button[aria-pressed=true]{background:linear-gradient(180deg,#f0d394,#c99a54)!important;color:#2a1a08!important;border-color:#f5dfa9!important;font-weight:700}
+    #cr .creator-footer{position:sticky;bottom:-32px;z-index:3;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;margin:18px -32px -32px;padding:14px 32px;background:linear-gradient(180deg,#171e28e6,#171e28);border-top:1px solid #e2c27e33;backdrop-filter:blur(4px)}
+    #cr .creator-footer label{margin:0}
+    #cr .creator-footer #ok{min-width:210px;margin:0}
+    @media(max-width:600px){#cr .creator-footer{grid-template-columns:1fr;bottom:-22px;margin:14px -20px -22px;padding:12px 20px}#cr .creator-footer label{display:none}#cr .creator-footer #ok{min-width:0;width:100%}}
     @media(max-width:600px){#cr{padding:12px}#cr .pn{padding:22px 20px;border-radius:16px}#cr h2{font-size:24px}#cr .creator-intro{margin-bottom:12px}#cr .creator-layout{grid-template-columns:1fr;gap:10px}#cr #pv{width:180px!important}#cr .creator-badge{margin-bottom:8px}#cr #rows{margin-bottom:18px}#cr .sect-choice{min-height:72px;padding:10px 12px}#cr .creator-note{margin:10px 0 14px}}
     @media(max-height:600px) and (min-width:601px){#cr{padding:12px}#cr .pn{padding:20px}#cr .creator-intro{margin-bottom:10px}#cr #pv{width:200px!important}}
   `;
