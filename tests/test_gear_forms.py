@@ -19,7 +19,8 @@ class GearFormsTest(unittest.TestCase):
         self.assertEqual([t['variant'] for t in new_shields], [8, 9, 10])
         for t in new_shields:
             self.assertTrue((ROOT / t['art']).exists())
-            self.assertEqual(t['buff'], t['variant'])   # barrier drawn by js/76-gear-forms.js
+            self.assertEqual(t['buff'], t['variant'])
+            self.assertTrue((ROOT / f"Item/BuffThuan/{t['buff']}.png").exists())   # painted barrier ring
             self.assertIn(t['id'], shards.OFFERS)
         self.assertTrue((ROOT / shards.KINDS['thanbinh']['icon']).exists())
 

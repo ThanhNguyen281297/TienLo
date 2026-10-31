@@ -82,10 +82,10 @@
     }
     ctx.restore();
   }
-  const shieldTones=['#b697ff','#7ed9ff','#ffb777','#83edca','#ffcf73','#91dfff','#d5b2ff'];
+  const shieldTones=['#b697ff','#7ed9ff','#ffb777','#83edca','#ffcf73','#91dfff','#d5b2ff','#7fffd0','#ffd36b','#a9c0ff'];
   function drawBuff(ctx,image,x,y,variant,front,time,remaining,duration=equipmentRules.shield.duration){
     const entry=prepared(image);if(!entry||remaining<=0)return;
-    const t=reduced.matches?0:time,tone=shieldTones[(variant-1)%7],opacity=smooth((duration-remaining)/.32)*smooth(remaining/1.2);
+    const t=reduced.matches?0:time,tone=shieldTones[(variant-1)%shieldTones.length],opacity=smooth((duration-remaining)/.32)*smooth(remaining/1.2);
     if(opacity<=0)return;
     ctx.save();ctx.translate(x,y-24);ctx.scale(.82+.18*smooth((duration-remaining)/.32),1);
     // The rear shell surrounds the actor; only the lower rim passes in front.

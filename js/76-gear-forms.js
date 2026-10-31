@@ -12,7 +12,6 @@
  'use strict';
  const TAU=Math.PI*2,reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const clock=()=>reduced.matches?0:(typeof tm==='number'?tm:performance.now()/1000);
- const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const hash=n=>{const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s);};
 
  // ------------------------------------------------------------------ weapon forms
@@ -220,49 +219,8 @@
   if(q>=3){const g=(t*.3+variant*.17)%1;if(g<.3)star4(ctx,size*.28,-size*.3,size*.12*(1+g*2),'#ffffff',Math.sin(g/.3*Math.PI),g*2);}
   ctx.restore();}
 
- // ------------------------------------------------------------------ barrier effects 8..10
- const smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v);};
- function drawBuff(ctx,x,y,buff,front,remaining,duration,t=clock()){remaining=Math.min(remaining,duration);const op=smooth((duration-remaining)/.4)*smooth(remaining/1.2);if(op<=0)return false;
-  const grow=.8+.2*smooth((duration-remaining)/.4);ctx.save();ctx.translate(x,y-24);ctx.scale(grow,grow);
-  const R=36,RY=44;
-  // Two-tone strokes: a deep under-line keeps the pattern readable on bright ground, a light core makes it glow.
-  const duo=(path,deep,light,w,a)=>{ctx.save();ctx.globalAlpha=op*a;ctx.strokeStyle=deep;ctx.lineWidth=w*2.2;path();ctx.stroke();ctx.globalCompositeOperation='lighter';ctx.strokeStyle=light;ctx.lineWidth=w;path();ctx.stroke();ctx.restore();};
-  const shell=(deep,light)=>{const rim=()=>{ctx.beginPath();ctx.ellipse(0,0,R*1.05,RY*1.05,0,front?.05:Math.PI,front?Math.PI-.05:TAU+.0001);};
-   if(!front){ctx.save();ctx.globalAlpha=op;const g=ctx.createRadialGradient(-R*.25,-RY*.3,R*.15,0,0,R*1.08);g.addColorStop(0,deep+'00');g.addColorStop(.62,deep+'14');g.addColorStop(.9,deep+'4a');g.addColorStop(1,light+'00');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,R*1.08,RY*1.08,0,0,TAU);ctx.fill();ctx.restore();
-    duo(()=>{ctx.beginPath();ctx.ellipse(0,0,R*1.05,RY*1.05,0,0,TAU);},deep,light,.9,.8);
-    ctx.save();ctx.globalAlpha=op*.85;ctx.globalCompositeOperation='lighter';ctx.strokeStyle='#ffffff';ctx.lineWidth=1.3;ctx.lineCap='round';ctx.beginPath();ctx.ellipse(0,0,R*.9,RY*.9,0,-2.6,-1.75);ctx.stroke();ctx.lineWidth=.7;ctx.beginPath();ctx.ellipse(0,0,R*.9,RY*.9,0,-1.6,-1.4);ctx.stroke();ctx.restore();}
-   else duo(rim,deep,light,1,.75);};
-  if(buff===8){
-   shell('#0b6a48','#9affd6');
-   // tortoise-shell hex lattice drifting over the sphere
-   const hx=7.5;
-   for(let q=-5;q<=5;q++)for(let r=-4;r<=4;r++){const x0=(q+r/2)*hx*1.75+Math.sin(t*.4)*2,y0=r*hx*1.5;const nx=x0/R,ny=y0/RY;const d=nx*nx+ny*ny;if(d>.92)continue;
-    const z=Math.sqrt(1-d);if(front!==(y0>6))continue;const hexA=(.3+.5*(1-z))*(.75+.25*Math.sin(t*2+q+r));
-    duo(()=>{ctx.beginPath();for(let i=0;i<6;i++){const a=i*TAU/6+Math.PI/6,px=x0+Math.cos(a)*hx*.92,py=y0+Math.sin(a)*hx*.92;const k=1-.18*z;i?ctx.lineTo(px*k,py*k):ctx.moveTo(px*k,py*k);}ctx.closePath();},'rgba(8,90,60,.55)','#c8ffe8',.4,hexA);}
-   // a jade dragon-ribbon circling the barrier
-   const n=26,pts=[];for(let i=0;i<n;i++){const a=t*1.4-i*.13;pts.push({x:Math.cos(a)*R*1.02,y:Math.sin(a*2)*6+Math.sin(a)*RY*.25,z:Math.sin(a)});}
-   for(let i=1;i<n;i++){const p=pts[i],q=pts[i-1];if((p.z>0)!==front)continue;ctx.lineCap='round';duo(()=>{ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);},'#0b5a3a',i<3?'#ffffff':'#6fffc8',(1-i/n)*2.6+.5,1-i/n);}
-   if((pts[0].z>0)===front)star4(ctx,pts[0].x,pts[0].y,4,'#e9ffe0',op,t);
-  }else if(buff===9){
-   shell('#9a5a00','#ffe39a');
-   // golden lotus petals rising around the body into a cup
-   for(let i=0;i<12;i++){const a=i*TAU/12+t*.25,z=Math.sin(a);if((z>0)!==front)continue;const px=Math.cos(a)*R*.95,py=RY*.62+z*5;const rise=.75+.25*Math.sin(t*2+i);
-    ctx.save();ctx.translate(px,py);ctx.scale(Math.abs(Math.cos(a))*.55+.45,1);ctx.globalAlpha=op*(z>0?.9:.6);const L=17*rise;
-    const g=ctx.createLinearGradient(0,0,0,-L);g.addColorStop(0,'#ff9a2a');g.addColorStop(.6,'#ffd36b');g.addColorStop(1,'#fff8e0');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(5.5,-L*.35,4,-L*.8,0,-L);ctx.bezierCurveTo(-4,-L*.8,-5.5,-L*.35,0,0);ctx.fill();ctx.strokeStyle='rgba(140,70,0,.7)';ctx.lineWidth=.7;ctx.stroke();ctx.strokeStyle='rgba(255,255,240,.8)';ctx.lineWidth=.4;ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-L*.8);ctx.stroke();ctx.restore();}
-   // turning seal ring of original rune marks at the feet and over the head
-   for(const [yy,rr,sp] of [[RY*.72,R*1.05,.6],[-RY*.95,R*.5,-.9]]){ctx.save();ctx.translate(0,yy);ctx.scale(1,.32);ctx.rotate(t*sp);ctx.globalAlpha=op;ctx.strokeStyle='#8a4a00';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(0,0,rr,front?0:Math.PI,front?Math.PI:TAU);ctx.stroke();ctx.strokeStyle='#ffe39a';ctx.lineWidth=1.2;ctx.stroke();
-    for(let i=0;i<12;i++){const a=i*TAU/12;if((Math.sin(a+t*sp)>0)!==front)continue;ctx.save();ctx.rotate(a);ctx.translate(rr*.86,0);ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(-2,-2);ctx.lineTo(2,-2);ctx.moveTo(0,-2);ctx.lineTo(0,2);ctx.moveTo(-2,2);ctx.lineTo(1,2);ctx.stroke();ctx.restore();}ctx.restore();}
-   if(!front)for(let i=0;i<5;i++){const a=i*TAU/5+t*.3,g=ctx.createLinearGradient(0,RY*.7,0,-RY*1.2);g.addColorStop(0,'rgba(255,220,120,.0)');g.addColorStop(.5,'rgba(255,230,150,.35)');g.addColorStop(1,'rgba(255,240,200,0)');ctx.globalAlpha=op*(.5+.5*Math.sin(t*3+i));ctx.fillStyle=g;ctx.fillRect(Math.cos(a)*R*.8-1.2,-RY*1.2,2.4,RY*1.9);}
-  }else{
-   shell('#1a2a8a','#c4d4ff');
-   // three tilted star orbits with planets, and twinkling stars inside the sphere
-   for(let k=0;k<3;k++){const tilt=-.6+k*.6;ctx.save();ctx.rotate(tilt);ctx.scale(1,.3);ctx.globalAlpha=op*.85;ctx.beginPath();ctx.arc(0,0,R*(1-.08*k),front?0:Math.PI,front?Math.PI:TAU);ctx.strokeStyle='#18226a';ctx.lineWidth=2.4;ctx.stroke();ctx.strokeStyle=['#bcd0ff','#ffffff','#9fb8ff'][k];ctx.lineWidth=1;ctx.stroke();ctx.restore();
-    const a=t*(1.1+k*.35)+k*2,z=Math.sin(a);if((z>0)===front){const px=Math.cos(a)*R*(1-.08*k),py=z*R*(1-.08*k)*.3,c=Math.cos(tilt),s=Math.sin(tilt);star4(ctx,px*c-py*s,px*s+py*c,4.5,'#ffffff',op,t*2);}}
-   if(!front){ctx.save();ctx.globalAlpha=op*.35;const g=ctx.createRadialGradient(0,0,0,0,0,R);g.addColorStop(0,'rgba(20,30,110,.0)');g.addColorStop(1,'rgba(20,30,110,.55)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,R,RY,0,0,TAU);ctx.fill();ctx.restore();}
-   if(!front)for(let i=0;i<18;i++){const a=hash(i)*TAU,r2=Math.sqrt(hash(i+7)),tw=.5+.5*Math.sin(t*4+i*1.3);star4(ctx,Math.cos(a)*r2*R*.85,Math.sin(a)*r2*RY*.85,1+tw*1.6,i%4?'#ffffff':'#bcd0ff',op*tw*.85,i);}
-   if(!front){ctx.globalAlpha=op*.35;ctx.strokeStyle='#bcd0ff';ctx.lineWidth=.5;ctx.beginPath();for(let i=0;i<6;i++){const a=hash(i)*TAU,r2=Math.sqrt(hash(i+7));const px=Math.cos(a)*r2*R*.85,py=Math.sin(a)*r2*RY*.85;i?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}
-  }
-  ctx.restore();return true;}
+ // Barrier effects 8..10 use painted rings (Item/BuffThuan/8-10.png, drawn by code in the same
+ // style as the other barriers) through js/12b-equipment-motion.js.
 
- window.gearForms={FORMS,TIER_FORM,formOf,drawWeapon,weaponScale,drawRobe,robeOf,shieldArt,drawShield,drawBuff,SHIELD_ART};
+ window.gearForms={FORMS,TIER_FORM,formOf,drawWeapon,weaponScale,drawRobe,robeOf,shieldArt,drawShield,SHIELD_ART};
 })();
