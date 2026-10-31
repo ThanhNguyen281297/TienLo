@@ -41,8 +41,23 @@
  function follow(key,pet,x,y,dir,facing,dt){if(!pet?.species){followers.delete(key);return;}let f=followers.get(key);if(!f||f.id!==pet.id){f={...pet,x:x-28,y:y+18,time:0,moving:false};followers.set(key,f);}
   let tx=x+(dir===2?-facing*36:-32),ty=y+(dir===1?26:18);if(!world.canWalk({x:tx,y:ty})){tx=x;ty=y;}if(!world.canWalk(f)){f.x=x;f.y=y;}const distance=Math.hypot(tx-f.x,ty-f.y);if(distance>300){f.x=tx;f.y=ty;}
   const step=Math.min(distance,220*dt,distance*(1-Math.exp(-dt*6)));f.moving=distance>8;f.facing=tx>=f.x?1:-1;if(distance>1){const end=world.traceMove(f,{x:f.x+(tx-f.x)/distance*step,y:f.y+(ty-f.y)/distance*step});f.x=end.x;f.y=end.y;}f.time+=dt;}
- function draw(ctx,f){const h=drawCreature(ctx,f.species,f.x,f.y,f.facing,f.moving||!!window.petCombat?.isCasting(f.id),f.time);if(!h)return;
-  ctx.save();ctx.font='600 6px Arial';ctx.textAlign='center';ctx.strokeStyle='#112630';ctx.lineWidth=2;ctx.strokeText(f.name,f.x,f.y-h-5);ctx.fillStyle='#b5ebce';ctx.fillText(f.name,f.x,f.y-h-5);ctx.restore();}
+ // Pets are drawn larger and animated: breathing at rest, a hop while running, a crouch,
+ // lunge toward the target and a bright flash of their colour when they cast.
+ const PET_SCALE=1.45;
+ function draw(ctx,f){const cast=window.petCombat?.effects?.find(e=>e.petId===f.id&&e.age<.6),t=f.time,col=window.petCatalog?.[f.species]?.color||'#ffffff';
+  let sx=1,sy=1,lift=0,dx=0,flash=0;
+  if(cast){const p=cast.age/.6,wind=Math.min(1,p/.18),strike=p<.18?0:Math.sin(Math.min(1,(p-.18)/.42)*Math.PI);const dir=Math.sign((cast.tx??f.x)-f.x)||f.facing||1;
+   f.facing=dir;sx=1+.12*wind*(1-strike)-.06*strike;sy=1-.14*wind*(1-strike)+.12*strike;dx=dir*(-5*wind*(1-strike)+22*strike);lift=12*strike;flash=strike;}
+  else if(f.moving){const hop=Math.abs(Math.sin(t*10));lift=hop*4;sy=1+(hop-.5)*.08;sx=1-(hop-.5)*.05;}
+  else{const b=Math.sin(t*2.6);sy=1+b*.035;sx=1-b*.02;lift=Math.max(0,Math.sin(t*1.3))*1.2;}
+  ctx.save();ctx.fillStyle='rgba(20,18,12,.3)';ctx.beginPath();ctx.ellipse(f.x+dx*.5,f.y+1,13*PET_SCALE*(1-lift/40),4*PET_SCALE*(1-lift/40),0,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.save();ctx.translate(f.x+dx,f.y-lift);ctx.scale(PET_SCALE*sx,PET_SCALE*sy);ctx.translate(-f.x,-f.y);
+  const h0=drawCreature(ctx,f.species,f.x,f.y,f.facing,f.moving||!!cast,t);
+  if(flash>0&&h0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=flash*.8;drawCreature(ctx,f.species,f.x,f.y,f.facing,true,t);}
+  ctx.restore();
+  if(flash>0){ctx.save();ctx.globalCompositeOperation='lighter';const gr=ctx.createRadialGradient(f.x+dx,f.y-20,0,f.x+dx,f.y-20,40);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');ctx.globalAlpha=flash*.5;ctx.fillStyle=gr;ctx.fillRect(f.x+dx-40,f.y-60,80,80);ctx.restore();}
+  const h=h0*PET_SCALE*sy+lift;if(!h0)return;
+  ctx.save();ctx.font='700 7px "Noto Serif",Georgia,serif';ctx.textAlign='center';ctx.strokeStyle='#1a0a05';ctx.lineWidth=2.4;ctx.strokeText(f.name,f.x,f.y-h-6);ctx.fillStyle=col;ctx.fillText(f.name,f.x,f.y-h-6);ctx.restore();}
  const update=up;up=function(dt){const result=update(dt);if(!P.ap||!account.state.ready||paused()||d.isOpen())return result;
   if(lastScene!==world.state.scene){followers.clear();lastScene=world.state.scene;}
   follow('self',active(),P.x,P.y,P.dir,P.f,dt);const seen=new Set(['self']);

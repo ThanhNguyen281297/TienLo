@@ -45,7 +45,7 @@
  function land(o){const {tx:x,ty:y,el}=o;
   if(o.kind==='poison'){add({type:'cloud',x,y:y+10,life:2.4,el,seed:Math.random()*9});burst(x,y,10,120,el.main,.4,10,1.3);}
   else if(o.kind==='area'){add({type:'quake',x,y:y+12,life:.8,el,r:110});burst(x,y,26,240,el.main,.6,30,1.6);burst(x,y,12,160,el.hot,.5,20,1.2);K.kick?.(2);}
-  else{add({type:'pop',x,y,life:.45,el,size:70});burst(x,y,10,180,el.main,.4,16,1.3);K.arcs.push({x,y,angle:rnd(0,3),r:16,age:0,life:.25,color:el.main,span:2,width:5,core:el.hot});}}
+  else{add({type:'pop',x,y,life:.55,el,size:96});add({type:'quake',x,y:y+12,life:.6,el,r:46});burst(x,y,10,180,el.main,.4,16,1.3);K.arcs.push({x,y,angle:rnd(0,3),r:16,age:0,life:.25,color:el.main,span:2,width:5,core:el.hot});}}
 
  // ---------------------------------------------------------------- update
  const baseUp=up;up=function(dt){baseUp(dt);if(paused())return;
@@ -102,8 +102,8 @@
  function globAt(ctx,x,y,size,color,a,spin){shade(ctx,x,y+2,size*.6,size*.45,a);paint(ctx,'swirl',color,x,y,size,spin,a);paint(ctx,'star',color,x,y,size*.55,spin*2,a*.9);}
  function pop(ctx,o,p){const a=1-ease((p-.3)/.7),g2=ease(p/.2);shade(ctx,o.x,o.y,o.size*.45,o.size*.32,a);paint(ctx,'burst',o.el.main,o.x,o.y,o.size*g2,p*2,a,'source-over');paint(ctx,'star',o.el.hot,o.x,o.y,o.size*.5*(1-p*.5),p*3,a);}
  function petBolt(ctx,o,p){const t=Math.min(1,p),x=o.x+(o.tx-o.x)*t,y=o.y+(o.ty-o.y)*t-Math.sin(t*Math.PI)*(o.kind==='poison'?40:14),ang=Math.atan2(o.ty-o.y,o.tx-o.x);
-  if(o.kind==='poison'){globAt(ctx,x,y,20,o.el.main,1,o.age*10);return;}
-  shade(ctx,x,y,22,14,1);paint(ctx,'wisp',o.el.main,x-Math.cos(ang)*14,y-Math.sin(ang)*14,56,ang,.95);paint(ctx,'star',o.el.main,x,y,24,o.age*10,1);}
+  if(o.kind==='poison'){globAt(ctx,x,y,30,o.el.main,1,o.age*10);return;}
+  shade(ctx,x,y,22,14,1);paint(ctx,'wisp',o.el.main,x-Math.cos(ang)*20,y-Math.sin(ang)*20,84,ang,.95);paint(ctx,'burst',o.el.main,x,y,40,o.age*8,.8);paint(ctx,'star',o.el.hot,x,y,34,o.age*10,1);}
  // ---------------------------------------------------------------- auras
  const auraLayer=worldMap.drawGroundDetails;worldMap.drawGroundDetails=function(ctx,cx,cy,vw,vh){auraLayer.call(this,ctx,cx,cy,vw,vh);if(reduced.matches)return;const t=worldMap.environmentClock||0;
   for(const f of window.spiritPets?.followers?.values?.()||[]){if(f.x<cx-40||f.x>cx+vw+40||f.y<cy-40||f.y>cy+vh+40)continue;const col=window.petCatalog?.[f.species]?.color||'#ffffff';
