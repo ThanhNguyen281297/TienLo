@@ -121,7 +121,7 @@ def settle(db, outpost, war_id, at=None, present=()):
     for uid in present:
         g = guild_of(db, uid)
         if g and g['id'] == gid:
-            engagement.mail(db, uid, f"Chiếm {outpost['name']}", dict(gold=1500, essence=80, fragments=15), f"{war_id}:{outpost['id']}:{uid}")
+            engagement.mail(db, uid, f"Chiếm {outpost['name']}", dict(gold=1500, essence=80, fragments=15, shards=__import__('shards').outpost_reward()), f"{war_id}:{outpost['id']}:{uid}")
             adventure.add(db, uid, 'outposts')
     return gid
 

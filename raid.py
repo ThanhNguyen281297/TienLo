@@ -236,7 +236,7 @@ PET_DROP = 3     # % chance of the Cốt Long Minh Vương pet per chest
 
 
 def chest(level, cls):
-    reward = dict(gold=400 + level * 20, essence=25, fragments=6 + level // 6, items={'cuong-hoa-thach': 2}, shards=4)
+    reward = dict(gold=400 + level * 20, essence=25, fragments=6 + level // 6, items={'cuong-hoa-thach': 2}, shards=__import__('shards').raid_reward(level))
     if level >= 30:
         reward['items']['tinh-luyen-thach'] = 1
     if secrets.randbelow(100) < 20:

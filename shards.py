@@ -1,7 +1,9 @@
 """Typed equipment shards (Mảnh Pháp Bảo, Pháp Trận, Hộ Thuẫn, Thú Hồn, Bước Chân,
 Mặt Nạ, Nhẫn, Thần Binh). Kept in a server table, never in the player JSON, so saves cannot
-forge them. They drop rarely (rift bosses, elites, Ma Quật chests, daily quests,
-Kỳ Trân Các) and are exchanged with any sect master (Trưởng môn) for gear."""
+forge them. Each activity pays its own kind (see SOURCE): battleground → Hộ Thuẫn, bí cảnh →
+Bước Chân, party raid → Pháp Bảo, tower → Pháp Trận, quests → Mặt Nạ, guild war →
+Nhẫn, hunting fields → Thú Hồn, world boss → Thần Binh. Kỳ Trân Các and welfare
+chests still give random kinds. Exchanged with any sect master (Trưởng môn) for gear."""
 import json
 import math
 import secrets
@@ -10,15 +12,17 @@ import time
 import equipment
 
 KINDS = {
-    'phapbao': dict(name='Mảnh Pháp Bảo', icon='Item/PhapBao/1.png', weight=18),
-    'phaptran': dict(name='Mảnh Pháp Trận', icon='Item/PhapTran/1.png', weight=18),
-    'hothuan': dict(name='Mảnh Hộ Thuẫn', icon='Item/Thuan/1.png', weight=18),
-    'buocchan': dict(name='Mảnh Bước Chân', icon='Item/DiChuyen/1.png', weight=14),
-    'matna': dict(name='Mảnh Mặt Nạ', icon='Item/MatNa/slot.svg', weight=14),
-    'nhan': dict(name='Mảnh Nhẫn', icon='Item/Nhan/gioi.png', weight=10),
-    'thuhon': dict(name='Thú Hồn', icon='Character/Monsters/Soi/thumb.webp', weight=8),
-    'thanbinh': dict(name='Mảnh Thần Binh', icon='Item/VuKhi/Forms/manh-than-binh.png', weight=8),
+    'phapbao': dict(name='Mảnh Pháp Bảo', icon='Item/PhapBao/1.png', weight=18, source='Bí cảnh tổ đội · Huyết Trì Ma Quật'),
+    'phaptran': dict(name='Mảnh Pháp Trận', icon='Item/PhapTran/1.png', weight=18, source='Tháp thí luyện · mỗi tầng qua trong ngày'),
+    'hothuan': dict(name='Mảnh Hộ Thuẫn', icon='Item/Thuan/1.png', weight=18, source='Chiến trường Chính – Tà'),
+    'buocchan': dict(name='Mảnh Bước Chân', icon='Item/DiChuyen/1.png', weight=14, source='Bí cảnh · yêu thú và thủ lĩnh'),
+    'matna': dict(name='Mảnh Mặt Nạ', icon='Item/MatNa/slot.svg', weight=14, source='Nhiệm vụ · hằng ngày, chính tuyến, phụ tuyến'),
+    'nhan': dict(name='Mảnh Nhẫn', icon='Item/Nhan/gioi.png', weight=10, source='Tông môn chiến · chiếm cứ điểm'),
+    'thuhon': dict(name='Thú Hồn', icon='Character/Monsters/Soi/thumb.webp', weight=8, source='Bãi săn · tinh anh và thủ lĩnh'),
+    'thanbinh': dict(name='Mảnh Thần Binh', icon='Item/VuKhi/Forms/manh-than-binh.png', weight=8, source='Boss thế giới · Thái Cổ Huyết Ma'),
 }
+# Every activity pays its own shard, so each piece of gear has one place to farm it.
+SOURCE = dict(battle='hothuan', rift='buocchan', raid='phapbao', tower='phaptran', quest='matna', outpost='nhan', field='thuhon', boss='thanbinh')
 SECT_MAPS = ('sword', 'moon', 'thunder', 'mystic')
 MASTER = (910, 1125)   # mentor NPC position in every sect map (js/20-sect-layout-arena.js)
 
@@ -100,23 +104,73 @@ def grant_random(db, uid, count):
 
 
 def on_kill(db, uid, mob):
-    """Rare drops from a kill (called by adventure.record_kill). Returns {kind: qty}."""
+    """Drops from a kill (called for every certified kill). Returns {kind: qty}.
+    Bí cảnh pays Mảnh Bước Chân, the hunting fields pay Thú Hồn; party raid, tower,
+    battleground, guild war and world boss pay through their own rewards."""
     scene = mob.get('map', '')
     if mob.get('tower') or mob.get('raid') or mob.get('outpost') or mob.get('worldBoss'):
         return {}
+    got = {}
     if scene.startswith('rift-'):
+        kind = SOURCE['rift']
         if mob.get('boss'):
-            got = grant_random(db, uid, 2 + secrets.randbelow(2))
-            if secrets.randbelow(100) < 30:
-                add(db, uid, 'thuhon', 1)
-                got['thuhon'] = got.get('thuhon', 0) + 1
-            return got
-        return grant_random(db, uid, 1) if secrets.randbelow(1000) < 20 else {}
-    if scene.startswith('field-'):
-        elite = mob.get('elite') or mob.get('boss') or mob.get('t') == 2
-        chance = 40 if elite else (4 if mob.get('level', 1) >= 10 else 0)
-        return grant_random(db, uid, 1) if chance and secrets.randbelow(1000) < chance else {}
-    return {}
+            got[kind] = 3 + secrets.randbelow(3)
+        elif (mob.get('elite') or mob.get('t') == 2) and secrets.randbelow(100) < 25:
+            got[kind] = 1
+        elif secrets.randbelow(1000) < 40:
+            got[kind] = 1
+    elif scene.startswith('field-'):
+        kind = SOURCE['field']
+        if mob.get('boss'):
+            got[kind] = 2
+        elif mob.get('elite') or mob.get('t') == 2:
+            got[kind] = 1 if secrets.randbelow(100) < 6 else 0
+        elif mob.get('level', 1) >= 10 and secrets.randbelow(1000) < 5:
+            got[kind] = 1
+    got = {k: q for k, q in got.items() if q}
+    for kind, qty in got.items():
+        add(db, uid, kind, qty)
+    return got
+
+
+def battle_reward(score, rank, won):
+    """Mảnh Hộ Thuẫn for a battleground result."""
+    qty = 4 + min(8, int(score) // 40)
+    if won:
+        qty = qty * 3 // 2
+    if rank <= 3:
+        qty += (8, 5, 3)[rank - 1]
+    return {SOURCE['battle']: qty}
+
+
+def raid_reward(level):
+    """Mảnh Pháp Bảo in the party raid chest."""
+    return {SOURCE['raid']: 5 + level // 15}
+
+
+def tower_reward(floor):
+    """Mảnh Pháp Trận for the first clear of a floor each day."""
+    return {SOURCE['tower']: 1 + floor // 10 + (2 if floor % 5 == 0 else 0)}
+
+
+def quest_reward(kind):
+    """Mảnh Mặt Nạ for every quest handed in (daily quests pay more)."""
+    return {SOURCE['quest']: 2 if kind == 'daily' else 1}
+
+
+def outpost_reward():
+    return {SOURCE['outpost']: 6}
+
+
+def boss_reward(rank):
+    """Mảnh Thần Binh from the world boss, by damage rank (1-based)."""
+    return {SOURCE['boss']: (10, 8, 6, 5, 5, 4, 4, 3, 3, 3)[rank - 1] if rank <= 10 else 2}
+
+
+def grant(db, uid, got):
+    for kind, qty in got.items():
+        add(db, uid, kind, qty)
+    return got
 
 
 def view(db, uid, player):
@@ -132,7 +186,7 @@ def view(db, uid, player):
             continue
         rows.append(dict(o, name=meta['name'], rarity=meta.get('rarity'), slot=meta.get('slot'), req=meta.get('req', 0),
                          owned=bool(o.get('pet') and o['pet'] in owned), forClass=meta.get('classIndex') in (None, cls)))
-    return dict(wallet=w, kinds={k: dict(name=v['name'], icon=v['icon']) for k, v in KINDS.items()}, offers=rows)
+    return dict(wallet=w, kinds={k: dict(name=v['name'], icon=v['icon'], source=v['source']) for k, v in KINDS.items()}, offers=rows)
 
 
 def action(db, uid, body):

@@ -11,12 +11,13 @@
   if(!parts.length)return;msg('✦ '+parts.join(' · '));try{fx(P.x,P.y-60,parts[0],'#ffd27a');}catch{}window.gameAudio?.play?.('pickup');if(state.data)for(const [k,q] of Object.entries(got))state.data.wallet[k]=(state.data.wallet[k]||0)+q;}
  async function exchange(id){if(state.busy)return;state.busy=true;render();try{const r=await account.transact('/api/shards',{action:'exchange',id,opId:crypto.randomUUID()},{live:true,world:['equip','mounts']});state.data=r.shards;msg(r.message||'Đã đổi.');window.skillImpact?.flash?.('#ffd27a');window.gameAudio?.play?.('reward');}
   catch(e){msg(e.message);}finally{state.busy=false;render();}}
- async function open(){if(!P.ap)return;d.show(TITLE,'Mảnh rơi hiếm từ thủ lĩnh bí cảnh, tinh anh, rương Ma Quật, nhiệm vụ hằng ngày và Kỳ Trân Các. Đổi tại Trưởng môn bất kỳ tông môn nào.');
+ async function open(){if(!P.ap)return;d.show(TITLE,'Mỗi hoạt động cho một loại mảnh riêng: chiến trường → Hộ Thuẫn, bí cảnh → Bước Chân, bí cảnh tổ đội → Pháp Bảo, tháp → Pháp Trận, nhiệm vụ → Mặt Nạ, tông môn chiến → Nhẫn, bãi săn → Thú Hồn, boss thế giới → Thần Binh. Đổi tại Trưởng môn bất kỳ tông môn nào.');
   $('world-content').closest('section')?.classList.add('visual-dialog');render();await load();render();}
  function render(){const root=$('world-content');if(!root||$('world-title').textContent!==TITLE)return;root.replaceChildren();const data=state.data;
   if(!data){root.append(ui.node('p','world-line','Trưởng môn đang kiểm kê…'));return;}
   const wallet=ui.node('div','shard-wallet');root.append(wallet);
   for(const [k,meta] of Object.entries(data.kinds)){const b=ui.node('button','shard-chip'+(state.tab===k?' on':''));b.type='button';b.append(ui.art(meta.icon,'shard-icon'),ui.node('b','',fmt(data.wallet[k])),ui.node('small','',meta.name));b.onclick=()=>{state.tab=k;render();};wallet.append(b);}
+  const src=data.kinds[state.tab]?.source;if(src){const line=ui.node('p','shard-source');line.append(ui.node('b','','Nguồn '+kindName(state.tab)+': '),document.createTextNode(src));root.append(line);}
   const grid=ui.node('div','shard-grid');root.append(grid);
   const offers=data.offers.filter(o=>o.kind===state.tab).sort((a,b)=>a.cost-b.cost);
   for(const o of offers){const item=equipmentData.byId.get(o.id)||o;const card=ui.node('article','shard-offer');card.style.setProperty('--q',RARITY[o.rarity]||'#ddd');grid.append(card);
@@ -38,6 +39,7 @@
 .shard-chip{display:grid;justify-items:center;gap:1px;padding:6px 4px;border-radius:10px;border:1px solid #b8925066;background:#14232a;color:#f3e3b4;cursor:pointer;min-height:0!important}
 .shard-chip.on{border-color:#ffd27a;box-shadow:0 0 0 1px #ffd27a55;background:#2a2a1c}.shard-chip b{font-size:14px}.shard-chip small{font-size:10px;color:#c9d6cf;text-align:center}
 .shard-icon{width:34px;height:34px;object-fit:contain}
+.shard-source{margin:0 0 10px;padding:7px 10px;border-radius:8px;background:#2a2a1c;border:1px solid #ffd27a44;color:#e9dcb4;font-size:12px}.shard-source b{color:#ffd27a}
 .shard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
 .shard-offer{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;border:1px solid color-mix(in srgb,var(--q) 45%,transparent);background:linear-gradient(160deg,#1b2b30f0,#121c20f0)}
 .shard-offer-art{width:52px;height:52px;object-fit:contain;flex:none;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--q) 50%,transparent))}

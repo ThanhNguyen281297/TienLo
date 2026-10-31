@@ -45,11 +45,14 @@ jobs:
           python tests/test_pets_auction.py
           python tests/test_premium_shards_mail.py
           python tests/test_balance.py
+          python tests/test_sect_potential.py
+          python tests/test_gear_forms.py
+          python tests/test_shard_sources.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done
           for file in deploy/*.sh; do bash -n "$file"; done
-          python -m compileall -q server.py economy.py community.py trade.py equipment.py progression.py expeditions.py duels.py adventure.py overworld.py forging.py tower.py engagement.py raid.py pvp.py battle.py outposts.py fieldpk.py deploy tests
+          python -m compileall -q server.py economy.py community.py trade.py equipment.py progression.py expeditions.py duels.py adventure.py overworld.py forging.py tower.py engagement.py raid.py pvp.py battle.py outposts.py fieldpk.py sect_potential.py shards.py deploy tests
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

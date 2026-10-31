@@ -1,5 +1,6 @@
-import json, re, unittest
+import json, re, sys, unittest
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import sect_potential, server
 
 ROOT = Path(__file__).resolve().parents[1]

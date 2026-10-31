@@ -246,3 +246,20 @@ Rương boss lưu riêng đến khi nhận tại vùng an toàn. Các thao tác 
 Đã bỏ Bách khoa, toàn bộ tra cứu/phân trang và nút Tu luyện (C), gỡ liên kết và phím tắt C. Tiên Đồ chuyển nút xem tu luyện thành Thuộc tính. Tiến trình tăng tầng/đột phá, học và nâng kỹ năng tại NPC vẫn hoạt động với dữ liệu cũ. Các mô tả Bách khoa ở phần lịch sử phía trên không còn áp dụng cho bản hiện tại.
 
 Pháp bảo là trang bị lưng, có năm dòng tấn công; hộ thuẫn có năm dòng phòng thủ. Tẩy luyện tại vùng an toàn tiêu 60 Linh Thạch và 12 Linh Nguyên để đổi cả năm dòng, không trùng thuộc tính. Kỹ năng hộ thuẫn tăng 35% giáp (6–25 điểm) trong 20 giây, hồi 90 giây; dùng nút Thuẫn cạnh cụm kỹ năng. Nhẫn chỉ tăng ô túi. Pháp trận là ô riêng dưới chân; sáu ô chiến đấu còn lại tính bộ cường hóa và bộ bí cảnh.
+
+## Mảnh trang bị theo hoạt động
+
+Mỗi hoạt động cho một loại mảnh riêng (shards.py `SOURCE`), đổi tại Trưởng môn bất kỳ tông môn nào:
+
+| Hoạt động | Mảnh | Lượng |
+|---|---|---|
+| Chiến trường Chính – Tà | Hộ Thuẫn | 4 + điểm/40 (tối đa +8), thắng ×1,5, top 3 thêm 8/5/3 |
+| Bí cảnh (một mình) | Bước Chân | thủ lĩnh 3–5; tinh anh 25%; quái 4% |
+| Bí cảnh tổ đội Huyết Trì Ma Quật | Pháp Bảo | 5 + cấp/15 trong rương |
+| Tháp thí luyện | Pháp Trận | 1 + tầng/10, tầng chia hết cho 5 thêm 2 (lần qua đầu mỗi ngày) |
+| Nhiệm vụ | Mặt Nạ | hằng ngày 2, chính/phụ tuyến 1 |
+| Tông môn chiến | Nhẫn | 6 khi tông môn chiếm cứ điểm |
+| Bãi săn | Thú Hồn | thủ lĩnh 2; tinh anh 6%; quái cấp ≥10: 0,5% |
+| Boss thế giới Thái Cổ Huyết Ma | Thần Binh | theo hạng sát thương: 10/8/6/5/5/4/4/3/3/3, còn lại 2 |
+
+Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.

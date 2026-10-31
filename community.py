@@ -264,8 +264,9 @@ def boss_victory(db,mob,peers):
     first=db.execute('INSERT OR IGNORE INTO world_boss_completions VALUES(?)',(mob['encounter'],)).rowcount
     if not first:return
     mult=__import__('engagement').multiplier('boss')
-    for uid in eligible:
-        db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma'+(' · Huyết Ma Nộ x2' if mult>1 else ''),json.dumps({'gold':250*mult,'essence':60*mult}),wall))
+    ranked=sorted(eligible,key=lambda uid:-mob['_damage'].get(uid,0))
+    for rank,uid in enumerate(ranked,1):
+        db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma · Hạng '+str(rank)+(' · Huyết Ma Nộ x2' if mult>1 else ''),json.dumps({'gold':250*mult,'essence':60*mult,'shards':__import__('shards').boss_reward(rank)}),wall))
         __import__('adventure').add(db,uid,'worldBoss')
     record_kill(db,eligible,True);mob.pop('_cast',None);mob['respawnAt']=wall+300;save_boss(db,mob)
 

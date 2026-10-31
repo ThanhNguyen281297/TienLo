@@ -109,6 +109,7 @@ def finish(db, at=None):
         if rank <= 3:
             reward['fragments'] += (10, 6, 4)[rank - 1]
             reward['gold'] += (1500, 900, 500)[rank - 1]
+        reward['shards'] = __import__('shards').battle_reward(f['score'], rank, f['team'] == winner)
         engagement.mail(db, f['id'], f"Chính – Tà Chi Chiến · Hạng {rank}" + (' · Thắng' if f['team'] == winner else ''), reward, f"{b['id']}:{f['id']}")
         adventure.add(db, f['id'], 'battles')
         if f['team'] == winner:
