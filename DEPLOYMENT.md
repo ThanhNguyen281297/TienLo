@@ -27,14 +27,14 @@ Trong terminal VPS:
 apt-get install -y unzip
 mkdir -p /opt/tienlo-release
 unzip -o /tmp/tienlo-online.zip -d /opt/tienlo-release
-bash /opt/tienlo-release/deploy/install-ubuntu.sh mkt.ddnsfree.com
+bash /opt/tienlo-release/deploy/install-ubuntu.sh tienlo2d.xyz
 ```
 
 Installer yêu cầu Python 3.11+, khuyến nghị Ubuntu 24.04. Nếu domain đang có Nginx site khác hoặc Apache đang chạy, installer dừng trước khi thay đổi ứng dụng. Khi đó cần xem cấu hình hiện có để tích hợp; không xóa site hiện tại để vượt qua kiểm tra. Đọc các bước thủ công dưới đây khi cần tùy chỉnh.
 
 ## Chuẩn bị
 
-Ubuntu có Python 3.11+ và Nginx. Domain phải trỏ A/AAAA tới VPS. Các cấu hình đã đặt domain `mkt.ddnsfree.com` theo thông tin bạn cung cấp. VPS: `116.118.3.118`, SSH user `root`. Trước khi bật cần kiểm tra cấu hình Nginx hiện có để tránh trùng server_name. Không cần cài dependency Python.
+Ubuntu có Python 3.11+ và Nginx. Domain phải trỏ A/AAAA tới VPS. Các cấu hình đã đặt domain `tienlo2d.xyz` theo thông tin bạn cung cấp. VPS: `116.118.3.118`, SSH user `root`. Trước khi bật cần kiểm tra cấu hình Nginx hiện có để tránh trùng server_name. Không cần cài dependency Python.
 
 Upload thư mục dự án lên `/opt/tienlo`. Không upload `tests/artifacts`, `__pycache__`, các DB thử nghiệm hoặc `data/characters.txt`. Nếu đã có dữ liệu SQLite, sao lưu trước khi cập nhật và giữ DB ở `/var/lib/tienlo`, ngoài thư mục code.
 
@@ -48,7 +48,7 @@ sudo install -m 600 /opt/tienlo/deploy/tienlo.env.example /etc/tienlo.env
 sudo install -m 644 /opt/tienlo/deploy/tienlo.service /etc/systemd/system/tienlo.service
 ```
 
-Nếu user `tienlo` đã tồn tại thì bỏ bước `useradd`. Sửa `/etc/tienlo.env`, đặt `TIENLO_ORIGIN=https://mkt.ddnsfree.com`. Origin phải đúng domain người chơi mở, không có dấu `/` cuối. Cookie Secure được bật khi origin HTTPS.
+Nếu user `tienlo` đã tồn tại thì bỏ bước `useradd`. Sửa `/etc/tienlo.env`, đặt `TIENLO_ORIGIN=https://tienlo2d.xyz`. Origin phải đúng domain người chơi mở, không có dấu `/` cuối. Cookie Secure được bật khi origin HTTPS.
 
 Sửa `server_name` trong `deploy/nginx.conf` thành domain thật, rồi:
 
@@ -59,7 +59,7 @@ sudo nginx -t
 sudo systemctl daemon-reload
 sudo systemctl enable --now tienlo
 sudo systemctl reload nginx
-sudo certbot --nginx -d mkt.ddnsfree.com --redirect
+sudo certbot --nginx -d tienlo2d.xyz --redirect
 ```
 
 Nếu symlink đã tồn tại thì bỏ bước `ln -s`. Đăng ký và đăng nhập bằng HTTPS sau khi chứng chỉ được tạo. Backend chỉ nghe `127.0.0.1:8080`; không mở port 8080 ra Internet. Cho phép port 80/443 trong firewall và giữ SSH theo quy định VPS của bạn.
@@ -67,7 +67,7 @@ Nếu symlink đã tồn tại thì bỏ bước `ln -s`. Đăng ký và đăng 
 ## Kiểm tra và vận hành
 
 ```bash
-curl https://mkt.ddnsfree.com/api/health
+curl https://tienlo2d.xyz/api/health
 sudo systemctl status tienlo
 sudo journalctl -u tienlo -n 80 --no-pager
 sudo -u tienlo python3 /opt/tienlo/deploy/backup.py

@@ -1,6 +1,6 @@
 # Android online client (test APK)
 
-The client opens `https://mkt.ddnsfree.com/` in Android System WebView. It runs the same Canvas renderer, art, combat, APIs and SQLite saves as the web version; no second copy of game assets or account database is bundled. Web deployments take effect on the next launch/reload without rebuilding the APK. Internet is required; a newer login still replaces the previous session, as on web.
+The client opens `https://tienlo2d.xyz/` in Android System WebView. It runs the same Canvas renderer, art, combat, APIs and SQLite saves as the web version; no second copy of game assets or account database is bundled. Web deployments take effect on the next launch/reload without rebuilding the APK. Internet is required; a newer login still replaces the previous session, as on web.
 
 Android 8.0+ (API 26), current Android System WebView, landscape sensor orientation, immersive fullscreen and notch/keyboard insets. Android may override orientation on tablets/foldables; the responsive web layout remains usable. Back closes a game dialog first, then asks before exiting. Main-page network failures show a retry button.
 

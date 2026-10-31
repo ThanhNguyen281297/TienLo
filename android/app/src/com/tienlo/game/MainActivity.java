@@ -27,7 +27,7 @@ import java.util.Collections;
 
 /** Small online client: the VPS owns the renderer, assets, accounts and saves. */
 public final class MainActivity extends Activity {
-    private static final String HOST = "mkt.ddnsfree.com";
+    private static final String HOST = "tienlo2d.xyz";
     private static final String GAME = "https://" + HOST + "/";
     private WebView web;
     private LinearLayout error;

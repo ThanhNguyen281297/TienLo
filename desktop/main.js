@@ -1,7 +1,7 @@
 // Tiên Lộ Online – Windows client. A window onto the online game (same account, server and
 // updates as the web version); nothing of the game is bundled, so it never goes stale.
 const { app, BrowserWindow, shell, Menu } = require('electron');
-const GAME = 'https://mkt.ddnsfree.com/?play';
+const GAME = 'https://tienlo2d.xyz/?play';
 const ORIGIN = new URL(GAME).origin;
 if (!app.requestSingleInstanceLock()) app.quit();
 let win = null;

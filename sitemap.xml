@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://tienlo2d.xyz/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image><image:loc>https://tienlo2d.xyz/Map/landing/og.jpg</image:loc><image:title>Tiên Lộ Online</image:title></image:image>
+    <image:image><image:loc>https://tienlo2d.xyz/Map/landing/hero-city.webp</image:loc><image:title>Thiên Vân Thành</image:title></image:image>
+    <video:video>
+      <video:thumbnail_loc>https://tienlo2d.xyz/Map/landing/trailer-poster.webp</video:thumbnail_loc>
+      <video:title>Trailer gameplay Tiên Lộ Online</video:title>
+      <video:description>Cảnh chiến đấu thật trong bí cảnh của Tiên Lộ Online.</video:description>
+      <video:content_loc>https://tienlo2d.xyz/Map/landing/trailer.mp4</video:content_loc>
+    </video:video>
+  </url>
+</urlset>

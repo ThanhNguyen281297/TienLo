@@ -32,7 +32,7 @@ Mở http://127.0.0.1:8080, đăng ký tài khoản, chọn phái/Nam/Nữ và �
 
 ## Android và màn hình điện thoại
 
-Bản Android online tại `android/` mở đúng `https://mkt.ddnsfree.com/` trong System WebView, cùng game, tài khoản, đồ họa và DB với web. Trên điện thoại app mở ngang toàn màn hình, xử lý vùng khuyết màn hình và bàn phím; cập nhật web sẽ có hiệu lực khi mở lại app. Cần mạng và System WebView hiện đại. Build thử bằng `powershell -ExecutionPolicy Bypass -File android/build.ps1` với JDK 17+/Android SDK 36; APK tại `dist/TienLo-Android-test.apk`. Đã kiểm tra build/chữ ký; cần thử trên điện thoại thật trước khi phát hành. Xem [android/README.md](android/README.md) về key ký test và phát hành.
+Bản Android online tại `android/` mở đúng `https://tienlo2d.xyz/` trong System WebView, cùng game, tài khoản, đồ họa và DB với web. Trên điện thoại app mở ngang toàn màn hình, xử lý vùng khuyết màn hình và bàn phím; cập nhật web sẽ có hiệu lực khi mở lại app. Cần mạng và System WebView hiện đại. Build thử bằng `powershell -ExecutionPolicy Bypass -File android/build.ps1` với JDK 17+/Android SDK 36; APK tại `dist/TienLo-Android-test.apk`. Đã kiểm tra build/chữ ký; cần thử trên điện thoại thật trước khi phát hành. Xem [android/README.md](android/README.md) về key ký test và phát hành.
 
 Trên web, nút **Khác → Chơi ngang** và lời nhắc khi chơi dọc mở fullscreen, rồi yêu cầu khóa ngang nếu trình duyệt hỗ trợ. Trình duyệt cần thao tác chạm; khi không hỗ trợ vẫn chơi dọc được hoặc xoay máy thủ công. Không xoay giả Canvas bằng CSS, nên tọa độ chạm/ngắm luôn theo màn hình thật. Camera touch tự căn mức zoom để nhìn rộng hơn; bàn phím mở sẽ ngắt joystick. Kiểm tra bằng `node tests/mobile-hud.test.cjs` và `node tests/mobile-screen.test.cjs`.
 

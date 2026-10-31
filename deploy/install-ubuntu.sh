@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run from the extracted release on Ubuntu, as root. Keeps DB outside application code.
 set -euo pipefail
-DOMAIN="${1:-mkt.ddnsfree.com}"
+DOMAIN="${1:-tienlo2d.xyz}"
 SOURCE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 [[ "$EUID" -eq 0 ]] || { echo 'Run with sudo/root.' >&2; exit 1; }
 [[ "$DOMAIN" =~ ^[a-zA-Z0-9.-]+$ ]] || { echo 'Invalid domain.' >&2; exit 1; }
@@ -40,14 +40,14 @@ if [[ "$SOURCE" != /opt/tienlo ]]; then
 fi
 chmod -R a+rX /opt/tienlo
 if [[ ! -f /etc/tienlo.env ]]; then
-  sed "s/mkt.ddnsfree.com/$DOMAIN/g" /opt/tienlo/deploy/tienlo.env.example > /etc/tienlo.env
+  sed "s/tienlo2d.xyz/$DOMAIN/g" /opt/tienlo/deploy/tienlo.env.example > /etc/tienlo.env
   chmod 600 /etc/tienlo.env
 else
   echo 'Keeping existing /etc/tienlo.env; verify TIENLO_ORIGIN matches this domain.'
 fi
 install -m 644 /opt/tienlo/deploy/tienlo.service /etc/systemd/system/tienlo.service
 if [[ ! -f /etc/nginx/sites-available/tienlo ]]; then
-  sed "s/mkt.ddnsfree.com/$DOMAIN/g" /opt/tienlo/deploy/nginx.conf > /etc/nginx/sites-available/tienlo
+  sed "s/tienlo2d.xyz/$DOMAIN/g" /opt/tienlo/deploy/nginx.conf > /etc/nginx/sites-available/tienlo
 fi
 if [[ ! -e /etc/nginx/sites-enabled/tienlo ]]; then
   ln -s /etc/nginx/sites-available/tienlo /etc/nginx/sites-enabled/tienlo

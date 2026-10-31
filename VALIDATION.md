@@ -26,4 +26,4 @@ Các bộ đã đạt bằng Chrome/Playwright:
 
 ## VPS
 
-Domain `mkt.ddnsfree.com` đã được xác nhận trỏ tới `116.118.3.118`. Kết nối SSH tới host hoạt động nhưng đăng nhập bằng key bị từ chối; chủ VPS xác nhận dùng mật khẩu. Chưa cài/cấu hình trên VPS. Kiểm tra HTTPS từ máy phát triển hiện bị từ chối kết nối port 443. Bộ ZIP và installer đã chuẩn bị cho chủ VPS chạy trực tiếp qua terminal, nhập mật khẩu tại SCP/SSH.
+Domain `tienlo2d.xyz` đã được xác nhận trỏ tới `116.118.3.118`. Kết nối SSH tới host hoạt động nhưng đăng nhập bằng key bị từ chối; chủ VPS xác nhận dùng mật khẩu. Chưa cài/cấu hình trên VPS. Kiểm tra HTTPS từ máy phát triển hiện bị từ chối kết nối port 443. Bộ ZIP và installer đã chuẩn bị cho chủ VPS chạy trực tiếp qua terminal, nhập mật khẩu tại SCP/SSH.
