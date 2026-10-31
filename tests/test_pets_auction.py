@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import server, adventure, auction, community, equipment, pets
+import server, sect_potential, adventure, auction, community, equipment, pets
 
 
 class Base(unittest.TestCase):
@@ -51,7 +51,7 @@ class PetTests(Base):
         self.assertEqual(p['gold'], 100000 - 30000)
         self.assertEqual(p['world']['petBook']['owned'], {'loi-te': 1})
         self.assertEqual(p['world']['equip']['linhthu']['id'], 'pet-loi-te')   # first pet is worn
-        self.assertEqual(server.player_max_hp(p), base_hp + 160)
+        self.assertAlmostEqual(server.player_max_hp(p), base_hp + 160 * (1 + sect_potential.stat(p, 'hpPercent')), delta=1)  # sect HP% scales pet HP too
         self.assertAlmostEqual(server.player_attack(p), base_atk + 9)
         self.assertEqual(result['stable']['active'], 'loi-te')
         with self.assertRaises(ValueError): self.act('buy', id='loi-te')

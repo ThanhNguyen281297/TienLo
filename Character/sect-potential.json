@@ -1,0 +1,26 @@
+{
+  "base": {"luc": {"atk": 2}, "the": {"hp": 15, "armorEvery": 5}, "nhanh": {"crit": 0.006, "dodge": 0.004}, "linh": {"mp": 8, "skill": 0.005}},
+  "sects": [
+    {"name": "Kiếm Tông", "role": "Kiếm khách bạo kích",
+     "strength": "Bạo kích cao nhất: +6% bạo, +25% sát thương bạo, trần bạo 50%. Lực và Nhanh hiệu quả hơn.",
+     "attr": {"luc": {"atk": 2.2}, "nhanh": {"crit": 0.008}},
+     "stats": {"crit": 0.06, "critDamage": 0.25, "critCap": 0.5, "hpPercent": 0, "skill": 0, "dodge": 0},
+     "suggest": {"luc": 5, "nhanh": 4, "the": 1, "linh": 0}},
+    {"name": "Minh Nguyệt", "role": "Pháp sư băng nguyệt",
+     "strength": "Sát thương kỹ năng cao nhất: +12% skill, Linh tăng skill và linh lực mạnh hơn; máu -8%.",
+     "attr": {"linh": {"mp": 10, "skill": 0.008}},
+     "stats": {"crit": 0.03, "critDamage": 0.1, "critCap": 0.4, "hpPercent": -0.08, "skill": 0.12, "dodge": 0},
+     "suggest": {"linh": 5, "the": 2, "luc": 2, "nhanh": 1}},
+    {"name": "Lôi Thương", "role": "Thương thủ trấn tuyến",
+     "strength": "Trâu nhất: +20% máu, Thể cho nhiều máu và giáp hơn, Lực mạnh hơn; sát thương hơi thấp.",
+     "attr": {"luc": {"atk": 2.2}, "the": {"hp": 20, "armorEvery": 4}},
+     "stats": {"crit": 0.02, "critDamage": 0.1, "critCap": 0.35, "hpPercent": 0.2, "skill": 0, "dodge": 0},
+     "suggest": {"the": 4, "luc": 4, "nhanh": 2, "linh": 0}},
+    {"name": "Thiên Cơ", "role": "Phù sư thiên cơ",
+     "strength": "Linh hoạt: +8% skill, +3% né, trần bạo 45%; Linh tăng skill, Nhanh tăng né mạnh hơn.",
+     "attr": {"linh": {"skill": 0.007}, "nhanh": {"dodge": 0.006}},
+     "stats": {"crit": 0.04, "critDamage": 0.15, "critCap": 0.45, "hpPercent": -0.04, "skill": 0.08, "dodge": 0.03},
+     "suggest": {"linh": 4, "nhanh": 3, "luc": 2, "the": 1}}
+  ],
+  "classDamage": [0.84, 0.86, 1.0, 1.07]
+}

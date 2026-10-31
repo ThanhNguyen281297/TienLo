@@ -4,7 +4,7 @@ import premium
 import shards
 import mailbox
 import equipment as equipment_rules
-import progression
+import progression, sect_potential
 import expeditions
 import duels
 import adventure
@@ -183,14 +183,14 @@ def player_attack(player):
     level=player['r']*10+player['stage']-1
     gear,multiplier,_=equipment_stats(player)
     strength=max(0,min(1000,player.get('world',{}).get('attrs',{}).get('luc',0)))
-    return (8+level*1.3+(progression.level(player)-1)*.8+strength*2+gear+equipment_rules.bonuses(player).get('attackFlat',0)+pets.bonus(player)['atk'])*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
+    return (8+level*1.3+(progression.level(player)-1)*.8+strength*sect_potential.coef(player,'luc','atk')+gear+equipment_rules.bonuses(player).get('attackFlat',0)+pets.bonus(player)['atk'])*multiplier*(1+equipment_rules.bonuses(player).get('attackPercent',0))
 
 
 def player_max_hp(player):
     world=player.get('world',{});attrs=world.get('attrs',{});equipment=world.get('equip',{})
     hp=equipment_rules.bonuses(player).get('hp',0)+pets.bonus(player)['hp']+sum(max(0,min(10000,item.get('hp',0)))*(1+.05*item.get('enhance',0) if slot in equipment_rules.RULES['enhanceSlots'] else 1) for slot,item in equipment.items() if isinstance(item,dict))
     _,multiplier,_=equipment_stats(player)
-    return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+attrs.get('the',0)*15+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)))
+    return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+sect_potential.attr(player,'the')*sect_potential.coef(player,'the','hp')+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)+sect_potential.stat(player,'hpPercent')))
 
 
 def damage_mob(mob,damage,owner,now,key):
@@ -957,9 +957,9 @@ class GameHandler(SimpleHTTPRequestHandler):
                     attack=player_attack(p)
                     before=mob['hp']
                     stats=equipment_rules.bonuses(p);attrs=p.get('world',{}).get('attrs',{});gear=p.get('world',{}).get('equip',{})
-                    chance=min(.35,stats.get('crit',0)+attrs.get('nhanh',0)*.006+sum((i or {}).get('crit',0) for i in gear.values()))
+                    chance=sect_potential.crit_chance(p,stats.get('crit',0)+sum((i or {}).get('crit',0) for i in gear.values() if isinstance(i,dict)))
                     critical=secrets.randbelow(10000)<round(chance*10000)
-                    multiplier=1.6+stats.get('critDamage',0) if critical else 1
+                    multiplier=1.6+stats.get('critDamage',0)+sect_potential.stat(p,'critDamage') if critical else 1
                     damage_mob(mob,min(power,attack*6)*multiplier*field_vulnerability(mob),uid,now,key);hit_times.append(now)
                     dealt=max(0,before-mob['hp'])
                     if dealt:combat_hits.append(dict(id=mob['id'],x=mob['x'],y=mob['y'],amount=dealt,critical=critical))

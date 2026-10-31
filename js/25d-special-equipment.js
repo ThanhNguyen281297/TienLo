@@ -9,7 +9,7 @@
  const equipped=()=>P.world?.equip?.ngoc;
  const active=()=>!!(equipped()&&state.sourceUid===equipped().uid&&state.activeUntil>now()&&P.hp>0);
  const stats=window.bonusStats;
- window.bonusStats=function(){const base=stats(),a=data.affixStats(inventory.progress());return{...base,atk:base.atk+(a.attackFlat||0),crit:Math.min(.35,base.crit+(a.crit||0)),dodge:Math.min(.2,base.dodge+(a.dodge||0)),skill:base.skill+(a.skill||0),armor:(base.armor+(a.armorFlat||0))*(1+(a.armorPercent||0)),atkPercent:(base.atkPercent||0)+(a.attackPercent||0),hpPercent:(base.hpPercent||0)+(a.hpPercent||0),mpPercent:(base.mpPercent||0)+(a.mpPercent||0),...Object.fromEntries(['lifesteal','manasteal','critDamage','bossDamage','resist','regen'].map(k=>[k,a[k]||0]))};};
+ window.bonusStats=function(){const base=stats(),a=data.affixStats(inventory.progress());return{...base,atk:base.atk+(a.attackFlat||0),crit:Math.min(window.sectPotential?.critCap?.()??.35,base.crit+(a.crit||0)),dodge:Math.min(.2,base.dodge+(a.dodge||0)),skill:base.skill+(a.skill||0),armor:(base.armor+(a.armorFlat||0))*(1+(a.armorPercent||0)),atkPercent:(base.atkPercent||0)+(a.attackPercent||0),hpPercent:(base.hpPercent||0)+(a.hpPercent||0),mpPercent:(base.mpPercent||0)+(a.mpPercent||0),...Object.fromEntries(['lifesteal','manasteal','critDamage','bossDamage','resist','regen'].map(k=>[k,a[k]||0]))};};
  const armor=window.totalArmor;
  window.totalArmor=function(b=bonusStats()){const base=armor(b);return base+(active()?Math.min(rules.shield.armorMax,Math.max(rules.shield.armorMin,Math.round(base*rules.shield.armorPercent))):0);};
  function damageTaken(){return 1-Math.min(.15,bonusStats().resist||0);}

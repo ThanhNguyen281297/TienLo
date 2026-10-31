@@ -81,7 +81,7 @@
         atk += window.equipmentProgression?equipmentProgression.stat(it,'atk'):(it.atk||0); hp += window.equipmentProgression?equipmentProgression.stat(it,'hp'):(it.hp||0); mp += window.equipmentProgression?equipmentProgression.stat(it,'mp'):(it.mp||0); armor += window.equipmentProgression?equipmentProgression.stat(it,'armor'):(it.armor||0);
         crit += window.equipmentProgression?equipmentProgression.stat(it,'crit'):(it.crit||0); dodge += window.equipmentProgression?equipmentProgression.stat(it,'dodge'):(it.dodge||0); skill += window.equipmentProgression?equipmentProgression.stat(it,'skill'):(it.skill||0);
       }
-      return { atk, hp, mp, armor, crit: Math.min(0.35, crit), dodge: Math.min(0.2, dodge), skill };
+      return { atk, hp, mp, armor, crit: Math.min(window.sectPotential?.critCap?.()??0.35, crit), dodge: Math.min(0.2, dodge), skill };
     } catch (e) { return { atk: 0, hp: 0, mp: 0, armor: 0, crit: 0, dodge: 0, skill: 0 }; }
   };
   // Linh + đồ tăng sát thương skill, cộng dồn với tu luyện 8%/cấp.
@@ -96,7 +96,7 @@
     let final = power;
     try {
       if (alive && e && E.includes(e) && !e.rewardReplay && !window.petCombat?.dealing) {
-        const c = Math.min(0.35, window.bonusStats().crit || 0);
+        const c = Math.min(window.sectPotential?.critCap?.()??0.35, window.bonusStats().crit || 0);
         if (Math.random() < c) {
           final = power * (1.6+(window.bonusStats().critDamage||0));
           e.criticalHit=true;
@@ -199,6 +199,7 @@
     dialog.show('Thuộc tính · Cấp '+characterLevel()+' · ' + (window.cultivation ? cultivation.realmName() : ''), 'Mỗi level +3 điểm. Điểm còn: ' + p.attrPoints);
     dialog.line('EXP '+P.levelXp+'/'+characterProgression.required(characterLevel())+' · Tu vi '+Math.floor(P.xp)+'/'+need());
     dialog.line('Công ' + Math.round(atk()) + ' · Máu ' + mhp() + ' · Linh ' + mmp() + ' · Bạo ' + Math.round(b.crit * 100) + '% · Né ' + Math.round(b.dodge * 100) + '% · Skill +' + Math.round(b.skill * 100) + '%');
+    const sp=window.sectPotential,ss=sp?.sect();if(ss){dialog.line(ss.name+' · '+ss.role+' — '+ss.strength);dialog.line('Đề xuất: '+sp.ratioText()+' · Bạo tối đa '+Math.round(sp.critCap()*100)+'% · Sát thương bạo '+Math.round((1.6+(b.critDamage||0))*100)+'%');}
     dialog.line('Hút máu '+((b.lifesteal||0)*100).toFixed(2)+'% · Hút linh lực '+((b.manasteal||0)*100).toFixed(2)+'% · Kháng '+((b.resist||0)*100).toFixed(2)+'% · Hồi máu '+(b.regen||0).toFixed(2)+'/s');
     const form=document.createElement('form'),inputs={},status=document.createElement('output'),apply=document.createElement('button');
     form.id='attribute-allocation';status.setAttribute('aria-live','polite');apply.type='submit';apply.textContent='Cộng điểm';
@@ -209,10 +210,12 @@
     for (const key of ['luc', 'the', 'nhanh', 'linh']) {
       const info=ATTR_INFO[key],row=document.createElement('div'),label=document.createElement('label'),value=document.createElement('b'),hint=document.createElement('small'),input=document.createElement('input'),max=document.createElement('button');
       row.className='attribute-row';input.type='number';input.id='attribute-'+key;input.name=key;input.min=0;input.max=Math.min(p.attrPoints,1000-(p.attrs[key]||0));input.step=1;input.value='0';input.inputMode='numeric';input.required=true;input.disabled=p.attrPoints<=0;inputs[key]=input;
-      label.htmlFor=input.id;value.textContent=info.name+' · '+(p.attrs[key]||0);hint.textContent=info.desc;label.append(value,hint);input.setAttribute('aria-label','Điểm cộng '+info.name);input.oninput=refreshDraft;
+      label.htmlFor=input.id;value.textContent=info.name+' · '+(p.attrs[key]||0);hint.textContent=window.sectPotential?.sect()?window.sectPotential.hint(key):info.desc;label.append(value,hint);input.setAttribute('aria-label','Điểm cộng '+info.name);input.oninput=refreshDraft;
       max.type='button';max.textContent='Tối đa';max.disabled=input.disabled;max.setAttribute('aria-label','Cộng tối đa '+info.name);max.onclick=()=>{const other=total()-amount(key);input.value=String(Math.max(0,Math.min(1000-(p.attrs[key]||0),p.attrPoints-(Number.isFinite(other)?other:0))));refreshDraft();};
       row.append(label,input,max);form.append(row);
     }
+    if(window.sectPotential?.sect()&&p.attrPoints>0){const bar=document.createElement('div'),pick=document.createElement('button');bar.className='attribute-suggest';pick.type='button';pick.id='attribute-suggest';pick.textContent='Cộng theo đề xuất';pick.title='Chia '+p.attrPoints+' điểm theo điểm mạnh của phái ('+window.sectPotential.ratioText()+')';
+      pick.onclick=()=>{const add=window.sectPotential.suggest(p.attrPoints,p.attrs);for(const key of Object.keys(inputs))inputs[key].value=String(add[key]||0);refreshDraft();};bar.append(pick);form.append(bar);}
     form.append(status,apply);$('world-content').append(form);refreshDraft();
     form.onsubmit=event=>{event.preventDefault();refreshDraft();if(apply.disabled||!form.reportValidity())return;
       const sum=total(),health=mhp(),mana=mmp();for(const key of Object.keys(inputs))p.attrs[key]=(p.attrs[key]||0)+amount(key);p.attrPoints-=sum;
