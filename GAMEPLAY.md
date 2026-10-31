@@ -270,3 +270,13 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Hộ thân tân thủ dưới cấp 15: quái đánh nhẹ hơn 40% và hồi 1,2% máu tối đa mỗi giây.
 - Phúc lợi chỉ tự bật từ cấp 8; trước đó chỉ hiện chấm đỏ.
 - Nút "…" trên thanh dưới (phím H) mở bảng Chức năng: hoạt động kèm mảnh thưởng, giờ mở, cấp yêu cầu; và các nhóm Nhân vật, Giao lưu, Phúc lợi.
+
+## Giữ chân người chơi
+
+- Chiêu mở ở cấp 2/6/12/20 (trước là 10/20/30/40); hướng dẫn tân thủ có bước tung chiêu đầu tiên.
+- Năng động (Phúc lợi → Năng động): 9 việc trong ngày cộng tối đa 130 điểm, rương ở mốc 20/40/70/100.
+- Ma Quật đi được một mình (boss theo số người, một mình nhận nửa Mảnh Pháp Bảo); tìm đội chờ 20 giây rồi mở với số người đang chờ.
+- Boss thế giới hồi sinh với HP theo số người online (5 người = 30 000, tối thiểu 12 000, tối đa 90 000).
+- Tự tay đánh (tắt auto) nhận thêm 20% EXP và Linh Thạch mỗi lần hạ quái.
+- Lực chiến tăng hiện thông báo; Chức năng có mục "Mục tiêu trang bị" (món kế tiếp mỗi loại mảnh) và chip mục tiêu trên HUD từ cấp 10.
+- Ảnh game được đánh phiên bản theo nội dung ảnh, không theo commit: deploy chỉ sửa code không bắt người chơi tải lại ~17 MB ảnh.

@@ -56,7 +56,7 @@ class CharacterProgressionTest(unittest.TestCase):
         p=self.player();p.update(r=14,stage=10,level=1,levelXp=0)
         for rank in (1,9,10,19,20,29,30,39,40,200):
             p['level']=rank;p['world']['learnedSkills']=[True]*4;progression.normalize(p)
-            self.assertEqual(p['world']['learnedSkills'],[rank>=n for n in (10,20,30,40)])
+            self.assertEqual(p['world']['learnedSkills'],[rank>=n for n in (2,6,12,20)])
 
     def test_attribute_payload_validation(self):
         for field,value in [('attrPoints',-1),('attrPoints',True),('attrPoints',1.5),('attributeLevel',0),('attributeLevel',2),('attributeLevel',True),('attrs',dict(luc=1001)),('attrs',dict(fake=1))]:

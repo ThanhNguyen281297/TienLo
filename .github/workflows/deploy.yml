@@ -48,6 +48,7 @@ jobs:
           python tests/test_sect_potential.py
           python tests/test_gear_forms.py
           python tests/test_shard_sources.py
+          python tests/test_retention.py
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done

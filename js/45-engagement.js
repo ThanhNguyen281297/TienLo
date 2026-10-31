@@ -16,7 +16,7 @@
  const banner=document.createElement('button');banner.id='event-banner';banner.type='button';banner.hidden=true;banner.onclick=()=>{if(!paused())open('events');};document.body.append(banner);
  const gift=document.createElement('button');gift.id='welfare-gift';gift.type='button';gift.hidden=true;gift.setAttribute('aria-label','Phúc lợi có quà chưa nhận');gift.textContent='🎁';gift.onclick=()=>{if(!paused())open();};document.body.append(gift);
 
- function claimable(){const x=state.data;if(!x)return 0;return (x.checkin.today?0:1)+(x.offline.minutes>=1?1:0)+x.achievements.filter(a=>!a.claimed&&a.value>=a.target).length;}
+ function claimable(){const x=state.data;if(!x)return 0;return (x.checkin.today?0:1)+(x.offline.minutes>=1?1:0)+x.achievements.filter(a=>!a.claimed&&a.value>=a.target).length+(x.activity?.chests||[]).filter(c=>c.ready).length;}
  function refreshBadges(){const n=claimable();badge.hidden=!n;badge.textContent=n;gift.hidden=!n||!P.ap||!account.state.ready;const more=$('hud-more');if(more)more.classList.toggle('welfare-alert',!!n);}
 
  async function refresh(){if(state.busy||!P.ap||!account.state.ready||account.state.restoring)return;try{state.data=await account.api('/api/engagement');state.fetchedAt=performance.now();refreshBadges();
@@ -27,18 +27,37 @@
 
  // ---------- panel
  function open(tab){if(!P.ap)return;if(tab)state.tab=tab;d.show('Phúc lợi','');$('world-content').closest('section')?.classList.add('visual-dialog');render();if(!state.data||elapsed()>20)refresh();}
- const TABS=[['checkin','Điểm danh'],['offline','Bế quan'],['events','Sự kiện'],['achievements','Thành tựu'],['boards','Bảng tuần']];
+ const TABS=[['activity','Năng động'],['checkin','Điểm danh'],['offline','Bế quan'],['events','Sự kiện'],['achievements','Thành tựu'],['boards','Bảng tuần']];
  function render(){const content=$('world-content');if(!content||$('world-title').textContent!=='Phúc lợi')return;content.replaceChildren();
   const nav=ui.node('nav','journal-tabs welfare-tabs');nav.setAttribute('aria-label','Mục phúc lợi');
   for(const [id,label]of TABS){const b=ui.node('button','',label);b.type='button';b.setAttribute('aria-pressed',String(state.tab===id));b.onclick=()=>{state.tab=id;render();};nav.append(b);}content.append(nav);
   const x=state.data;if(!x){content.append(ui.node('p','world-line','Đang tải…'));return;}
-  ({checkin,offline,events,achievements,boards})[state.tab](content,x);}
+  ({activity,checkin,offline,events,achievements,boards})[state.tab](content,x);}
 
  // Rewards as item icons with a quantity corner, VLTK style.
  const REWARD_ART={essence:'Item/CanhGioi/kimdan.png',fragments:'Item/PhapTran/5.png'};
  function rewardIcons(r){const row=ui.node('div','welfare-icons');const add=(src,qty,label,cls='')=>{const cell=ui.node('span','welfare-icon '+cls);cell.title=label;if(src){const img=new Image();img.src=artworkURL(src);img.alt='';cell.append(img);}else cell.append(ui.node('b','coin','◈'));cell.append(ui.node('em','',qty>=1000?(qty/1000)+'K':String(qty)));row.append(cell);};
   if(r.gold)add(null,r.gold,'Linh Thạch','gold');if(r.essence)add(REWARD_ART.essence,r.essence,'Linh Nguyên');if(r.fragments)add(REWARD_ART.fragments,r.fragments,'Mảnh linh khí');
   for(const i of r.items||[])add(i.art,i.qty,i.name);return row;}
+ // Năng động: today's tasks add points; four milestone chests.
+ function activity(root,x){const a=x.activity;if(!a){root.append(ui.node('p','world-line','Đang tải…'));return;}
+  const head=ui.node('div','activity-head');head.append(ui.node('b','',a.points+' / '+a.max),ui.node('small','','điểm năng động hôm nay'));root.append(head);
+  const track=ui.node('div','activity-track');const fill=ui.node('i');fill.style.width=Math.min(100,a.points/100*100)+'%';track.append(fill);
+  for(const c of a.chests){const m=ui.node('button','activity-chest'+(c.claimed?' claimed':'')+(c.ready?' ready':''));m.type='button';m.style.left=c.points+'%';m.title=c.text;m.append(ui.node('span','',c.claimed?'✔':'◆'),ui.node('small','',String(c.points)));m.disabled=!c.ready;m.onclick=()=>act('activity',{points:c.points});track.append(m);}
+  root.append(track);
+  const list=ui.node('div','activity-list');for(const t of a.tasks){const row=ui.node('div','activity-task'+(t.done?' done':''));row.append(ui.node('span','',t.done?'✔':'○'),ui.node('b','',t.name),ui.node('small','',t.value+'/'+t.target),ui.node('em','','+'+t.points));list.append(row);}root.append(list);
+  root.append(ui.node('p','visual-note','Rương: '+a.chests.map(c=>c.points+' điểm → '+c.text).join(' · ')+'. Làm mới lúc 0:00 (GMT+7).'));
+  if(!document.getElementById('activity-css')){const css=document.createElement('style');css.id='activity-css';css.textContent=`
+.activity-head{display:flex;align-items:baseline;gap:8px;margin:4px 0 10px}.activity-head b{font:800 26px/1 var(--xx-title,Georgia,serif);color:#ffe39a}.activity-head small{color:#cdbb98}
+.activity-track{position:relative;height:10px;margin:8px 18px 34px;border-radius:5px;background:#00000080;border:1px solid #e2c27e44}.activity-track>i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#c98a2a,#ffe39a)}
+.activity-chest{position:absolute;top:50%;transform:translate(-50%,-50%);display:grid!important;justify-items:center;gap:0;width:34px;height:34px;min-height:0!important;padding:0!important;border-radius:50%!important;background:radial-gradient(circle at 35% 30%,#7a5a2a,#3a2410)!important;border:2px solid #b8925088!important;color:#e9dcb4!important}
+.activity-chest span{font-size:13px;line-height:30px}.activity-chest small{position:absolute;top:36px;font-size:10.5px;color:#cdbb98}
+.activity-chest.ready{background:radial-gradient(circle at 35% 30%,#fff1c4,#e9b65a 60%,#9a6420)!important;border-color:#fff2c0!important;color:#3a1c06!important;box-shadow:0 0 14px #ffd36b;animation:vl-pulse 1.1s ease-in-out infinite}
+.activity-chest.claimed{opacity:.55}
+.activity-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
+.activity-task{display:grid;grid-template-columns:18px minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:7px 10px;border-radius:9px;background:#00000040;border:1px solid #e2c27e2a;font-size:12.5px;color:#e9dcb4}
+.activity-task.done{border-color:#7fffb066;color:#bfffd8}.activity-task small{color:#cdbb98}.activity-task em{font-style:normal;color:#ffe39a;font-weight:700}`;document.head.append(css);}
+ }
  function checkin(root,x){
   const grid=ui.node('div','welfare-days');
   x.checkin.rewards.forEach((r,i)=>{const day=i+1,done=x.checkin.today?day<=x.checkin.streak:day<=x.checkin.streak,next=!x.checkin.today&&day===x.checkin.next;

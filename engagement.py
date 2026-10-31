@@ -81,6 +81,8 @@ def init_db(db):
     CREATE TABLE IF NOT EXISTS engagement_state(user_id INTEGER PRIMARY KEY REFERENCES users(id),
       last_seen REAL NOT NULL DEFAULT 0, offline_bank REAL NOT NULL DEFAULT 0,
       checkin_day TEXT NOT NULL DEFAULT '', streak INTEGER NOT NULL DEFAULT 0, title TEXT NOT NULL DEFAULT '');
+    CREATE TABLE IF NOT EXISTS engagement_activity(user_id INTEGER NOT NULL REFERENCES users(id), day TEXT NOT NULL,
+      milestone INTEGER NOT NULL, PRIMARY KEY(user_id,day,milestone));
     CREATE TABLE IF NOT EXISTS engagement_achievements(user_id INTEGER NOT NULL REFERENCES users(id), id TEXT NOT NULL,
       claimed_at REAL NOT NULL, PRIMARY KEY(user_id,id));
     CREATE TABLE IF NOT EXISTS engagement_settled(week TEXT NOT NULL, board TEXT NOT NULL, PRIMARY KEY(week,board));
@@ -287,6 +289,42 @@ def describe(reward):
 
 
 # ---------------------------------------------------------------- snapshot / actions
+# ---------------------------------------------------------------- daily activity (Năng động)
+# Points from the day's counters (adventure_counters 'daily:<day>:<key>'); four milestone chests.
+ACTIVITY = (
+    dict(id='checkin', name='Điểm danh', target=1, points=10),
+    dict(id='kills', name='Hạ 30 yêu thú', target=30, points=10),
+    dict(id='quests', name='Hoàn thành 2 nhiệm vụ hằng ngày', target=2, points=15),
+    dict(id='riftVisits', name='Vào một bí cảnh', target=1, points=10),
+    dict(id='riftBosses', name='Hạ một thủ lĩnh bí cảnh', target=1, points=15),
+    dict(id='towerFloors', name='Qua 3 tầng Tháp thí luyện', target=3, points=15),
+    dict(id='raidClears', name='Chinh phục Ma Quật', target=1, points=20),
+    dict(id='battles', name='Tham gia Chiến trường', target=1, points=20),
+    dict(id='worldBoss', name='Đánh Boss thế giới', target=1, points=15),
+)
+ACTIVITY_CHESTS = (
+    (20, dict(gold=500, shards=1)),
+    (40, dict(gold=1000, items={'cuong-hoa-thach': 2})),
+    (70, dict(essence=40, shards=3)),
+    (100, dict(fragments=10, shards=5, items={'tinh-luyen-thach': 1})),
+)
+
+
+def activity(db, uid, at=None):
+    d = adventure.day()
+    row = db.execute('SELECT checkin_day FROM engagement_state WHERE user_id=?', (uid,)).fetchone()
+    values = dict(checkin=1 if row and row['checkin_day'] == today(time.time() if at is None else at) else 0,
+                  quests=db.execute("SELECT COUNT(*) FROM adventure_claims WHERE user_id=? AND day=?", (uid, d)).fetchone()[0])
+    tasks = []
+    for t in ACTIVITY:
+        value = values[t['id']] if t['id'] in values else adventure.count(db, uid, f"daily:{d}:{t['id']}")
+        tasks.append(dict(t, value=min(t['target'], int(value)), done=value >= t['target']))
+    points = sum(t['points'] for t in tasks if t['done'])
+    claimed = {r['milestone'] for r in db.execute('SELECT milestone FROM engagement_activity WHERE user_id=? AND day=?', (uid, d))}
+    chests = [dict(points=p, text=describe(r), claimed=p in claimed, ready=points >= p and p not in claimed) for p, r in ACTIVITY_CHESTS]
+    return dict(points=points, max=sum(t['points'] for t in ACTIVITY), tasks=tasks, chests=chests, day=d)
+
+
 def snapshot(db, uid, player, at=None):
     settle(db, at)
     row = state(db, uid)
@@ -318,7 +356,8 @@ def snapshot(db, uid, player, at=None):
         events=schedule(stamp), achievements=achievements, title=row['title'],
         titles=[a['title'] for a in ACHIEVEMENTS if a['id'] in claimed],
         boards=boards, week=wk, weekEndsIn=_week_left(stamp),
-        boardRewards=[dict(top=t, text=describe(dict(gold=g, fragments=f))) for t, g, f in BOARD_REWARDS])
+        boardRewards=[dict(top=t, text=describe(dict(gold=g, fragments=f))) for t, g, f in BOARD_REWARDS],
+        activity=activity(db, uid, at))
 
 
 def _week_left(stamp):
@@ -376,6 +415,17 @@ def action(db, uid, body, at=None):
         db.execute('UPDATE engagement_state SET offline_bank=0 WHERE user_id=?', (uid,))
         adventure.add(db, uid, 'offlineHours', seconds / 3600)
         message = f"Bế quan {offer['minutes']} phút: {offer['xp']} EXP · {offer['gold']} ◈"
+    elif op == 'activity':
+        points = body.get('points')
+        reward = dict(ACTIVITY_CHESTS).get(points)
+        if reward is None:
+            raise ValueError('Mốc năng động không hợp lệ.')
+        if activity(db, uid, at)['points'] < points:
+            raise ValueError('Chưa đủ điểm năng động.')
+        if not db.execute('INSERT OR IGNORE INTO engagement_activity VALUES(?,?,?)', (uid, adventure.day(), points)).rowcount:
+            raise ValueError('Đã nhận rương mốc này hôm nay.')
+        grant(db, uid, player, reward)
+        message = f'Rương năng động {points}: ' + describe(reward)
     elif op == 'achievement':
         a = ACHIEVEMENT_IDS.get(body.get('id'))
         if not a:

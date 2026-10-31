@@ -1,7 +1,7 @@
 """Character level is independent of the fifteen cultivation realms."""
 MAX_LEVEL = 200
 POINTS_PER_LEVEL = 3
-SKILL_LEVELS = (10, 20, 30, 40)
+SKILL_LEVELS = (2, 6, 12, 20)
 ATTRIBUTES = ('luc', 'the', 'nhanh', 'linh')
 
 

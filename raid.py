@@ -15,7 +15,7 @@ import adventure
 import community
 import progression
 
-RULE = dict(id='raid', name='Huyết Trì Ma Quật', level=20, minParty=2, maxParty=4, daily=3, duration=900,
+RULE = dict(id='raid', name='Huyết Trì Ma Quật', level=20, minParty=1, maxParty=4, daily=3, duration=900,
             boss='RongXuong', species=['DungNham', 'TrauQuy', 'Soi', 'RongXuong'], color='#ff7a6b')
 WAVE = (('DungNham', 'Dung Nham Ma Vệ'), ('TrauQuy', 'Huyết Trì Ngưu Ma'))
 ADDS = ('Soi', 'Huyết Lang')
@@ -116,13 +116,10 @@ def match(db, peers, at=None):
 def start(db, uid, peers, gm=False, at=None):
     at = time.time() if at is None else at
     party = community.group(db, uid, 'party')
-    if not party and not gm:
-        raise ValueError('Cần lập tổ đội 2–4 người để vào Ma Quật.')
+    # No party: a solo run (boss scaled to one player, half the chest shards).
     if party and party['leader'] != uid:
         raise ValueError('Chỉ đội trưởng mới mở được Ma Quật.')
     ids = [r['user_id'] for r in db.execute('SELECT user_id FROM party_members WHERE party_id=? ORDER BY joined,user_id', (party['id'],))] if party else [uid]
-    if len(ids) < RULE['minParty'] and not gm:
-        raise ValueError('Ma Quật cần ít nhất 2 thành viên.')
     if len(ids) > RULE['maxParty']:
         raise ValueError('Tổ đội tối đa 4 người.')
     if any(run_for(db, m, at) for m in ids):
@@ -190,7 +187,7 @@ def tick(state, mobs, members, now, safe):
     level = raid['level']
     if raid['phase'] == 1 and not any(_alive(m) for m in mobs):
         raid['phase'] = 2
-        hp = round((65 + level * 5) * 16 * max(2, raid['size']))
+        hp = round((65 + level * 5) * 16 * max(1, raid['size']))
         mobs.append(_mob(raid['token'], raid['serial'], RULE['boss'], 'Huyết Trì Ma Long', level + 5,
                          1000, 960, hp, (1 + level * .025) * 1.6, level * 40, boss=True))
         raid['serial'] += 1
@@ -235,8 +232,11 @@ def view(state, now):
 PET_DROP = 3     # % chance of the Cốt Long Minh Vương pet per chest
 
 
-def chest(level, cls):
-    reward = dict(gold=400 + level * 20, essence=25, fragments=6 + level // 6, items={'cuong-hoa-thach': 2}, shards=__import__('shards').raid_reward(level))
+def chest(level, cls, solo=False):
+    shards = __import__('shards').raid_reward(level)
+    if solo:
+        shards = {k: max(1, v // 2) for k, v in shards.items()}
+    reward = dict(gold=400 + level * 20, essence=25, fragments=6 + level // 6, items={'cuong-hoa-thach': 2}, shards=shards)
     if level >= 30:
         reward['items']['tinh-luyen-thach'] = 1
     if secrets.randbelow(100) < 20:
@@ -268,6 +268,6 @@ def on_kill(db, state, mob, present):
         adventure.add(db, uid, 'daily:' + adventure.day() + ':raidClears')
         row = db.execute('SELECT player FROM characters WHERE user_id=?', (uid,)).fetchone()
         cls = json.loads(row['player'])['ap']['w'] if row else 0
-        __import__('engagement').mail(db, uid, 'Rương Huyết Trì Ma Quật', chest(raid['level'], cls), f"raid:{raid['token']}:{uid}")
+        __import__('engagement').mail(db, uid, 'Rương Huyết Trì Ma Quật', chest(raid['level'], cls, len(json.loads(run['members'])) == 1), f"raid:{raid['token']}:{uid}")
         rewarded.append(uid)
     return rewarded

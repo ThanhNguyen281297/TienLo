@@ -193,6 +193,10 @@ def player_max_hp(player):
     return round((100+(player['r']*10+player['stage']-1)*6+(progression.level(player)-1)*6+sect_potential.attr(player,'the')*sect_potential.coef(player,'the','hp')+hp)*multiplier*(1+equipment_rules.bonuses(player).get('hpPercent',0)+sect_potential.stat(player,'hpPercent')))
 
 
+# Tự tay đánh (auto off) earns more EXP/Linh Thạch per kill than auto-hunting.
+MANUAL_BONUS=1.2
+
+
 def damage_mob(mob,damage,owner,now,key):
     if mob['dead']:return
     if mob.get('worldBoss'):
@@ -228,7 +232,7 @@ def damage_mob(mob,damage,owner,now,key):
             event_id=secrets.token_hex(12)
             engagement.record_kill(db,contributor)
             expeditions.queue_drop(db,contributor,mob,event_id)
-            mult=bonus*outposts.bonus(db,contributor,mob.get('map',''))*premium.exp_mult(db,contributor)
+            mult=bonus*outposts.bonus(db,contributor,mob.get('map',''))*premium.exp_mult(db,contributor)*(1 if PEERS.get(contributor,{}).get('auto',True) else MANUAL_BONUS)
             economy.credit_kill(db,contributor,dict(mob,xpReward=(mob.get('xpReward') or 20+mob.get('level',1)*8)*mult))
             adventure.record_kill(db,contributor,mob,event_id)
             dropped=shards.on_kill(db,contributor,mob)
@@ -874,7 +878,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 if time.time()-AUCTION_SETTLED>30:AUCTION_SETTLED=time.time();auction.settle(db)
                 if 'title' not in previous:previous['title']=engagement.title_of(db,uid)
             rank=0
-            peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med'))}
+            peer={**previous,'id':uid,'stream':stream,'name':p['nm'],'ap':{**p['ap'],'weaponRarity':(p.get('world',{}).get('equip',{}).get('vukhi') or {}).get('rarity','pham')},'r':p['r'],'stage':p['stage'],'map':scene,'trainingRealm':rank,'x':x,'y':y,'dir':max(0,min(2,int(body.get('dir',0)))),'f':-1 if body.get('f')==-1 else 1,'seen':now,'med':bool(body.get('med')),'auto':bool(body.get('auto'))}
             equipment=p.get('world',{}).get('equip',{})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('enhance',0) for name,slot in [('weaponEnhance','vukhi'),('backEnhance','phapbao'),('bodyEnhance','daobao')]})
             peer['ap'].update({name:(equipment.get(slot) or {}).get('id') for name,slot in [('backId','phapbao'),('formationId','phaptran'),('shieldId','ngoc'),('ringId','gioi'),('weaponId','vukhi'),('trailId','dichuyen'),('maskId','matna')]})

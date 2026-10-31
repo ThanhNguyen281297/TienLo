@@ -241,9 +241,11 @@ def record_kill(db,uids,boss=False):
     for gid in guilds:db.execute('INSERT INTO guild_daily VALUES(?,?,?,?) ON CONFLICT(guild_id,day) DO UPDATE SET kills=kills+excluded.kills,bosses=bosses+excluded.bosses',(gid,day(),0 if boss else 1,1 if boss else 0))
 
 
-def new_boss():
+def new_boss(online=5):
+    # HP follows how many players are online when it respawns (5 online = 30 000 HP).
+    hp=round(30000*max(.4,min(3,online/5)))
     encounter=secrets.token_hex(12)
-    return dict(id='worldboss:'+encounter,encounter=encounter,t=2,skin='Nhen',name='Thái Cổ Huyết Ma',x=1000,y=1100,hx=1000,hy=1100,hp=30000,maxHp=30000,phase=1,dead=0,cd=999,fr=0,fl=0,boss=True,elite=True,worldBoss=True,network=True,worldMap=True,map='worldboss',attackScale=1,xpReward=0,contributors={},_damage={},_lastDamage={},_nextCast=time.time()+3,respawnAt=0)
+    return dict(id='worldboss:'+encounter,encounter=encounter,t=2,skin='Nhen',name='Thái Cổ Huyết Ma',x=1000,y=1100,hx=1000,hy=1100,hp=hp,maxHp=hp,phase=1,dead=0,cd=999,fr=0,fl=0,boss=True,elite=True,worldBoss=True,network=True,worldMap=True,map='worldboss',attackScale=1,xpReward=0,contributors={},_damage={},_lastDamage={},_nextCast=time.time()+3,respawnAt=0)
 
 
 def save_boss(db,mob):
@@ -267,14 +269,14 @@ def boss_victory(db,mob,peers):
     ranked=sorted(eligible,key=lambda uid:-mob['_damage'].get(uid,0))
     for rank,uid in enumerate(ranked,1):
         db.execute('INSERT OR IGNORE INTO community_rewards VALUES(?,?,?,?,0,?)',(f"boss:{mob['encounter']}:{uid}",uid,'Rương Thái Cổ Huyết Ma · Hạng '+str(rank)+(' · Huyết Ma Nộ x2' if mult>1 else ''),json.dumps({'gold':250*mult,'essence':60*mult,'shards':__import__('shards').boss_reward(rank)}),wall))
-        __import__('adventure').add(db,uid,'worldBoss')
+        __import__('adventure').add(db,uid,'worldBoss');__import__('adventure').add(db,uid,'daily:'+__import__('adventure').day()+':worldBoss')
     record_kill(db,eligible,True);mob.pop('_cast',None);mob['respawnAt']=wall+300;save_boss(db,mob)
 
 
 def tick_boss(mob,peers,field_blocked):
     wall=time.time();now=time.monotonic()
     if mob['hp']<=0:
-        if wall>=mob['respawnAt']:mob.clear();mob.update(new_boss())
+        if wall>=mob['respawnAt']:online=sum(1 for p in peers.values() if now-p.get('seen',0)<60);mob.clear();mob.update(new_boss(online))
         return
     active=[p for p in peers.values() if p['map']=='worldboss' and now-p['seen']<3 and p.get('hp',1)>0]
     cast=mob.get('_cast')

@@ -112,6 +112,7 @@ def finish(db, at=None):
         reward['shards'] = __import__('shards').battle_reward(f['score'], rank, f['team'] == winner)
         engagement.mail(db, f['id'], f"Chính – Tà Chi Chiến · Hạng {rank}" + (' · Thắng' if f['team'] == winner else ''), reward, f"{b['id']}:{f['id']}")
         adventure.add(db, f['id'], 'battles')
+        adventure.add(db, f['id'], 'daily:' + adventure.day() + ':battles')
         if f['team'] == winner:
             adventure.add(db, f['id'], 'battleWins')
         adventure.add(db, f['id'], engagement.board_value_key('battle', engagement.week(stamp)), int(f['score']))

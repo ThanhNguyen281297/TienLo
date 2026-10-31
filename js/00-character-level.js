@@ -1,7 +1,7 @@
 /* Character EXP and cultivation are separate currencies. Level gains never
    consume the saved cultivation progress used by the breakthrough system. */
 (function(){
- const MAX_LEVEL=200,POINTS_PER_LEVEL=3,SKILL_LEVELS=[10,20,30,40],ATTRIBUTES=['luc','the','nhanh','linh'];
+ const MAX_LEVEL=200,POINTS_PER_LEVEL=3,SKILL_LEVELS=[2,6,12,20],ATTRIBUTES=['luc','the','nhanh','linh'];
  const required=level=>{const n=Math.max(1,Math.min(MAX_LEVEL,Math.floor(level)))-1;return 100+45*n+12*n*n;};
  function normalize(player=P){
   if(player.level===undefined)player.level=Math.min(MAX_LEVEL,Math.max(1,(player.r||0)*10+(player.stage||1)));

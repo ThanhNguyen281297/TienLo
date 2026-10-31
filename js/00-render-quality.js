@@ -1,6 +1,6 @@
 /* Cache downsampled levels for painted art. No upscaling or invented detail. */
 (function(){
-  const revision=new URL(document.currentScript.src).searchParams.get('v');
+  const revision=document.querySelector('meta[name=tienlo-art]')?.content||new URL(document.currentScript.src).searchParams.get('v');
   window.artworkURL=src=>revision?src+(src.includes('?')?'&':'?')+'v='+encodeURIComponent(revision):src;
   const levels=new WeakMap();
   function draw(ctx,image,x,y,width,height){

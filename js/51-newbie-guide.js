@@ -18,9 +18,11 @@
    done:()=>{if(!window.adventureGame?.state?.data)return false;const q=quest('awakening');return !q||q.claimed;},go:()=>questNav.go({map:'hub',npc:'quest',name:'Thiên Vân Thành'},'Gặp Vân Châu'),target:null},
   {id:'hunt',icon:'⚔',text:()=>'Ra Sơn Hà săn yêu thú',progress:()=>[Math.min(5,kills()),5],done:()=>kills()>=5,
    go:()=>questNav.go({map:'field-meadow',x:440,y:1320,auto:true},'Săn yêu thú'),target:null},
+  {id:'skill',icon:'✴',text:()=>characterLevel()<2?'Lên cấp 2 để mở chiêu đầu tiên':'Tung chiêu 1 (phím 1 hoặc nút 1) vào yêu thú',done:s=>!!s.skill,
+   go:()=>{if(characterLevel()>=2)skill(0);else questNav.go({map:'field-meadow',x:440,y:1320,auto:true},'Săn yêu thú');},target:null},
   {id:'bag',icon:'🎒',text:()=>'Mở Túi đồ (I) xem trang bị của bạn',done:()=>tut('ui:bag')>0,go:()=>$('bag-button')?.click(),target:'bag-button'},
   {id:'attrs',icon:'✚',text:()=>'Cộng điểm Thuộc tính',done:()=>tut('ui:attrs')>0,go:()=>$('attr-button')?.click(),target:'attr-button'},
-  {id:'level',icon:'⬆',text:()=>'Đạt cấp 10 để mở chiêu đầu tiên',progress:()=>[Math.min(10,characterLevel()),10],done:()=>characterLevel()>=10,
+  {id:'level',icon:'⬆',text:()=>'Đạt cấp 10 để mở Bí Cảnh',progress:()=>[Math.min(10,characterLevel()),10],done:()=>characterLevel()>=10,
    go:()=>{if(!autoCombat.state.enabled)autoCombat.toggle(true);if(world.state.scene==='hub'||world.isSectMap?.(world.state.scene))questNav.go({map:'field-meadow',x:440,y:1320,auto:true},'Luyện cấp');},target:'auto-button'},
   {id:'rift',icon:'🌀',text:()=>'Vào Bí Cảnh đầu tiên: '+(rift()?.name||'Thanh Mộc Linh Cảnh'),done:s=>!!s.rift,
    go:()=>{const r=rift();if(!r)return;if(world.state.scene==='hub'&&Math.hypot(P.x-r.portal.x,P.y-r.portal.y)<90)return expeditionsGame.show('rift-wood');questNav.go({map:'hub',x:r.portal.x,y:r.portal.y+20,auto:false},'Cổng Bí Cảnh');},target:'rift'},
@@ -62,6 +64,8 @@
  document.head.append(css);
  // Opening the bag / attributes counts for the guide: report it to the server once
  // (adventure.py 'tutorial' action), so steps 3–4 complete and the next one shows.
+ // First skill cast completes the 'skill' step.
+ const cast=skill;skill=function(i,...rest){const r=cast.call(this,i,...rest);try{if(characterLevel()>=2&&!read().skill){const st=read();st.skill=true;write(st);update();}}catch{}return r;};
  const reported=new Set();
  const show=world.dialog.show;world.dialog.show=function(title,...rest){const r=show.call(this,title,...rest);
   const key=/^Hành trang/.test(title||'')?'bag':/^Thuộc tính/.test(title||'')?'attrs':null;

@@ -15,7 +15,7 @@
   {id:'hunt',icon:'hunt',name:'Vùng săn',desc:'Săn yêu thú, tinh anh và thủ lĩnh bãi.',shard:'thuhon',level:1,when:'Luôn mở',run:click('field-maps-button')},
   {id:'rift',icon:'rift',name:'Bí cảnh',desc:'Bốn bí cảnh theo cấp, thủ lĩnh rơi nhiều mảnh.',shard:'buocchan',level:10,when:'Luôn mở',run:click('rift-button')},
   {id:'tower',icon:'tower',name:'Tháp thí luyện',desc:'Leo tầng, mỗi tầng qua lần đầu trong ngày có thưởng.',shard:'phaptran',level:1,when:'Mỗi ngày',run:()=>window.questNav?.go({map:sectMap(),npc:'tower'},'Tháp thí luyện')},
-  {id:'raid',icon:'raid',name:'Bí cảnh tổ đội · Ma Quật',desc:'Tổ đội 2–4 người hạ Huyết Trì Ma Long.',shard:'phapbao',level:20,when:'3 lượt/ngày',run:()=>window.raidGame?.open()},
+  {id:'raid',icon:'raid',name:'Ma Quật · bí cảnh tổ đội',desc:'1–4 người hạ Huyết Trì Ma Long, đi một mình được.',shard:'phapbao',level:20,when:'3 lượt/ngày',run:()=>window.raidGame?.open()},
   {id:'battle',icon:'battle',name:'Chiến trường Chính – Tà',desc:'Đấu phe 15 phút, giữ cờ và hạ đối thủ.',shard:'hothuan',level:15,when:'12:30 và 21:00',run:()=>window.battleGame?.open()},
   {id:'guildwar',icon:'guildwar',name:'Tông môn chiến',desc:'Tông môn tranh bốn cứ điểm Sơn Hà.',shard:'nhan',level:1,when:'Thứ 4 và Thứ 7 · 20:00',run:()=>window.communityGame?.open('home')},
   {id:'boss',icon:'boss',name:'Boss thế giới',desc:'Cả server hạ Thái Cổ Huyết Ma, chia thưởng theo hạng sát thương.',shard:'thanbinh',level:1,when:'Tái xuất sau 5 phút',run:()=>window.communityGame?.open('boss')},
@@ -87,8 +87,8 @@
   for(const [title,items] of GROUPS){const g=node('section','fh-group');g.append(node('h4','',title));const row=node('div','fh-tiles');items.forEach(t=>row.append(tile(t)));g.append(row);wrap.append(g);}
   if(tab==='activities')act.scrollIntoView?.({block:'start'});}
  // The dock "…" button opens the hub instead of the old icon grid.
- const more=$('hud-more');if(more)more.addEventListener('click',e=>{e.stopImmediatePropagation();e.preventDefault();open();},true);
- addEventListener('keydown',e=>{if((e.key==='h'||e.key==='H')&&!e.ctrlKey&&!e.metaKey&&!/INPUT|TEXTAREA/.test(document.activeElement?.tagName||'')&&P.ap&&!d.isOpen())open();});
+ const more=$('hud-more');if(more)more.addEventListener('click',e=>{e.stopImmediatePropagation();e.preventDefault();window.featureHub.open();},true);
+ addEventListener('keydown',e=>{if((e.key==='h'||e.key==='H')&&!e.ctrlKey&&!e.metaKey&&!/INPUT|TEXTAREA/.test(document.activeElement?.tagName||'')&&P.ap&&!d.isOpen())window.featureHub.open();});
  const css=node('style');css.textContent=`
 #hud-more-menu,.vl-activity.vl-more,#vl-drawer{display:none!important}
 #world-dialog>section.xx-scrolled::before,#world-dialog>section.xx-scrolled>.xx-corner{display:none!important}

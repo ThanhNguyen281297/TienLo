@@ -7,7 +7,7 @@
  const RULE={id:'raid',name:'Huyết Trì Ma Quật',level:20,theme:'worldboss',species:['DungNham','TrauQuy','Soi','RongXuong'],boss:'RongXuong',color:'#ff7a6b',direction:'Nam',dropRate:0,portal:GATE};
  const state={data:null,view:null,busy:false,lastPoll:0,announced:''};
  exp.maps.set('raid',RULE);
- world.sectMaps.raid={...RULE,description:'Phó bản tổ đội 2–4 người',spawn:{x:1000,y:1380}};
+ world.sectMaps.raid={...RULE,description:'Phó bản 1–4 người',spawn:{x:1000,y:1380}};
  world.mapThemes.themes.raid={...world.mapThemes.themes['rift-void'],name:RULE.name};
  if(world.atmosphere?.profiles)world.atmosphere.profiles.raid={...world.atmosphere.profiles['rift-void']};
  const inRaid=()=>world.state.scene==='raid';
@@ -35,18 +35,18 @@
  async function call(action){if(state.busy)return;state.busy=true;try{state.data=await account.api('/api/raid',{action});if(action==='start')msg('Đã mở '+RULE.name+'. Cả đội hãy vào cổng!');if(action==='queue')msg('🔎 Đang tìm đội cho Ma Quật…');}catch(e){msg(e.message);}finally{state.busy=false;renderHud();open(true);}}
  function enter(){const run=myRun();if(!run||run.status!=='active')return msg('Ma Quật chưa mở.');if(world.state.scene!=='hub')return msg('Về Thiên Vân Thành rồi vào cổng Ma Quật.');world.switchScene('raid');}
 
- function open(silent=false){if(!P.ap)return;if(!silent||!d.isOpen())d.show(RULE.name,'Phó bản tổ đội 2–4 người · cấp '+RULE.level+'+');else if($('world-title').textContent!==RULE.name)return;
+ function open(silent=false){if(!P.ap)return;if(!silent||!d.isOpen())d.show(RULE.name,'Phó bản 1–4 người · cấp '+RULE.level+'+ · đi một mình được, đi đội nhận thưởng đủ');else if($('world-title').textContent!==RULE.name)return;
   const content=$('world-content');content.replaceChildren();
   const {body}=ui.panel('Huyết Trì Ma Long',creatureArt.thumbnail?.(RULE.boss)||null,content);
-  ui.chips([['Tổ đội','2–4'],['Cấp',RULE.level+'+'],['Lượt thưởng/ngày',(state.data?.clearsToday??0)+'/3'],['Thời gian','15 phút'],['Mảnh Pháp Bảo','5+']],body);
+  ui.chips([['Người','1–4'],['Cấp',RULE.level+'+'],['Lượt thưởng/ngày',(state.data?.clearsToday??0)+'/3'],['Thời gian','15 phút'],['Mảnh Pháp Bảo','5+']],body);
   ui.details('Giai đoạn 1: hạ 8 ma vệ. Giai đoạn 2: Huyết Trì Ma Long đập đất — vòng đỏ hiện trước 1,8 giây, chạy ra ngoài hoặc lướt để né. Dưới 50% máu Ma Long cuồng nộ, gọi 4 Huyết Lang. Hạ Ma Long: mỗi thành viên có mặt nhận rương (Linh Thạch, Linh Nguyên, mảnh linh khí, đá cường hóa, 35% trang bị).',body,'Cơ chế');
   const x=state.data;if(!x){content.append(ui.node('p','world-line','Đang tải…'));poll(true);return;}
   const run=x.run;
   if(run){content.append(ui.node('p','world-line',(run.status==='cleared'?'Đã chinh phục. ':'Đang mở · còn '+Math.ceil(run.expiresIn/60)+' phút. ')+'Thành viên: '+run.members.map(m=>m.name).join(', ')));
    if(run.status==='active'&&!inRaid())d.action('Vào Ma Quật',enter,world.state.scene!=='hub');
    if(x.leader&&run.status==='active')d.action('Đóng Ma Quật',()=>call('abandon'));}
-  else if(!x.party){content.append(ui.node('p','world-line',x.queued?'Đang tìm đội… '+x.queueSize+' người đang chờ. Đủ 4 người hoặc 2–3 người chờ 20 giây sẽ tự lập đội và mở Ma Quật.':'Chưa có tổ đội? Bấm Tìm đội để hệ thống ghép 2–4 người cấp 20+ đang ở Thiên Vân Thành.'));
-   if(x.queued)d.action('Hủy tìm đội',()=>call('unqueue'));else d.action('🔎 Tìm đội tự động',()=>call('queue'),world.state.scene!=='hub');}
+  else if(!x.party){content.append(ui.node('p','world-line',x.queued?'Đang tìm đội… '+x.queueSize+' người đang chờ. Đủ 4 người hoặc sau 20 giây sẽ tự mở với số người đang chờ (kể cả một mình).':'Đi một mình: boss yếu hơn, nhận nửa Mảnh Pháp Bảo. Hoặc bấm Tìm đội để ghép tới 4 người cấp 20+.'));
+   if(x.queued)d.action('Hủy tìm đội',()=>call('unqueue'));else{d.action('Vào một mình',()=>call('start'),world.state.scene!=='hub'||characterLevel()<RULE.level);d.action('🔎 Tìm đội tự động',()=>call('queue'),world.state.scene!=='hub');}}
   else if(!x.leader)content.append(ui.node('p','world-line','Chờ đội trưởng mở Ma Quật. Cả đội cần online trong Thiên Vân Thành, cấp '+RULE.level+'+.'));
   else d.action('Mở Ma Quật cho cả đội',()=>call('start'),world.state.scene!=='hub');
   if(inRaid())d.action('Rời Ma Quật',()=>{d.close();world.switchScene('hub');});

@@ -237,11 +237,11 @@
     } catch (e) {}
     if (!state.enabled) {
       try { if (window.cultivation) cultivation.select(null); } catch (e) {}
-      msg('Đã tắt tự động chiến đấu.');
+      msg('Đã tắt tự động · tự tay đánh nhận thêm 20% EXP và Linh Thạch.');
     } else {
       state.skillTimer = 0; state.potionTimer = 0; state.cursor = 0;state.sect=P.ap?.w;
       try { P.med = 0; } catch (e) {}
-      msg('Bật tự động: tự chọn mục tiêu, đánh thường, skill và đan dược.');
+      msg('Bật tự động: tự chọn mục tiêu, đánh thường, skill và đan dược (tự tay đánh được thêm 20% EXP).');
     }
     return state.enabled;
   }
