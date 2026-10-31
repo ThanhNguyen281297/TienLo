@@ -23,11 +23,12 @@ OFFLINE_MIN_CLAIM = 60
 CHECKIN = (
     dict(gold=200, essence=10),
     dict(fragments=5, items={'cuong-hoa-thach': 2}),
-    dict(gold=400, essence=20),
+    dict(gold=400, essence=20, shards=2),
     dict(fragments=10),
-    dict(gold=600, items={'cuong-hoa-thach': 3}),
+    dict(gold=600, items={'cuong-hoa-thach': 3}, shards=3),
     dict(fragments=15, items={'tinh-luyen-thach': 1}),
-    dict(gold=2000, fragments=25, items={'tinh-luyen-thach': 2}),
+    # Day 7 is worth logging in for: enough Thần Binh shards for a sizeable step toward a divine weapon.
+    dict(gold=2000, fragments=25, items={'tinh-luyen-thach': 2}, shards={'thanbinh': 30}),
 )
 
 # (id, name, start hour, end hour, weekdays or None, effect)

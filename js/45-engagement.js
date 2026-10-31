@@ -38,7 +38,11 @@
  const REWARD_ART={essence:'Item/CanhGioi/kimdan.png',fragments:'Item/PhapTran/5.png'};
  function rewardIcons(r){const row=ui.node('div','welfare-icons');const add=(src,qty,label,cls='')=>{const cell=ui.node('span','welfare-icon '+cls);cell.title=label;if(src){const img=new Image();img.src=artworkURL(src);img.alt='';cell.append(img);}else cell.append(ui.node('b','coin','◈'));cell.append(ui.node('em','',qty>=1000?(qty/1000)+'K':String(qty)));row.append(cell);};
   if(r.gold)add(null,r.gold,'Linh Thạch','gold');if(r.essence)add(REWARD_ART.essence,r.essence,'Linh Nguyên');if(r.fragments)add(REWARD_ART.fragments,r.fragments,'Mảnh linh khí');
-  for(const i of r.items||[])add(i.art,i.qty,i.name);return row;}
+  for(const i of r.items||[])add(i.art,i.qty,i.name);
+  const SH={thanbinh:['Item/VuKhi/Forms/manh-than-binh.png','Mảnh Thần Binh'],hothuan:['Item/Thuan/1.png','Mảnh Hộ Thuẫn'],phapbao:['Item/PhapBao/1.png','Mảnh Pháp Bảo']};
+  if(r.shards&&typeof r.shards==='object')for(const [k,q] of Object.entries(r.shards))add((SH[k]||SH.thanbinh)[0],q,(SH[k]||[0,'Mảnh '+k])[1]);
+  else if(r.shards)add('Item/KyTran/ruong-manh.png',r.shards,'Mảnh trang bị ngẫu nhiên');
+  return row;}
  // Năng động: today's tasks add points; four milestone chests.
  function activity(root,x){const a=x.activity;if(!a){root.append(ui.node('p','world-line','Đang tải…'));return;}
   const head=ui.node('div','activity-head');head.append(ui.node('b','',a.points+' / '+a.max),ui.node('small','','điểm năng động hôm nay'));root.append(head);

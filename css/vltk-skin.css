@@ -157,3 +157,5 @@ html body .account-tabs button.active,html body .account-tabs button.active:hove
 html body .account-tabs button:not(.active):hover{color:#f3e3b4!important;border-color:#b8925088!important}
 /* One objective at a time: while the newbie guide card is up, the main-quest tracker steps aside. */
 body:has(#vl-guide:not([hidden])) #journey-objective{display:none!important}
+/* Target frame sits left of the activity icon row on wide screens instead of under it. */
+@media(min-width:900px) and (min-height:501px){html body #target-frame{left:min(50%,calc(100vw - 760px))!important}}

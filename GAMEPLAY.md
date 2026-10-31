@@ -280,3 +280,6 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Tự tay đánh (tắt auto) nhận thêm 20% EXP và Linh Thạch mỗi lần hạ quái.
 - Lực chiến tăng hiện thông báo; Chức năng có mục "Mục tiêu trang bị" (món kế tiếp mỗi loại mảnh) và chip mục tiêu trên HUD từ cấp 10.
 - Ảnh game được đánh phiên bản theo nội dung ảnh, không theo commit: deploy chỉ sửa code không bắt người chơi tải lại ~17 MB ảnh.
+- Điểm danh ngày 3/5 thêm mảnh ngẫu nhiên, ngày 7 thêm 30 Mảnh Thần Binh.
+- Nhắc sự kiện (js/79-reminders.js): Chiến trường 12:30/21:00, Tông môn chiến T4/T7 20:00 và sự kiện Phúc lợi được báo trước 5 phút và khi mở; bật/tắt và cho phép thông báo hệ thống trong bảng Chức năng.
+- Ảnh theo phái tải khi cần (js/00-asset-gate.js): màn đăng nhập từ ~16 MB xuống ~8,5 MB; ảnh skill/thân/mặt của một phái chỉ tải khi phái đó xuất hiện.
