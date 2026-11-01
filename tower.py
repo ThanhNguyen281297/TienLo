@@ -8,7 +8,12 @@ import equipment
 import progression
 
 MAX_FLOOR=200
-GATE=(1240,1385)
+# Where a player stands after leaving the tower: next to the Trấn Tháp NPC in the redesigned
+# Thiên Vân Thành (js/17c-tien-hiep-layouts.js, hub anchor 'tower' at 1500,840).
+GATE=(1500,890)
+# The tower opens from the Trấn Tháp NPC in the city or from any sect court (all safe maps);
+# the old fixed-gate distance check broke when the city layout moved the NPC.
+ENTRY_MAPS=('hub','sword','moon','thunder','mystic')
 
 def init_db(db):
     db.executescript('''
@@ -59,7 +64,7 @@ def action(db,uid,body):
     if body.get('revision')!=row['revision']:raise ValueError('Nhân vật đã thay đổi. Hãy thử lại.')
     r=run(db,uid)
     if op=='start':
-        if p['world'].get('map')!='hub' or math.hypot(p['x']-GATE[0],p['y']-GATE[1])>100:raise ValueError('Hãy đến NPC Trấn Tháp trong thành.')
+        if p['world'].get('map') not in ENTRY_MAPS:raise ValueError('Hãy về Thiên Vân Thành hoặc tông môn để vào tháp.')
         best=snapshot(db,uid)['best'];floor=body.get('floor',min(MAX_FLOOR,best+1))
         if type(floor) is not int or not 1<=floor<=min(MAX_FLOOR,best+1):raise ValueError('Chưa mở tầng này.')
         if progression.level(p)<max(1,(floor+1)//2):raise ValueError('Cấp nhân vật chưa đủ để vào tầng này.')
