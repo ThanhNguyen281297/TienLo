@@ -44,7 +44,19 @@ FIELD_RULES = json.loads((ROOT / 'Map' / 'field-effects.json').read_text(encodin
 PET_RULES = json.loads((ROOT / 'Item' / 'pet-skills.json').read_text(encoding='utf-8'))
 DATABASE = Path(os.environ.get('TIENLO_DB', str(ROOT / 'data' / 'tienlo.sqlite3')))
 PUBLIC_ORIGIN = os.environ.get('TIENLO_ORIGIN', '').rstrip('/')
-SECURE_COOKIE = PUBLIC_ORIGIN.startswith('https://')
+SECURE_COOKIE = PUBLIC_ORIGIN.strip().startswith('https://')
+def _origin_variants(value):
+    # TIENLO_ORIGIN may list several origins (comma separated); each also allows its www / bare twin.
+    out=set()
+    for item in value.split(','):
+        item=item.strip().rstrip('/')
+        if not item: continue
+        scheme,_,host=item.partition('://')
+        out.add(item); out.add(scheme+'://'+(host[4:] if host.startswith('www.') else 'www.'+host))
+    return out
+# The game's public domain is always accepted once the server runs behind HTTPS, so a stale TIENLO_ORIGIN
+# left over from an older domain does not lock players out of login.
+ALLOWED_ORIGINS = _origin_variants(PUBLIC_ORIGIN+(',https://tienlo2d.xyz' if SECURE_COOKIE else ''))
 DB_LOCK = RLock()
 # Where a defeated player stands up again (field station, rift/raid entry, sect spawns).
 RESPAWN_POINTS = ((1000,1100),(1000,1770),(1000,1380),(1000,1210),(1000,1180))
@@ -546,8 +558,8 @@ class GameHandler(SimpleHTTPRequestHandler):
     def post_route(self):
         path=urlsplit(self.path).path
         origin=self.headers.get('Origin')
-        allowed=PUBLIC_ORIGIN or 'http://'+self.headers.get('Host','')
-        if origin and origin!=allowed: return self.reply(403,{'error':'Nguồn request không hợp lệ.'})
+        allowed=ALLOWED_ORIGINS or {'http://'+self.headers.get('Host','')}
+        if origin and origin not in allowed: return self.reply(403,{'error':'Nguồn request không hợp lệ.'})
         if path in ('/api/register','/api/login'): return self.authenticate(path,self.body())
         user=self.identity()
         if not user: return self.reply(401,{'error':'Phiên đăng nhập hết hạn.'})
