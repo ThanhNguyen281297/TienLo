@@ -40,7 +40,7 @@ ROOT = Path(__file__).resolve().parent
 SESSIONS = {}                       # token -> dict(uid, username, csrf, expires)
 SESSION_TTL = 12 * 3600
 LOGIN_LIMIT = defaultdict(deque)
-CTX = {}                            # filled by start(): PEERS, CHAT, DB_LOCK, WORLD_LOCK, connect, password_hash, SECTS
+CTX = {}                            # filled by start(): PEERS, CHAT, ANNOUNCE, DB_LOCK, WORLD_LOCK, connect, password_hash, SECTS
 REALMS = re.search(r"const R=\[([^\]]*)\]", (ROOT / 'js/01-core-game.js').read_text(encoding='utf-8')).group(1).replace("'", '').split(',')
 LIMITS = dict(gold=10 ** 9, essence=10 ** 8, xp=10 ** 9, lq=10 ** 6, shard=99999, item=9999)
 EDIT_FIELDS = {  # key -> (where, min, max)
@@ -256,11 +256,17 @@ def broadcast(admin, body):
     text = str(body.get('text') or '').strip()
     if not 1 <= len(text) <= 200:
         raise ValueError('Thông báo 1–200 ký tự.')
+    secs = body.get('seconds', 10)
+    if type(secs) is not int or not 3 <= secs <= 60:
+        raise ValueError('Thời gian hiển thị 3–60 giây.')
+    now = time.time()
     with CTX['WORLD_LOCK']:
-        CTX['CHAT'].append({'id': secrets.token_hex(8), 'map': '*', 'channel': 'system', 'group': None, 'name': 'Hệ thống', 'text': text, 'at': int(time.time())})
+        # Shown as a banner in the middle of every online player's screen (not in chat).
+        # Kept for 2 minutes so players who are loading in still see it once.
+        CTX['ANNOUNCE'].append({'id': secrets.token_hex(8), 'text': text, 'seconds': secs, 'at': now, 'until': now + 120})
     with CTX['connect']() as db:
-        log(db, admin, 'broadcast', '*', dict(text=text))
-    return dict(ok=True, message='Đã phát thông báo tới mọi kênh chat.')
+        log(db, admin, 'broadcast', '*', dict(text=text, seconds=secs))
+    return dict(ok=True, message=f'Đã phát thông báo giữa màn hình cho {len(online())} người đang online.')
 
 
 class AdminHandler(BaseHTTPRequestHandler):

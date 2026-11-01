@@ -10,7 +10,7 @@ from test_premium_shards_mail import Base
 class AdminTests(Base):
     def setUp(self):
         super().setUp()
-        admin.CTX.update(PEERS={}, CHAT=server.CHAT, DB_LOCK=server.DB_LOCK, WORLD_LOCK=server.WORLD_LOCK, connect=server.connect,
+        admin.CTX.update(PEERS={}, CHAT=server.CHAT, ANNOUNCE=server.ANNOUNCE, DB_LOCK=server.DB_LOCK, WORLD_LOCK=server.WORLD_LOCK, connect=server.connect,
                          password_hash=server.password_hash, SECTS=server.SECTS)
         admin.init_db(self.db)
 
@@ -34,6 +34,15 @@ class AdminTests(Base):
         r = admin.send_mail(self.db, 'gm', {'targets': 'all', 'title': 'Quà', 'reward': {'gold': 10}})
         self.assertEqual(r['sent'], 2)
         self.assertEqual(self.db.execute("SELECT COUNT(*) FROM admin_log").fetchone()[0], 2)
+
+    def test_broadcast_goes_to_announce_not_chat(self):
+        chat = len(server.CHAT)
+        admin.broadcast('gm', {'text': 'Bảo trì 23:00', 'seconds': 8})
+        self.assertEqual(len(server.CHAT), chat)
+        self.assertEqual(server.ANNOUNCE[-1]['text'], 'Bảo trì 23:00')
+        self.assertEqual(server.ANNOUNCE[-1]['seconds'], 8)
+        with self.assertRaises(ValueError):
+            admin.broadcast('gm', {'text': 'x', 'seconds': 0})
 
 
 if __name__ == '__main__':

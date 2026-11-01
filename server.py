@@ -68,6 +68,7 @@ AUTH_LIMIT = defaultdict(deque)
 AUTH_WORK = __import__('threading').BoundedSemaphore(2)
 PEERS, ROOMS, EVENTS = {}, {}, defaultdict(list)
 CHAT = deque(maxlen=100)
+ANNOUNCE = deque(maxlen=20)   # admin announcements shown mid-screen (admin.broadcast)
 SECTS = ('Kiếm Tông', 'Minh Nguyệt Tông', 'Lôi Thương Tông', 'Thiên Cơ Môn')
 STATIC_FILES = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()}
 MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'tower', 'worldboss', 'duel', 'raid', 'battle', 'guildboss', *expeditions.MAPS, *overworld.MAPS)
@@ -1057,6 +1058,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             if scene in overworld.MAPS:result.update(pvpDamage=pk_damage,pvpEvents=pk_events,pk=fieldpk.public(uid))
             result['events']=[dict(id=e['id'],name=e['name'],effect=e['effect'],mult=e['mult']) for e in engagement.active_events()]
             result['combatHits']=combat_hits
+            wall=time.time();result['announce']=[{k:a[k] for k in ('id','text','seconds')} for a in ANNOUNCE if a['until']>wall]
             with connect() as db:
                 result['pendingDrops']=expeditions.pending(db,uid)
                 result['adventureWallet']=adventure.wallet(db,uid)
@@ -1068,5 +1070,5 @@ if __name__=='__main__':
     host=os.environ.get('TIENLO_HOST','127.0.0.1'); port=int(os.environ.get('TIENLO_PORT','8080'))
     print(f'Tiên Lộ Online: http://{host}:{port}',flush=True)
     # GM admin panel on its own port (TIENLO_ADMIN_PORT, default 19999 on 127.0.0.1; 0 disables).
-    admin.start(PEERS=PEERS,CHAT=CHAT,DB_LOCK=DB_LOCK,WORLD_LOCK=WORLD_LOCK,connect=connect,password_hash=password_hash,SECTS=SECTS)
+    admin.start(PEERS=PEERS,CHAT=CHAT,ANNOUNCE=ANNOUNCE,DB_LOCK=DB_LOCK,WORLD_LOCK=WORLD_LOCK,connect=connect,password_hash=password_hash,SECTS=SECTS)
     GameServer((host,port),partial(GameHandler,directory=str(ROOT))).serve_forever()

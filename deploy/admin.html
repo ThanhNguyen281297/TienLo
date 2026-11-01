@@ -173,8 +173,10 @@ async function sendMail(){const M=S.mail,R=M.reward;const reward={gold:R.gold||0
  try{const j=await api('/api/mail',{targets,title:M.title||'',reward});toast(j.message);S.mail={targets:M.targets,ids:M.ids,gear:[],reward:{}};mail();}catch(e){toast(e.message,true);}}
 
 // ---------------------------------------------------------------- broadcast + log
-function broadcast(){const v=$('v-broadcast');const t=h('textarea',{rows:'3',maxlength:'200',placeholder:'Nội dung hiện ở khung chat của mọi người chơi (tối đa 200 ký tự)',style:'width:100%'});
- v.replaceChildren(h('div',{class:'card'},h('h2',{},'Thông báo hệ thống'),t,h('div',{class:'row',style:'margin-top:8px'},h('button',{class:'primary',onclick:async()=>{if(!t.value.trim())return;try{const j=await api('/api/broadcast',{text:t.value.trim()});toast(j.message);t.value='';}catch(e){toast(e.message,true);}}},'Phát thông báo'))));}
+function broadcast(){const v=$('v-broadcast');const t=h('textarea',{rows:'3',maxlength:'200',placeholder:'Nội dung hiện giữa màn hình của mọi người chơi đang online (tối đa 200 ký tự)',style:'width:100%'});
+ const secs=h('select',{},...[5,8,10,15,20,30].map(n=>h('option',{value:n,selected:n===10},n+' giây')));
+ v.replaceChildren(h('div',{class:'card'},h('h2',{},'Thông báo từ Admin'),h('p',{class:'muted'},'Hiện thành bảng "THÔNG BÁO TỪ ADMIN" ở giữa màn hình người chơi đang online (và người vào game trong 2 phút tới), không nằm trong khung chat.'),t,
+  h('div',{class:'row',style:'margin-top:8px'},h('label',{class:'muted'},'Hiện trong ',secs),h('button',{class:'primary',onclick:async()=>{if(!t.value.trim())return;try{const j=await api('/api/broadcast',{text:t.value.trim(),seconds:parseInt(secs.value,10)});toast(j.message);t.value='';}catch(e){toast(e.message,true);}}},'Phát thông báo'))));}
 async function logView(){const v=$('v-log');if(!OV)await overview(true);
  v.replaceChildren(h('div',{class:'card'},h('h2',{},'Nhật ký quản trị (30 gần nhất)'),h('div',{class:'tablebox'},h('table',{},h('thead',{},h('tr',{},...['Lúc','GM','Thao tác','Đối tượng','Chi tiết'].map(t=>h('th',{},t)))),
   h('tbody',{},...(OV?.log||[]).map(l=>h('tr',{},h('td',{class:'muted'},new Date(l.at*1000).toLocaleString('vi-VN')),h('td',{},l.admin),h('td',{},l.action),h('td',{},l.target||''),h('td',{class:'muted',style:'max-width:520px;word-break:break-word'},l.detail))))))));}
