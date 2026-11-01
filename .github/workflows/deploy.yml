@@ -55,7 +55,8 @@ jobs:
             tests/test_shard_sources.py \
             tests/test_retention.py \
             tests/test_origins.py \
-            tests/test_guild_cave.py; do
+            tests/test_guild_cave.py \
+            tests/test_admin.py; do
             if ! python "$t" > out.log 2>&1; then
               cat out.log
               echo "::error title=$t::$(tail -c 1800 out.log | tr '\n' ' ')"

@@ -22,6 +22,7 @@ import pets
 import auction
 import guildhall
 import cave
+import admin
 AUCTION_SETTLED=0
 import hashlib
 import hmac
@@ -1048,7 +1049,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             peer['bossEvents']=[e for e in peer.get('bossEvents',[]) if e['id'] not in boss_ack] if scene=='worldboss' else []
             with connect() as db:
                 party=community.membership(db,uid,'party');guild=community.membership(db,uid,'guild')
-            messages=[m for m in CHAT if (m.get('channel','world')=='world' and m['map']==scene) or (m.get('channel')=='party' and party and m.get('group')==party['party_id']) or (m.get('channel')=='guild' and guild and m.get('group')==guild['guild_id'])]
+            messages=[m for m in CHAT if m.get('channel')=='system' or (m.get('channel','world')=='world' and m['map']==scene) or (m.get('channel')=='party' and party and m.get('group')==party['party_id']) or (m.get('channel')=='guild' and guild and m.get('group')==guild['guild_id'])]
             result={'shield':peer['ap']['shieldState'],'sustain':peer.get('sustain',[]),'boss':community.boss_view(mobs[0],uid,peer['attack']) if scene=='worldboss' and mobs else None,'bossEvents':peer.get('bossEvents',[]),'damage':damage,'players':peers,'fields':public_fields,'mobs':[public_mob(m) | {'dead':max(0,m['dead']-now) if m['dead'] else 0} for m in mobs], 'rewards':EVENTS[uid][:],'chat':messages,'shared':shared,'online':len(PEERS),'x':x,'y':y}
             result['duel']=duel
             result['raid']=raid.view(ROOMS.get(key,{}),now) if scene=='raid' else None
@@ -1066,4 +1067,6 @@ if __name__=='__main__':
     init_db()
     host=os.environ.get('TIENLO_HOST','127.0.0.1'); port=int(os.environ.get('TIENLO_PORT','8080'))
     print(f'Tiên Lộ Online: http://{host}:{port}',flush=True)
+    # GM admin panel on its own port (TIENLO_ADMIN_PORT, default 19999 on 127.0.0.1; 0 disables).
+    admin.start(PEERS=PEERS,CHAT=CHAT,DB_LOCK=DB_LOCK,WORLD_LOCK=WORLD_LOCK,connect=connect,password_hash=password_hash,SECTS=SECTS)
     GameServer((host,port),partial(GameHandler,directory=str(ROOT))).serve_forever()

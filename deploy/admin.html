@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tiên Lộ · Quản trị</title>
+<style>
+:root{--bg:#0b1418;--panel:#121f25;--panel2:#16262d;--line:#2a3d44;--text:#e9e2cf;--muted:#9fb0ad;--gold:#f0cf8a;--gold2:#c99a4a;--ok:#5fe0b5;--bad:#ff8a7a;--blue:#8fd0ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{background:#0d181c;border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid #f0cf8a66;border-color:var(--gold2)}
+button{cursor:pointer;border:1px solid #f5dfa966;border-radius:8px;padding:7px 12px;background:#1d2f36}
+button:hover{border-color:var(--gold)}
+button.primary{background:linear-gradient(180deg,#f6dc9c,#c99a4a);color:#2a1a06;font-weight:700;border-color:#f5dfa9}
+button.danger{border-color:#ff8a7a88;color:#ffb2a6}
+button:disabled{opacity:.5;cursor:default}
+h1,h2,h3{margin:0;font-family:Georgia,'Times New Roman',serif;color:#fff1cc}
+h2{font-size:18px;margin-bottom:10px}h3{font-size:15px;margin:14px 0 8px}
+.wrap{max-width:1280px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:#0d181ccc;position:sticky;top:0;z-index:5;backdrop-filter:blur(6px)}
+header h1{font-size:19px;color:var(--gold)}header .sp{flex:1}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+nav button.on{background:linear-gradient(180deg,#f6dc9c,#c99a4a);color:#2a1a06;font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.tile b{display:block;font-size:26px;color:var(--gold)}.tile span{color:var(--muted);font-size:12.5px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #1f3036;vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:12.5px;position:sticky;top:0;background:var(--panel)}
+tr:hover td{background:#16262d}
+.tablebox{overflow:auto;max-height:520px}
+.muted{color:var(--muted)}.ok{color:var(--ok)}.bad{color:var(--bad)}.gold{color:var(--gold)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#5fe0b5;margin-right:6px;box-shadow:0 0 6px #5fe0b5}
+.dot.off{background:#56656a;box-shadow:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.fields label{display:grid;gap:3px;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:#0d181c;border:1px solid var(--line);font-size:12.5px;margin:2px}
+.chip button{padding:0 6px;border:0;background:none;color:var(--bad)}
+.r-pham{color:#d4cbb6}.r-huyen{color:#70df9c}.r-linh{color:#6fc8ff}.r-tien{color:#cf9cff}.r-than{color:#ffcc70}
+#toast{position:fixed;right:16px;bottom:16px;max-width:420px;padding:10px 14px;border-radius:10px;background:#16262d;border:1px solid var(--gold2);display:none;z-index:9}
+#login{max-width:380px;margin:12vh auto}
+#login .card{display:grid;gap:10px}
+.pick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.pick div{display:flex;justify-content:space-between;gap:8px;padding:6px 9px;border-bottom:1px solid #1f3036;cursor:pointer}
+.pick div:hover{background:#1d2f36}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="login" hidden>
+ <div class="card">
+  <h1 style="color:var(--gold)">Tiên Lộ · Quản trị</h1>
+  <p class="muted">Đăng nhập bằng tài khoản game có quyền GM.</p>
+  <input id="lu" placeholder="Tên đăng nhập" autocomplete="username">
+  <input id="lp" placeholder="Mật khẩu" type="password" autocomplete="current-password">
+  <button class="primary" id="lb">Đăng nhập</button>
+  <p id="le" class="bad"></p>
+ </div>
+</div>
+<div id="app" hidden>
+ <header><h1>Tiên Lộ · Quản trị</h1><span class="muted" id="who"></span><span class="sp"></span><span id="onlineBadge"></span><button id="logout">Đăng xuất</button></header>
+ <div class="wrap">
+  <nav id="tabs"></nav>
+  <section id="v-overview"></section>
+  <section id="v-players" hidden></section>
+  <section id="v-mail" hidden></section>
+  <section id="v-broadcast" hidden></section>
+  <section id="v-log" hidden></section>
+ </div>
+</div>
+<div id="toast"></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==='class')e.className=v;else if(k.startsWith('on'))e[k]=v;else if(v!==false&&v!=null)e.setAttribute(k,v===true?'':v);}for(const c of kids.flat())if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(String(c)));return e;};
+const fmt=n=>Number(n||0).toLocaleString('vi-VN');
+const ago=t=>{if(!t)return '';const s=Math.max(0,Date.now()/1000-t);return s<60?'vừa xong':s<3600?Math.floor(s/60)+' phút trước':s<86400?Math.floor(s/3600)+' giờ trước':Math.floor(s/86400)+' ngày trước';};
+const S={csrf:'',user:'',cat:null,tab:'overview',player:null,mail:{targets:'online',ids:[],gear:[],reward:{}}};
+function toast(msg,bad){const t=$('toast');t.textContent=msg;t.style.borderColor=bad?'#ff8a7a':'#c99a4a';t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4000);}
+async function api(path,body){const r=await fetch(path,body?{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':S.csrf},body:JSON.stringify(body)}:{});const j=await r.json().catch(()=>({error:'Lỗi máy chủ.'}));if(r.status===401){showLogin();throw new Error(j.error);}if(!r.ok)throw new Error(j.error||'Lỗi');return j;}
+function showLogin(){$('app').hidden=true;$('login').hidden=false;}
+async function login(){$('le').textContent='';try{const j=await api('/api/login',{username:$('lu').value.trim(),password:$('lp').value});S.csrf=j.user.csrf;S.user=j.user.username;$('lp').value='';start();}catch(e){$('le').textContent=e.message;}}
+$('lb').onclick=login;$('lp').onkeydown=e=>{if(e.key==='Enter')login();};
+$('logout').onclick=async()=>{try{await api('/api/logout',{});}catch{}location.reload();};
+
+const TABS=[['overview','Tổng quan'],['players','Người chơi'],['mail','Gửi thư · quà'],['broadcast','Thông báo'],['log','Nhật ký']];
+function tabs(){const n=$('tabs');n.replaceChildren(...TABS.map(([id,l])=>h('button',{class:S.tab===id?'on':'',onclick:()=>go(id)},l)));}
+function go(id){S.tab=id;tabs();for(const[t]of TABS)$('v-'+t).hidden=t!==id;({overview,players,mail,broadcast,log:logView})[id]();}
+
+async function start(){$('login').hidden=true;$('app').hidden=false;$('who').textContent='GM: '+S.user;S.cat=await api('/api/catalog');go('overview');setInterval(()=>{if(S.tab==='overview')overview(true);},5000);}
+
+// ---------------------------------------------------------------- overview
+let OV=null;
+async function overview(quiet){try{OV=await api('/api/overview');}catch(e){if(!quiet)toast(e.message,true);return;}
+ $('onlineBadge').replaceChildren(h('span',{class:'dot'}),fmt(OV.online.length)+' online');
+ const v=$('v-overview');v.replaceChildren(
+  h('div',{class:'tiles'},...[['Đang online',OV.online.length],['Tài khoản',OV.users],['Nhân vật',OV.characters],['Tông môn',OV.guilds],['GM',OV.gms]].map(([l,n])=>h('div',{class:'tile'},h('b',{},fmt(n)),h('span',{},l)))),
+  h('div',{class:'card'},h('h2',{},'Người chơi đang online'),OV.online.length?h('div',{class:'tablebox'},h('table',{},
+   h('thead',{},h('tr',{},...['Nhân vật','Tông môn','Cấp','Cảnh giới','Bản đồ','Khí huyết','Chế độ',''].map(t=>h('th',{},t)))),
+   h('tbody',{},...OV.online.map(o=>h('tr',{},h('td',{},h('span',{class:'dot'}),h('b',{},o.name),' ',h('span',{class:'muted'},'#'+o.id)),h('td',{},o.sect),h('td',{},o.level),h('td',{},o.realm),h('td',{},o.map),
+     h('td',{},fmt(o.hp)+' / '+fmt(o.maxHp)),h('td',{class:'muted'},o.auto?'Auto':'Tự đánh'),
+     h('td',{},h('div',{class:'row'},h('button',{onclick:()=>openPlayer(o.id)},'Xem'),h('button',{onclick:()=>mailTo([o.id],o.name)},'Gửi quà')))))))):h('p',{class:'muted'},'Chưa có ai online.')));
+}
+
+// ---------------------------------------------------------------- players
+async function players(){const v=$('v-players');if(!v.firstChild){const q=h('input',{id:'pq',placeholder:'Tìm theo tên đăng nhập, tên nhân vật hoặc ID',style:'flex:1;min-width:240px'});q.onkeydown=e=>{if(e.key==='Enter')search();};
+  v.append(h('div',{class:'card'},h('div',{class:'row'},q,h('button',{class:'primary',onclick:search},'Tìm'))),h('div',{class:'card',id:'presults'}),h('div',{id:'pdetail'}));search();}}
+async function search(){const box=$('presults');try{const j=await api('/api/players?q='+encodeURIComponent($('pq').value.trim()));
+ box.replaceChildren(h('h2',{},'Kết quả ('+j.players.length+')'),h('div',{class:'tablebox'},h('table',{},h('thead',{},h('tr',{},...['','Tài khoản','Nhân vật','Tông môn','Cấp','Cảnh giới','Linh Thạch','Cập nhật',''].map(t=>h('th',{},t)))),
+  h('tbody',{},...j.players.map(p=>{const c=p.character||{};return h('tr',{},h('td',{},h('span',{class:'dot'+(p.online?'':' off')})),h('td',{},p.username,' ',p.gm?h('span',{class:'gold'},'GM'):'',h('div',{class:'muted'},'#'+p.id)),h('td',{},c.name||h('span',{class:'muted'},'chưa tạo')),h('td',{},c.sect||''),h('td',{},c.level||''),h('td',{},c.realm||''),h('td',{},c.name?fmt(c.gold):''),h('td',{class:'muted'},ago(c.updated)),h('td',{},c.name?h('button',{onclick:()=>openPlayer(p.id)},'Xem'):''));})))));}catch(e){toast(e.message,true);}}
+async function openPlayer(id){if(S.tab!=='players'){go('players');}try{S.player=await api('/api/player?id='+id);renderPlayer();$('pdetail').scrollIntoView({behavior:'smooth'});}catch(e){toast(e.message,true);}}
+function renderPlayer(){const p=S.player,c=p.character,box=$('pdetail');if(!c){box.replaceChildren(h('div',{class:'card'},h('p',{},'Tài khoản chưa tạo nhân vật.')));return;}
+ const num=(id,ph)=>h('input',{id,type:'number',placeholder:ph,step:'1'});
+ const F=[['level','Cấp (1–200)'],['r','Cảnh giới (0–'+(S.cat.realms.length-1)+')'],['stage','Tầng (1–10)'],['gold','Linh Thạch'],['essence','Linh Nguyên'],['xp','Đạo hạnh'],['breakthroughPills','Đột Phá Đan'],['thangViDan','Thăng Vị Đan'],['tribCharms','Hộ Kiếp Phù']];
+ const editCard=h('div',{class:'card'},h('h2',{},'Chỉnh sửa nhân vật'),
+  h('p',{class:'muted'},'Cột "Đặt" ghi đè giá trị, cột "Cộng thêm" cộng/trừ (số âm để trừ). Bỏ trống ô không đổi. Người chơi đang online sẽ được tải lại.'),
+  h('table',{},h('thead',{},h('tr',{},h('th',{},'Chỉ số'),h('th',{},'Hiện tại'),h('th',{},'Đặt'),h('th',{},'Cộng thêm'))),h('tbody',{},...F.map(([k,l])=>h('tr',{},h('td',{},l),h('td',{class:'gold'},k==='r'?c.r+' · '+S.cat.realms[c.r]:fmt(c[k])),h('td',{},num('set-'+k,'')),h('td',{},num('add-'+k,'')))))),
+  h('h3',{},'Linh Quang và mảnh (cộng/trừ)'),
+  h('div',{class:'fields'},h('label',{},'Linh Quang · có '+fmt(p.lq),num('lq','+/-')),...Object.entries(S.cat.shards).map(([k,n])=>h('label',{},n+' · có '+fmt(p.shards[k]),num('sh-'+k,'+/-')))),
+  h('div',{class:'row',style:'margin-top:12px'},h('button',{class:'primary',onclick:saveEdit},'Lưu thay đổi'),
+   h('button',{onclick:()=>mailTo([p.id],c.name)},'Gửi thư · quà'),
+   h('button',{class:p.gm?'danger':'',onclick:()=>toggleGm(!p.gm)},p.gm?'Gỡ quyền GM':'Cấp quyền GM')));
+ const info=h('div',{class:'card'},h('h2',{},c.name,' ',h('span',{class:'muted'},'@'+p.username+' · #'+p.id)),
+  h('div',{class:'row'},h('span',{class:'chip'},h('span',{class:'dot'+(p.online?'':' off')}),p.online?'Đang online':'Offline'),h('span',{class:'chip'},c.sect+' · '+(c.gender==='Nu'?'Nữ':'Nam')),h('span',{class:'chip'},'Cấp '+c.level),h('span',{class:'chip'},c.realm),p.guild?h('span',{class:'chip'},'Tông môn '+p.guild.name+' · '+fmt(p.guild.contribution)+' cống hiến'):'',p.gm?h('span',{class:'chip gold'},'GM'):''),
+  h('div',{class:'tiles',style:'margin-top:10px'},...[['Linh Thạch',c.gold],['Linh Nguyên',c.essence],['Linh Quang',p.lq],['Đạo hạnh',c.xp],['Đột Phá Đan',c.breakthroughPills],['Thăng Vị Đan',c.thangViDan]].map(([l,n])=>h('div',{class:'tile'},h('b',{},fmt(n)),h('span',{},l)))),
+  h('div',{class:'grid2'},
+   h('div',{},h('h3',{},'Đang mặc'),h('table',{},h('tbody',{},...Object.entries(p.equip||{}).map(([s,i])=>h('tr',{},h('td',{class:'muted'},S.cat.slots[s]||s),h('td',{class:'r-'+i.rarity},i.name+(i.enhance?' +'+i.enhance:''))))))),
+   h('div',{},h('h3',{},'Túi đồ ('+(p.bag||[]).length+'/'+p.capacity+')'),h('div',{class:'tablebox',style:'max-height:260px'},h('table',{},h('tbody',{},...(p.bag||[]).map(i=>h('tr',{},h('td',{class:'r-'+i.rarity},i.name+(i.enhance?' +'+i.enhance:'')),h('td',{class:'muted'},S.cat.slots[i.slot]||(i.slot==='material'?'Nguyên liệu':i.slot)),h('td',{},i.qty>1?'×'+i.qty:'')))))))),
+  h('h3',{},'Thư gần đây'),(p.mail||[]).length?h('table',{},h('tbody',{},...p.mail.map(m=>h('tr',{},h('td',{},m.title),h('td',{class:m.claimed?'muted':'ok'},m.claimed?'Đã nhận':'Chưa nhận'),h('td',{class:'muted'},ago(m.at)))))):h('p',{class:'muted'},'Không có thư.'));
+ box.replaceChildren(info,editCard);}
+async function saveEdit(){const p=S.player,val=id=>{const v=$(id)?.value.trim();return v===''||v==null?null:parseInt(v,10);};const body={id:p.id,set:{},add:{},shards:{}};
+ for(const k of ['level','r','stage','gold','essence','xp','breakthroughPills','thangViDan','tribCharms']){const s=val('set-'+k),a=val('add-'+k);if(s!=null)body.set[k]=s;if(a!=null)body.add[k]=a;}
+ const lq=val('lq');if(lq)body.lq=lq;for(const k of Object.keys(S.cat.shards)){const v=val('sh-'+k);if(v)body.shards[k]=v;}
+ if(!confirm('Lưu thay đổi cho '+p.character.name+'?'))return;
+ try{const j=await api('/api/edit',body);S.player=j.player;renderPlayer();toast(j.message);}catch(e){toast(e.message,true);}}
+async function toggleGm(gm){const p=S.player;if(!confirm((gm?'Cấp':'Gỡ')+' quyền GM cho @'+p.username+'?'))return;try{const j=await api('/api/gm',{id:p.id,gm});toast(j.message);openPlayer(p.id);}catch(e){toast(e.message,true);}}
+
+// ---------------------------------------------------------------- mail
+function mailTo(ids,name){S.mail.targets='ids';S.mail.ids=ids.map(id=>({id,name}));go('mail');}
+function mail(){const M=S.mail,v=$('v-mail');
+ const targetSel=h('select',{id:'mt',onchange:e=>{M.targets=e.target.value;mail();}},...[['ids','Người chơi cụ thể'],['online','Tất cả đang online'],['all','Tất cả nhân vật']].map(([k,l])=>h('option',{value:k,selected:M.targets===k},l)));
+ const ids=h('div',{},...M.ids.map((t,i)=>h('span',{class:'chip'},t.name+' #'+t.id,h('button',{onclick:()=>{M.ids.splice(i,1);mail();}},'✕'))));
+ const finder=h('input',{placeholder:'Tìm người nhận…',style:'min-width:220px'});const found=h('div',{class:'pick',style:'max-height:180px'});
+ finder.oninput=async()=>{const q=finder.value.trim();if(q.length<2){found.replaceChildren();return;}try{const j=await api('/api/players?q='+encodeURIComponent(q));found.replaceChildren(...j.players.filter(p=>p.character).slice(0,20).map(p=>h('div',{onclick:()=>{if(!M.ids.some(x=>x.id===p.id))M.ids.push({id:p.id,name:p.character.name});mail();}},h('span',{},p.character.name+' · @'+p.username),h('span',{class:'muted'},'Cấp '+p.character.level))));}catch{}};
+ const R=M.reward;const num=(k,l)=>h('label',{},l,h('input',{type:'number',min:'0',step:'1',value:R[k]||'',oninput:e=>{R[k]=e.target.value===''?0:parseInt(e.target.value,10);}}));
+ R.shards=R.shards||{};
+ const slotSel=h('select',{},h('option',{value:''},'Mọi loại'),...[...new Set(S.cat.gear.map(g=>g.slot))].map(s=>h('option',{value:s},S.cat.slots[s]||(s==='material'?'Nguyên liệu':s))));
+ const q=h('input',{placeholder:'Tìm vật phẩm theo tên…',style:'flex:1;min-width:200px'});const list=h('div',{class:'pick'});
+ const drawList=()=>{const t=q.value.trim().toLowerCase(),s=slotSel.value;list.replaceChildren(...S.cat.gear.filter(g=>(!s||g.slot===s)&&(!t||g.name.toLowerCase().includes(t)||g.id.includes(t))).slice(0,200).map(g=>h('div',{onclick:()=>{const e=M.gear.find(x=>x.id===g.id);if(e)e.qty++;else M.gear.push({id:g.id,name:g.name,rarity:g.rarity,qty:1});drawGear();}},h('span',{class:'r-'+g.rarity},g.name),h('span',{class:'muted'},(S.cat.slots[g.slot]||(g.slot==='material'?'Nguyên liệu':g.slot))+(g.req?' · cấp '+g.req:'')))));};
+ q.oninput=drawList;slotSel.onchange=drawList;
+ const chosen=h('div',{});const drawGear=()=>chosen.replaceChildren(...M.gear.map((g,i)=>h('span',{class:'chip'},h('span',{class:'r-'+g.rarity},g.name),h('input',{type:'number',min:'1',value:g.qty,style:'width:64px;padding:2px 6px',oninput:e=>{g.qty=Math.max(1,parseInt(e.target.value||'1',10));}}),h('button',{onclick:()=>{M.gear.splice(i,1);drawGear();}},'✕'))));
+ const pet=h('select',{onchange:e=>{R.pet=e.target.value||undefined;}},h('option',{value:''},'Không tặng linh thú'),...S.cat.pets.map(p=>h('option',{value:p.id,selected:R.pet===p.id},p.name+' ('+p.rarity+')')));
+ const title=h('input',{id:'mtitle',placeholder:'Tiêu đề thư (vd: Quà bảo trì)',value:M.title||'',oninput:e=>{M.title=e.target.value;},style:'width:100%'});
+ v.replaceChildren(
+  h('div',{class:'card'},h('h2',{},'Người nhận'),h('div',{class:'row'},targetSel,M.targets==='ids'?finder:h('span',{class:'muted'},M.targets==='online'?'Gửi cho mọi người đang online lúc bấm gửi.':'Gửi cho mọi nhân vật trên server.')),M.targets==='ids'?h('div',{},ids,found):''),
+  h('div',{class:'card'},h('h2',{},'Nội dung thư'),title,h('h3',{},'Tiền tệ và EXP'),h('div',{class:'fields'},num('gold','Linh Thạch'),num('essence','Linh Nguyên'),num('xp','EXP cấp nhân vật'),num('lq','Linh Quang')),
+   h('h3',{},'Mảnh trang bị'),h('div',{class:'fields'},...Object.entries(S.cat.shards).map(([k,n])=>h('label',{},n,h('input',{type:'number',min:'0',value:R.shards[k]||'',oninput:e=>{R.shards[k]=e.target.value===''?0:parseInt(e.target.value,10);}})))),
+   h('h3',{},'Trang bị và nguyên liệu'),h('div',{class:'row',style:'margin-bottom:6px'},q,slotSel),list,h('p',{class:'muted'},'Bấm để thêm. Đã chọn:'),chosen,
+   h('h3',{},'Linh thú'),pet,
+   h('div',{class:'row',style:'margin-top:14px'},h('button',{class:'primary',onclick:sendMail},'Gửi thư'),h('span',{class:'muted'},'Người chơi nhận ở Hòm thư / Phúc lợi. Túi đầy thì nhận lại sau khi dọn túi.'))));
+ drawList();drawGear();}
+async function sendMail(){const M=S.mail,R=M.reward;const reward={gold:R.gold||0,essence:R.essence||0,xp:R.xp||0,lq:R.lq||0,shards:Object.fromEntries(Object.entries(R.shards||{}).filter(([,v])=>v>0)),gear:M.gear.map(g=>({id:g.id,qty:g.qty})),pet:R.pet||undefined};
+ const targets=M.targets==='ids'?M.ids.map(x=>x.id):M.targets;if(M.targets==='ids'&&!targets.length)return toast('Chọn ít nhất một người nhận.',true);
+ const who=M.targets==='ids'?targets.length+' người':M.targets==='online'?'mọi người đang online':'TẤT CẢ nhân vật';
+ if(!confirm('Gửi thư "'+(M.title||'Quà từ Ban quản trị')+'" cho '+who+'?'))return;
+ try{const j=await api('/api/mail',{targets,title:M.title||'',reward});toast(j.message);S.mail={targets:M.targets,ids:M.ids,gear:[],reward:{}};mail();}catch(e){toast(e.message,true);}}
+
+// ---------------------------------------------------------------- broadcast + log
+function broadcast(){const v=$('v-broadcast');const t=h('textarea',{rows:'3',maxlength:'200',placeholder:'Nội dung hiện ở khung chat của mọi người chơi (tối đa 200 ký tự)',style:'width:100%'});
+ v.replaceChildren(h('div',{class:'card'},h('h2',{},'Thông báo hệ thống'),t,h('div',{class:'row',style:'margin-top:8px'},h('button',{class:'primary',onclick:async()=>{if(!t.value.trim())return;try{const j=await api('/api/broadcast',{text:t.value.trim()});toast(j.message);t.value='';}catch(e){toast(e.message,true);}}},'Phát thông báo'))));}
+async function logView(){const v=$('v-log');if(!OV)await overview(true);
+ v.replaceChildren(h('div',{class:'card'},h('h2',{},'Nhật ký quản trị (30 gần nhất)'),h('div',{class:'tablebox'},h('table',{},h('thead',{},h('tr',{},...['Lúc','GM','Thao tác','Đối tượng','Chi tiết'].map(t=>h('th',{},t)))),
+  h('tbody',{},...(OV?.log||[]).map(l=>h('tr',{},h('td',{class:'muted'},new Date(l.at*1000).toLocaleString('vi-VN')),h('td',{},l.admin),h('td',{},l.action),h('td',{},l.target||''),h('td',{class:'muted',style:'max-width:520px;word-break:break-word'},l.detail))))))));}
+
+(async()=>{try{const j=await api('/api/me');if(j.user){S.csrf=j.user.csrf;S.user=j.user.username;start();}else showLogin();}catch{showLogin();}})();
+</script>
+</body>
+</html>

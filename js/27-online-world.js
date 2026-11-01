@@ -20,7 +20,7 @@
   $('chat-form').onsubmit=async event=>{event.preventDefault();const input=$('chat-input'),text=input.value.trim();if(!text)return;try{await account.api('/api/chat',{text,channel:$('chat-channel')?.value||'world'});input.value='';}catch(e){msg(e.message);}};
   $('chat-input').addEventListener('focus',()=>{K={};ptr=null;});
   let chatKey='';
-  function showChat(messages){const key=messages.map(m=>m.id).join();if(chatKey===key)return;chatKey=key;const log=$('chat-messages');log.replaceChildren();for(const message of messages.slice(-25)){const p=document.createElement('p'),name=document.createElement('b');name.textContent=(message.channel==='party'?'[Đội] ':message.channel==='guild'?'[Tông] ':'')+message.name+': ';p.append(name,document.createTextNode(message.text));log.append(p);}log.scrollTop=log.scrollHeight;}
+  function showChat(messages){const key=messages.map(m=>m.id).join();if(chatKey===key)return;chatKey=key;const log=$('chat-messages');log.replaceChildren();for(const message of messages.slice(-25)){const p=document.createElement('p'),name=document.createElement('b');name.textContent=(message.channel==='party'?'[Đội] ':message.channel==='guild'?'[Tông] ':message.channel==='system'?'[Hệ thống] ':'')+(message.channel==='system'?'':message.name+': ');if(message.channel==='system'){p.className='chat-system';name.style.color='#ffd77e';}p.append(name,document.createTextNode(message.text));log.append(p);}log.scrollTop=log.scrollHeight;}
   async function frame(){
     if(busy||!account.state.ready||account.state.restoring||!P.ap||window.expeditionsGame?.assetsPending()||performance.now()<retryAt)return;
     busy=true;const scene=worldMap.state.scene;
