@@ -113,7 +113,7 @@ Hệ thống pháp bảo, tẩy luyện, hộ thuẫn và cấu trúc asset: xem
 
 ## Trang chủ & bản tải
 
-- `/` luôn là trang giới thiệu (SEO, trailer, ảnh, tải game). Chơi web tại `/?play` (nút "Chơi ngay" chuyển địa chỉ sang `/?play`, có thể lưu dấu trang). Ứng dụng Android/PC và bản cài từ trình duyệt vào thẳng game. Muốn có đường dẫn `/play` cần thêm `location = /play { try_files /index.html =404; }` vào Nginx trên VPS.
+- `/` luôn là trang giới thiệu (SEO, trailer, ảnh, tải game). Chơi web tại `/play` (nút "Chơi ngay" chuyển địa chỉ sang `/play`, có thể lưu dấu trang; `/?play` vẫn dùng được và tự đổi thành `/play`). Ứng dụng Android/PC và bản cài từ trình duyệt vào thẳng game. Muốn có đường dẫn `/play` cần thêm `location = /play { try_files /index.html =404; }` vào Nginx trên VPS.
 - Ảnh/clip trang chủ: `Map/landing/` (chụp từ game bằng Playwright).
 - APK Android build trong workflow deploy (`android/build.sh`, khóa ký test lưu trong cache Actions) → `Character/App/TienLo-Android.apk`.
 - Bản PC: `desktop/` (Electron portable) build bởi `.github/workflows/desktop.yml` → Release `desktop-latest` → deploy chép vào `Character/App/TienLo-PC.exe`.

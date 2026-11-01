@@ -199,7 +199,7 @@
 <header class="ld-nav"><div class="wrap">
  <a class="ld-brand" href="/" aria-label="Tiên Lộ Online – trang chủ"><img src="Character/App/icon-192.webp" alt="" width="34" height="34">Tiên Lộ Online</a>
  <nav class="ld-links" aria-label="Mục lục"><a href="#trailer">Trailer</a><a href="#tong-mon">Tông môn</a><a href="#hoat-dong">Hoạt động</a><a href="#trang-bi">Trang bị</a><a href="#tai-game">Tải game</a><a href="#hoi-dap">Hỏi đáp</a></nav>
- <a class="btn btn-gold btn-sm" href="/?play" data-play>Chơi ngay</a>
+ <a class="btn btn-gold btn-sm" href="/play" data-play>Chơi ngay</a>
 </div></header>
 <main>
 <section class="ld-hero" aria-labelledby="ld-title">
@@ -209,7 +209,7 @@
   <h1 id="ld-title">Tiên Lộ Online</h1>
   <p class="lead">Game nhập vai tu tiên 2D chơi ngay trên trình duyệt, Android và PC. Chọn một trong bốn tông môn, luyện chiêu thức, săn bí cảnh, kết tổ đội hạ Ma Long và tranh bá Chiến trường Chính – Tà cùng đạo hữu khắp nơi.</p>
   <div class="ld-cta">
-   <a class="btn btn-gold" href="/?play" data-play>▶ Chơi ngay trên web</a>
+   <a class="btn btn-gold" href="/play" data-play>▶ Chơi ngay trên web</a>
    <a class="btn btn-ghost" href="#tai-game">Tải Android / PC</a>
   </div>
   <div class="ld-badges"><span><b>4</b> tông môn</span><span><b>16</b> chiêu thức</span><span><b>8</b> hoạt động mỗi ngày</span><span><b>Không</b> cần cài đặt</span></div>
@@ -280,7 +280,7 @@
  <h2 id="h-dl">Tải game &amp; chơi ngay</h2>
  <p class="sub">Một tài khoản dùng chung cho mọi nền tảng – chơi trên máy tính rồi tiếp tục trên điện thoại.</p>
  <div class="grid-3">
-  <article class="card dl"><span class="plat">Trình duyệt</span><h3>Chơi trên web</h3><p class="req">Chrome, Edge, Firefox, Safari mới · máy tính và điện thoại.</p><a class="btn btn-gold" href="/?play" data-play>▶ Chơi ngay</a><p class="note">Không cần cài đặt · địa chỉ chơi: tienlo2d.xyz/?play</p></article>
+  <article class="card dl"><span class="plat">Trình duyệt</span><h3>Chơi trên web</h3><p class="req">Chrome, Edge, Firefox, Safari mới · máy tính và điện thoại.</p><a class="btn btn-gold" href="/play" data-play>▶ Chơi ngay</a><p class="note">Không cần cài đặt · địa chỉ chơi: tienlo2d.xyz/play</p></article>
   <article class="card dl"><span class="plat">Android</span><h3>Ứng dụng Android</h3><p class="req">Android 8.0 trở lên · cần kết nối mạng.</p><a class="btn btn-gold" id="dl-android" href="Character/App/TienLo-Android.apk" download>⬇ Tải APK</a><button class="btn btn-ghost btn-sm" type="button" data-install hidden>Hoặc cài từ trình duyệt</button><p class="note" id="dl-android-note">Cho phép “Cài ứng dụng không rõ nguồn” khi được hỏi.</p></article>
   <article class="card dl"><span class="plat">Windows</span><h3>Bản PC</h3><p class="req">Windows 10/11 · 64-bit · cần kết nối mạng.</p><a class="btn btn-gold" id="dl-pc" href="Character/App/TienLo-PC.exe" download>⬇ Tải bản PC</a><button class="btn btn-ghost btn-sm" type="button" data-install hidden>Cài từ Chrome/Edge</button><p class="note" id="dl-pc-note">Bản chạy trực tiếp, không cần cài. Windows có thể cảnh báo vì chưa ký số – chọn “Vẫn chạy”.</p></article>
  </div>
@@ -295,7 +295,7 @@
  <details><summary>Có cần treo máy cả ngày không?</summary><p>Không. Mỗi ngày khoảng 15–30 phút cho Năng động, bí cảnh và một sự kiện là đủ nhận phần thưởng chính.</p></details>
 </div></section>
 </main>
-<footer><div class="wrap"><span>© Tiên Lộ Online · MMORPG tu tiên 2D</span><span><a href="#tai-game">Tải game</a> · <a href="#hoi-dap">Hỏi đáp</a> · <a href="/?play">Vào game</a></span></div></footer>
+<footer><div class="wrap"><span>© Tiên Lộ Online · MMORPG tu tiên 2D</span><span><a href="#tai-game">Tải game</a> · <a href="#hoi-dap">Hỏi đáp</a> · <a href="/play">Vào game</a></span></div></footer>
 </div>
 <script>
 /* Landing: new visitors and search engines see the introduction; the game boots on
@@ -307,7 +307,7 @@
   var list=t.content.querySelectorAll('script');for(var i=0;i<list.length;i++){var s=document.createElement('script');s.src=list[i].getAttribute('src');s.async=false;document.body.appendChild(s);}}
  function play(e){if(e)e.preventDefault();
   if(land)land.remove();document.documentElement.classList.remove('landing-on');document.title='Tiên Lộ Online';
-  if(!q.has('play')&&location.pathname!=='/play')history.replaceState(null,'','/?play');boot();}
+  if(location.pathname!=='/play'&&!app)history.replaceState(null,'','/play'+location.hash);boot();}
  if(q.has('play')||location.pathname==='/play'||app||standalone){play();return;}
  document.documentElement.classList.add('landing-on');
  document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',play);});

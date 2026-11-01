@@ -523,6 +523,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                 with connect() as db: rows=db.execute("SELECT c.user_id id,json_extract(player,'$.nm') AS name, json_extract(player,'$.ap.w') AS sect, json_extract(player,'$.r') AS realm, json_extract(player,'$.stage') AS stage FROM characters c JOIN users u ON u.id=c.user_id WHERE json_extract(player,'$.nm') LIKE ? LIMIT 20",('%'+name+'%',)).fetchall()
                 return self.reply(200,[dict(id=r['id'],name=r['name'],sect=SECTS[r['sect']],realm=r['realm'],stage=r['stage'],online=bool(PEERS.get(r['id']))) for r in rows])
             return self.reply(404,{'error':'API không tồn tại.'})
+        if path=='/play': self.path='/index.html'
         requested=Path(self.translate_path(self.path))
         target=requested.resolve()
         relative=target.relative_to(ROOT) if target.is_relative_to(ROOT) else None
