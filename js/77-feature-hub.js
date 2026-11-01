@@ -19,15 +19,16 @@
   {id:'battle',icon:'battle',name:'Chiến trường Chính – Tà',desc:'Đấu phe 15 phút, giữ cờ và hạ đối thủ.',shard:'hothuan',level:15,when:'12:30 và 21:00',run:()=>window.battleGame?.open()},
   {id:'guildwar',icon:'guildwar',name:'Tông môn chiến',desc:'Tông môn tranh bốn cứ điểm Sơn Hà.',shard:'nhan',level:1,when:'Thứ 4 và Thứ 7 · 20:00',run:()=>window.communityGame?.open('home')},
   {id:'boss',icon:'boss',name:'Boss thế giới',desc:'Cả server hạ Thái Cổ Huyết Ma, chia thưởng theo hạng sát thương.',shard:'thanbinh',level:1,when:'Tái xuất sau 5 phút',run:()=>window.communityGame?.open('boss')},
+  {id:'guildboss',icon:'gboss',name:'Hộ Sơn Thần Thú',desc:'Boss của tông môn, máu chung cả tuần, hạ xong boss mạnh hơn.',shard:'nhan',level:1,when:'Cả tuần',run:()=>window.guildHall?.open('boss')},
   {id:'duel',icon:'duel',name:'Lôi đài',desc:'Tỉ thí 1 đấu 1 với đạo hữu.',shard:null,level:1,when:'Luôn mở',run:click('duel-button')}
  ];
  const GROUPS=[
   ['Nhân vật',[
    {icon:'bag',name:'Túi đồ',run:click('bag-button')},{icon:'attrs',name:'Thuộc tính',run:click('attr-button')},{icon:'path',name:'Tiên Đồ',run:click('activities-button')},
    {icon:'tactic',name:'Chiến pháp',run:click('auto-plan-button')},{icon:'meditate',name:'Đả tọa',run:click('bq')},{icon:'break',name:'Đột phá',run:click('bb')},
-   {icon:'pet',name:'Linh thú',run:()=>window.spiritPets?.open()},{icon:'shard',name:'Đổi mảnh',run:()=>window.shardsGame?.goMaster()}]],
+   {icon:'pet',name:'Linh thú',run:()=>window.spiritPets?.open()},{icon:'cave',name:'Động phủ',run:()=>window.caveGame?.open()},{icon:'shard',name:'Đổi mảnh',run:()=>window.shardsGame?.goMaster()}]],
   ['Giao lưu',[
-   {icon:'party',name:'Đội · Tông môn',run:click('community-button')},{icon:'friends',name:'Bạn bè',run:click('friends-button')},{icon:'lookup',name:'Đạo hữu',run:click('player-lookup-button')},
+   {icon:'party',name:'Đội · Tông môn',run:click('community-button')},{icon:'hall',name:'Cống hiến',run:()=>window.guildHall?.open('shop')},{icon:'friends',name:'Bạn bè',run:click('friends-button')},{icon:'lookup',name:'Đạo hữu',run:click('player-lookup-button')},
    {icon:'trade',name:'Giao dịch',run:click('trade-button')},{icon:'auction',name:'Đấu giá',run:()=>window.auctionGame?.open()},{icon:'rank',name:'Xếp hạng',run:()=>worldMap.handleService('rank')||worldMap.openRank?.()}]],
   ['Phúc lợi',[
    {icon:'gift',name:'Phúc lợi',run:()=>window.engagementGame?.open()},{icon:'gem',name:'Kỳ Trân Các',run:()=>window.premiumGame?.open('shop')},{icon:'mail',name:'Hòm thư',run:()=>window.mailbox?.open()},
@@ -37,6 +38,9 @@
  // Gold medallion icons drawn in code (same line style as the HUD dock icons).
  const ICON_CACHE=new Map();
  const GLYPH={
+  cave:(L,C,A)=>{A(16,22,12,Math.PI,Math.PI*2);L([[4,22],[28,22]]);L([[16,22],[16,15]]);L([[16,17],[11,13]]);L([[16,15],[21,11]]);C(16,27,1.5);},
+  hall:(L)=>{L([[4,12],[16,5],[28,12]]);L([[7,12],[25,12]]);L([[9,12],[9,26]]);L([[23,12],[23,26]]);L([[16,12],[16,26]]);L([[5,27],[27,27]]);},
+  gboss:(L,C)=>{L([[6,10],[11,4],[13,11]]);L([[26,10],[21,4],[19,11]]);C(16,18,8);L([[12,17],[14,18]]);L([[20,17],[18,18]]);L([[12,23],[16,21],[20,23]]);L([[16,26],[16,30]]);},
   quest:(L,C,A)=>{L([[9,5],[23,5],[23,27],[9,27],[9,5]]);L([[12,11],[20,11]]);L([[12,16],[20,16]]);L([[12,21],[17,21]]);A(9,5,3,Math.PI*.5,Math.PI*1.5);},
   hunt:(L,C)=>{C(16,21,6);for(const [x,y] of [[7,12],[13,7],[19,7],[25,12]])C(x,y,2.6);},
   rift:(L,C,A)=>{A(16,16,11,0,Math.PI*1.6);A(16,16,7,Math.PI,Math.PI*2.5);A(16,16,3,0,Math.PI*1.8);},

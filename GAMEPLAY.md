@@ -298,3 +298,22 @@ Kỳ Trân Các và rương phúc lợi vẫn cho mảnh ngẫu nhiên.
 - Linh thú nhỏ lại (×0,78) và theo sau xa hơn; hộ thuẫn cầm xa thân người hơn.
 
 - Ba hộ thuẫn vẽ bằng code (Thanh Long Quy Giáp, Kim Cang Liên Hoa, Cửu Thiên Tinh Hà) đã gỡ (equipment v10). Ai đã đổi được hoàn lại Mảnh Hộ Thuẫn (160/160/240) khi máy chủ khởi động.
+
+## Tông môn · Hộ Sơn Điện (`guildhall.py`, `js/81-guild-hall.js`)
+
+- **Cống hiến** cá nhân: đóng góp Linh Thạch (+10/lần, 5 lần/ngày), nhận thưởng nhiệm vụ tông môn (+15), đánh Hộ Sơn Thần Thú (400 cống hiến chia theo tỉ lệ sát thương, +30 cho mọi người góp sức khi hạ). Rời tông môn mất phần chưa dùng.
+- **Cửa hàng cống hiến** (giới hạn theo tuần, làm mới thứ Hai): Linh Nguyên, Linh Thạch, Mảnh Nhẫn, Cường Hóa / Tinh Luyện Thạch, **Hộ Kiếp Phù** (đỡ một tia sét khi độ kiếp), **Hạt Ngọc Linh Chi** (trồng ở Động phủ).
+- **Hộ Sơn Thần Thú**: mỗi tông môn một boss riêng trong phòng `guildboss:<tông môn>`, máu dùng chung cả tuần và được lưu trên server. Hạ xong: rương theo hạng sát thương gửi qua hòm thư, tông môn +điểm xây dựng, tuần sau boss lên một cấp (không hạ được thì giảm một cấp). Máu = 60 000 × 1,35^(cấp−1) × hệ số thành viên (1–4).
+
+## Độ Thiên Kiếp (`js/82-tribulation.js`)
+
+Đột phá từ tầng 10 sang danh vị mới phải vượt thiên kiếp: 3 đợt sét đánh vào vòng báo trước (5 / 8 / 11 tia, mỗi tia trúng mất 18–26% khí huyết) rồi một tia Cửu Thiên Lôi lớn (55%). Hộ Kiếp Phù tự đỡ một tia trúng. Thành công: đột phá như cũ. Thất bại: giữ nguyên Đột Phá Đan và Linh Thạch, mất 15% đạo hạnh hiện có, nghỉ 2 phút.
+
+## Động phủ (`cave.py`, `js/83-cave.js`)
+
+- Ruộng linh dược 3 ô (khai hoang thêm tới 6 ô bằng Linh Thạch 2 000 / 5 000 / 12 000). Lớn theo giờ server, kể cả khi offline.
+  - Linh Thảo (miễn phí, 1 giờ): 25 Linh Nguyên, 120 Linh Thạch.
+  - Huyết Sâm (300 Linh Thạch, 4 giờ): 90 Linh Nguyên, 300 Linh Thạch, 15% rơi Hạt Ngọc Linh Chi.
+  - Ngọc Linh Chi (hạt từ cửa hàng tông môn, 10 giờ): 150 Linh Nguyên, 3 mảnh trang bị, **1 Thăng Vị Đan**.
+- Tưới linh tuyền mỗi ngày một lần: mọi ô chín sớm 30 phút.
+- Tụ Linh Thú gom (60 + 30 × cấp) Linh Thạch mỗi giờ, tối đa 12 giờ; cho ăn Linh Nguyên + Linh Thạch để lên cấp (tối đa 10).

@@ -20,6 +20,8 @@ import outposts
 import fieldpk
 import pets
 import auction
+import guildhall
+import cave
 AUCTION_SETTLED=0
 import hashlib
 import hmac
@@ -67,7 +69,7 @@ PEERS, ROOMS, EVENTS = {}, {}, defaultdict(list)
 CHAT = deque(maxlen=100)
 SECTS = ('Kiếm Tông', 'Minh Nguyệt Tông', 'Lôi Thương Tông', 'Thiên Cơ Môn')
 STATIC_FILES = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()}
-MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'tower', 'worldboss', 'duel', 'raid', 'battle', *expeditions.MAPS, *overworld.MAPS)
+MAPS = ('hub', 'sword', 'moon', 'thunder', 'mystic', 'tower', 'worldboss', 'duel', 'raid', 'battle', 'guildboss', *expeditions.MAPS, *overworld.MAPS)
 EVASION_COOLDOWNS = (6,5,8,5)
 
 
@@ -108,6 +110,8 @@ def init_db():
         economy.init_db(db)
         engagement.init_db(db)
         raid.init_db(db)
+        guildhall.init_db(db)
+        cave.init_db(db)
         outposts.init_db(db)
         pets.init_db(db)
         auction.init_db(db)
@@ -236,6 +240,11 @@ def damage_mob(mob,damage,owner,now,key):
     before=mob['hp'];mob['hp']=max(0,mob['hp']-max(1,round(damage)));mob['contributors'][owner]=now
     if mob.get('outpost'):
         with connect() as db:outposts.record_damage(db,mob,owner,before-mob['hp'])
+    if mob.get('guildBoss'):
+        with DB_LOCK, connect() as db:
+            guildhall.record_damage(db,mob,owner,before-mob['hp'])
+            if mob['hp']<=0:mob['dead']=10**30;guildhall.on_kill(db,mob)
+        return
     if mob['hp']>0:return
     mob['dead']=10**30 if mob.get('tower') or mob.get('raid') or mob.get('outpost') else now+(90 if mob.get('expedition') and mob.get('boss') else 12 if mob.get('expedition') else 8)
     eligible={uid for uid,stamp in mob['contributors'].items() if uid in PEERS and room_for(PEERS[uid])==key and now-stamp<15}
@@ -313,6 +322,7 @@ def room_for(peer):
     if peer['map']=='tower':return 'tower:'+str(peer['id'])+':'+peer['towerToken']
     if peer['map']=='duel':return 'duel:'+str(peer.get('duelId','lobby'))
     if peer['map']=='raid':return 'raid:'+peer.get('raidToken','none')
+    if peer['map']=='guildboss':return 'guildboss:'+peer.get('guildId','none')
     if peer['map'] in expeditions.MAPS or peer['map'] in overworld.MAPS:return peer['map']+':0'
     return 'worldboss:0' if peer['map']=='worldboss' else peer['map'] + ':0'
 
@@ -330,6 +340,12 @@ def room_mobs(key):
     if scene=='raid':
         if key not in ROOMS:
             with DB_LOCK, connect() as db:ROOMS[key]=raid.room(db,key.split(':',1)[1])
+        return ROOMS[key]
+    if scene=='guildboss':
+        gid=key.split(':',1)[1]
+        if gid=='none':return dict(mobs=[],updated=time.monotonic())
+        if key not in ROOMS or ROOMS[key]['mobs'][0]['week']!=engagement.week():
+            with DB_LOCK, connect() as db:ROOMS[key]=guildhall.room(db,gid)
         return ROOMS[key]
     if scene in overworld.MAPS:
         if key not in ROOMS:ROOMS[key]=overworld.room(scene)
@@ -511,6 +527,8 @@ class GameHandler(SimpleHTTPRequestHandler):
             if path=='/api/premium': return self.generic(user,None,lambda db,uid:premium.state(db,uid,bool(user['gm'])))
             if path=='/api/shards': return self.generic(user,None,lambda db,uid:shards.view(db,uid,json.loads(db.execute('SELECT player FROM characters WHERE user_id=?',(uid,)).fetchone()['player'])))
             if path=='/api/mail': return self.generic(user,None,lambda db,uid:mailbox.view(db,uid))
+            if path=='/api/guildhall': return self.generic(user,None,lambda db,uid:guildhall.snapshot(db,uid))
+            if path=='/api/cave': return self.generic(user,None,lambda db,uid:cave.view(db,uid))
             if path=='/api/pk':
                 with WORLD_LOCK:return self.reply(200,fieldpk.public(user['user_id']))
             if path=='/api/outposts':
@@ -585,6 +603,8 @@ class GameHandler(SimpleHTTPRequestHandler):
         if path=='/api/premium': return self.generic(user,body,lambda db,uid:premium.action(db,uid,body,bool(user['gm'])))
         if path=='/api/shards': return self.generic(user,body,lambda db,uid:shards.action(db,uid,body))
         if path=='/api/mail': return self.generic(user,body,lambda db,uid:mailbox.action(db,uid,body))
+        if path=='/api/guildhall': return self.generic(user,body,lambda db,uid:guildhall.action(db,uid,body))
+        if path=='/api/cave': return self.generic(user,body,lambda db,uid:cave.action(db,uid,body))
         if path=='/api/pk':
             try:
                 with WORLD_LOCK:return self.reply(200,fieldpk.toggle(user['user_id'],bool(body.get('on')),PEERS.get(user['user_id'],{}).get('map','')))
@@ -883,6 +903,12 @@ class GameHandler(SimpleHTTPRequestHandler):
                 with DB_LOCK,connect() as db:tower_run=tower.run(db,uid)
                 if not tower_run or tower_run['status'] not in ('fighting','cleared','claimed'):return self.reply(409,{'error':'Tầng tháp đã kết thúc. Hãy trở về thành.'})
                 if not (610<=x<=1390 and 790<=y<=1480) or abs(x-1000)/460+abs(y-1100)/300>=.98:x,y=1000,1380
+            guild_id=None
+            if scene=='guildboss':
+                with DB_LOCK,connect() as db:member=community.membership(db,uid,'guild')
+                if not member:return self.reply(409,{'error':'Bạn chưa có tông môn.'})
+                guild_id=member['guild_id']
+                if not expeditions.inside(x,y):x,y=1000,1380
             if scene in expeditions.MAPS and not expeditions.inside(x,y):x,y=1000,1380
             if scene in overworld.MAPS and not overworld.inside(x,y):x,y=1000,1770
             if scene=='worldboss' and abs(x-1000)/300+abs(y-1100)/150>=1:
@@ -918,6 +944,8 @@ class GameHandler(SimpleHTTPRequestHandler):
             if tower_run:peer['towerToken']=tower_run['token']
             if raid_run:peer['raidToken']=raid_run['token']
             else:peer.pop('raidToken',None)
+            if guild_id:peer['guildId']=guild_id
+            else:peer.pop('guildId',None)
             peer['attack']=player_attack(p);peer['maxHp']=player_max_hp(p);health=body.get('hp',p['hp']);peer['hp']=max(0,min(peer['maxHp'],health)) if type(health) in (int,float) and math.isfinite(health) else 0
             if duel and not duel['viewer']:peer['hp']=duel['hp']
             # Battleground HP is owned by the server.
@@ -938,7 +966,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             register_skill_field(peer,body,now)
             PEERS[uid]=peer; key=room_for(peer)
             combat_hits=[]
-            shared=scene in ('sword','moon','thunder','mystic','worldboss','tower','raid') or scene in expeditions.MAPS or scene in overworld.MAPS
+            shared=scene in ('sword','moon','thunder','mystic','worldboss','tower','raid','guildboss') or scene in expeditions.MAPS or scene in overworld.MAPS
             raid_hits={}
             mobs=[];fields=[]
             if shared:
@@ -955,7 +983,7 @@ class GameHandler(SimpleHTTPRequestHandler):
                             with connect() as db:community.save_boss(db,mob)
                         continue
                     if not mob['dead']:
-                        nearest=min((v for v in members if v.get('hp',1)>0 and not ((scene in expeditions.MAPS or scene=='raid') and expeditions.safe(v['x'],v['y'])) and not (scene in overworld.MAPS and overworld.safe(v['x'],v['y']))),key=lambda v:math.hypot(v['x']-mob['x'],v['y']-mob['y']),default=None)
+                        nearest=min((v for v in members if v.get('hp',1)>0 and not ((scene in expeditions.MAPS or scene in ('raid','guildboss')) and expeditions.safe(v['x'],v['y'])) and not (scene in overworld.MAPS and overworld.safe(v['x'],v['y']))),key=lambda v:math.hypot(v['x']-mob['x'],v['y']-mob['y']),default=None)
                         tx,ty=mob['hx'],mob['hy']
                         if nearest and math.hypot(nearest['x']-mob['x'],nearest['y']-mob['y'])<190 and math.hypot(nearest['x']-mob['hx'],nearest['y']-mob['hy'])<110: tx,ty=nearest['x'],nearest['y']
                         distance=math.hypot(tx-mob['x'],ty-mob['y'])
@@ -1005,7 +1033,7 @@ class GameHandler(SimpleHTTPRequestHandler):
             damage=0
             if scene=='duel':peers=[other for other in peers if PEERS[other['id']].get('duelId')==duel['id']]
             safe=scene in SECT_MAPS
-            if scene in expeditions.MAPS or scene=='raid':safe=expeditions.safe(x,y)
+            if scene in expeditions.MAPS or scene in ('raid','guildboss'):safe=expeditions.safe(x,y)
             if scene in overworld.MAPS:safe=overworld.safe(x,y)
             if shared and scene!='worldboss' and not safe and now-peer.get('damageAt',0)>=1:
                 for m in mobs:

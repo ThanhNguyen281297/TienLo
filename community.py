@@ -179,7 +179,7 @@ def action(db,uid,body,peers):
         daily=db.execute('SELECT * FROM guild_daily WHERE guild_id=? AND day=?',(guild['id'],today)).fetchone()
         if not daily or daily[task]<(20 if task=='kills' else 1):raise ValueError('Nhiệm vụ chưa hoàn thành.')
         if db.execute('SELECT 1 FROM guild_claims WHERE user_id=? AND day=? AND task=?',(uid,today,task)).fetchone():raise ValueError('Đã nhận thưởng hôm nay, kể cả khi đổi tông môn.')
-        apply_reward(player,{'gold':80,'essence':20} if task=='kills' else {'gold':150,'essence':30});db.execute('INSERT INTO guild_claims VALUES(?,?,?)',(uid,today,task))
+        apply_reward(player,{'gold':80,'essence':20} if task=='kills' else {'gold':150,'essence':30});db.execute('INSERT INTO guild_claims VALUES(?,?,?)',(uid,today,task));db.execute('UPDATE guild_members SET contribution=contribution+15 WHERE user_id=?',(uid,))
     elif op=='reward_claim':
         reward=db.execute('SELECT * FROM community_rewards WHERE id=? AND user_id=? AND claimed=0',(body.get('id'),uid)).fetchone()
         if not reward:raise ValueError('Rương đã nhận hoặc không thuộc về bạn.')
