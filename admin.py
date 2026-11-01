@@ -70,6 +70,34 @@ def online(now=None):
     return sorted(out, key=lambda r: -(r['level'] or 0))
 
 
+def perf():
+    """Server health for the overview: request timings, CPU load, memory, database size."""
+    paths = []
+    for path, d in list(CTX.get('TIMINGS', {}).items()):
+        v = sorted(d)
+        if v:
+            paths.append(dict(path=path, count=len(v), avg=round(sum(v) / len(v), 1), p95=round(v[int(len(v) * .95) - 1 if len(v) > 1 else 0], 1), max=round(v[-1], 1)))
+    paths.sort(key=lambda r: -r['count'])
+    out = dict(paths=paths[:8], cpus=os.cpu_count())
+    try:
+        out['load'] = [round(x, 2) for x in os.getloadavg()]
+    except OSError:
+        out['load'] = None
+    try:
+        info = {l.split(':')[0]: int(l.split()[1]) for l in open('/proc/meminfo') if l.split()[0].rstrip(':') in ('MemTotal', 'MemAvailable')}
+        out['memTotal'], out['memAvailable'] = info['MemTotal'] // 1024, info['MemAvailable'] // 1024
+        out['rss'] = next(int(l.split()[1]) // 1024 for l in open('/proc/self/status') if l.startswith('VmRSS'))
+    except (OSError, KeyError, StopIteration):
+        pass
+    try:
+        db = Path(CTX['DATABASE'])
+        out['dbMb'] = round(sum(f.stat().st_size for f in db.parent.glob(db.name + '*')) / 1048576, 1)
+    except (KeyError, OSError):
+        pass
+    out['threads'] = threading.active_count()
+    return out
+
+
 def catalog():
     gear = [dict(id=k, name=t.get('name', k), slot=t.get('slot', 'material'), rarity=t.get('rarity', ''), req=t.get('req', 0))
             for k, t in equipment.TEMPLATES.items() if t.get('slot') != 'linhthu']
@@ -333,7 +361,7 @@ class AdminHandler(BaseHTTPRequestHandler):
                 if path == '/api/overview':
                     count = lambda sql: db.execute(sql).fetchone()[0]
                     return self.reply(200, dict(online=online(), users=count('SELECT COUNT(*) FROM users'), characters=count('SELECT COUNT(*) FROM characters'),
-                                                guilds=count('SELECT COUNT(*) FROM guilds'), gms=count('SELECT COUNT(*) FROM users WHERE gm=1'),
+                                                guilds=count('SELECT COUNT(*) FROM guilds'), gms=count('SELECT COUNT(*) FROM users WHERE gm=1'), perf=perf(),
                                                 log=[dict(r) for r in db.execute('SELECT at,admin,action,target,detail FROM admin_log ORDER BY id DESC LIMIT 30')]))
                 if path == '/api/catalog':
                     return self.reply(200, catalog())

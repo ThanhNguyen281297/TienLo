@@ -102,6 +102,15 @@ async function overview(quiet){try{OV=await api('/api/overview');}catch(e){if(!q
  $('onlineBadge').replaceChildren(h('span',{class:'dot'}),fmt(OV.online.length)+' online');
  const v=$('v-overview');v.replaceChildren(
   h('div',{class:'tiles'},...[['Đang online',OV.online.length],['Tài khoản',OV.users],['Nhân vật',OV.characters],['Tông môn',OV.guilds],['GM',OV.gms]].map(([l,n])=>h('div',{class:'tile'},h('b',{},fmt(n)),h('span',{},l)))),
+  (()=>{const P=OV.perf||{},w=(P.paths||[]).find(p=>p.path==='/api/world');const lvl=v=>v==null?'':v<60?'ok':v<150?'gold':'bad';
+   return h('div',{class:'card'},h('h2',{},'Hiệu năng server'),
+    h('div',{class:'tiles'},
+     h('div',{class:'tile'},h('b',{class:lvl(w?.avg)},w?w.avg+' ms':'—'),h('span',{},'Cập nhật thế giới · trung bình'+(w?' · p95 '+w.p95+' ms':''))),
+     h('div',{class:'tile'},h('b',{class:P.load&&P.load[0]>P.cpus?'bad':''},P.load?P.load.join(' / '):'—'),h('span',{},'CPU load (1/5/15 phút) · '+(P.cpus||'?')+' nhân')),
+     h('div',{class:'tile'},h('b',{class:P.memAvailable<300?'bad':''},P.memAvailable!=null?fmt(P.memAvailable)+' MB':'—'),h('span',{},'RAM còn trống / '+fmt(P.memTotal)+' MB · game dùng '+fmt(P.rss)+' MB')),
+     h('div',{class:'tile'},h('b',{},(P.dbMb??'—')+' MB'),h('span',{},'Database · '+(P.threads||0)+' luồng'))),
+    (P.paths||[]).length?h('div',{class:'tablebox',style:'max-height:220px'},h('table',{},h('thead',{},h('tr',{},...['API','Số lần','TB (ms)','p95','Max'].map(t=>h('th',{},t)))),
+     h('tbody',{},...P.paths.map(r=>h('tr',{},h('td',{},r.path),h('td',{},r.count),h('td',{class:lvl(r.avg)},r.avg),h('td',{},r.p95),h('td',{},r.max)))))):h('p',{class:'muted'},'Chưa có số liệu (cần người chơi online).'));})(),
   h('div',{class:'card'},h('h2',{},'Người chơi đang online'),OV.online.length?h('div',{class:'tablebox'},h('table',{},
    h('thead',{},h('tr',{},...['Nhân vật','Tông môn','Cấp','Cảnh giới','Bản đồ','Khí huyết','Chế độ',''].map(t=>h('th',{},t)))),
    h('tbody',{},...OV.online.map(o=>h('tr',{},h('td',{},h('span',{class:'dot'}),h('b',{},o.name),' ',h('span',{class:'muted'},'#'+o.id)),h('td',{},o.sect),h('td',{},o.level),h('td',{},o.realm),h('td',{},o.map),

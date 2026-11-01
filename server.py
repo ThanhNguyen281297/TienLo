@@ -68,6 +68,7 @@ AUTH_LIMIT = defaultdict(deque)
 AUTH_WORK = __import__('threading').BoundedSemaphore(2)
 PEERS, ROOMS, EVENTS = {}, {}, defaultdict(list)
 CHAT = deque(maxlen=100)
+TIMINGS = defaultdict(lambda: deque(maxlen=400))   # path -> recent POST durations in ms (admin panel)
 ANNOUNCE = deque(maxlen=20)   # admin announcements shown mid-screen (admin.broadcast)
 SECTS = ('Kiếm Tông', 'Minh Nguyệt Tông', 'Lôi Thương Tông', 'Thiên Cơ Môn')
 STATIC_FILES = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()}
@@ -80,11 +81,20 @@ class ClosingConnection(sqlite3.Connection):
         try:return super().__exit__(*args)
         finally:self.close()
 
+_DB_DIR_READY = set()
+
+
 def connect():
-    DATABASE.parent.mkdir(parents=True, exist_ok=True)
+    if DATABASE.parent not in _DB_DIR_READY:
+        DATABASE.parent.mkdir(parents=True, exist_ok=True); _DB_DIR_READY.add(DATABASE.parent)
     db = sqlite3.connect(DATABASE, timeout=10, factory=ClosingConnection)
     db.row_factory = sqlite3.Row
     db.execute('PRAGMA foreign_keys=ON')
+    # WAL + NORMAL: commits no longer wait for a disk flush (fsync). A world update makes
+    # ~8 small commits under WORLD_LOCK; on a VPS disk each flush cost several ms and every
+    # player's update queued behind the others. The database stays consistent; only the
+    # last instant of writes could roll back after a power cut.
+    db.execute('PRAGMA synchronous=NORMAL')
     return db
 
 
@@ -571,9 +581,13 @@ class GameHandler(SimpleHTTPRequestHandler):
         self.do_GET()
 
     def do_POST(self):
+        started=time.perf_counter()
         try: self.post_route()
         except (ValueError,TypeError,KeyError,OverflowError,json.JSONDecodeError): self.reply(400,{'error':'Dữ liệu không hợp lệ.'})
         except sqlite3.Error: self.reply(503,{'error':'Database đang bận. Hãy thử lại.'})
+        finally:
+            path=urlsplit(self.path).path
+            if path.startswith('/api/'):TIMINGS[path].append((time.perf_counter()-started)*1000)
 
     def post_route(self):
         path=urlsplit(self.path).path
@@ -1070,5 +1084,5 @@ if __name__=='__main__':
     host=os.environ.get('TIENLO_HOST','127.0.0.1'); port=int(os.environ.get('TIENLO_PORT','8080'))
     print(f'Tiên Lộ Online: http://{host}:{port}',flush=True)
     # GM admin panel on its own port (TIENLO_ADMIN_PORT, default 19999 on 127.0.0.1; 0 disables).
-    admin.start(PEERS=PEERS,CHAT=CHAT,ANNOUNCE=ANNOUNCE,DB_LOCK=DB_LOCK,WORLD_LOCK=WORLD_LOCK,connect=connect,password_hash=password_hash,SECTS=SECTS)
+    admin.start(PEERS=PEERS,CHAT=CHAT,ANNOUNCE=ANNOUNCE,TIMINGS=TIMINGS,DATABASE=DATABASE,DB_LOCK=DB_LOCK,WORLD_LOCK=WORLD_LOCK,connect=connect,password_hash=password_hash,SECTS=SECTS)
     GameServer((host,port),partial(GameHandler,directory=str(ROOT))).serve_forever()
