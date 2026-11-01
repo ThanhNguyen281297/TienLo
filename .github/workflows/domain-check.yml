@@ -15,5 +15,10 @@ jobs:
             robots=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 https://$host/robots.txt || true)
             https=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 https://$host/ || true)
             cert=$(echo | timeout 10 openssl s_client -servername $host -connect $host:443 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null | tr '\n' ' ' || true)
+            for scheme in http https; do
+              login=$(curl -s -m 15 -H "Origin: $scheme://$host" -H 'Content-Type: application/json' -d '{"username":"probe_x","password":"wrongpassword123"}' $scheme://$host/api/login | head -c 160 || true)
+              health=$(curl -s -m 15 $scheme://$host/api/health | head -c 80 || true)
+              echo "::notice title=$scheme://$host api::health=$health login=$login"
+            done
             echo "::notice title=$host::ip=$ip http=$http https=$https play=$play robots=$robots cert=$cert"
           done
