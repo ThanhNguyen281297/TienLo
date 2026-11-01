@@ -211,7 +211,6 @@
     // Only an equipped formation is projected onto the ground beneath the body.
     if(!window.equipmentSystem?.suppressFormation)window.equipmentSystem?.drawFormation(ctx,x,y,ap,fit);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,false);
-    window.gearForms?.drawRobe(ctx,ap,fit,false);
     // Facing left the weapon hand is the far one; facing right the shield arm is.
     const weaponBehind=dir===2&&facing<0,shieldFront=dir===2?facing<0:dir===0;
     if(!shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);
@@ -257,7 +256,6 @@
     if(back&&dir===1)window.equipmentMotion?.drawBack(ctx,back,x,y,dir,facing,bob,tm,fit);
     if(shieldFront)window.equipmentSystem?.drawShield(ctx,x,y,dir,facing,ap,null,fit);
     window.equipmentSystem?.drawRing(ctx,x,y,dir,facing,ap,fit);
-    window.gearForms?.drawRobe(ctx,ap,fit,true);
     window.equipmentSystem?.drawBuff(ctx,x,y,ap,true);
     ctx.restore();
   };

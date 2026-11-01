@@ -3,9 +3,7 @@
      black iron, spirit steel, violet immortal, golden divine) and dressed with code-drawn
      parts: tassels, guard gems, halos, orbiting sparks, and per-weapon spirit effects
      (petals, stars, frost, blood mist, wind, dark flame, clouds, phoenix feathers).
-   - Đạo bào: higher robes add a silhouette behind the body: waist sashes (Hiếm), a
-     floating celestial ribbon (Cực hiếm), a back halo (Siêu phẩm), a turning rune halo
-     with rising gold motes (Thần phẩm).
+   - Đạo bào: no extra effects (the sashes, ribbon and halos were removed).
    All art is original and drawn here; presentation only. */
 (function(){
  'use strict';
@@ -134,36 +132,7 @@
  const CLASS_TONE=['#5fb4ff','#5fe0c8','#a77aff','#f3c76b'];
  function robeOf(ap){const t=templateOf(ap,'daobao','robeId');if(!t)return null;const style=window.equipmentRules?.outfitStyles?.find(s=>s.id===t.outfitStyle);
   return{tier:ROBE_TIER[t.rarity]??0,tone:style?.color||CLASS_TONE[ap.w|0]||'#7fd4ff'};}
- function ribbonPath(pts,widths){const L=[],R=[];for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,nx=-dy/d,ny=dx/d,w=widths[i];L.push({x:pts[i].x+nx*w,y:pts[i].y+ny*w});R.push({x:pts[i].x-nx*w,y:pts[i].y-ny*w});}return{L,R};}
- function fillRibbon(ctx,pts,width,colorA,colorB,edge,alpha){const ws=pts.map((_,i)=>width*(.35+.65*Math.sin((i+.5)/pts.length*Math.PI))*(1-.45*i/pts.length));const {L,R}=ribbonPath(pts,ws);
-  ctx.save();ctx.globalAlpha*=alpha;const g=ctx.createLinearGradient(pts[0].x,pts[0].y,pts.at(-1).x,pts.at(-1).y);g.addColorStop(0,colorA);g.addColorStop(.55,colorB);g.addColorStop(1,colorA+'00');ctx.fillStyle=g;
-  ctx.beginPath();L.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));for(let i=R.length-1;i>=0;i--)ctx.lineTo(R[i].x,R[i].y);ctx.closePath();ctx.fill();
-  if(edge){ctx.strokeStyle=edge;ctx.lineWidth=.55;ctx.globalAlpha*=.85;ctx.beginPath();L.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();}ctx.restore();}
- function streamer(fit,sx,sy,dirx,len,t,phase,lift){const pts=[],n=14,run=fit.moving?1.6:1;for(let i=0;i<n;i++){const s=i/(n-1),wave=Math.sin(t*3.2*run-s*5+phase)*s*4.5;pts.push({x:sx+dirx*s*len*(.75+.25*run)+wave*.4,y:sy+s*len*.55*(1-lift)-lift*Math.sin(s*Math.PI)*8+wave});}return pts;}
- function drawRobe(ctx,ap,fit,front,t=clock()){const r=robeOf(ap);if(!r||!r.tier||!fit)return;const {cx,top,H,W,dir,facing}=fit;const side=dir===2?facing:0,back=side?-side:0;
-  if(!front){
-   // Hiếm+: waist sash tails
-   const waistY=top+H*.8,col=r.tier>=4?'#ffd77a':r.tone,edge=r.tier>=3?'#ffe7a8':'#ffffff';
-   for(const s of side?[back]:[-1,1]){const p=streamer(fit,cx+s*W*.18+(side?back*W*.2:0),waistY,side?back:s*.55,H*.42,t,s,0);fillRibbon(ctx,p,1.8,col,r.tier>=3?'#ffffff':col,edge,.95);}
-   // Cực hiếm+: celestial ribbon (phi bạch) arcing behind the shoulders
-   if(r.tier>=2){const sh=top+H*.5,n=22,pts=[];const amp=fit.moving?1.4:1;
-    for(let i=0;i<n;i++){const s=i/(n-1),a=Math.PI*(1-s),wave=Math.sin(t*2.4-s*7)*1.6;
-     let x=cx+Math.cos(a)*W*1.05+(side?back*W*.35*Math.sin(a):0),y=sh-Math.sin(a)*H*.28+wave;
-     if(s<.2||s>.8){const e=s<.2?(.2-s)/.2:(s-.8)/.2;y+=e*H*.42;x+=(s<.2?-1:1)*e*W*.35*amp+(side?back*e*W*.6*amp:0);}
-     pts.push({x,y});}
-    const col=r.tier>=4?'#ffcf5a':r.tone;fillRibbon(ctx,pts,2.4,col,r.tier>=3?'#fff4dc':'#e8fbff',r.tier>=3?'#c8901a':'#ffffff',.95);}
-   // Siêu phẩm+: back halo
-   if(r.tier>=3&&dir!==1){const hx=cx-(side?side*W*.12:0),hy=top+H*.27,R=W*.68;ctx.save();ctx.globalCompositeOperation='lighter';
-    const g=ctx.createRadialGradient(hx,hy,R*.3,hx,hy,R*1.35);const c=r.tier>=4?'#ffd36b':r.tone;g.addColorStop(0,c+'40');g.addColorStop(.75,c+'1a');g.addColorStop(1,c+'00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(hx,hy,R*1.35,0,TAU);ctx.fill();
-    ctx.globalCompositeOperation='source-over';ctx.strokeStyle='rgba(60,36,8,.45)';ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(hx,hy,R,0,TAU);ctx.stroke();ctx.strokeStyle=c;ctx.globalAlpha=.95;ctx.lineWidth=1;ctx.stroke();ctx.strokeStyle='#ffffff';ctx.globalAlpha=.7;ctx.lineWidth=.35;ctx.stroke();ctx.globalAlpha=1;
-    if(r.tier>=4){ctx.translate(hx,hy);ctx.rotate(t*.35);ctx.fillStyle='#ffd36b';for(let i=0;i<16;i++){ctx.rotate(TAU/16);ctx.globalAlpha=i%4?.6:1;ctx.fillRect(R*.84,-.35,i%4?R*.1:R*.2,.7);}ctx.rotate(-t*.7);ctx.strokeStyle='#ffe39a';ctx.globalAlpha=.6;ctx.lineWidth=.5;ctx.beginPath();ctx.arc(0,0,R*.7,0,TAU);ctx.stroke();
-     for(let i=0;i<4;i++){const a=i*TAU/4;star4(ctx,Math.cos(a)*R,Math.sin(a)*R,2.2,'#ffffff',.9,a);}}
-    ctx.restore();}
-  }else if(r.tier>=4){
-   // Thần phẩm: gold motes rising around the body
-   for(let i=0;i<8;i++){const l=(t*.32+i/8)%1,a=i*2.39+t*.5,x=cx+Math.cos(a)*W*.8,y=fit.feetY-2-l*H*1.05;if(Math.sin(a)<0)continue;glowDot(ctx,x,y,2.2,'#ffd36b',Math.sin(l*Math.PI)*.9);ctx.save();ctx.globalAlpha=Math.sin(l*Math.PI);ctx.fillStyle='#fff6d8';ctx.beginPath();ctx.arc(x,y,.6,0,TAU);ctx.fill();ctx.restore();}
-  }
- }
+ // Đạo bào no longer draws sashes, ribbons or halos (removed on request); robeOf still gives the tier.
 
  // Arm shield: the painted shield with a quality rim glow.
  function drawShield(ctx,item,variant,img,dir,facing,at,H,t=clock()){const size=H*(dir===2?.42:.46),q=ROBE_TIER[window.equipmentData?.byId?.get(item?.id)?.rarity||item?.rarity]??1;
@@ -174,5 +143,5 @@
   if(q>=3){const g=(t*.3+variant*.17)%1;if(g<.3)star4(ctx,size*.28,-size*.3,size*.12*(1+g*2),'#ffffff',Math.sin(g/.3*Math.PI),g*2);}
   ctx.restore();}
 
- window.gearForms={FORMS,TIER_FORM,formOf,drawWeapon,weaponScale,drawRobe,robeOf,drawShield};
+ window.gearForms={FORMS,TIER_FORM,formOf,drawWeapon,weaponScale,robeOf,drawShield};
 })();
