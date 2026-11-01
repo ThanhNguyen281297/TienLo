@@ -27,31 +27,41 @@ jobs:
         env:
           TIENLO_QUIET: '1'
         run: |
-          python tests/test_online_server.py
-          python tests/test_equipment.py
-          python tests/test_character_progression.py
-          python tests/test_release_stamp.py
-          python tests/test_map_sprite_assets.py
-          python tests/test_character_expression_assets.py
-          python tests/test_expeditions_duels.py
-          python tests/test_adventure.py
-          python tests/test_mmorpg.py
-          python tests/test_basic_effect_assets.py
-          python tests/test_prune_releases.py
-          python tests/test_player_social.py
-          python tests/test_economy.py
-          python tests/test_engagement.py
-          python tests/test_webp_assets.py
-          python tests/test_battle.py
-          python tests/test_outposts.py
-          python tests/test_fieldpk.py
-          python tests/test_pets_auction.py
-          python tests/test_premium_shards_mail.py
-          python tests/test_balance.py
-          python tests/test_sect_potential.py
-          python tests/test_gear_forms.py
-          python tests/test_shard_sources.py
-          python tests/test_retention.py
+          # Each failure is surfaced as an annotation (job logs are not always reachable).
+          fail=0
+          for t in tests/test_online_server.py \
+            tests/test_equipment.py \
+            tests/test_character_progression.py \
+            tests/test_release_stamp.py \
+            tests/test_map_sprite_assets.py \
+            tests/test_character_expression_assets.py \
+            tests/test_expeditions_duels.py \
+            tests/test_adventure.py \
+            tests/test_mmorpg.py \
+            tests/test_basic_effect_assets.py \
+            tests/test_prune_releases.py \
+            tests/test_player_social.py \
+            tests/test_economy.py \
+            tests/test_engagement.py \
+            tests/test_webp_assets.py \
+            tests/test_battle.py \
+            tests/test_outposts.py \
+            tests/test_fieldpk.py \
+            tests/test_pets_auction.py \
+            tests/test_premium_shards_mail.py \
+            tests/test_balance.py \
+            tests/test_sect_potential.py \
+            tests/test_gear_forms.py \
+            tests/test_shard_sources.py \
+            tests/test_retention.py \
+            tests/test_origins.py; do
+            if ! python "$t" > out.log 2>&1; then
+              cat out.log
+              echo "::error title=$t::$(tail -c 1800 out.log | tr '\n' ' ')"
+              fail=1
+            fi
+          done
+          exit $fail
       - name: JavaScript and deployment syntax
         run: |
           for file in js/*.js tests/*.cjs; do node --check "$file"; done
