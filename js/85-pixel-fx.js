@@ -5,7 +5,7 @@
    blend with the HD art. Presentation only: no gameplay value is read or changed. */
 (function(){
  'use strict';
- const M={poof:{w:83,h:73,cols:24,n:43,fps:30,px:38,py:63},spark:{w:115,h:67,cols:14,n:14,fps:30,px:28,py:55},crit:{w:163,h:121,cols:12,n:25,fps:30,px:67,py:93},heal:{w:44,h:81,cols:46,n:52,fps:30,px:22,py:71},blink:{w:90,h:86,cols:22,n:38,fps:30,px:45,py:72},respawn:{w:120,h:149,cols:17,n:35,fps:15,px:60,py:136},collect:{w:75,h:84,cols:27,n:33,fps:30,px:34,py:79},levelup:{w:154,h:133,cols:13,n:49,fps:15,px:77,py:111}};
+ const M={poof:{w:83,h:73,cols:24,n:43,fps:30,px:38,py:63},spark:{w:115,h:67,cols:14,n:14,fps:30,px:28,py:55},crit:{w:163,h:121,cols:12,n:25,fps:30,px:67,py:93},heal:{w:44,h:81,cols:46,n:52,fps:30,px:22,py:71},blink:{w:90,h:86,cols:22,n:38,fps:30,px:45,py:72},respawn:{w:120,h:149,cols:17,n:35,fps:15,px:60,py:136},collect:{w:75,h:84,cols:27,n:33,fps:30,px:34,py:79},levelup:{w:154,h:133,cols:13,n:49,fps:15,px:77,py:111},butterfly:{w:106,h:74,cols:19,n:48,fps:15,px:53,py:38,loop:1},bird:{w:48,h:37,cols:36,n:36,fps:15,px:34,py:17,loop:1},bat:{w:98,h:60,cols:20,n:36,fps:15,px:53,py:27,loop:1},wisp:{w:119,h:93,cols:17,n:48,fps:15,px:60,py:87,loop:1},stun:{w:49,h:32,cols:41,n:60,fps:30,px:24,py:54,loop:1},spawn:{w:192,h:128,cols:10,n:54,fps:15,px:92,py:102},lootbeam:{w:61,h:166,cols:33,n:36,fps:15,px:30,py:159,loop:1},chest:{w:166,h:78,cols:12,n:66,fps:15,px:84,py:65},coin:{w:35,h:35,cols:48,n:48,fps:30,px:17,py:33,loop:1},confetti:{w:193,h:92,cols:10,n:50,fps:15,px:96,py:80},rune:{w:114,h:85,cols:17,n:60,fps:15,px:57,py:66,loop:1}};
  const img={},fx=[],reduced=matchMedia('(prefers-reduced-motion: reduce)'),lastSpark=new WeakMap();
  const MAX=matchMedia('(pointer:coarse)').matches?16:28;
  let last=performance.now(),lastHp=null,quiet=0;
@@ -15,17 +15,23 @@
     follow=true keeps it on the player as they move. */
  function play(k,x,y,o={}){
   if(reduced.matches||!M[k])return;
-  const i=sheet(k);fx.push({k,x,y,age:0,scale:o.scale||2,alpha:o.alpha??.92,flip:!!o.flip,center:!!o.center,follow:!!o.follow,add:!!o.add});
+  const i=sheet(k);fx.push({k,x,y,age:0,scale:o.scale||2,alpha:o.alpha??.92,flip:!!o.flip,center:!!o.center,follow:!!o.follow,add:!!o.add,life:o.life||0,vy:o.vy||0});
   if(fx.length>MAX)fx.shift();return i;
  }
  function draw(e){
-  const m=M[e.k],i=img[e.k],f=Math.floor(e.age*m.fps);if(f>=m.n){e.done=true;return;}
-  if(!i?.complete||!i.naturalWidth)return;
-  const x=e.follow?P.x:e.x,y=e.follow?P.y:e.y,s=e.scale,sx=(f%m.cols)*m.w,sy=Math.floor(f/m.cols)*m.h;
-  const ax=e.center?m.w/2:m.px,ay=e.center?m.h/2:m.py;
-  g.save();g.globalAlpha=e.alpha;if(e.add)g.globalCompositeOperation='lighter';g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
-  g.translate(x,y);if(e.flip)g.scale(-1,1);
-  g.drawImage(i,sx,sy,m.w,m.h,-ax*s,-ay*s,m.w*s,m.h*s);g.restore();
+  const m=M[e.k];let f=Math.floor(e.age*m.fps),alpha=e.alpha;
+  // Looping sheets play for `life` seconds and fade out over the last 0.4 s.
+  if(e.life){if(e.age>=e.life){e.done=true;return;}f%=m.n;alpha*=Math.min(1,(e.life-e.age)/.4);}
+  else if(f>=m.n){e.done=true;return;}
+  frame(g,e.k,f,e.follow?P.x:e.x,(e.follow?P.y:e.y)-e.vy*e.age,{scale:e.scale,alpha,flip:e.flip,center:e.center,add:e.add});
+ }
+ // Draws frame f of sheet k with its ground pivot (or centre) at x,y in the current transform.
+ function frame(ctx,k,f,x,y,o={}){
+  const m=M[k],i=sheet(k);if(!i.complete||!i.naturalWidth)return false;f=((f%m.n)+m.n)%m.n;
+  const s=o.scale||2,sx=(f%m.cols)*m.w,sy=Math.floor(f/m.cols)*m.h,ax=o.center?m.w/2:m.px,ay=o.center?m.h/2:m.py;
+  ctx.save();ctx.globalAlpha*=o.alpha??.92;if(o.add)ctx.globalCompositeOperation='lighter';ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.translate(x,y);if(o.flip)ctx.scale(-1,1);
+  ctx.drawImage(i,sx,sy,m.w,m.h,-ax*s,-ay*s,m.w*s,m.h*s);ctx.restore();return true;
  }
 
  /* Hits: a small spark per enemy (throttled), a bigger burst on critical hits.
@@ -78,5 +84,5 @@
  };
  // Warm the small, frequent sheets once the player is in the world.
  addEventListener('tienlo-auth',()=>setTimeout(()=>['spark','poof','crit'].forEach(sheet),1500));
- window.pixelFx={play,sheets:M};
+ window.pixelFx={play,frame,sheet,sheets:M,reduced:()=>reduced.matches,particles};
 })();
