@@ -20,7 +20,7 @@
  };
  const KIND={
   butterfly:{speed:26,scale:.75,alt:[30,90],alpha:.95},
-  bird:{speed:150,scale:1.15,alt:[140,260],alpha:.95},
+  bird:{speed:150,scale:.9,alt:[140,260],alpha:.95},
   wisp:{speed:16,scale:.8,alt:[10,60],alpha:.85,add:true},
   bat:{speed:85,scale:.8,alt:[90,180],alpha:.92}
  };

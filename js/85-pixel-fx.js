@@ -34,6 +34,9 @@
   ctx.drawImage(i,sx,sy,m.w,m.h,-ax*s,-ay*s,m.w*s,m.h*s);ctx.restore();return true;
  }
 
+ // Which sheet a critical hit or a death uses; 87-pixel-more swaps in class and map themes.
+ const pick={crit:()=>({k:'crit',scale:1.25}),death:e=>{const k=T[e.t]||{s:40};return {k:'poof',scale:Math.max(1.6,Math.min(3,k.s/34))};}};
+ function death(e){const d=pick.death(e);play(d.k,e.x,e.y+4,{scale:d.scale,alpha:d.alpha??.85,add:d.add});try{pick.onDeath?.(e);}catch(err){}}
  /* Hits: a small spark per enemy (throttled), a bigger burst on critical hits.
     damageNumber knows if the hit was critical, so it records it for hit(). */
  let critical=false;
@@ -46,8 +49,8 @@
   try{
    if(alive&&P.ap&&!enemy.rewardReplay){
     const k=T[enemy.t]||{s:40},cy=enemy.y-k.s*.55,now=performance.now();
-    if((enemy.hp<=0||enemy.dead)&&!enemy.pixelPoof&&(enemy.pixelPoof=1))play('poof',enemy.x,enemy.y+4,{scale:Math.max(1.6,Math.min(3,k.s/34)),alpha:.85});
-    else if(critical&&particles()>=.3)play('crit',enemy.x,cy,{center:true,scale:1.25,add:true,flip:enemy.x<P.x});
+    if((enemy.hp<=0||enemy.dead)&&!enemy.pixelPoof&&(enemy.pixelPoof=1))death(enemy);
+    else if(critical&&particles()>=.3){const c=pick.crit();play(c.k,enemy.x,cy,{center:true,scale:c.scale,add:true,flip:enemy.x<P.x});}
     else if(particles()>=.5&&now-(lastSpark.get(enemy)||0)>220){lastSpark.set(enemy,now);play('spark',enemy.x+(enemy.x<P.x?8:-8),cy,{center:true,scale:1.1,add:true,alpha:.85,flip:enemy.x<P.x});}
    }
   }catch(e){}
@@ -56,7 +59,7 @@
 
  // Online the server decides kills; the world update reports them through creatureArt.
  if(window.creatureArt?.onNetworkDamage){const base=creatureArt.onNetworkDamage;creatureArt.onNetworkDamage=function(e,dead){
-  try{if(dead&&e&&!e.pixelPoof){e.pixelPoof=1;const k=T[e.t]||{s:40};play('poof',e.x,e.y+4,{scale:Math.max(1.6,Math.min(3,k.s/34)),alpha:.85});}}catch(err){}
+  try{if(dead&&e&&!e.pixelPoof){e.pixelPoof=1;death(e);}}catch(err){}
   return base.apply(this,arguments);};}
  addEventListener('tienlo-level-up',()=>{if(P.ap)play('levelup',P.x,P.y+6,{scale:1.7,follow:true});});
  addEventListener('tienlo-item-success',()=>{if(P.ap)play('collect',P.x,P.y-30,{scale:1.6,follow:true});});
@@ -84,5 +87,5 @@
  };
  // Warm the small, frequent sheets once the player is in the world.
  addEventListener('tienlo-auth',()=>setTimeout(()=>['spark','poof','crit'].forEach(sheet),1500));
- window.pixelFx={play,frame,sheet,sheets:M,reduced:()=>reduced.matches,particles};
+ window.pixelFx={play,frame,sheet,sheets:M,pick,reduced:()=>reduced.matches,particles};
 })();
