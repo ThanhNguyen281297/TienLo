@@ -1,0 +1,47 @@
+# Palette swaps and male headgear for the other three schools, built on the Kiếm templates.
+# Headgear halves are 16 px wide and mirrored; they replace rows 0..len-1 of the male front/back.
+HAT_LIEM_HALF="""
+...............K
+..............KY
+.............KYy
+............KYYy
+..........KKYYYy
+........KKYYyYYy
+......KKYYYYyYYy
+....KKYYYYYYyYYy
+..KKyyyyyyyyyyyy
+..KKKKKKKKKKKKKK
+"""
+HAT_THUONG_HALF="""
+............K...
+...........KhK.K
+......K...KhhKKh
+.....KhK..KhhhKh
+.....KhhK.KhhhhH
+......KhhKKhhhHh
+......KhhhhYKYhh
+.......KhhYYYYYv
+.......KKYYYYYYY
+"""
+HAT_QUAT_HALF="""
+......K.........
+.....KYK...K....
+.....KYK..KYK...
+...K.KYK.KYK....
+..KYKKYKKYK.....
+...KYYYYYK......
+....KKYYK.......
+.......KKYYYYYYY
+........KYYYYYYw
+"""
+CLASSES={
+ 'Liem':{'hat':HAT_LIEM_HALF,'hat_rows':8,
+  'nam':{'W':'3bb3a5','g':'25877d','B':'1f6b5e','b':'93dccb','n':'174a42','f':'2a2230'},
+  'nu':{'h':'2f6b3f','H':'5fa864','l':'d3efcb','L':'95d2a0','b':'2f7a4a'}},
+ 'Thuong':{'hat':HAT_THUONG_HALF,'hat_rows':8,
+  'nam':{'h':'3a2347','H':'6c3f8c','W':'7a3cc0','g':'552a8c','B':'201428','b':'d6b8f5','n':'140c1a','v':'b04df0','f':'b8862a'},
+  'nu':{'h':'33243f','H':'634580','l':'eadcf8','L':'b98ee9','b':'6b2fae'}},
+ 'Quat':{'hat':HAT_QUAT_HALF,'hat_rows':8,
+  'nam':{'W':'f6eed8','g':'d9c79d','B':'2a2230','b':'e8b84a','n':'1b1726','f':'2a2230'},
+  'nu':{'l':'fbf4e2','L':'efe0b2','b':'c49a3c'}},
+}

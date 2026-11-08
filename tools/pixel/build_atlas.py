@@ -48,15 +48,35 @@ def atlas(rows):
         for x,c in enumerate(row):a.alpha_composite(c,(x*CW,y*CH))
     return a
 
-def kiem():
-    ns={};exec(open(os.path.join(HERE,'kiem_art.py')).read(),ns);exec(open(os.path.join(HERE,'kiem_nam.py')).read(),ns);exec(open(os.path.join(HERE,'kiem_nu.py')).read(),ns)
-    pal=ns['PAL'];out={}
+def load_ns():
+    ns={}
+    for f in ('kiem_art.py','kiem_nam.py','kiem_nu.py','classes_art.py'):exec(open(os.path.join(HERE,f)).read(),ns)
+    return ns
+def rows_of(art):return art.strip('\n').split('\n')
+def headgear(art,hat_full,clear,shift=0):
+    rows=[list(r) for r in rows_of(art)];hat=rows_of(hat_full)
+    for y in range(clear):rows[y]=['.']*len(rows[y])
+    for y,line in enumerate(hat):
+        for x,c in enumerate(line):
+            X=x+shift
+            if c!='.' and 0<=X<len(rows[y]):rows[y][X]=c
+    return '\n'.join(''.join(r) for r in rows)
+def build(cls):
+    ns=load_ns();out={}
+    cfg=ns['CLASSES'].get(cls)
     for g,F,B,S,lap,cut in (('Nam',ns['NAM_FRONT_HALF'],ns['NAM_BACK_HALF'],ns['NAM_SIDE'],ns['NAM_LAP'],31),('Nu',ns['NU_FRONT_HALF'],ns['NU_BACK_HALF'],ns['NU_SIDE'],ns['NU_LAP'],30)):
-        front=mirror(F);back=mirror(B);right=S;left='\n'.join(r[::-1] for r in S.strip('\n').split('\n'))
+        pal=dict(ns['PAL'])
+        front=mirror(F);back=mirror(B);right=S
+        if cfg:
+            pal.update(cfg['nam' if g=='Nam' else 'nu'])
+            if g=='Nam':
+                hat=mirror(cfg['hat']);front=headgear(front,hat,7);back=headgear(back,hat,7);right=headgear(right,hat,7,1)
+        left='\n'.join(r[::-1] for r in rows_of(right))
         rows=[walk(front,pal),walk(back,pal),walk(right,pal,True),walk(left,pal,True),meditate(front,pal,cut,lap)]
         out[g]=atlas(rows)
     return out
 if __name__=='__main__':
     root=os.path.normpath(os.path.join(HERE,'..','..'));os.makedirs(os.path.join(root,'Character','Pixel'),exist_ok=True)
-    for g,a in kiem().items():a.save(os.path.join(root,'Character','Pixel',f'Kiem-{g}.png'),optimize=True)
+    for cls in ('Kiem','Liem','Thuong','Quat'):
+        for g,a in build(cls).items():a.save(os.path.join(root,'Character','Pixel',f'{cls}-{g}.png'),optimize=True)
     print('ok')

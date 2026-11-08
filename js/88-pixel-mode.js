@@ -52,6 +52,52 @@
  g.fillText=function(...a){prep();o.fillText(...a);};
  g.strokeText=function(...a){prep();o.strokeText(...a);};
 
+ /* Sprites → pixel art. Every painted sprite drawn on the world canvas (NPCs, monsters, pets,
+    props, buildings, trees, items) is re-rasterised once at its on-screen pixel size with a
+    hard alpha edge, a slightly reduced palette and a 1-pixel dark outline, then drawn with
+    nearest-neighbour scaling. Soft glows, additive effects and full-screen layers are left
+    alone. Results are cached per source and size. */
+ const nativeDraw=g.drawImage.bind(g),cache=new WeakMap(),SKIP=/Skill\/|pixelfx|VFX|\/hd\/|landing\//;
+ const scratch=document.createElement('canvas'),sc=scratch.getContext('2d',{willReadFrequently:true});
+ function eligible(src){
+  if(!src||src===cv||src===overlay)return false;
+  if(src instanceof HTMLImageElement){if(!src.complete||!src.naturalWidth)return false;return !SKIP.test(src.currentSrc||src.src||'');}
+  return src instanceof HTMLCanvasElement&&!src.dataset?.pixelSkip;
+ }
+ function pixelate(src,sx,sy,sw,sh,w,h){
+  const pw=w+2,ph=h+2;scratch.width=pw;scratch.height=ph;sc.imageSmoothingEnabled=true;sc.imageSmoothingQuality='high';
+  sc.clearRect(0,0,pw,ph);sc.drawImage(src,sx,sy,sw,sh,1,1,w,h);
+  const img=sc.getImageData(0,0,pw,ph),d=img.data;let soft=0,solid=0;
+  for(let i=3;i<d.length;i+=4){const a=d[i];if(a>230)solid++;else if(a>20)soft++;}
+  if(solid===0||soft>solid*.6)return null;           // glow-like art: keep the painted version
+  const opaque=new Uint8Array(pw*ph);
+  for(let p=0,i=0;p<pw*ph;p++,i+=4){
+   if(d[i+3]<110){d[i+3]=0;continue;}
+   opaque[p]=1;d[i+3]=255;
+   for(let k=0;k<3;k++)d[i+k]=Math.min(255,Math.round(d[i+k]/12)*12);   // gentle posterise
+  }
+  for(let y=0;y<ph;y++)for(let x=0;x<pw;x++){const p=y*pw+x;if(opaque[p])continue;
+   const n=(x>0&&opaque[p-1])?p-1:(x<pw-1&&opaque[p+1])?p+1:(y>0&&opaque[p-pw])?p-pw:(y<ph-1&&opaque[p+pw])?p+pw:-1;
+   if(n<0)continue;const i=p*4,j=n*4;d[i]=d[j]*.28+8|0;d[i+1]=d[j+1]*.24+6|0;d[i+2]=d[j+2]*.3+12|0;d[i+3]=255;}
+  const out=document.createElement('canvas');out.width=pw;out.height=ph;out.dataset.pixelSkip='1';out.getContext('2d').putImageData(img,0,0);return out;
+ }
+ g.drawImage=function(src,...a){
+  try{
+   if((a.length===4||a.length===8)&&g.globalCompositeOperation==='source-over'&&g.filter==='none'&&eligible(src)){
+    const [sx,sy,sw,sh,dx,dy,dw,dh]=a.length===8?a:[0,0,src.naturalWidth||src.width,src.naturalHeight||src.height,...a];
+    const m=g.getTransform(),kx=Math.hypot(m.a,m.b),ky=Math.hypot(m.c,m.d),w=Math.round(Math.abs(dw)*kx),h=Math.round(Math.abs(dh)*ky);
+    if(w>=6&&h>=6&&w<=420&&h<=420&&sw>=w*1.25&&sh>=h*1.25){
+     let per=cache.get(src);if(!per){per=new Map();cache.set(src,per);}
+     const key=sx+','+sy+','+sw+','+sh+'@'+w+'x'+h;let art=per.get(key);
+     if(art===undefined){try{art=pixelate(src,sx,sy,sw,sh,w,h);}catch(err){art=null;}per.set(key,art);if(per.size>24)per.delete(per.keys().next().value);}
+     if(art){const ox=dw/w,oy=dh/h,smooth=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;
+      nativeDraw(art,0,0,art.width,art.height,dx-ox,dy-oy,dw+2*ox,dh+2*oy);g.imageSmoothingEnabled=smooth;return;}
+    }
+   }
+  }catch(e){}
+  return nativeDraw(src,...a);
+ };
+
  const baseDraw=dr;
  dr=function(){o.setTransform(1,0,0,1,0,0);o.clearRect(0,0,overlay.width,overlay.height);return baseDraw.apply(this,arguments);};
 })();

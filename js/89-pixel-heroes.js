@@ -4,7 +4,7 @@
 (function(){
  'use strict';
  if(window.artStyle?.get()!=='pixel'||!window.characterMasks)return;
- const READY={Kiem:true},CW=32,CH=48,FIG=44;
+ const READY={Kiem:true,Liem:true,Thuong:true,Quat:true},CW=32,CH=48,FIG=44;
  const ROW={truoc:0,sau:1,trai:2,phai:3};
  const sheets=new Map(),frames=new Map();
  function sheet(ap){
@@ -24,7 +24,7 @@
   const fit=window.characterFit?.(ap,direction,fx,fy,height),figure=fit?.H||height*.8;
   const t=motion.time??(worldMap.environmentClock||performance.now()/1000);
   const row=motion.meditating?4:(ROW[direction]??0),col=motion.meditating?Math.floor(t*1.6)%4:motion.moving?Math.floor(t*8)%4:0;
-  const image=cell(s,row,col),scale=figure/FIG,w=CW*scale,h=CH*scale,left=fx-w/2,top=fy-h;
+  const image=cell(s,row,col),scale=figure*1.12/FIG,w=CW*scale,h=CH*scale,left=fx-w/2,top=fy-h;
   ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(image,left,top,w,h);ctx.restore();
   return {image,x:left,y:top,width:w,height:h};
  };

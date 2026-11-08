@@ -1,6 +1,6 @@
 # Hand-authored pixel art for Kiếm tông (32x44 cells). '.' = transparent.
 PAL={'K':'1b1726','h':'2b2533','H':'4d4560','s':'f6d7bf','S':'dcae94','p':'ef9a9a','e':'2a2030','R':'e8383d',
- 'W':'f4f6fb','g':'c8d3ea','B':'2f63c8','b':'86afef','n':'1e3a7e','Y':'f0c24f','y':'b8862a','L':'b9d8f6','l':'e3f0fc','f':'2a2230','F':'e8b84a','m':'c0565a','w':'ffffff'}
+ 'W':'f4f6fb','g':'c8d3ea','B':'2f63c8','b':'86afef','n':'1e3a7e','Y':'f0c24f','y':'b8862a','L':'b9d8f6','l':'e3f0fc','f':'2a2230','F':'e8b84a','m':'c0565a','w':'ffffff','v':'8a3fd0'}
 NAM_FRONT="""
 ...........KKKKKKKKK............
 ..........KbBBBBBBBbK...........
