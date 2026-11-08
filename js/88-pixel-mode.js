@@ -60,7 +60,8 @@
  const nativeDraw=g.drawImage.bind(g),cache=new WeakMap(),SKIP=/Skill\/|pixelfx|VFX|\/hd\/|landing\//;
  const scratch=document.createElement('canvas'),sc=scratch.getContext('2d',{willReadFrequently:true});
  function eligible(src){
-  if(!src||src===cv||src===overlay)return false;
+  if(!src||src===cv||src===overlay||window.pixelSprites?.has(src))return false;
+  if(src instanceof HTMLImageElement&&(src.currentSrc||src.src||'').includes('.px.png'))return false;
   if(src instanceof HTMLImageElement){if(!src.complete||!src.naturalWidth)return false;return !SKIP.test(src.currentSrc||src.src||'');}
   return src instanceof HTMLCanvasElement&&!src.dataset?.pixelSkip;
  }

@@ -42,5 +42,7 @@ if __name__=='__main__':
             except Exception as e:print('skip',rel,e);continue
             if img is None:continue
             img.save(p[:-4]+'.px.png',optimize=True);made.append(rel)
+    extra=os.path.join(ROOT,'tools','pixel','monsters.json')   # written by tools/pixel/monsters.py
+    if os.path.exists(extra):made+=json.load(open(extra))
     with open(os.path.join(ROOT,'js','00-pixel-manifest.js'),'w') as f:f.write('window.pixelAssets='+json.dumps(made,ensure_ascii=False,separators=(',',':'))+';\n')
     print(len(made),'icons')
