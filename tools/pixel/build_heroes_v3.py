@@ -1,6 +1,6 @@
 """Pixel heroes v3: converted from the painted class art (tools/pixel/hero_convert.py) with
 hand-placed pixel faces, so every school keeps its own costume, headwear and colours.
-Atlas per class+gender: 4 columns x 5 rows of 52x52 cells (figure 48 px):
+Atlas per class+gender: 4 columns x 5 rows of 46x46 cells (figure 42 px):
 rows = front, back, walking left, walking right, meditation.
 Run: python3 tools/pixel/build_heroes_v3.py -> Character/Pixel/<Class>-<Nam|Nu>.png"""
 import os,sys
@@ -9,8 +9,8 @@ from PIL import Image
 HERE=os.path.dirname(os.path.abspath(__file__));sys.path.insert(0,HERE)
 from hero_convert import views
 ROOT=os.path.normpath(os.path.join(HERE,'..','..'))
-CW=CH=52
-FIG=48            # figure height in art pixels (faces below are authored for 60 and scaled)
+CW=CH=46
+FIG=42            # figure height in art pixels (faces below are authored for 60 and scaled)
 # Face boxes (x0,y0,x1,y1, eye row) in the 60-px figures; side boxes are for 'trai' (faces left).
 FACES={
  ('Kiem','Nam'):{'truoc':(22,19,40,30,23),'trai':(20,19,31,30,23)},
