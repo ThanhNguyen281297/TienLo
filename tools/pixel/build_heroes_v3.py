@@ -1,6 +1,6 @@
 """Pixel heroes v3: converted from the painted class art (tools/pixel/hero_convert.py) with
 hand-placed pixel faces, so every school keeps its own costume, headwear and colours.
-Atlas per class+gender: 4 columns x 5 rows of 64x64 cells (figure 60 px):
+Atlas per class+gender: 4 columns x 5 rows of 52x52 cells (figure 48 px):
 rows = front, back, walking left, walking right, meditation.
 Run: python3 tools/pixel/build_heroes_v3.py -> Character/Pixel/<Class>-<Nam|Nu>.png"""
 import os,sys
@@ -9,7 +9,8 @@ from PIL import Image
 HERE=os.path.dirname(os.path.abspath(__file__));sys.path.insert(0,HERE)
 from hero_convert import views
 ROOT=os.path.normpath(os.path.join(HERE,'..','..'))
-CW=CH=64
+CW=CH=52
+FIG=48            # figure height in art pixels (faces below are authored for 60 and scaled)
 # Face boxes (x0,y0,x1,y1, eye row) in the 60-px figures; side boxes are for 'trai' (faces left).
 FACES={
  ('Kiem','Nam'):{'truoc':(22,19,40,30,23),'trai':(20,19,31,30,23)},
@@ -38,7 +39,7 @@ def face(img,gender,view,box):
             a[ey+dy,x,:3]=iris;a[ey+dy,x+1,:3]=iris
         a[ey+tall-1,x,:3]=low;a[ey+tall-1,x+1,:3]=low;a[ey,x,:3]=hi if False else a[ey,x,:3]
         a[ey-1,x,:3]=dark;a[ey-1,x+1,:3]=dark;a[ey,x+1,:3]=hi
-    tall=3 if gender=='Nam' else 2
+    tall=2
     if view=='truoc':
         c=(x0+x1)/2;g=max(2,round(w*.2));lx=int(c-g-1);rx=int(c+g-1)
         eye(lx,tall);eye(rx,tall)
@@ -77,8 +78,10 @@ def meditate(img):
         c.alpha_composite(bottom,((W-bottom.width)//2,cut));c.alpha_composite(top,((W-w)//2,b))
         frames.append(place(c))
     return frames
+def scaled(box,k):
+    x0,y0,x1,y1,ey=box;return (round(x0*k),round(y0*k),round(x1*k),round(y1*k),round(ey*k))
 def build(cls,g):
-    v=views(cls,g);box=FACES[(cls,g)]
+    v=views(cls,g,FIG);k=FIG/60;box={d:scaled(b,k) for d,b in FACES[(cls,g)].items()}
     front=face(v['truoc'],g,'truoc',box['truoc']);left=face(v['trai'],g,'trai',box['trai']);right=left.transpose(Image.FLIP_LEFT_RIGHT)
     rows=[walk(front),walk(v['sau']),walk(left),walk(right),meditate(front)]
     a=Image.new('RGBA',(CW*4,CH*5))
