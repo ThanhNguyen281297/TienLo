@@ -23,6 +23,14 @@
  const css=document.createElement('style');css.textContent=`
 #c{image-rendering:crisp-edges;image-rendering:pixelated}
 #pixel-text{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0}`;document.head.append(css);
+ /* Colour steps: the world is posterised on the GPU (SVG filter on the canvas element), so
+    soft gradients, light and shadows fall into flat bands like hand-made pixel art. Off on the
+    lowest graphics setting. */
+ const svgNS='http://www.w3.org/2000/svg',svg=document.createElementNS(svgNS,'svg');svg.setAttribute('width','0');svg.setAttribute('height','0');svg.style.position='absolute';
+ const steps=Array.from({length:12},(_,i)=>(i/11).toFixed(3)).join(' ');
+ svg.innerHTML=`<filter id="pixel-post" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="1.1"/><feComponentTransfer><feFuncR type="discrete" tableValues="${steps}"/><feFuncG type="discrete" tableValues="${steps}"/><feFuncB type="discrete" tableValues="${steps}"/></feComponentTransfer></filter>`;
+ document.body.append(svg);
+ const post=()=>{const low=(window.graphicsQuality?.particles??1)<.5;cv.style.filter=low?'':'url(#pixel-post)';};post();setInterval(post,3000);
  // Copy the canvas box so the overlay always lines up with it.
  function syncBox(){const r=cv.getBoundingClientRect(),s=overlay.style;s.left=r.left+'px';s.top=r.top+'px';s.width=r.width+'px';s.height=r.height+'px';s.inset='auto';
   const z=getComputedStyle(cv).zIndex;s.zIndex=z==='auto'?'0':z;}

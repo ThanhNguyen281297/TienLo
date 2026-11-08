@@ -8,6 +8,14 @@ html.pixel-art img,html.pixel-art canvas{image-rendering:pixelated}
 /* Hard one-pixel shadows instead of soft blur on text. */
 html.pixel-art body *{text-shadow:none}
 html.pixel-art #hud *,html.pixel-art .hud *,html.pixel-art [class*=bar] *,html.pixel-art #admin-announce *{text-shadow:2px 2px 0 #000c}
-/* Stepped "pixel" border on panels and buttons. */
-html.pixel-art dialog,html.pixel-art .panel,html.pixel-art [class*=panel],html.pixel-art [class*=card]{box-shadow:0 0 0 2px #0b0710,4px 4px 0 #0008!important}
-html.pixel-art button{box-shadow:inset -2px -2px 0 #0006,inset 2px 2px 0 #fff3!important}
+/* Pixel 9-slice frames (css/pixel/*.png from tools/pixel/ui_frames.py). The frame is drawn with a
+   wide border-image over the padding, so layouts keep their size. */
+:root.pixel-art:not(#pa):not(#pb) body,:root.pixel-art:not(#pa):not(#pb) body *{cursor:url(pixel/cursor.png) 0 0,auto}
+:root.pixel-art:not(#pa):not(#pb) #world-dialog>section,:root.pixel-art:not(#pa):not(#pb) dialog>section,:root.pixel-art:not(#pa):not(#pb) #bt,:root.pixel-art:not(#pa):not(#pb) #world-minimap,:root.pixel-art:not(#pa):not(#pb) #admin-announce,:root.pixel-art:not(#pa):not(#pb) #hud.vl-frame{
+ background:none!important;border-image:url(pixel/panel.png) 8 fill / 16px / 0 stretch!important;box-shadow:4px 4px 0 #0007!important;image-rendering:pixelated}
+:root.pixel-art:not(#pa):not(#pb) #world-dialog button:not(.item-cell),:root.pixel-art:not(#pa):not(#pb) #bt button,:root.pixel-art:not(#pa):not(#pb) #sb button.sk,:root.pixel-art:not(#pa):not(#pb) #basic-attack,:root.pixel-art:not(#pa):not(#pb) #account-badge button,:root.pixel-art:not(#pa):not(#pb) .feature-hub button{
+ background:none!important;border-image:url(pixel/button.png) 4 fill / 8px / 0 stretch!important;box-shadow:2px 2px 0 #0008!important;image-rendering:pixelated}
+:root.pixel-art:not(#pa):not(#pb) #world-dialog button:is(.primary,.gold,[class*=main]),:root.pixel-art:not(#pa):not(#pb) #world-dialog button:not(.item-cell):hover,#world-dialog button:not(.item-cell)[aria-pressed=true],:root.pixel-art:not(#pa):not(#pb) #bt button:hover,:root.pixel-art:not(#pa):not(#pb) #sb button.sk:hover{border-image-source:url(pixel/button-gold.png)!important;color:#2a1206!important}
+:root.pixel-art:not(#pa):not(#pb) button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #0008!important}
+:root.pixel-art:not(#pa):not(#pb) .item-cell,:root.pixel-art:not(#pa):not(#pb) #world-dialog .item-cell{background:none!important;border-image:url(pixel/slot.png) 4 fill / 8px / 0 stretch!important}
+:root.pixel-art:not(#pa):not(#pb) #hud .bar,:root.pixel-art:not(#pa):not(#pb) #xp{border-radius:0!important;box-shadow:0 0 0 2px #140806,2px 2px 0 2px #0006!important}
