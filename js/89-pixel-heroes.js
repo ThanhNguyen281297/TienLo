@@ -28,5 +28,13 @@
   ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(image,left,top,w,h);ctx.restore();
   return {image,x:left,y:top,width:w,height:h};
  };
+ // HUD portrait: the pixel hero's head and shoulders instead of the painted face.
+ let avatarKey='';
+ setInterval(()=>{const c=document.getElementById('player-avatar');if(!c||!P.ap)return;const s=sheet(P.ap);if(!s)return;
+  const key=s.key+'/'+c.width;let painted=false;try{painted=c.getContext('2d').getImageData(0,0,1,1).data[3]===0;}catch{}if(key===avatarKey&&!painted)return;avatarKey=key;
+  const x=c.getContext('2d'),n=c.width;x.save();x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,n,n);
+  const bg=x.createLinearGradient(0,0,0,n);bg.addColorStop(0,'#2b3d4a');bg.addColorStop(1,'#13202a');x.fillStyle=bg;x.fillRect(0,0,n,n);
+  x.imageSmoothingEnabled=false;const crop=30,scale=n/crop*.98;x.drawImage(cell(s,0,0),1,0,crop,crop,(n-crop*scale)/2,n-crop*scale,crop*scale,crop*scale);x.restore();
+ },700);
  window.pixelHeroes={ready:READY,sheet};
 })();
