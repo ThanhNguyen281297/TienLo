@@ -1,11 +1,12 @@
 /* Hand-drawn pixel heroes (pixel mode only). Atlases from tools/pixel/build_atlas.py:
-   4 columns × 5 rows of 40×64 cells (figure 60 px) — front, back, walking left, walking
+   4 columns × 5 rows of 64×64 cells (figure 60 px, converted from the painted class art by
+   tools/pixel/build_heroes_v3.py) — front, back, walking left, walking
    right, seated meditation. Drawn at a whole number of screen pixels per art pixel and snapped
    to the pixel grid so every hero stays sharp. Classes without a pixel atlas keep their painted sprites. */
 (function(){
  'use strict';
  if(window.artStyle?.get()!=='pixel'||!window.characterMasks)return;
- const READY={Kiem:true,Liem:true,Thuong:true,Quat:true},CW=40,CH=64,FIG=60;
+ const READY={Kiem:true,Liem:true,Thuong:true,Quat:true},CW=64,CH=64,FIG=60;
  const ROW={truoc:0,sau:1,trai:2,phai:3};
  const sheets=new Map(),frames=new Map();
  function sheet(ap){
@@ -38,7 +39,7 @@
   const key=s.key+'/'+c.width;let painted=false;try{painted=c.getContext('2d').getImageData(0,0,1,1).data[3]===0;}catch{}if(key===avatarKey&&!painted)return;avatarKey=key;
   const x=c.getContext('2d'),n=c.width;x.save();x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,n,n);
   const bg=x.createLinearGradient(0,0,0,n);bg.addColorStop(0,'#2b3d4a');bg.addColorStop(1,'#13202a');x.fillStyle=bg;x.fillRect(0,0,n,n);
-  x.imageSmoothingEnabled=false;const crop=40,scale=n/crop;x.drawImage(cell(s,0,0),0,2,crop,crop,(n-crop*scale)/2,n-crop*scale,crop*scale,crop*scale);x.restore();
+  x.imageSmoothingEnabled=false;const crop=36,scale=n/crop;x.drawImage(cell(s,0,0),14,2,crop,crop,(n-crop*scale)/2,n-crop*scale,crop*scale,crop*scale);x.restore();
  },700);
  window.pixelHeroes={ready:READY,sheet};
 })();
