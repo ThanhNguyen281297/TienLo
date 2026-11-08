@@ -59,10 +59,18 @@ if __name__=='__main__':
         if only and name not in only:continue
         k=max(2,round(m['sourceHeight']/(heights.get(name,60)*.75)))
         src=os.path.join(ROOT,m['file']);convert(src,[f['rect'] for f in m['frames']],k,src[:-4]+'.px.png');made.append(m['file']);print(name,'k',k)
+    import glob
     for name,(height,sheets) in OLD.items():
         if only and name not in only:continue
-        for i,n in enumerate(sheets,1):
-            rel=f'Character/Monsters/{name}/{i}.png';src=os.path.join(ROOT,rel);W,H=Image.open(src).size;cw=W//n
-            k=max(2,round(H/(height*.75)));convert(src,[(c*cw,0,cw,H) for c in range(n)],k,src[:-4]+'.px.png');made.append(rel)
-        print(name,'k',k)
+        # these species draw single frames from Character/Monsters/sprites/<name>/ (see js/10b-sprite-catalog.js)
+        files=sorted(f for f in glob.glob(os.path.join(ROOT,'Character','Monsters','sprites',name,'*.png')) if not f.endswith('.px.png'))
+        k=max(2,round(724/(height*.75)))
+        sheets_=[(f,Image.open(f).size) for f in files]
+        frames=[premul_down(Image.open(f).convert('RGBA'),max(1,round(w/k)),max(1,round(h/k))) for f,(w,h) in sheets_]
+        pal=palette_for([(rgb,al>.42) for rgb,al in frames])
+        for (f,(w,h)),(rgb,al) in zip(sheets_,frames):
+            art=render(rgb,al,pal);big=art.resize((art.width*k,art.height*k),Image.NEAREST)
+            out=Image.new('RGBA',(w,h));out.alpha_composite(big.crop((k,k,k+w,k+h)) if big.width>=w+k and big.height>=h+k else big,(0,0));out.save(f[:-4]+'.px.png',optimize=True)
+            made.append(os.path.relpath(f,ROOT).replace(os.sep,'/'))
+        print(name,'k',k,len(files))
     json.dump(made,open(os.path.join(ROOT,'tools','pixel','monsters.json'),'w'),indent=0)
