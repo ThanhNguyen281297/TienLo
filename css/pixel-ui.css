@@ -24,3 +24,6 @@ html.pixel-art #hud *,html.pixel-art .hud *,html.pixel-art [class*=bar] *,html.p
 :root.pixel-art:not(#pa):not(#pb) .vl-bar-text{font-size:14px!important;line-height:11px!important;text-shadow:1px 0 0 #000,-1px 0 0 #000,0 1px 0 #000,0 -1px 0 #000!important}
 :root.pixel-art:not(#pa):not(#pb) .vl-activity span,:root.pixel-art:not(#pa):not(#pb) #bt small,:root.pixel-art:not(#pa):not(#pb) #bt span{font-size:12px!important;letter-spacing:0!important;text-shadow:1px 1px 0 #000!important}
 :root.pixel-art:not(#pa):not(#pb) .vl-activity,:root.pixel-art:not(#pa):not(#pb) #vl-settings{border-radius:0!important;background:none!important;border-image:url(pixel/slot.png) 4 fill / 8px / 0 stretch!important}
+/* Pixel heroes have one hand-placed face per school: the painted face picker does not apply. */
+:root.pixel-art .creator-faces{display:none!important}
+:root.pixel-art #pv,:root.pixel-art #cr canvas{image-rendering:pixelated}
