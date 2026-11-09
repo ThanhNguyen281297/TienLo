@@ -107,6 +107,13 @@
   return nativeDraw(src,...a);
  };
 
+ /* Realm titles: drawn on the full-resolution overlay so the lettering is sharp. */
+ if(window.characterTitles?.metrics){characterTitles.draw=function(ctx,x,y,ap=P.ap){
+  const box=characterTitles.metrics(x,y,ap);if(!box)return;const m=ctx.getTransform();
+  o.save();o.setTransform(m.a*ratio,m.b*ratio,m.c*ratio,m.d*ratio,m.e*ratio,m.f*ratio);o.globalCompositeOperation='source-over';o.globalAlpha=.98;
+  o.imageSmoothingEnabled=true;o.imageSmoothingQuality='high';o.shadowColor='rgba(5,12,20,.85)';o.shadowBlur=2*ratio;o.shadowOffsetY=ratio;
+  o.drawImage(box.entry.canvas,box.x,box.y,box.width,box.height);o.restore();};}
+
  const baseDraw=dr;
  dr=function(){o.setTransform(1,0,0,1,0,0);o.clearRect(0,0,overlay.width,overlay.height);return baseDraw.apply(this,arguments);};
 })();

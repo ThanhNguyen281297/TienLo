@@ -20,7 +20,10 @@
   return set.has(key)?prefix+key.slice(0,-4)+'.px.png'+rest:value;
  }
  const desc=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');
- Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:desc.enumerable,get(){return desc.get.call(this);},set(v){desc.set.call(this,swap(v));}});
+ // Realm badges and auras drawn in the world keep their full artwork (titles must stay readable);
+ // the same art shown as an icon in the interface is swapped when it is attached (observer below).
+ const FULL=/Item\/(?:DHCanhGioi|CanhGioi)\//;
+ Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:desc.enumerable,get(){return desc.get.call(this);},set(v){desc.set.call(this,!this.isConnected&&FULL.test(String(v))?v:swap(v));}});
  const setAttr=Element.prototype.setAttribute;
  Element.prototype.setAttribute=function(name,value){return setAttr.call(this,name,this instanceof HTMLImageElement&&String(name).toLowerCase()==='src'?swap(value):value);};
  // Markup inserted with innerHTML bypasses both setters.

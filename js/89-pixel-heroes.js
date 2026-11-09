@@ -1,6 +1,6 @@
 /* Hand-drawn pixel heroes (pixel mode only). Atlases from tools/pixel/build_atlas.py:
-   4 columns × 5 rows of 46×46 cells (figure 42 px, converted from the painted class art by
-   tools/pixel/build_heroes_v3.py) — front, back, walking left, walking
+   4 columns × 5 rows of 46×46 cells (figure 42 px). Walk rows are real 4-step walk cycles from the
+   painted motion atlas with the v3 pixel heads (tools/pixel/build_heroes_v4.py) — front, back, walking left, walking
    right, seated meditation. Drawn at a whole number of screen pixels per art pixel and snapped
    to the pixel grid so every hero stays sharp. Classes without a pixel atlas keep their painted sprites. */
 (function(){
@@ -25,7 +25,7 @@
   const fx=feet?.x??x+width/2,fy=feet?.y??y+height;
   const fit=window.characterFit?.(ap,direction,fx,fy,height),figure=fit?.H||height*.8;
   const t=motion.time??(worldMap.environmentClock||performance.now()/1000);
-  const row=motion.meditating?4:(ROW[direction]??0),col=motion.meditating?Math.floor(t*1.6)%4:motion.moving?Math.floor(t*8)%4:0;
+  const row=motion.meditating?4:(ROW[direction]??0),col=motion.meditating?Math.floor(t*1.6)%4:motion.moving?(Number.isFinite(motion.phase)?Math.floor(motion.phase/(Math.PI/2)+.5)%4:Math.floor(t*8)%4):0;
   const m=ctx.getTransform(),k=Math.hypot(m.a,m.b)||1,px=Math.max(1,Math.round(figure/FIG*k)),scale=px/k;
   const image=cell(s,row,col),w=CW*scale,h=CH*scale;
   // Snap the top-left corner to the device pixel grid (axis-aligned transforms).
