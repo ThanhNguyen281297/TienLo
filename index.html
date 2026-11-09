@@ -336,7 +336,10 @@
  var q=new URLSearchParams(location.search),ua=navigator.userAgent||'',land=document.getElementById('landing');
  var app=/TienLoAndroid|TienLoDesktop/.test(ua),standalone=window.matchMedia&&matchMedia('(display-mode: standalone),(display-mode: fullscreen)').matches;
   function boot(){if(window.__tienloBooted)return;window.__tienloBooted=true;var t=document.getElementById('game-boot');if(!t)return;
-  var list=t.content.querySelectorAll('script');for(var i=0;i<list.length;i++){var s=document.createElement('script');s.src=list[i].getAttribute('src');s.async=false;document.body.appendChild(s);}}
+  var list=t.content.querySelectorAll('script'),done=0,total=list.length;
+  function step(){done++;var l=window.tienloLoader;if(l){l.progress(done,total);if(done>=total)l.finish();}}
+  var ld=document.createElement('script');ld.src='js/00-loader.js';document.body.appendChild(ld);
+  for(var i=0;i<list.length;i++){var s=document.createElement('script');s.src=list[i].getAttribute('src');s.async=false;s.onload=s.onerror=step;document.body.appendChild(s);}}
  function play(e){if(e)e.preventDefault();
   if(land)land.remove();document.documentElement.classList.remove('landing-on');document.title='Tiên Lộ Online';
   if(location.pathname!=='/play'&&!app)history.replaceState(null,'','/play'+location.hash);boot();}

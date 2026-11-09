@@ -23,6 +23,7 @@
  function detail(cv,worldX,worldY,res){
   const w=cv.width,h=cv.height,x=cv.getContext('2d',{willReadFrequently:true});let img;try{img=x.getImageData(0,0,w,h);}catch{return;}
   const d=img.data,p=Math.max(1,Math.round(res)),step=6*p;
+  const theme=String(window.tienHiep?.scenes?.[worldMap.state.scene]?.theme||''),hot=/ember|ash|lava|fire/.test(theme);
   const FLOWERS=[[255,246,214],[255,214,92],[248,160,196],[196,214,255]];let flower=FLOWERS[0];
   const put=(px,py,k,base)=>{if(px<0||py<0||px>=w-p||py>=h-p)return;const f=k===2?1.45:k===1?1.2:.7;
    const c=k===3?flower:k===4?[255,236,140]:[base[0]*f,base[1]*f,base[2]*f];
@@ -38,6 +39,7 @@
    else if(hue>=15&&hue<65&&sat>.16)kind=r<.12?'pebble':r<.2?'speck':null;
    else if(sat<.18)kind=r<.07?'crack':r<.16?'speck':null;
    if(!kind)continue;
+   if(kind==='crack'&&hot){flower=[255,150,52];for(const [ox,oy] of STAMP.crack)put(jx+ox*p,jy+oy*p,3,base);continue;}
    for(const [ox,oy,k] of STAMP[kind])put(jx+ox*p,jy+oy*p,k,base);
   }
   x.putImageData(img,0,0);
@@ -82,6 +84,37 @@
    ctx.restore();
   }catch(e){}
   return result;
+ };
+ /* ---------- biome air: snow, embers, motes, fireflies, leaves, seeds ---------- */
+ const AIR={frost:{n:46,col:['#ffffff','#dff1ff'],vy:[14,26],vx:[-8,8],size:[1,2],fall:1},
+  ember:{n:34,col:['#ffb347','#ff7a2a','#ffe08a'],vy:[-26,-12],vx:[-6,6],size:[1,2],blink:1},
+  abyss:{n:30,col:['#c39bff','#8a5cff','#f0d8ff'],vy:[-14,-6],vx:[-4,4],size:[1,2],blink:1},
+  marsh:{n:22,col:['#e8ff8a','#b8f060'],vy:[-4,4],vx:[-6,6],size:[1,1],blink:1,wander:1},
+  bamboo:{n:18,col:['#7fbf5a','#a8d870','#5c9a44'],vy:[10,18],vx:[6,14],size:[2,2],fall:1,leaf:1},
+  meadow:{n:16,col:['#ffffff','#fff3c8'],vy:[-3,3],vx:[8,16],size:[1,1],wander:1}};
+ let air=[],airScene='',airKind=null;
+ function biome(){const s=window.tienHiep?.scenes?.[worldMap.state.scene],t=String(s?.theme||'')+' '+worldMap.state.scene;
+  return /frost|snow/.test(t)?'frost':/ember|ash|lava|fire/.test(t)?'ember':/abyss|void/.test(t)?'abyss':/marsh|tide/.test(t)?'marsh':/bamboo|wood/.test(t)?'bamboo':/meadow|verdant|spring/.test(t)?'meadow':null;}
+ const rnd=(a,b)=>a+Math.random()*(b-a);
+ function seed(v,anywhere){const k=AIR[airKind];return {x:rnd(v.x,v.x+v.vw),y:anywhere?rnd(v.y,v.y+v.vh):k.fall?v.y-10:k.vy[1]<0?v.y+v.vh+10:rnd(v.y,v.y+v.vh),
+  vx:rnd(...k.vx),vy:rnd(...k.vy),c:k.col[Math.floor(Math.random()*k.col.length)],s:Math.round(rnd(...k.size)),ph:Math.random()*TAU};}
+ let lastAir=performance.now();
+ const baseDr=dr;
+ dr=function(){baseDr.apply(this,arguments);
+  try{const now=performance.now(),dt=Math.min(.05,(now-lastAir)/1000);lastAir=now;if(!P.ap)return;
+   if(worldMap.state.scene!==airScene){airScene=worldMap.state.scene;airKind=biome();air=[];}
+   if(!airKind||(window.graphicsQuality?.particles??1)<.3)return;
+   const v=gameCamera(),k=AIR[airKind],u=1/Math.max(.5,Z),t=now/1000;
+   while(air.length<k.n)air.push(seed(v,true));
+   g.save();g.setTransform(Z,0,0,Z,-v.x*Z,-v.y*Z);
+   for(let i=0;i<air.length;i++){const a=air[i];
+    a.x+=(a.vx+(k.wander?Math.sin(t*1.3+a.ph)*10:0)+(k.leaf?Math.sin(t*2+a.ph)*12:0))*dt;a.y+=(a.vy+(k.wander?Math.cos(t+a.ph)*6:0))*dt;
+    if(a.x<v.x-30||a.x>v.x+v.vw+30||a.y<v.y-30||a.y>v.y+v.vh+30){air[i]=seed(v,false);continue;}
+    if(k.blink&&Math.sin(t*3+a.ph)<-.4)continue;
+    g.fillStyle=a.c;const x=Math.round(a.x/u)*u,y=Math.round(a.y/u)*u;
+    if(k.leaf){g.fillRect(x,y,2*u,u);g.fillRect(x+u,y-u,u,u);}else g.fillRect(x,y,a.s*u,a.s*u);}
+   g.restore();
+  }catch(e){}
  };
  window.pixelGround={detail,cells:()=>cells};
 })();
