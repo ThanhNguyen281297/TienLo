@@ -1,6 +1,6 @@
 /* Hand-drawn pixel heroes (pixel mode only). Atlases from tools/pixel/build_atlas.py:
-   4 columns × 5 rows of 46×46 cells (figure 42 px). Walk rows are real 4-step walk cycles from the
-   painted motion atlas with the v3 pixel heads (tools/pixel/build_heroes_v4.py) — front, back, walking left, walking
+   4 columns × 5 rows of 46×46 cells (figure 42 px). Walk rows: contact, passing, contact, passing with
+   hand-drawn pixel legs and shoes (tools/pixel/build_heroes_v5.py) — front, back, walking left, walking
    right, seated meditation. Drawn at a whole number of screen pixels per art pixel and snapped
    to the pixel grid so every hero stays sharp. Classes without a pixel atlas keep their painted sprites. */
 (function(){
@@ -19,10 +19,14 @@
   const id=s.key+row+'/'+col;let c=frames.get(id);if(c)return c;
   c=document.createElement('canvas');c.width=CW;c.height=CH;c.getContext('2d').drawImage(s.image,col*CW,row*CH,CW,CH,0,0,CW,CH);frames.set(id,c);return c;
  }
+ // The ground point of the actor being drawn (drawChar gets the feet position as x,y).
+ let ground=null;
+ if(typeof drawChar==='function'){const dc=drawChar;drawChar=function(ctx,x,y,...rest){const before=ground;ground=y;try{return dc.call(this,ctx,x,y,...rest);}finally{ground=before;}};}
  const base=characterMasks.drawBody;
  characterMasks.drawBody=function(ctx,body,ap,direction,x,y,width,height,feet,motion={}){
   const s=sheet(ap);if(!s)return base.apply(this,arguments);
-  const fx=feet?.x??x+width/2,fy=feet?.y??y+height;
+  // Feet stand exactly on the actor's ground point (painted-art offsets and bob are ignored).
+  const fx=feet?.x??x+width/2,fy=ground??feet?.y??y+height;
   const fit=window.characterFit?.(ap,direction,fx,fy,height),figure=fit?.H||height*.8;
   const t=motion.time??(worldMap.environmentClock||performance.now()/1000);
   const row=motion.meditating?4:(ROW[direction]??0),col=motion.meditating?Math.floor(t*1.6)%4:motion.moving?(Number.isFinite(motion.phase)?Math.floor(motion.phase/(Math.PI/2)+.5)%4:Math.floor(t*8)%4):0;
