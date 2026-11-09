@@ -32,14 +32,13 @@ class AdventureTests(unittest.TestCase):
         self.assertEqual(self.db.execute('SELECT gm FROM users').fetchone()[0],0)
         with self.assertRaises(PermissionError):self.act('gm_item',id='back-class-0')
         self.assertEqual(adventure.wallet(self.db,1)['fragments'],0)
-    def test_all_motion_sprites_have_complete_registered_frames(self):
-        root=Path(__file__).resolve().parents[1];data=json.loads((root/'Character/Motion/frames.json').read_text(encoding='utf-8'))
-        runtime=(root/'js/35q-motion-frames.js').read_text(encoding='utf-8').split('window.characterMotionFrames=',1)[1].strip().removesuffix(';')
-        self.assertEqual(json.loads(runtime),data);self.assertEqual(len(data),8)
-        for key,meta in data.items():
-            png=(root/meta['file']).read_bytes();self.assertEqual(png[25],6);self.assertEqual(list(struct.unpack('>II',png[16:24])),meta['size']);self.assertEqual(len(meta['frames']),20)
-            for f in meta['frames']:
-                x,y,w,h=f['rect'];self.assertGreater(w,30);self.assertGreater(h,30);self.assertTrue(0<=x<x+w<=meta['size'][0] and 0<=y<y+h<=meta['size'][1]);self.assertTrue(0<=f['anchor'][0]<=w and 0<f['anchor'][1]<=h)
+    def test_pixel_hero_atlases(self):
+        # Pixel heroes: 4 columns x 5 rows of 46 px cells for every class and gender.
+        from PIL import Image
+        root=Path(__file__).resolve().parents[1]
+        for cls in ('Kiem','Liem','Thuong','Quat'):
+            for g in ('Nam','Nu'):
+                im=Image.open(root/f'Character/Pixel/{cls}-{g}.png');self.assertEqual(im.size,(184,230));self.assertEqual(im.mode,'RGBA')
     def test_training_templates_are_only_three_level_ten_slots(self):
         items=[i for i in equipment.TEMPLATES.values() if i.get('training')]
         self.assertEqual(len(items),12);self.assertEqual({i['slot'] for i in items},{'daobao','chan','giay'});self.assertEqual({i['req'] for i in items},{10});self.assertEqual({i['rarity'] for i in items},{'pham'})

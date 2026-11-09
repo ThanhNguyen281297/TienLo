@@ -64,7 +64,7 @@ class ExpeditionDuels(unittest.TestCase):
         self.assertEqual(json.loads(rules),expeditions.RULES)
         self.assertEqual(set(data),set(expeditions.RULES['species']))
         for name,meta in data.items():
-            png=(root/meta['file']).read_bytes();self.assertEqual(png[25],6);self.assertEqual(list(struct.unpack('>II',png[16:24])),meta['size']);self.assertEqual(len(meta['frames']),20)
+            png=(root/meta['file']).with_name(Path(meta['file']).name[:-4]+'.px.png').read_bytes();self.assertEqual(png[25],6);self.assertEqual(list(struct.unpack('>II',png[16:24])),meta['size']);self.assertEqual(len(meta['frames']),20)
             for f in meta['frames']:
                 x,y,w,h=f['rect'];self.assertTrue(w>30 and h>30 and x>=0 and y>=0 and x+w<=meta['size'][0] and y+h<=meta['size'][1]);self.assertTrue(0<=f['anchor'][0]<=w and 0<f['anchor'][1]<=h)
     def test_boss_fragment_reward_exactly_once(self):

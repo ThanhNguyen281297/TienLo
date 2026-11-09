@@ -353,7 +353,7 @@ class OnlineServerTest(unittest.TestCase):
 
     def test_public_item_artwork(self):
         for name in ('daobao','gioi','giay','consume'):
-            path='/Item/'+{'daobao':'Ao','ngoc':'Icons','gioi':'Nhan','giay':'Giay','phapbao':'Icons','consume':'Consumable'}[name]+'/'+name+'.png?v=release-test'
+            path='/Item/'+{'daobao':'Ao','ngoc':'Icons','gioi':'Nhan','giay':'Giay','phapbao':'Icons','consume':'Consumable'}[name]+'/'+name+'.px.png?v=release-test'
             status, data, _ = self.request(path)
             self.assertEqual(status,200,path)
             self.assertTrue(data.startswith(b'\x89PNG\r\n\x1a\n'))

@@ -31,7 +31,7 @@ def alpha_rows(file):
 class BasicEffectAssets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.parts=json.loads((ROOT/'Skill/Basic/parts.json').read_text(encoding='utf-8'));cls.images={m['name']:alpha_rows(ROOT/m['file']) for m in cls.parts}
+        cls.parts=json.loads((ROOT/'Skill/Basic/parts.json').read_text(encoding='utf-8'));cls.images={m['name']:alpha_rows((ROOT/m['file']).with_name(Path(m['file']).name[:-4]+'.px.png')) for m in cls.parts}
     def test_four_classes_and_24_distinct_complete_parts(self):
         self.assertEqual([m['name'] for m in self.parts],['Kiem','Liem','Thuong','Quat'])
         for m in self.parts:

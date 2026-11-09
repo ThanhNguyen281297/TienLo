@@ -13,11 +13,11 @@ class GearFormsTest(unittest.TestCase):
         self.assertEqual(sorted({t['classIndex'] for t in weapons}), [0, 1, 2, 3])
         source = (ROOT / 'js/76-gear-forms.js').read_text(encoding='utf-8')
         for t in weapons:
-            self.assertTrue((ROOT / t['art']).exists(), t['art'])
+            self.assertTrue((ROOT / t['art']).exists() or (ROOT / (t['art'][:-4]+'.px.png')).exists(), t['art'])
             self.assertIn("'" + t['form'] + "':{name:", source)
             self.assertEqual(shards.OFFERS[t['id']]['kind'], 'thanbinh')
         self.assertFalse([t for t in equipment.RULES['shields'] if t['variant'] >= 8])   # withdrawn in v10
-        self.assertTrue((ROOT / shards.KINDS['thanbinh']['icon']).exists())
+        icon=shards.KINDS['thanbinh']['icon'];self.assertTrue((ROOT / icon).exists() or (ROOT / (icon[:-4]+'.px.png')).exists())
 
     def test_retired_shields_are_removed_and_refunded(self):
         p = dict(world=dict(bag=[dict(id='shield-9', uid='a'), dict(id='shield-1', uid='b')], equip=dict(ngoc=dict(id='shield-10', uid='c'))))
@@ -28,7 +28,7 @@ class GearFormsTest(unittest.TestCase):
     def test_tier_icons_exist(self):
         for cls in range(4):
             for form in ('moc', 'thiet', 'tien', 'than'):
-                self.assertTrue((ROOT / f'Item/VuKhi/Forms/{cls}-{form}.png').exists())
+                self.assertTrue((ROOT / f'Item/VuKhi/Forms/{cls}-{form}.px.png').exists())
 
     def test_client_rules_regenerated(self):
         text = (ROOT / 'js/24c-equipment-rules.js').read_text(encoding='utf-8')

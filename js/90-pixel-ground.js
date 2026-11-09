@@ -6,7 +6,7 @@
      ground layer so actors stay on top. Presentation only. */
 (function(){
  'use strict';
- if(window.artStyle?.get()!=='pixel'||typeof g==='undefined'||!window.worldMap)return;
+ if(typeof g==='undefined'||!window.worldMap)return;
  const TAU=Math.PI*2,done=new WeakSet();
  const hash=(x,y,s=0)=>{let h=(x*374761393+y*668265263+s*982451653)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967296;};
  function hsl(r,g2,b){r/=255;g2/=255;b/=255;const mx=Math.max(r,g2,b),mn=Math.min(r,g2,b),l=(mx+mn)/2;if(mx===mn)return [0,0,l];

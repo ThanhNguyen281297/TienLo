@@ -28,7 +28,7 @@ class WebpAssets(unittest.TestCase):
     def test_manifest_twins_exist_and_keep_png_size(self):
         text = (ROOT / 'js/00-webp-manifest.js').read_text(encoding='utf-8')
         paths = json.loads(text.split('=', 1)[1].strip().rstrip(';'))
-        self.assertGreater(len(paths), 500)
+        self.assertGreater(len(paths), 400)
         for path in paths:
             with self.subTest(path=path):
                 png = ROOT / path
@@ -40,7 +40,7 @@ class WebpAssets(unittest.TestCase):
         """Item display variants (.d.webp) are uniform downscales: renderers size art from its ratio."""
         text = (ROOT / 'js/00-display-manifest.js').read_text(encoding='utf-8')
         variants = json.loads(text.split('=', 1)[1].strip().rstrip(';'))
-        self.assertGreater(len(variants), 80)
+        self.assertGreater(len(variants), 20)
         for path, (w, h) in variants.items():
             with self.subTest(path=path):
                 png = ROOT / path

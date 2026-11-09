@@ -32,7 +32,8 @@ class EquipmentTest(unittest.TestCase):
         self.assertEqual(len(styles),5)
         gear=[t for t in equipment.RULES['classGear'] if t['id'].startswith('outfit-')]
         self.assertEqual(len(gear),60)
-        png=(server.ROOT/equipment.RULES['outfitIconAtlas']).read_bytes()
+        from tests.art import art
+        png=art(server.ROOT,equipment.RULES['outfitIconAtlas']).read_bytes()
         self.assertEqual(png[:8],b'\x89PNG\r\n\x1a\n')
         self.assertEqual(png[25],6)
         width,height=struct.unpack('>II',png[16:24])
@@ -84,7 +85,7 @@ class EquipmentTest(unittest.TestCase):
         self.assertEqual(json.loads(source.split('=',1)[1].strip().removesuffix(';')),equipment.RULES)
         exact={p.relative_to(server.ROOT).as_posix() for folder in ('Item','Character','Map','Skill') for p in (server.ROOT/folder).rglob('*') if p.is_file()}
         for meta in equipment.TEMPLATES.values():
-            if meta.get('art'):self.assertIn(meta['art'],exact)
+            if meta.get('art'):self.assertTrue(meta['art'] in exact or meta['art'][:-4]+'.px.png' in exact,meta['art'])
         self.assertEqual(len(equipment.RULES['combatSlots']),4)
         self.assertEqual(len(equipment.RULES['slots']),11)
         self.assertEqual(len(equipment.RULES['trails']),6)

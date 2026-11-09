@@ -2,20 +2,10 @@
    screen pixels) and shown with nearest-neighbour scaling, so maps, actors and effects
    share one pixel grid. Text drawn on the world canvas (names, damage numbers, labels)
    is redirected to a full-resolution overlay so it stays readable.
-   Setting: Cài đặt → Phong cách đồ hoạ (Pixel / Vẽ tay). Stored per browser. */
+   The game is pixel only (js/00-pixel-on.js). */
 (function(){
  'use strict';
- const KEY='tienlo-art-style';
- let style='pixel';try{style=localStorage.getItem(KEY)||'pixel';}catch{}
- window.artStyle={get:()=>style,set(v){try{localStorage.setItem(KEY,v);}catch{}location.reload();}};
- // ⚙ menu: switch between pixel and the painted art (reloads the page).
- const toggle=document.createElement('button');toggle.type='button';toggle.id='art-style-toggle';
- toggle.textContent='Phong cách: '+(style==='pixel'?'Pixel':'Vẽ tay');
- toggle.onclick=()=>artStyle.set(style==='pixel'?'painted':'pixel');
- (document.getElementById('graphics-toggle')?.after?document.getElementById('graphics-toggle').after(toggle):document.getElementById('account-badge')?.append(toggle));
- const tcss=document.createElement('style');tcss.textContent=`#art-style-toggle{margin-top:4px;padding:5px 10px;border-radius:8px;border:1px solid #c9a96088;background:#14262e;color:#f3e3b4;font:600 12px Arial;min-height:0!important;cursor:pointer}`;document.head.append(tcss);
- if(style!=='pixel'||typeof rs!=='function'||typeof cv==='undefined')return;
- document.documentElement.classList.add('pixel-art');
+ if(typeof rs!=='function'||typeof cv==='undefined')return;
 
  const overlay=document.createElement('canvas');overlay.id='pixel-text';
  const o=overlay.getContext('2d');

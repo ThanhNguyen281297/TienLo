@@ -5,7 +5,7 @@
    to the pixel grid so every hero stays sharp. Classes without a pixel atlas keep their painted sprites. */
 (function(){
  'use strict';
- if(window.artStyle?.get()!=='pixel'||!window.characterMasks)return;
+ if(!window.characterMasks)return;
  const READY={Kiem:true,Liem:true,Thuong:true,Quat:true},CW=46,CH=46,FIG=42;
  const ROW={truoc:0,sau:1,trai:2,phai:3};
  const sheets=new Map(),frames=new Map();

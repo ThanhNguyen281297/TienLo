@@ -45,16 +45,19 @@ class MapSprites(unittest.TestCase):
             entries=catalog[group].values() if group=='modules' else catalog[group]
             self.assertEqual(len(catalog[group]),count)
             for entry in entries:
-                path=ROOT / entry['src']
+                from tests.art import art
+                path=art(ROOT,entry['src'])
                 self.assertTrue(path.resolve().is_relative_to(ROOT))
                 data=path.read_bytes()
                 self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
+                if path.name.endswith('.px.png'):continue   # pixel icons are drawn small
                 self.assertTrue(scaled(struct.unpack('>II',data[16:24]),entry['width'],entry['height']),entry['src'])
 
     def test_painted_item_icons_and_hd_map_sizes(self):
+        # Items ship as pixel art (<name>.px.png): transparent RGBA at the painted size.
         for name in ('daobao', 'gioi', 'giay', 'consume'):
             with self.subTest(item=name):
-                data = (ROOT / 'Item' / {'daobao':'Ao','ngoc':'Icons','gioi':'Nhan','giay':'Giay','phapbao':'Icons','consume':'Consumable'}[name] / (name + '.png')).read_bytes()
+                data = (ROOT / 'Item' / {'daobao':'Ao','ngoc':'Icons','gioi':'Nhan','giay':'Giay','phapbao':'Icons','consume':'Consumable'}[name] / (name + '.px.png')).read_bytes()
                 self.assertEqual(data[:8], b'\x89PNG\r\n\x1a\n')
                 self.assertEqual(data[25], 6)
                 self.assertGreaterEqual(min(struct.unpack('>II', data[16:24])), 768)

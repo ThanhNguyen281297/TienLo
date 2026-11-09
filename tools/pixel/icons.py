@@ -7,8 +7,8 @@ import os,sys,json,glob
 import numpy as np
 from PIL import Image,ImageEnhance
 ROOT=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
-def convert(path,size=40,colors=28):
-    im=Image.open(path).convert('RGBA');bb=im.getbbox()
+def convert(path,size=40,colors=28,keep_size=False):
+    im=Image.open(path).convert('RGBA');bb=im.getbbox();W0,H0=im.size
     if not bb:return None
     W,H=im.size
     if max(W,H)>1.6*min(W,H):size=int(size*2.6)   # wide badges keep their lettering readable
@@ -30,21 +30,27 @@ def convert(path,size=40,colors=28):
     for dy,dx in((1,0),(-1,0),(0,1),(0,-1)):
         nm=np.roll(np.roll(m,dy,0),dx,1);acc+=np.roll(np.roll(src,dy,0),dx,1)*nm[...,None];cnt+=nm
     dark=(acc/np.maximum(cnt[...,None],1))*.28+np.array([8,6,12]);out[edge,:3]=dark[edge].astype(np.uint8);out[edge,3]=255
-    return Image.fromarray(out,'RGBA')
-GROUPS=[('Item/**/*.png',40),('Character/NPC/*.png',56)]
+    art=Image.fromarray(out,'RGBA')
+    if not keep_size:return art
+    # Same pixel size as the painted file (atlases with sub-rectangles, art drawn large in the world):
+    # each art pixel becomes a k x k block, aligned with the source.
+    kx,ky=W0/tw,H0/th;big=art.resize((round(art.width*kx),round(art.height*ky)),Image.NEAREST)
+    res=Image.new('RGBA',(W0,H0));res.alpha_composite(big,(0,0),(round(kx),round(ky),round(kx)+W0,round(ky)+H0));return res
+GROUPS=[('Item/**/*.png',48),('Character/NPC/*.png',56)]
 if __name__=='__main__':
     made=[]
     for pattern,size in GROUPS:
         for p in sorted(glob.glob(os.path.join(ROOT,pattern),recursive=True)):
             rel=os.path.relpath(p,ROOT).replace(os.sep,'/')
             if rel.endswith('.px.png') or '/Pixel/' in rel:continue
-            try:img=convert(p,size)
+            if rel.startswith(('Item/DHCanhGioi/','Item/CanhGioi/')):continue   # realm titles/auras keep full artwork
+            n=260 if rel.startswith('Item/TrangPhuc/') else size   # 5x3 outfit icon atlas: ~50 px per icon
+            try:img=convert(p,n,keep_size=True)
             except Exception as e:print('skip',rel,e);continue
             if img is None:continue
             img.save(p[:-4]+'.px.png',optimize=True);made.append(rel)
-    extra=os.path.join(ROOT,'tools','pixel','monsters.json')   # written by tools/pixel/monsters.py
-    if os.path.exists(extra):made+=json.load(open(extra))
-    extra=os.path.join(ROOT,'tools','pixel','skills.json')     # written by tools/pixel/skill_vfx.py
-    if os.path.exists(extra):made+=json.load(open(extra))
+    # The manifest lists every pixel file on disk (icons, monsters, skills), keyed by its .png name,
+    # so it stays complete after the painted sources have been removed.
+    made=sorted({os.path.relpath(p,ROOT).replace(os.sep,'/')[:-7]+'.png' for d in ('Item','Character','Skill') for p in glob.glob(os.path.join(ROOT,d,'**','*.px.png'),recursive=True)})
     with open(os.path.join(ROOT,'js','00-pixel-manifest.js'),'w') as f:f.write('window.pixelAssets='+json.dumps(made,ensure_ascii=False,separators=(',',':'))+';\n')
     print(len(made),'icons')
