@@ -45,5 +45,12 @@
   const bg=x.createLinearGradient(0,0,0,n);bg.addColorStop(0,'#2b3d4a');bg.addColorStop(1,'#13202a');x.fillStyle=bg;x.fillRect(0,0,n,n);
   x.imageSmoothingEnabled=false;const crop=26,scale=n/crop;x.drawImage(cell(s,0,0),10,1,crop,crop,(n-crop*scale)/2,n-crop*scale,crop*scale,crop*scale);x.restore();
  },700);
- window.pixelHeroes={ready:READY,sheet};
+ // Idle pose for sect NPCs (Sư phụ, Truyền công…): same pixel art as the players, facing front.
+ function drawIdle(ctx,w,gender,x,y,figure=42,t=0){const s=sheet({w,gender});if(!s)return false;
+  const m=ctx.getTransform(),k=Math.hypot(m.a,m.b)||1,px=Math.max(1,Math.round(figure/FIG*k)),scale=px/k,image=cell(s,0,0),cw=CW*scale,ch=CH*scale;
+  const breathe=Math.floor(t*1.2)%2?scale:0;
+  const left=(Math.round((x-cw/2)*m.a+m.e)-m.e)/m.a,top=(Math.round((y-ch)*m.d+m.f)-m.f)/m.d;
+  ctx.save();ctx.imageSmoothingEnabled=false;ctx.fillStyle='rgba(10,20,24,.28)';ctx.beginPath();ctx.ellipse(x,y,figure*.26,figure*.08,0,0,Math.PI*2);ctx.fill();
+  ctx.drawImage(image,0,0,CW,CH-1,left,top+breathe,cw,ch-scale);ctx.drawImage(image,0,CH-1,CW,1,left,top+ch-scale,cw,scale);ctx.restore();return true;}
+ window.pixelHeroes={ready:READY,sheet,drawIdle};
 })();

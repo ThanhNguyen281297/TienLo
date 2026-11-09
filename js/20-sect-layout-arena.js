@@ -163,7 +163,7 @@
     for(const e of window.creatureArt?.corpses||[])items.push([e.y,()=>mon(e)]);
     const decorations=clan()?decor[world.state.scene]:world.mapThemes?.battleProps()||[{key:'guardianLion',x:780,y:1090,w:65},{key:'guardianLion',x:1220,y:1090,w:65}];
     for(const b of [...world.buildings,...decorations])if(b.x>cx-b.w&&b.x<cx+vw+b.w&&b.y>cy-40&&b.y<cy+vh+b.w)items.push([b.y,()=>world.sprite(g,b.key,b.x,b.y,b.w)]);
-    for(const s of world.services)if(s.npc)items.push([s.y,()=>{const index=world.sectMaps[world.state.scene]?.classIndex||0,image=actorBodies[index];if(ready(image)){const h=index===2?52.5:42,w=h*image.naturalWidth/image.naturalHeight;g.drawImage(image,s.x-w/2,s.y-h,w,h);}}]);
+    for(const s of world.services)if(s.npc)items.push([s.y,()=>{const index=world.sectMaps[world.state.scene]?.classIndex||0;if(window.pixelHeroes?.drawIdle(g,index,s.id==='mentor'?'Nam':'Nu',s.x,s.y,42,(worldMap.environmentClock||0)+s.x%3))return;const image=actorBodies[index];if(ready(image)){const h=index===2?52.5:42,w=h*image.naturalWidth/image.naturalHeight;g.drawImage(image,s.x-w/2,s.y-h,w,h);}}]);
   };
   world.renderMapPreview=function(ctx,size){ctx.save();
     if(world.state.scene==='hub'){const c=world.city,w=c.right-c.left+120,h=c.bottom-c.top+120,zoom=size/Math.max(w,h);ctx.translate((size-w*zoom)/2,(size-h*zoom)/2);ctx.scale(zoom,zoom);ctx.translate(-c.left+60,-c.top+60);}

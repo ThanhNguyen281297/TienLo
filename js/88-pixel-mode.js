@@ -44,6 +44,8 @@
  function prep(){
   const m=g.getTransform();o.setTransform(m.a*ratio,m.b*ratio,m.c*ratio,m.d*ratio,m.e*ratio,m.f*ratio);
   for(const k of PROPS){try{if(k in g)o[k]=g[k];}catch{}}
+  // Labels and names use the pixel font (VT323 renders small; size it up a third).
+  const f=/(\d+(?:\.\d+)?)px/.exec(g.font);if(f)o.font=(parseFloat(f[1])*1.32).toFixed(1)+"px 'VT323',monospace";
   o.shadowBlur=g.shadowBlur*ratio;o.shadowOffsetX=g.shadowOffsetX*ratio;o.shadowOffsetY=g.shadowOffsetY*ratio;
   o.globalCompositeOperation=g.globalCompositeOperation==='lighter'?'lighter':'source-over';
  }
@@ -103,6 +105,17 @@
   o.save();o.setTransform(m.a*ratio,m.b*ratio,m.c*ratio,m.d*ratio,m.e*ratio,m.f*ratio);o.globalCompositeOperation='source-over';o.globalAlpha=.98;
   o.imageSmoothingEnabled=true;o.imageSmoothingQuality='high';o.shadowColor='rgba(5,12,20,.85)';o.shadowBlur=2*ratio;o.shadowOffsetY=ratio;
   o.drawImage(box.entry.canvas,box.x,box.y,box.width,box.height);o.restore();};}
+
+ /* Haze and sun shafts wash the pixel colours out: off in pixel art. */
+ const L=window.graphicsSettings?.LEVELS;if(L){for(const k in L)L[k].cinematic=false;try{graphicsSettings.apply();}catch(e){}}
+ if(window.graphicsQuality)graphicsQuality.cinematic=false;
+ /* HUD canvases (activity buttons, skill icons): re-sampled onto a 3-px grid with hard alpha. */
+ const tiny=document.createElement('canvas'),tc=tiny.getContext('2d',{willReadFrequently:true});
+ function gridCanvas(c,cell=3){const w=Math.max(1,Math.round(c.width/cell)),h=Math.max(1,Math.round(c.height/cell));if(w<4||h<4)return;
+  tiny.width=w;tiny.height=h;tc.imageSmoothingEnabled=true;tc.imageSmoothingQuality='high';tc.clearRect(0,0,w,h);tc.drawImage(c,0,0,w,h);
+  const img=tc.getImageData(0,0,w,h),d=img.data;for(let i=3;i<d.length;i+=4)d[i]=d[i]<90?0:255;tc.putImageData(img,0,0);
+  const x=c.getContext('2d');x.save();x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,c.width,c.height);x.imageSmoothingEnabled=false;x.drawImage(tiny,0,0,c.width,c.height);x.restore();}
+ setInterval(()=>{for(const c of document.querySelectorAll('.vl-activity canvas'))try{gridCanvas(c,Math.max(2,Math.round(c.width/32)));}catch(e){}},600);
 
  const baseDraw=dr;
  dr=function(){o.setTransform(1,0,0,1,0,0);o.clearRect(0,0,overlay.width,overlay.height);return baseDraw.apply(this,arguments);};

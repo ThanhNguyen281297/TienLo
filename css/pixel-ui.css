@@ -19,3 +19,8 @@ html.pixel-art #hud *,html.pixel-art .hud *,html.pixel-art [class*=bar] *,html.p
 :root.pixel-art:not(#pa):not(#pb) button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #0008!important}
 :root.pixel-art:not(#pa):not(#pb) .item-cell,:root.pixel-art:not(#pa):not(#pb) #world-dialog .item-cell{background:none!important;border-image:url(pixel/slot.png) 4 fill / 8px / 0 stretch!important}
 :root.pixel-art:not(#pa):not(#pb) #hud .bar,:root.pixel-art:not(#pa):not(#pb) #xp{border-radius:0!important;box-shadow:0 0 0 2px #140806,2px 2px 0 2px #0006!important}
+
+/* Readable HUD numbers and labels in the pixel font. */
+:root.pixel-art:not(#pa):not(#pb) .vl-bar-text{font-size:14px!important;line-height:11px!important;text-shadow:1px 0 0 #000,-1px 0 0 #000,0 1px 0 #000,0 -1px 0 #000!important}
+:root.pixel-art:not(#pa):not(#pb) .vl-activity span,:root.pixel-art:not(#pa):not(#pb) #bt small,:root.pixel-art:not(#pa):not(#pb) #bt span{font-size:12px!important;letter-spacing:0!important;text-shadow:1px 1px 0 #000!important}
+:root.pixel-art:not(#pa):not(#pb) .vl-activity,:root.pixel-art:not(#pa):not(#pb) #vl-settings{border-radius:0!important;background:none!important;border-image:url(pixel/slot.png) 4 fill / 8px / 0 stretch!important}
