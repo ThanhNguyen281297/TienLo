@@ -32,8 +32,7 @@ class EquipmentTest(unittest.TestCase):
         self.assertEqual(len(styles),5)
         gear=[t for t in equipment.RULES['classGear'] if t['id'].startswith('outfit-')]
         self.assertEqual(len(gear),60)
-        from tests.art import art
-        png=art(server.ROOT,equipment.RULES['outfitIconAtlas']).read_bytes()
+        png=(lambda q:q if q.exists() else q.with_name(q.name[:-4]+'.px.png'))(server.ROOT/equipment.RULES['outfitIconAtlas']).read_bytes()
         self.assertEqual(png[:8],b'\x89PNG\r\n\x1a\n')
         self.assertEqual(png[25],6)
         width,height=struct.unpack('>II',png[16:24])

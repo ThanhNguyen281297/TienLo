@@ -34,11 +34,10 @@ class AdventureTests(unittest.TestCase):
         self.assertEqual(adventure.wallet(self.db,1)['fragments'],0)
     def test_pixel_hero_atlases(self):
         # Pixel heroes: 4 columns x 5 rows of 46 px cells for every class and gender.
-        from PIL import Image
         root=Path(__file__).resolve().parents[1]
         for cls in ('Kiem','Liem','Thuong','Quat'):
             for g in ('Nam','Nu'):
-                im=Image.open(root/f'Character/Pixel/{cls}-{g}.png');self.assertEqual(im.size,(184,230));self.assertEqual(im.mode,'RGBA')
+                png=(root/f'Character/Pixel/{cls}-{g}.png').read_bytes();self.assertEqual(list(struct.unpack('>II',png[16:24])),[184,230]);self.assertEqual(png[25],6)
     def test_training_templates_are_only_three_level_ten_slots(self):
         items=[i for i in equipment.TEMPLATES.values() if i.get('training')]
         self.assertEqual(len(items),12);self.assertEqual({i['slot'] for i in items},{'daobao','chan','giay'});self.assertEqual({i['req'] for i in items},{10});self.assertEqual({i['rarity'] for i in items},{'pham'})

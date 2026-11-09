@@ -45,8 +45,7 @@ class MapSprites(unittest.TestCase):
             entries=catalog[group].values() if group=='modules' else catalog[group]
             self.assertEqual(len(catalog[group]),count)
             for entry in entries:
-                from tests.art import art
-                path=art(ROOT,entry['src'])
+                path=(lambda q:q if q.exists() else q.with_name(q.name[:-4]+'.px.png'))(ROOT/entry['src'])
                 self.assertTrue(path.resolve().is_relative_to(ROOT))
                 data=path.read_bytes()
                 self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
